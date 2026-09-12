@@ -1,0 +1,115 @@
+@import 'tailwindcss';
+
+/*
+ * Receipts and case files. The statement and the verdict carry the design;
+ * everything else stays quiet so the quote reads first.
+ */
+@theme {
+  --font-display: 'Newsreader', ui-serif, Georgia, 'Times New Roman', serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  --color-ground: #111014;
+  --color-surface: #1a181e;
+  --color-surface-raised: #221f28;
+  --color-ink: #ede7dc;
+  --color-ink-dim: #a49c8f;
+  --color-ink-faint: #6f675c;
+  --color-rule: #2e2a35;
+
+  --color-hit: #5aa87a;
+  --color-miss: #cf6049;
+  --color-partial: #d29a43;
+  --color-ambiguous: #8a8078;
+  --color-voided: #5d5650;
+  --color-late: #c9a227;
+  --color-draft: #7a8fb8;
+}
+
+/*
+ * Everything below lives in a layer on purpose. Unlayered CSS outranks every
+ * layered Tailwind utility, so a bare `button { color: inherit }` reset would
+ * silently beat `text-ground` on every button in the app.
+ */
+@layer base {
+  :root[data-theme='light'] {
+    --color-ground: #f3efe4;
+    --color-surface: #fffcf4;
+    --color-surface-raised: #fbf6ea;
+    --color-ink: #1c1917;
+    --color-ink-dim: #5f574c;
+    --color-ink-faint: #8b8175;
+    --color-rule: #ddd5c4;
+
+    --color-hit: #2f7a4f;
+    --color-miss: #a8341c;
+    --color-partial: #9a6b14;
+    --color-ambiguous: #6b625a;
+    --color-voided: #857c73;
+    --color-late: #8a6d10;
+    --color-draft: #3b5688;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-ground);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: contain;
+  }
+
+  /* Font family only. Size and color stay with the utilities. */
+  input,
+  textarea,
+  select,
+  button {
+    font-family: inherit;
+  }
+
+  input,
+  textarea,
+  select {
+    color: inherit;
+  }
+
+  input[type='date'] {
+    color-scheme: dark;
+  }
+
+  :root[data-theme='light'] input[type='date'] {
+    color-scheme: light;
+  }
+}
+
+@layer components {
+  /* Faint paper grain on card surfaces. Cheap, no image request. */
+  .paper {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+    background-size: 3px 3px;
+  }
+
+  :root[data-theme='light'] .paper {
+    background-image: radial-gradient(rgba(0, 0, 0, 0.025) 1px, transparent 1px);
+  }
+
+  .stamp {
+    font-family: var(--font-sans);
+    letter-spacing: 0.14em;
+    border-width: 2.5px;
+    border-style: solid;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .stamp-tilt {
+      transform: rotate(-5deg);
+    }
+  }
+}
