@@ -17,6 +17,7 @@ import {
   toLocalDateInput,
 } from './prediction';
 import { NOW, isoDaysFrom, makePrediction } from './fixtures';
+import { formatCountdown } from './format';
 
 describe('transitions', () => {
   it('lets a draft open and nothing else', () => {
@@ -174,5 +175,45 @@ describe('deadlines', () => {
     const iso = endOfLocalDay('2026-10-31');
     expect(toLocalDateInput(iso)).toBe('2026-10-31');
     expect(new Date(iso).getHours()).toBe(23);
+  });
+});
+
+describe('counting days to a deadline', () => {
+  // Deadlines are stored as the end of their local day, which is how the app
+  // records "by Halloween".
+  const endOf = (y: number, m: number, d: number) =>
+    new Date(y, m - 1, d, 23, 59, 59, 999).toISOString();
+
+  const at = (resolutionDate: string) => makePrediction({ resolutionDate });
+
+  it('counts a deadline later today as today', () => {
+    const now = new Date(2026, 8, 12, 13, 0, 0);
+    expect(daysUntilDeadline(at(endOf(2026, 9, 12)), now)).toBe(0);
+  });
+
+  it('counts last night as one day overdue, not as today', () => {
+    // The bug this replaced: thirteen hours elapsed is less than a day, so it
+    // rounded to zero and an expired prediction reported "Today".
+    const now = new Date(2026, 8, 12, 13, 0, 0);
+    expect(daysUntilDeadline(at(endOf(2026, 9, 11)), now)).toBe(-1);
+  });
+
+  it('counts a minute past midnight as overdue', () => {
+    const now = new Date(2026, 8, 12, 0, 1, 0);
+    expect(daysUntilDeadline(at(endOf(2026, 9, 11)), now)).toBe(-1);
+  });
+
+  it('counts tomorrow as one day out regardless of the hour', () => {
+    for (const hour of [0, 9, 23]) {
+      const now = new Date(2026, 8, 12, hour, 30, 0);
+      expect(daysUntilDeadline(at(endOf(2026, 9, 13)), now)).toBe(1);
+    }
+  });
+
+  it('says overdue rather than today once the day has passed', () => {
+    const now = new Date(2026, 8, 12, 13, 0, 0);
+    expect(formatCountdown(at(endOf(2026, 9, 11)), now)).toBe('1 day overdue');
+    expect(formatCountdown(at(endOf(2026, 9, 12)), now)).toBe('Today');
+    expect(formatCountdown(at(endOf(2026, 9, 13)), now)).toBe('Tomorrow');
   });
 });

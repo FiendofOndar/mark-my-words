@@ -30,7 +30,7 @@ export function FilterChips({
               type="button"
               onClick={() => onChange(chip.filter)}
               aria-pressed={isActive}
-              className={`shrink-0 rounded-full border px-3 py-1 text-[13px] transition-colors ${
+              className={`flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-4 text-[13px] transition-colors ${
                 isActive
                   ? 'border-ink bg-ink text-ground'
                   : 'border-rule text-ink-dim active:bg-surface-raised'
@@ -38,7 +38,7 @@ export function FilterChips({
             >
               {chip.label}
               {chip.count !== undefined && (
-                <span className={isActive ? 'text-ground/70' : 'text-ink-faint'}> {chip.count}</span>
+                <span className={isActive ? 'text-ground/70' : 'text-ink-faint'}>{chip.count}</span>
               )}
             </button>
           );

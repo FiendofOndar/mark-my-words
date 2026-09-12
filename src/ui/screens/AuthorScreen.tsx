@@ -52,7 +52,7 @@ export function AuthorScreen() {
             )
           }
           disabled={receipt.state === 'rendering'}
-          className="mt-4 rounded border border-rule px-3 py-1.5 text-[13px] text-ink-dim disabled:opacity-40"
+          className="mt-4 rounded border border-rule min-h-11 px-4 text-[13px] text-ink-dim disabled:opacity-40"
         >
           {receipt.state === 'rendering' ? 'Making the card...' : 'Share the record'}
         </button>

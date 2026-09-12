@@ -67,11 +67,22 @@ export function effectiveDeadline(p: Prediction): Iso | null {
 
 const MS_PER_DAY = 86_400_000;
 
-/** Whole days from `now` until the effective deadline. Negative once overdue. */
+function startOfDay(at: Date): number {
+  return new Date(at.getFullYear(), at.getMonth(), at.getDate()).getTime();
+}
+
+/**
+ * Whole days from `now` until the effective deadline. Negative once overdue.
+ *
+ * Counted in calendar days rather than elapsed time, because that is what a
+ * deadline is. Measuring elapsed milliseconds made a prediction that expired
+ * last night report "Today": thirteen hours is less than one day, so it rounded
+ * to zero, and the thing was neither shown nor sorted as overdue.
+ */
 export function daysUntilDeadline(p: Prediction, now: Date = new Date()): number | null {
   const deadline = effectiveDeadline(p);
   if (!deadline) return null;
-  return Math.ceil((new Date(deadline).getTime() - now.getTime()) / MS_PER_DAY);
+  return Math.round((startOfDay(new Date(deadline)) - startOfDay(now)) / MS_PER_DAY);
 }
 
 export function isPastDeadline(p: Prediction, now: Date = new Date()): boolean {

@@ -120,6 +120,35 @@ export function validateFormValues(v: PredictionFormValues): string[] {
   const problems: string[] = [];
   if (!v.rawStatement.trim()) problems.push('The statement is required.');
   if (!v.authorName.trim()) problems.push('Someone said this. Who?');
+
+  const today = toLocalDateInput(new Date().toISOString());
+  if (v.statementDate > today) problems.push('It cannot have been said in the future.');
+
+  // A deadline before the claim was made is not a late entry, it is nonsense,
+  // and the retroactive flag would quietly paper over it.
+  const deadlineDate =
+    v.deadlineType === 'fixed_date'
+      ? v.resolutionDate
+      : v.deadlineType === 'window'
+        ? v.windowEnd
+        : v.triggerExpectedDate;
+  if (deadlineDate && deadlineDate < v.statementDate) {
+    problems.push('The deadline falls before the claim was made.');
+  }
+  if (v.deadlineType === 'window' && v.windowEnd && v.windowEnd < v.statementDate) {
+    problems.push('The window closes before the claim was made.');
+  }
+  if (v.deadlineType === 'event' && v.staleOutDate && v.staleOutDate < v.statementDate) {
+    problems.push('The give-up date falls before the claim was made.');
+  }
+  if (
+    v.deadlineType === 'event' &&
+    v.triggerExpectedDate &&
+    v.staleOutDate &&
+    v.staleOutDate < v.triggerExpectedDate
+  ) {
+    problems.push('It gives up before the event is even expected.');
+  }
   if (v.polarity === 'negative' && !v.disconfirmingTrigger.trim())
     problems.push('A negative claim needs the one event that would disprove it.');
   if (v.deadlineType === 'fixed_date' && !v.resolutionDate) problems.push('Pick a deadline.');
@@ -241,7 +270,7 @@ export function PredictionForm({
                         prev.map((s, i) => (i === index ? e.target.checked : s)),
                       )
                     }
-                    className="mt-1"
+                    className="mt-0.5 h-5 w-5 shrink-0 accent-partial"
                   />
                   <span className="text-[14px] text-ink-dim">{question}</span>
                 </label>
@@ -456,7 +485,7 @@ export function PredictionForm({
             type="checkbox"
             checked={v.forceManual}
             onChange={(e) => set('forceManual', e.target.checked)}
-            className="mt-1"
+            className="mt-0.5 h-5 w-5 shrink-0 accent-ink"
           />
           <span className="text-[13px] text-ink-dim">
             Never auto-resolve this one. Show me the evidence and let me call it.
@@ -499,7 +528,7 @@ export function PredictionForm({
           <button
             type="button"
             onClick={() => set('criteria', [...v.criteria, ''])}
-            className="rounded border border-rule px-3 py-1.5 text-[13px] text-ink-dim"
+            className="rounded border border-rule min-h-11 px-4 text-[13px] text-ink-dim"
           >
             Add another
           </button>

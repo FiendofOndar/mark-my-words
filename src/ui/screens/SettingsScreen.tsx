@@ -249,7 +249,7 @@ export function SettingsScreen() {
                     type="button"
                     onClick={() => void loadModels()}
                     disabled={!apiKey.trim() || listing}
-                    className="mt-2 rounded border border-rule px-3 py-1.5 text-[13px] text-ink-dim disabled:opacity-40"
+                    className="mt-2 rounded border border-rule min-h-11 px-4 text-[13px] text-ink-dim disabled:opacity-40"
                   >
                     {listing ? 'Asking Google...' : 'Show models this key can use'}
                   </button>
@@ -279,7 +279,7 @@ export function SettingsScreen() {
                     type="button"
                     onClick={() => void saveKey()}
                     disabled={!keyDirty}
-                    className="rounded bg-ink px-3 py-2 text-[13px] text-ground disabled:opacity-40"
+                    className="rounded bg-ink min-h-11 px-4 text-[13px] text-ground disabled:opacity-40"
                   >
                     {keyDirty ? 'Save' : 'Saved'}
                   </button>
@@ -287,7 +287,7 @@ export function SettingsScreen() {
                     type="button"
                     onClick={runTest}
                     disabled={!apiKey.trim() || test.state === 'running'}
-                    className="rounded border border-rule px-3 py-2 text-[13px] text-ink-dim disabled:opacity-40"
+                    className="rounded border border-rule min-h-11 px-4 text-[13px] text-ink-dim disabled:opacity-40"
                   >
                     {test.state === 'running' ? 'Testing...' : 'Test connection'}
                   </button>
@@ -322,7 +322,7 @@ export function SettingsScreen() {
                   <button
                     type="button"
                     onClick={request}
-                    className="mt-2 rounded bg-ink px-3 py-1.5 text-[13px] text-ground"
+                    className="mt-2 rounded bg-ink min-h-11 px-4 text-[13px] text-ground"
                   >
                     Allow notifications
                   </button>
@@ -406,7 +406,7 @@ export function SettingsScreen() {
                 key={option}
                 type="button"
                 onClick={() => chooseTheme(option)}
-                className={`flex-1 rounded border px-3 py-2 text-[13px] capitalize ${
+                className={`flex-1 rounded border min-h-11 px-4 text-[13px] capitalize ${
                   theme === option ? 'border-ink bg-ink text-ground' : 'border-rule text-ink-dim'
                 }`}
               >
@@ -471,7 +471,7 @@ function Toggle({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="mt-1"
+        className="mt-0.5 h-5 w-5 shrink-0 accent-ink"
       />
       <span>
         <span className="block text-[15px] text-ink-dim">{label}</span>

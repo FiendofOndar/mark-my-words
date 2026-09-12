@@ -105,7 +105,7 @@ export function FeedScreen() {
             <button
               type="button"
               onClick={() => clearHold.mutate(undefined)}
-              className="mt-2 rounded border border-rule px-2.5 py-1 text-[12px] text-ink-dim"
+              className="mt-2 rounded border border-rule min-h-11 px-3 text-[12px] text-ink-dim"
             >
               Try anyway
             </button>

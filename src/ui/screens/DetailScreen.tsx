@@ -199,21 +199,21 @@ export function DetailScreen() {
             <button
               type="button"
               onClick={() => resolveManually.mutate({ id: p.id, verdict: 'hit' })}
-              className="rounded border border-hit px-4 py-1.5 text-[13px] text-hit"
+              className="min-h-11 rounded border border-hit px-5 text-[13px] text-hit"
             >
               Yes
             </button>
             <button
               type="button"
               onClick={() => resolveManually.mutate({ id: p.id, verdict: 'miss' })}
-              className="rounded border border-miss px-4 py-1.5 text-[13px] text-miss"
+              className="min-h-11 rounded border border-miss px-5 text-[13px] text-miss"
             >
               No
             </button>
             <button
               type="button"
               onClick={() => snooze.mutate(p.id)}
-              className="rounded border border-rule px-4 py-1.5 text-[13px] text-ink-dim"
+              className="min-h-11 rounded border border-rule px-5 text-[13px] text-ink-dim"
             >
               Not yet
             </button>
@@ -240,14 +240,14 @@ export function DetailScreen() {
             <button
               type="button"
               onClick={() => approve.mutate({ predictionId: p.id, checkId: queuedVerdict.id })}
-              className="rounded border border-hit px-3 py-1.5 text-[13px] text-hit"
+              className="min-h-11 rounded border border-hit px-4 text-[13px] text-hit"
             >
               Accept it
             </button>
             <button
               type="button"
               onClick={() => reject.mutate(queuedVerdict.id)}
-              className="rounded border border-rule px-3 py-1.5 text-[13px] text-ink-dim"
+              className="min-h-11 rounded border border-rule px-4 text-[13px] text-ink-dim"
             >
               Not convinced
             </button>
@@ -277,7 +277,7 @@ export function DetailScreen() {
 
         <ul className="mt-3 space-y-2">
           {criteria.map((c) => (
-            <li key={c.id} className="flex gap-3">
+            <li key={c.id} className="flex items-start gap-5 py-1">
               <button
                 type="button"
                 aria-label={`Mark element ${c.position + 1} as ${c.satisfied ? 'unknown' : 'satisfied'}`}
@@ -287,7 +287,7 @@ export function DetailScreen() {
                     satisfied: c.satisfied === true ? false : c.satisfied === false ? null : true,
                   })
                 }
-                className={`mt-0.5 h-5 w-5 shrink-0 rounded border text-[12px] leading-[18px] ${
+                className={`-m-2 box-content h-5 w-5 shrink-0 rounded border p-2 text-[12px] leading-[18px] ${
                   c.satisfied === true
                     ? 'border-hit text-hit'
                     : c.satisfied === false
@@ -401,7 +401,7 @@ export function DetailScreen() {
                   key={v}
                   type="button"
                   onClick={() => onResolve(v)}
-                  className="rounded border border-rule px-3 py-1.5 text-[13px] active:bg-surface-raised"
+                  className="min-h-11 rounded border border-rule px-4 text-[13px] active:bg-surface-raised"
                 >
                   {STATUS_LABEL[v]}
                 </button>
@@ -429,7 +429,7 @@ export function DetailScreen() {
                     patch: markLateHit(p, endOfLocalDay(lateDate)),
                   })
                 }
-                className="rounded border border-late px-3 py-1.5 text-[13px] text-late disabled:opacity-40"
+                className="min-h-11 rounded border border-late px-4 text-[13px] text-late disabled:opacity-40"
               >
                 Log late hit
               </button>
@@ -480,7 +480,7 @@ function ActionButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`rounded border px-3 py-1.5 text-[13px] active:bg-surface-raised disabled:opacity-40 ${
+      className={`min-h-11 rounded border px-4 text-[13px] active:bg-surface-raised disabled:opacity-40 ${
         tone === 'danger' ? 'border-miss/50 text-miss' : 'border-rule text-ink-dim'
       }`}
     >
@@ -531,7 +531,7 @@ function AmendForm({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded border border-rule px-3 py-1.5 text-[13px] text-ink-dim"
+          className="min-h-11 rounded border border-rule px-4 text-[13px] text-ink-dim"
         >
           Cancel
         </button>

@@ -1,15 +1,36 @@
 import { Link } from 'react-router-dom';
 import { Screen } from '../components/Screen';
-import { useStandings } from '../queries';
+import { useStandings, type Standing } from '../queries';
 import { MIN_SCORED_TO_RANK, formatRate, formatRecord } from '../../domain/scoring';
+
+/** Record first, then whatever else is worth saying. Zeroes are left out. */
+function describeProgress(standing: Standing): string {
+  const parts = [formatRecord(standing.record)];
+  if (standing.record.rate !== null) parts.push(formatRate(standing.record));
+  if (standing.record.open > 0) parts.push(`${standing.record.open} running`);
+  if (standing.record.lateHits > 0) parts.push(`${standing.record.lateHits} late`);
+  return parts.join(' · ');
+}
 
 export function StandingsScreen() {
   const { data = [] } = useStandings();
   const ranked = data.filter((s) => s.record.ranked);
   const rest = data.filter((s) => !s.record.ranked);
 
+  const anyScored = data.some((s) => s.record.scored > 0);
+
   return (
-    <Screen title="Standings" subtitle="Hit rate, with volume shown" back>
+    <Screen
+      title="Standings"
+      subtitle={
+        ranked.length > 0
+          ? 'Hit rate, with volume shown'
+          : anyScored
+            ? `Nobody has ${MIN_SCORED_TO_RANK} settled calls yet`
+            : 'Nothing has been settled yet'
+      }
+      back
+    >
       {ranked.length > 0 && (
         <table className="w-full text-[15px]">
           <thead>
@@ -25,7 +46,10 @@ export function StandingsScreen() {
               <tr key={standing.author.id} className="border-b border-rule">
                 <td className="px-5 py-3 text-ink-faint">{index + 1}</td>
                 <td className="py-3">
-                  <Link to={`/author/${standing.author.id}`} className="font-display text-[17px]">
+                  <Link
+                    to={`/author/${standing.author.id}`}
+                    className="flex min-h-11 items-center font-display text-[17px]"
+                  >
                     {standing.author.displayName}
                   </Link>
                 </td>
@@ -41,28 +65,38 @@ export function StandingsScreen() {
         </table>
       )}
 
-      <section className="px-5 py-6">
-        <h2 className="text-[11px] font-semibold tracking-wide text-ink-faint uppercase">
-          Not enough data
-        </h2>
-        <p className="mt-1 text-[13px] text-ink-faint">
-          Needs {MIN_SCORED_TO_RANK} settled predictions to be ranked.
+      {rest.length > 0 && (
+        <section className="px-5 py-6">
+          <h2 className="text-[11px] font-semibold tracking-wide text-ink-faint uppercase">
+            {ranked.length > 0 ? 'Still building a record' : 'On the board'}
+          </h2>
+          <p className="mt-1 text-[13px] text-ink-faint">
+            A rank needs {MIN_SCORED_TO_RANK} settled calls, so one lucky guess cannot top the
+            table.
+          </p>
+          <ul className="mt-3">
+            {rest.map((standing) => (
+              <li key={standing.author.id}>
+                <Link
+                  to={`/author/${standing.author.id}`}
+                  className="flex min-h-12 items-center justify-between gap-3 border-b border-rule/60"
+                >
+                  <span className="font-display text-[17px]">{standing.author.displayName}</span>
+                  <span className="shrink-0 text-[13px] tabular-nums text-ink-faint">
+                    {describeProgress(standing)}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {data.length === 0 && (
+        <p className="px-8 py-16 text-center font-display text-lg text-ink-dim italic">
+          Nobody is on the record yet.
         </p>
-        <ul className="mt-3 space-y-2">
-          {rest.map((standing) => (
-            <li key={standing.author.id} className="flex items-baseline justify-between gap-3">
-              <Link to={`/author/${standing.author.id}`} className="font-display text-[17px]">
-                {standing.author.displayName}
-              </Link>
-              <span className="text-[13px] tabular-nums text-ink-faint">
-                {formatRecord(standing.record)} · {standing.record.open} open
-                {standing.record.lateHits > 0 && ` · ${standing.record.lateHits} late`}
-              </span>
-            </li>
-          ))}
-          {rest.length === 0 && <li className="text-[13px] text-ink-faint italic">Nobody yet.</li>}
-        </ul>
-      </section>
+      )}
     </Screen>
   );
 }
