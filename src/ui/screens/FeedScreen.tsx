@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HeaderLink, Screen } from '../components/Screen';
 import { FilterChips, type ChipDef } from '../components/FilterChips';
+import { CATEGORIES, type Category } from '../../domain/types';
 import { PredictionRow } from '../components/PredictionRow';
 import { PullToRefresh } from '../components/PullToRefresh';
 import {
@@ -60,7 +61,21 @@ export function FeedScreen() {
           return 0;
       }
     };
-    return CHIP_DEFS.map((chip) => ({ ...chip, count: count(chip.filter) }));
+    const status = CHIP_DEFS.map((chip) => ({ ...chip, count: count(chip.filter) }));
+
+    // Only categories that actually have something in them. A row of empty
+    // categories is noise, and it grows as the taxonomy does.
+    const byCategory = new Map<Category, number>();
+    for (const item of items) {
+      byCategory.set(item.prediction.category, (byCategory.get(item.prediction.category) ?? 0) + 1);
+    }
+    const categories: ChipDef[] = CATEGORIES.filter((c) => byCategory.has(c)).map((category) => ({
+      label: category,
+      filter: { kind: 'category', category },
+      count: byCategory.get(category)!,
+    }));
+
+    return [...status, ...categories];
   }, [all.data]);
 
   const items = current.data ?? [];
@@ -159,6 +174,7 @@ export function FeedScreen() {
 
 function EmptyState({ filterKind }: { filterKind: FeedFilter['kind'] }) {
   const copy: Record<string, string> = {
+    category: 'Nothing in this category.',
     all: 'Nothing on the record yet. Catch someone saying it will happen.',
     open: 'No open predictions. Everything has been settled.',
     needs_you: 'Nothing waiting on you.',
