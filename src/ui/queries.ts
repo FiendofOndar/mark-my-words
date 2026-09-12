@@ -238,8 +238,12 @@ export function useStandings() {
         .list()
         .map((author) => ({
           author,
-          record: tallyRecord(all.filter((p) => p.authorId === author.id)),
+          predictions: all.filter((p) => p.authorId === author.id),
         }))
+        // An author with nothing on the record is not a standing. This happens
+        // after deleting someone's only prediction.
+        .filter(({ predictions }) => predictions.length > 0)
+        .map(({ author, predictions }) => ({ author, record: tallyRecord(predictions) }))
         .sort((a, b) => {
           if (a.record.ranked !== b.record.ranked) return a.record.ranked ? -1 : 1;
           return (b.record.rate ?? -1) - (a.record.rate ?? -1);

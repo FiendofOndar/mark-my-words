@@ -59,6 +59,7 @@ export function DetailScreen() {
 
   const [showResolve, setShowResolve] = useState(false);
   const [amending, setAmending] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [lateDate, setLateDate] = useState('');
 
   if (isLoading) return <Screen title="..." back><div /></Screen>;
@@ -376,15 +377,26 @@ export function DetailScreen() {
             </ActionButton>
           )}
           <ActionButton onClick={() => setAmending((v) => !v)}>Amend claim</ActionButton>
-          <ActionButton
-            tone="danger"
-            onClick={() => {
-              remove.mutate(p.id);
-              navigate('/');
-            }}
-          >
-            Delete
-          </ActionButton>
+          {/* Two taps, in place. A record nobody can delete by accident is the
+              whole point, and a WebView confirm() dialog looks like a scam. */}
+          {confirmingDelete ? (
+            <>
+              <ActionButton
+                tone="danger"
+                onClick={() => {
+                  remove.mutate(p.id);
+                  navigate('/', { replace: true });
+                }}
+              >
+                Delete for good
+              </ActionButton>
+              <ActionButton onClick={() => setConfirmingDelete(false)}>Keep it</ActionButton>
+            </>
+          ) : (
+            <ActionButton tone="danger" onClick={() => setConfirmingDelete(true)}>
+              Delete
+            </ActionButton>
+          )}
         </div>
 
         {receipt.error && <p className="mt-2 text-[12px] text-miss">{receipt.error}</p>}

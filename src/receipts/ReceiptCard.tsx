@@ -41,7 +41,7 @@ export function ReceiptCard({
         {author.handle ? ` · ${author.handle}` : ''} · {formatDate(prediction.statementDate)}
       </p>
 
-      <blockquote style={quote}>
+      <blockquote style={{ ...quote, ...quoteSizeFor(prediction.rawStatement) }}>
         <span style={{ color: '#6f675c' }}>&ldquo;</span>
         {prediction.rawStatement}
         <span style={{ color: '#6f675c' }}>&rdquo;</span>
@@ -56,7 +56,9 @@ export function ReceiptCard({
           {STATUS_LABEL[prediction.status]}
         </span>
         {prediction.resolvedAt && (
-          <span style={{ ...meta, marginTop: 0 }}>Settled {formatDate(prediction.resolvedAt)}</span>
+          <span style={{ ...meta, marginTop: 0, whiteSpace: 'nowrap' }}>
+            Settled {formatDate(prediction.resolvedAt)}
+          </span>
         )}
       </div>
 
@@ -104,7 +106,16 @@ export function ScorecardCard({
       <div style={{ ...rule, marginBottom: 56 }} />
       <p style={label}>The record</p>
 
-      <p style={{ ...quote, fontSize: 96, marginTop: 24 }}>{author.displayName}</p>
+      <p
+        style={{
+          ...quote,
+          fontSize: author.displayName.length > 22 ? 64 : 96,
+          WebkitLineClamp: 3,
+          marginTop: 24,
+        }}
+      >
+        {author.displayName}
+      </p>
       {author.handle && <p style={meta}>{author.handle}</p>}
 
       <p style={{ fontSize: 220, lineHeight: 1, marginTop: 64, fontFamily: SERIF }}>
@@ -134,6 +145,19 @@ export function ScorecardCard({
       </div>
     </div>
   );
+}
+
+/**
+ * The card is a fixed 1080x1350, so a long statement has to be made to fit
+ * rather than allowed to run off the bottom. Roughly twenty characters per line
+ * at the largest size, with about eight lines of room.
+ */
+export function quoteSizeFor(statement: string): { fontSize: number; WebkitLineClamp: number } {
+  const length = statement.trim().length;
+  if (length <= 120) return { fontSize: 72, WebkitLineClamp: 8 };
+  if (length <= 220) return { fontSize: 56, WebkitLineClamp: 9 };
+  if (length <= 360) return { fontSize: 44, WebkitLineClamp: 11 };
+  return { fontSize: 36, WebkitLineClamp: 13 };
 }
 
 function hostOf(url: string): string {
@@ -182,6 +206,9 @@ const quote: React.CSSProperties = {
   fontFamily: SERIF,
   fontSize: 72,
   lineHeight: 1.18,
+  display: '-webkit-box',
+  WebkitBoxOrient: 'vertical',
+  overflow: 'hidden',
 };
 
 const stamp: React.CSSProperties = {
