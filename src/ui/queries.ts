@@ -8,6 +8,7 @@ import type { PredictionPatch } from '../domain/prediction';
 import type { NewPrediction } from '../data/repositories/predictionRepo';
 import { tallyRecord, type AuthorRecord } from '../domain/scoring';
 import { confirmDraft, markLateHit, resolve } from '../domain/prediction';
+import { snoozePrompt } from '../domain/notifications';
 import { createVerifier } from '../verification/registry';
 import type { StructureInput, StructureResult } from '../verification/types';
 import type { Check, Evidence } from '../domain/types';
@@ -333,6 +334,15 @@ export function useApproveVerdict() {
 
 export function useRejectVerdict() {
   return useDbMutation((db, checkId: string) => db.checks.markActedOn(checkId, 'no_change'));
+}
+
+/** "Not yet" on a prediction only you can settle. Pushes the ask out a week. */
+export function useSnoozePrompt() {
+  return useDbMutation((db, id: string) => {
+    const prediction = db.predictions.getById(id);
+    if (!prediction) throw new Error(`No prediction ${id}`);
+    db.predictions.update(id, snoozePrompt(prediction));
+  });
 }
 
 export function useSetCriterionSatisfied() {

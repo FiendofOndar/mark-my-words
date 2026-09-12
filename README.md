@@ -2,12 +2,11 @@
 
 A ledger for predictions and the people who make them. See [SPEC.md](./SPEC.md).
 
-## Phase 0.3 (current)
+## Phase 0.4 (current)
 
-The verification engine. Pull to check, the model searches, the app validates
-every citation it returns, scores the evidence, and either resolves the
-prediction, queues a verdict for you, or leaves it open. No notifications and no
-archiving yet.
+Capture, intake, verification and notifications. A statement goes in, a model
+drafts testable criteria, you confirm, pulls check it against the world, and the
+app tells you when something is due or waiting on you.
 
 ```bash
 npm install
@@ -34,6 +33,10 @@ Erase them from Settings.
 - Evidence rubric scores each check; model confidence can only lower that score
 - Auto-resolve at 95+, queue for approval at 80-94, hold below, with hard gates
 - Check log shows every check, its sources, their validation state and the score breakdown
+- Notification plan recomputed from scratch on every change: deadline day,
+  questions only you can answer, and a weekly digest
+- Predictions nothing can search ask you directly, with yes / no / not yet and a
+  snooze that stops offering itself after four rounds
 - Manual entry for all three deadline shapes: fixed date, window, event/race
 - Feed sorted by heat, with filter chips and live counts
 - Detail screen: quote, verdict or countdown, criteria, actions, amendment log
@@ -44,8 +47,14 @@ Erase them from Settings.
 
 ### What is stubbed
 
-- Notifications (0.4), receipts and standings polish (0.5), the Capacitor wrap,
-  the share target and archiving (0.6).
+- Receipts and standings polish (0.5), the Capacitor wrap, the share target and
+  archiving (0.6).
+- **Not one real model call has been made.** Every provider path is covered by
+  tests against injected fakes, and the container this was built in has no API
+  key. The model id, the grounding tool name and the real free-tier quota all
+  need confirming against a live key before any of this can be trusted.
+- Browser notifications only fire while a tab is open. The Settings screen says
+  so rather than implying otherwise.
 - The offline drafter is regex pattern matching, not AI, and its checker returns
   "nothing was searched" rather than inventing a verdict. Both are labelled as
   such everywhere they appear. Add a Gemini key in Settings for a real reading.
@@ -105,3 +114,9 @@ learn which one they are talking to.
   the gate starts biting.
 - **A failed check must not consume the cadence slot.** Otherwise one bad key
   quietly pushes every prediction a full interval into the future.
+- **The notification plan is replaced, never incremented.** Android battery
+  managers drop scheduled alarms, so the whole plan is recomputed and re-armed
+  on every change; stable ids make that idempotent.
+- **Shared state belongs in one place.** Notification preferences were briefly
+  held in two `useState` copies of the same row, which looked identical and
+  silently diverged. They live in the query cache now.

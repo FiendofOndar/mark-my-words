@@ -43,6 +43,8 @@ export function makePrediction(overrides: Partial<Prediction> = {}): Prediction 
     stakes: null,
     criteriaFrozenAt: null,
     intakeNotes: null,
+    promptSnoozes: 0,
+    promptNextAt: null,
     lastCheckedAt: null,
     checkCount: 0,
     createdAt: now,

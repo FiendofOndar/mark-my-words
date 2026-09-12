@@ -13,6 +13,12 @@ import {
 } from '../../lib/keyStore';
 import { DEFAULT_GEMINI_MODEL, GeminiVerifier } from '../../verification/GeminiVerifier';
 import { VerifierError } from '../../verification/types';
+import {
+  useNotificationPermission,
+  useNotificationPrefs,
+  useScheduledNotifications,
+} from '../useNotifications';
+import { formatDate } from '../../domain/format';
 
 export function SettingsScreen() {
   const db = useDb();
@@ -27,6 +33,10 @@ export function SettingsScreen() {
   const [test, setTest] = useState<{ state: 'idle' | 'running' | 'ok' | 'fail'; message?: string }>({
     state: 'idle',
   });
+
+  const { prefs, update: updatePrefs } = useNotificationPrefs();
+  const { permission, request, canScheduleWhileClosed } = useNotificationPermission();
+  const { plan, next } = useScheduledNotifications();
 
   const chooseTheme = (next: Theme) => {
     applyTheme(next);
@@ -174,6 +184,89 @@ export function SettingsScreen() {
         </section>
 
         <section>
+          <SectionTitle>Notifications</SectionTitle>
+          <div className="mt-2 space-y-3">
+            {permission !== 'granted' && (
+              <div className="rounded border border-rule bg-surface px-3 py-2.5">
+                <p className="text-[13px] text-ink-dim">
+                  {permission === 'denied'
+                    ? 'Notifications are blocked for this site. Allow them in your browser settings to turn them back on.'
+                    : permission === 'unsupported'
+                      ? 'This browser cannot show notifications.'
+                      : 'Nothing can reach you until you allow notifications.'}
+                </p>
+                {permission === 'default' && (
+                  <button
+                    type="button"
+                    onClick={request}
+                    className="mt-2 rounded bg-ink px-3 py-1.5 text-[13px] text-ground"
+                  >
+                    Allow notifications
+                  </button>
+                )}
+              </div>
+            )}
+
+            <Toggle
+              label="Deadline day"
+              hint="The morning a prediction comes due."
+              checked={prefs.deadline}
+              onChange={(v) => updatePrefs({ deadline: v })}
+            />
+            <Toggle
+              label="Questions only you can answer"
+              hint="For predictions nothing can search. Yes, no, or not yet."
+              checked={prefs.manualPrompt}
+              onChange={(v) => updatePrefs({ manualPrompt: v })}
+            />
+            <Toggle
+              label="Weekly digest"
+              hint="What settled, what is coming, what is waiting on you."
+              checked={prefs.digest}
+              onChange={(v) => updatePrefs({ digest: v })}
+            />
+
+            {prefs.digest && (
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Digest day">
+                  <select
+                    value={prefs.digestDay}
+                    onChange={(e) => updatePrefs({ digestDay: Number(e.target.value) })}
+                    className={inputClass}
+                  >
+                    {DAYS.map((day, index) => (
+                      <option key={day} value={index}>
+                        {day}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="Digest hour">
+                  <select
+                    value={prefs.digestHour}
+                    onChange={(e) => updatePrefs({ digestHour: Number(e.target.value) })}
+                    className={inputClass}
+                  >
+                    {Array.from({ length: 24 }, (_, hour) => (
+                      <option key={hour} value={hour}>
+                        {String(hour).padStart(2, '0')}:00
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              </div>
+            )}
+
+            <p className="text-[12px] text-ink-faint">
+              {plan.length} scheduled
+              {next ? `, next on ${formatDate(next.at)}` : ''}.
+              {!canScheduleWhileClosed &&
+                ' On the web these only fire while this tab is open. The Android build schedules them properly.'}
+            </p>
+          </div>
+        </section>
+
+        <section>
           <SectionTitle>On this device</SectionTitle>
           <p className="mt-2 text-[15px] text-ink-dim">
             {counts.predictions} prediction{counts.predictions === 1 ? '' : 's'}
@@ -228,11 +321,40 @@ export function SettingsScreen() {
         </section>
 
         <p className="text-[12px] text-ink-faint">
-          Phase 0.2. Intake drafting works; verification, notifications and archiving do not exist
-          yet.
+          Phase 0.4. Capture, intake, verification and notifications work. Receipts, the Android
+          wrap and source archiving do not exist yet.
         </p>
       </div>
     </Screen>
+  );
+}
+
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+function Toggle({
+  label,
+  hint,
+  checked,
+  onChange,
+}: {
+  label: string;
+  hint: string;
+  checked: boolean;
+  onChange: (value: boolean) => void;
+}) {
+  return (
+    <label className="flex items-start gap-2.5">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="mt-1"
+      />
+      <span>
+        <span className="block text-[15px] text-ink-dim">{label}</span>
+        <span className="block text-[12px] text-ink-faint">{hint}</span>
+      </span>
+    </label>
   );
 }
 

@@ -134,6 +134,10 @@ export interface Prediction {
   stakes: string | null;
   criteriaFrozenAt: Iso | null;
   intakeNotes: IntakeNotes | null;
+  /** How many times the deadline prompt for a manual prediction has been put off. */
+  promptSnoozes: number;
+  /** When to ask again, once the first prompt has been snoozed. */
+  promptNextAt: Iso | null;
   lastCheckedAt: Iso | null;
   checkCount: number;
   createdAt: Iso;

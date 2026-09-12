@@ -184,6 +184,14 @@ CREATE INDEX idx_amend_pred           ON amendments(prediction_id, amended_at DE
 ALTER TABLE predictions ADD COLUMN intake_notes TEXT;
 `,
   },
+  {
+    version: 3,
+    name: 'manual prompt snoozes',
+    sql: `
+ALTER TABLE predictions ADD COLUMN prompt_snoozes INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE predictions ADD COLUMN prompt_next_at TEXT;
+`,
+  },
 ];
 
 export function currentVersion(driver: SqlDriver): number {

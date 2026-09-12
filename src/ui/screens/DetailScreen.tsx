@@ -13,6 +13,7 @@ import {
   useQueuedVerdicts,
   useRejectVerdict,
   useSetCriterionSatisfied,
+  useSnoozePrompt,
   useUpdatePrediction,
 } from '../queries';
 import { CheckLog } from '../components/CheckLog';
@@ -26,6 +27,7 @@ import {
 import {
   endOfLocalDay,
   isResolved,
+  isPastDeadline,
   isUnderLateWatch,
   markLateHit,
   reopen,
@@ -46,6 +48,7 @@ export function DetailScreen() {
   const approve = useApproveVerdict();
   const reject = useRejectVerdict();
   const update = useUpdatePrediction();
+  const snooze = useSnoozePrompt();
   const amend = useAmendPrediction();
   const remove = useDeletePrediction();
   const setSatisfied = useSetCriterionSatisfied();
@@ -68,6 +71,10 @@ export function DetailScreen() {
   const { prediction: p, author, criteria, amendments } = data;
   const late = formatLateBadge(p);
   const queuedVerdict = queued?.get(p.id) ?? null;
+  // The in-app twin of the deadline notification's inline buttons, which work
+  // everywhere even where the platform cannot put buttons on a notification.
+  const awaitingAnswer =
+    p.status === 'open' && p.verificationMode === 'manual' && isPastDeadline(p);
 
   const onResolve = (verdict: PredictionStatus) => {
     update.mutate({ id: p.id, patch: resolve(p, verdict, 'user') });
@@ -163,6 +170,43 @@ export function DetailScreen() {
             The verdict stays a miss. The timeframe was part of the claim.
           </p>
         </div>
+      )}
+
+      {awaitingAnswer && (
+        <section className="border-b border-rule bg-partial/5 px-5 py-5">
+          <h2 className="text-[11px] font-semibold tracking-wide text-partial uppercase">
+            Only you can settle this
+          </h2>
+          <p className="mt-2 font-display text-[19px]">Did it happen?</p>
+          {p.promptSnoozes > 0 && (
+            <p className="mt-1 text-[12px] text-ink-faint">
+              Put off {p.promptSnoozes} time{p.promptSnoozes === 1 ? '' : 's'} so far.
+            </p>
+          )}
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => update.mutate({ id: p.id, patch: resolve(p, 'hit', 'user') })}
+              className="rounded border border-hit px-4 py-1.5 text-[13px] text-hit"
+            >
+              Yes
+            </button>
+            <button
+              type="button"
+              onClick={() => update.mutate({ id: p.id, patch: resolve(p, 'miss', 'user') })}
+              className="rounded border border-miss px-4 py-1.5 text-[13px] text-miss"
+            >
+              No
+            </button>
+            <button
+              type="button"
+              onClick={() => snooze.mutate(p.id)}
+              className="rounded border border-rule px-4 py-1.5 text-[13px] text-ink-dim"
+            >
+              Not yet
+            </button>
+          </div>
+        </section>
       )}
 
       {queuedVerdict && (

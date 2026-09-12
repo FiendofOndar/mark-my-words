@@ -192,6 +192,8 @@ export class PredictionRepo {
       stakes: input.stakes ?? null,
       criteriaFrozenAt: null,
       intakeNotes: input.intakeNotes ?? null,
+      promptSnoozes: 0,
+      promptNextAt: null,
       lastCheckedAt: null,
       checkCount: 0,
       createdAt: now,
