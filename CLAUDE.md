@@ -98,9 +98,12 @@ is for.
   further attempt is a guaranteed failure that still costs a request and fills
   the log with identical errors. `readCooldown` gates it, and the feed offers a
   deliberate override.
-- **A 429 with no retry delay is the daily bucket.** A per-minute limit always
-  carries one. That absence is the signal, and daily quotas reset at midnight
-  Pacific, not local midnight and not on a rolling 24 hours.
+- **A 429 with no retry delay is probably, not certainly, the daily bucket.** A
+  free key's exhaustion and a paid key's momentary limit look identical. The
+  hold escalates rather than assuming the worst: fifteen minutes, then an hour,
+  then the reset at midnight Pacific, which is where daily quotas actually roll
+  over. Strikes live outside the cooldown so lifting a hold does not erase what
+  was learned; only a successful check resets them.
 - **A 429 is three different limits.** Per minute, per day, and a separate
   allowance for Google Search grounding. The body says which, and carries a
   `retryDelay`. Never collapse them into one message: telling someone to come

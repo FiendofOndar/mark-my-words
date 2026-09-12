@@ -35,6 +35,8 @@ export function readCooldown(db: Db): Cooldown | null {
   return isCoolingDown(stored) ? stored : null;
 }
 
+/** Lifts the hold. Deliberately leaves the strike count alone: overriding a
+ *  wait is not evidence that the limit went away. */
 export function clearCooldown(db: Db): void {
   db.settings.setJson(SETTING_KEYS.cooldown, null);
 }
@@ -150,7 +152,11 @@ export async function runPull(
     applyCheckPlan(db, plan);
     summary.plans.push(plan);
 
-    if (plan.countsAsChecked) summary.checked += 1;
+    if (plan.countsAsChecked) {
+      summary.checked += 1;
+      // Something got through, so whatever the limit was, it is over.
+      db.settings.setJson(SETTING_KEYS.quotaStrikes, 0);
+    }
     if (plan.outcome === 'resolved') summary.resolved += 1;
     if (plan.outcome === 'queued') summary.queued += 1;
     if (plan.outcome === 'late_hit') summary.lateHits += 1;
@@ -162,7 +168,7 @@ export async function runPull(
 
       // A spent allowance ends the pull. Carrying on would burn the rest of
       // the budget on identical failures.
-      const cooldown = cooldownFrom(plan);
+      const cooldown = cooldownFrom(db, plan);
       if (cooldown) {
         db.settings.setJson(SETTING_KEYS.cooldown, cooldown);
         summary.cooledDown = cooldown;
@@ -176,11 +182,20 @@ export async function runPull(
   return summary;
 }
 
-function cooldownFrom(plan: CheckPlan): Cooldown | null {
+function cooldownFrom(db: Db, plan: CheckPlan): Cooldown | null {
   const error = plan.error;
   if (!(error instanceof VerifierError) || error.kind !== 'rate_limit') return null;
+
   const failure = error.detail ? parseQuotaFailure(error.detail) : null;
-  return cooldownFor(failure?.scope ?? 'unknown', error.retryAfterSeconds ?? null);
+  const scope = failure?.scope ?? 'unknown';
+
+  // Kept outside the cooldown itself, so lifting a hold does not erase what
+  // has been learned about the provider. Only a successful check does that.
+  const strikes =
+    scope === 'unknown' ? db.settings.getJson<number>(SETTING_KEYS.quotaStrikes, 0) + 1 : 1;
+  if (scope === 'unknown') db.settings.setJson(SETTING_KEYS.quotaStrikes, strikes);
+
+  return cooldownFor(scope, error.retryAfterSeconds ?? null, new Date(), strikes);
 }
 
 /** One line for the pull banner. */

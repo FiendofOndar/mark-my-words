@@ -15,13 +15,24 @@ describe('when to try again', () => {
     expect(c.reason).toMatch(/midnight Pacific/);
   });
 
-  it('treats a quota with no stated wait as the daily one', () => {
-    // This is the shape a free key actually returns: a bare "you exceeded your
-    // current quota" with no metric and no retry delay. A per-minute limit
-    // always carries a delay, so the absence of one is itself the signal.
+  it('waits a short while on a first unclassified quota error', () => {
+    // Free exhaustion and a paid account's momentary limit look identical: a
+    // bare 429 with no metric and no delay. Parking a paid key until morning
+    // over a blip is the worse mistake, so the first one is a short wait.
     const now = new Date('2026-09-12T20:00:00.000Z');
-    const c = cooldownFor('unknown', null, now)!;
-    expect(new Date(c.until).getTime()).toBe(nextPacificMidnight(now).getTime());
+    const c = cooldownFor('unknown', null, now, 1)!;
+    const minutes = (new Date(c.until).getTime() - now.getTime()) / 60_000;
+    expect(minutes).toBe(15);
+  });
+
+  it('escalates when it keeps happening', () => {
+    const now = new Date('2026-09-12T20:00:00.000Z');
+    const second = cooldownFor('unknown', null, now, 2)!;
+    expect((new Date(second.until).getTime() - now.getTime()) / 60_000).toBe(60);
+
+    const third = cooldownFor('unknown', null, now, 3)!;
+    expect(new Date(third.until).getTime()).toBe(nextPacificMidnight(now).getTime());
+    expect(third.reason).toMatch(/repeatedly/i);
   });
 
   it('waits only a minute on a per-minute limit with no stated delay', () => {

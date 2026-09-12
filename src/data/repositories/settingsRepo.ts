@@ -40,4 +40,5 @@ export const SETTING_KEYS = {
   pullBudget: 'pull_budget',
   lateWatchDefault: 'late_watch_default',
   cooldown: 'provider_cooldown',
+  quotaStrikes: 'provider_quota_strikes',
 } as const;

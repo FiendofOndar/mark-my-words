@@ -31,6 +31,7 @@ export function SettingsScreen() {
   const [apiKey, setApiKey] = useState(stored.apiKey);
   const [model, setModel] = useState(stored.model);
   const [keyDirty, setKeyDirty] = useState(false);
+  const [quota, setQuota] = useState(String(stored.dailyQuota ?? ''));
   const [models, setModels] = useState<{ id: string; label: string }[] | null>(null);
   const [listing, setListing] = useState(false);
   const [test, setTest] = useState<{ state: 'idle' | 'running' | 'ok' | 'fail'; message?: string }>({
@@ -69,6 +70,13 @@ export function SettingsScreen() {
     if (!keyDirty) return;
     setStored(await saveVerifierConfig({ apiKey, model }));
     setKeyDirty(false);
+  };
+
+  const saveQuota = async (value: string) => {
+    setQuota(value);
+    const parsed = value.trim() === '' ? null : Number(value);
+    if (parsed !== null && (!Number.isFinite(parsed) || parsed < 0)) return;
+    setStored(await saveVerifierConfig({ dailyQuota: parsed }));
   };
 
   const loadModels = async () => {
@@ -249,6 +257,21 @@ export function SettingsScreen() {
                     Free keys are limited per minute as well as per day, so give it a few seconds
                     between tries. Models with &ldquo;flash&rdquo; in the name have the most room.
                   </p>
+                </Field>
+
+                <Field
+                  label="Checks per day"
+                  hint={
+                    "A free key gets about 20 grounded checks a day. With billing enabled it is far higher, so raise this or leave it blank for no ceiling. The app stops at this number rather than letting the provider refuse."
+                  }
+                >
+                  <input
+                    value={quota}
+                    onChange={(e) => void saveQuota(e.target.value)}
+                    inputMode="numeric"
+                    placeholder="no ceiling"
+                    className={inputClass}
+                  />
                 </Field>
 
                 <div className="flex flex-wrap gap-2">

@@ -302,7 +302,7 @@ describe('a spent allowance', () => {
     expect(summary.quotaBlocked).toBeGreaterThan(0);
   });
 
-  it('refuses to try again until the allowance resets', async () => {
+  it('refuses to try again while the hold stands', async () => {
     addPrediction();
     await runPull(
       db,
@@ -315,7 +315,21 @@ describe('a spent allowance', () => {
 
     expect(second.calls).toBe(0);
     expect(summary.checked).toBe(0);
-    expect(describePull(summary)).toMatch(/midnight Pacific/i);
+    expect(describePull(summary)).toMatch(/without saying for how long/i);
+  });
+
+  it('escalates to the daily reset only after it keeps happening', async () => {
+    addPrediction();
+    const verifier = new ScriptedVerifier(() => exhausted());
+
+    // Three rounds, clearing the hold between them the way a user tapping
+    // "Try anyway" would.
+    for (let i = 0; i < 3; i += 1) {
+      clearCooldown(db);
+      await runPull(db, { verifier, fetcher: echoFetcher }, { minGapMs: 0 });
+    }
+
+    expect(readCooldown(db)!.reason).toMatch(/midnight Pacific/i);
   });
 
   it('lets checks resume once the hold is cleared', async () => {
