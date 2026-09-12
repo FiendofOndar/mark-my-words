@@ -34,7 +34,9 @@ export function CheckLog({
   if (entries.length === 0) {
     return (
       <p className="mt-3 text-[14px] text-ink-faint italic">
-        No checks run yet. Pull down on the feed to check what is due.
+        {/* Not "pull down on the feed": there is a Check now button a few
+            inches below this sentence. */}
+        No checks run yet. Checks run on their own schedule, or when you ask.
       </p>
     );
   }
