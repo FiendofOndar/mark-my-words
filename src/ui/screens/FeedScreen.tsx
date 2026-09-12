@@ -192,6 +192,19 @@ function EmptyState({ filterKind }: { filterKind: FeedFilter['kind'] }) {
       <p className="font-display text-lg text-ink-dim italic">
         {copy[filterKind] ?? 'Nothing here.'}
       </p>
+      {/* Only on an empty ledger. A first launch is otherwise a sentence and a
+          circle in the corner, and the circle is the only thing that does
+          anything. Every other filter is empty because of the filter, so a
+          button to add a prediction there would be answering the wrong
+          question. */}
+      {filterKind === 'all' && (
+        <Link
+          to="/new"
+          className="mt-5 inline-flex min-h-11 items-center rounded-full border border-rule px-5 text-[14px] text-ink-dim active:bg-surface-raised"
+        >
+          Write one down
+        </Link>
+      )}
     </div>
   );
 }

@@ -388,7 +388,10 @@ export function DetailScreen() {
         <h2 className="text-[11px] font-semibold tracking-wide text-ink-faint uppercase">
           Actions
         </h2>
-        <div className="mt-3 flex flex-wrap gap-2">
+        {/* A grid, not a wrap. The buttons have four different label lengths, so
+            wrapping them left a ragged two-then-two block that looked like a
+            mistake and put Delete next to Amend at a random offset. */}
+        <div className="mt-3 grid grid-cols-2 gap-2">
           {isResolved(p.status) && (
             <ActionButton
               disabled={receipt.state === 'rendering'}

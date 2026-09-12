@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { Screen } from '../components/Screen';
+import { Icon } from '../components/Icon';
 import { PredictionRow } from '../components/PredictionRow';
 import { useAuthorPage } from '../queries';
 import { formatRate, formatRecord } from '../../domain/scoring';
@@ -67,7 +68,7 @@ export function AuthorScreen() {
           Nothing on the record for {author.displayName} yet.
         </p>
       ) : (
-        <ul className="pb-10">
+        <ul>
           {items.map((item) => (
             <li key={item.prediction.id}>
               <PredictionRow item={item} />
@@ -76,11 +77,16 @@ export function AuthorScreen() {
         </ul>
       )}
 
-      <div className="px-5 pb-8">
-        <Link to="/standings" className="text-[13px] text-ink-faint underline-offset-2 hover:underline">
-          See the full standings
-        </Link>
-      </div>
+      {/* A 13px faint link floating in the empty space below the list was both
+          hard to see and hard to hit. It is the only way out of this screen
+          other than back, so it gets the same row treatment as everything else. */}
+      <Link
+        to="/standings"
+        className="flex items-center justify-between border-b border-rule px-5 py-4 text-[14px] text-ink-dim active:bg-surface-raised"
+      >
+        See the full standings
+        <Icon name="chevron" size={18} className="text-ink-faint" />
+      </Link>
     </Screen>
   );
 }
