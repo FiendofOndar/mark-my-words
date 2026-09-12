@@ -18,7 +18,19 @@ const OUTCOME_LABEL: Record<Check['outcome'], string> = {
   error: 'Failed',
 };
 
-export function CheckLog({ entries }: { entries: CheckLogEntry[] }) {
+export function CheckLog({
+  entries,
+  /**
+   * The check whose verdict is already being asked about higher up the screen.
+   * Its summary is printed there in larger type, so repeating it verbatim in
+   * the log a few hundred pixels below is the same sentence twice. The entry
+   * still appears, with its score and its evidence; only the prose is dropped.
+   */
+  summaryShownAbove,
+}: {
+  entries: CheckLogEntry[];
+  summaryShownAbove?: string;
+}) {
   if (entries.length === 0) {
     return (
       <p className="mt-3 text-[14px] text-ink-faint italic">
@@ -39,7 +51,9 @@ export function CheckLog({ entries }: { entries: CheckLogEntry[] }) {
             {check.rubricScore !== null && <ScoreChip check={check} />}
           </div>
 
-          <p className="mt-1.5 text-[15px] leading-snug text-ink-dim">{check.summary}</p>
+          {check.id !== summaryShownAbove && (
+            <p className="mt-1.5 text-[15px] leading-snug text-ink-dim">{check.summary}</p>
+          )}
 
           {/* The provider's own words, verbatim. A summarized failure is a
               failure you have to guess at. */}

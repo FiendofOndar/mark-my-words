@@ -410,7 +410,7 @@ export function DetailScreen() {
             This one is yours to settle. Nothing is searched.
           </p>
         ) : (
-          <CheckLog entries={log} />
+          <CheckLog entries={log} summaryShownAbove={queuedVerdict?.id} />
         )}
       </section>
 
