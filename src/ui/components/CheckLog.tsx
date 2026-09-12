@@ -72,8 +72,11 @@ function ScoreChip({ check }: { check: Check }) {
   const gates = breakdown?.gates ?? [];
 
   return (
-    <details className="inline-block">
-      <summary className="cursor-pointer list-none rounded-full border border-rule px-2 py-0.5 text-[11px] text-ink-dim">
+    <details className="w-full">
+      {/* A summary is display:list-item, so once the details opened inside a
+          flex row the pill stretched the full width and read as an empty input
+          box rather than as a score. */}
+      <summary className="inline-flex w-fit cursor-pointer list-none rounded-full border border-rule px-2 py-0.5 text-[11px] text-ink-dim">
         {check.rubricScore}/100
       </summary>
       <div className="mt-2 rounded border border-rule bg-surface p-2.5 text-[12px]">
@@ -100,11 +103,20 @@ function ScoreChip({ check }: { check: Check }) {
   );
 }
 
+/**
+ * One line of the rubric.
+ *
+ * The lines that fell short are tinted, because they are the answer to the only
+ * question this panel is opened to ask: why did this not resolve on its own?
+ * Every row looked the same, so finding the 10/20 among four perfect scores
+ * meant reading all five.
+ */
 function Row({ label, value, max }: { label: string; value: number; max: number }) {
+  const short = value < max;
   return (
     <>
-      <dt>{label}</dt>
-      <dd className="tabular-nums">
+      <dt className={short ? 'text-partial' : undefined}>{label}</dt>
+      <dd className={`tabular-nums ${short ? 'text-partial' : ''}`}>
         {value}/{max}
       </dd>
     </>
