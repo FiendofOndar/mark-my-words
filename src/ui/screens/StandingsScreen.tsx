@@ -25,7 +25,7 @@ export function StandingsScreen() {
               <tr key={standing.author.id} className="border-b border-rule">
                 <td className="px-5 py-3 text-ink-faint">{index + 1}</td>
                 <td className="py-3">
-                  <Link to={`/?author=${standing.author.id}`} className="font-display text-[17px]">
+                  <Link to={`/author/${standing.author.id}`} className="font-display text-[17px]">
                     {standing.author.displayName}
                   </Link>
                 </td>
@@ -51,7 +51,9 @@ export function StandingsScreen() {
         <ul className="mt-3 space-y-2">
           {rest.map((standing) => (
             <li key={standing.author.id} className="flex items-baseline justify-between gap-3">
-              <span className="font-display text-[17px]">{standing.author.displayName}</span>
+              <Link to={`/author/${standing.author.id}`} className="font-display text-[17px]">
+                {standing.author.displayName}
+              </Link>
               <span className="text-[13px] tabular-nums text-ink-faint">
                 {formatRecord(standing.record)} · {standing.record.open} open
                 {standing.record.lateHits > 0 && ` · ${standing.record.lateHits} late`}

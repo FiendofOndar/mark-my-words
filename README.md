@@ -2,11 +2,11 @@
 
 A ledger for predictions and the people who make them. See [SPEC.md](./SPEC.md).
 
-## Phase 0.4 (current)
+## Phase 0.5 (current)
 
-Capture, intake, verification and notifications. A statement goes in, a model
-drafts testable criteria, you confirm, pulls check it against the world, and the
-app tells you when something is due or waiting on you.
+Capture, intake, verification, notifications, author records and shareable
+receipts. A statement goes in, a model drafts testable criteria, you confirm,
+pulls check it against the world, and you can hand somebody a card proving it.
 
 ```bash
 npm install
@@ -37,6 +37,9 @@ Erase them from Settings.
   questions only you can answer, and a weekly digest
 - Predictions nothing can search ask you directly, with yes / no / not yet and a
   snooze that stops offering itself after four rounds
+- Author pages and standings, with a five-call floor before anyone is ranked
+- Receipt and scorecard cards rendered to PNG at 1080x1350 and handed to the
+  share sheet, or downloaded where the platform cannot share files
 - Manual entry for all three deadline shapes: fixed date, window, event/race
 - Feed sorted by heat, with filter chips and live counts
 - Detail screen: quote, verdict or countdown, criteria, actions, amendment log
@@ -47,8 +50,7 @@ Erase them from Settings.
 
 ### What is stubbed
 
-- Receipts and standings polish (0.5), the Capacitor wrap, the share target and
-  archiving (0.6).
+- The Capacitor wrap, the Android share target and source archiving (0.6).
 - **Not one real model call has been made.** Every provider path is covered by
   tests against injected fakes, and the container this was built in has no API
   key. The model id, the grounding tool name and the real free-tier quota all
@@ -83,10 +85,14 @@ learn which one they are talking to.
 
 ## Notes for later phases
 
-- **Fonts are loaded from Google Fonts.** Fine in a browser, wrong in an APK
-  that may launch offline. Self-host Newsreader and Inter during the Capacitor
-  wrap (0.6). The fallback stacks are already in place, so it degrades rather
-  than breaks.
+- **Fonts are self-hosted** in `public/fonts` (latin subsets, ~440 KiB). This is
+  not only for offline launch: an SVG `foreignObject` cannot reach an external
+  font, so a receipt card rasterized with remote fonts silently comes out in a
+  fallback face. Re-run the fetch in the git history if the faces need changing.
+- **Do not rasterize a `position: fixed` element.** html-to-image clones the
+  node into a `foreignObject`, where a fixed root is taken out of flow and
+  renders nothing but the background. `useReceipt` mounts the card inside a
+  fixed host and rasterizes the child.
 - **`sql.js` `export()` closes and reopens the database**, which silently ends
   any open transaction. `SqlJsDriver` never persists mid-transaction. Keep that
   invariant if you touch the driver.

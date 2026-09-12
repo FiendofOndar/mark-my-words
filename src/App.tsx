@@ -4,6 +4,7 @@ import { DetailScreen } from './ui/screens/DetailScreen';
 import { CaptureScreen } from './ui/screens/CaptureScreen';
 import { ReviewScreen } from './ui/screens/ReviewScreen';
 import { StandingsScreen } from './ui/screens/StandingsScreen';
+import { AuthorScreen } from './ui/screens/AuthorScreen';
 import { SettingsScreen } from './ui/screens/SettingsScreen';
 
 export function App() {
@@ -14,6 +15,7 @@ export function App() {
       <Route path="/draft/:id" element={<ReviewScreen />} />
       <Route path="/p/:id" element={<DetailScreen />} />
       <Route path="/standings" element={<StandingsScreen />} />
+      <Route path="/author/:id" element={<AuthorScreen />} />
       <Route path="/settings" element={<SettingsScreen />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

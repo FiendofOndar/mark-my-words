@@ -175,6 +175,43 @@ export function useAuthors() {
   return useQuery({ queryKey: keys.authors(), queryFn: () => db.authors.list() });
 }
 
+export function useAuthorPage(authorId: string | undefined) {
+  const db = useDb();
+  return useQuery({
+    queryKey: ['author', authorId],
+    enabled: Boolean(authorId),
+    queryFn: () => {
+      if (!authorId) return null;
+      const author = db.authors.getById(authorId);
+      if (!author) return null;
+
+      const predictions = db.predictions.list({ authorId });
+      const amendmentCounts = db.predictions.amendmentCounts();
+      const queued = db.checks.queuedVerdicts();
+      const now = new Date();
+
+      const items: FeedItem[] = predictions.map((prediction) => ({
+        prediction,
+        author,
+        amendmentCount: amendmentCounts.get(prediction.id) ?? 0,
+        hasQueuedVerdict: queued.has(prediction.id),
+        queuedVerdict: queued.get(prediction.id) ?? null,
+      }));
+
+      const firstSeen = predictions
+        .map((p) => p.statementDate)
+        .sort()[0] ?? null;
+
+      return {
+        author,
+        record: tallyRecord(predictions),
+        items: sortByHeat(items, now) as FeedItem[],
+        firstSeen,
+      };
+    },
+  });
+}
+
 export interface Standing {
   author: Author;
   record: AuthorRecord;

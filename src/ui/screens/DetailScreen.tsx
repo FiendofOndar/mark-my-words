@@ -17,6 +17,8 @@ import {
   useUpdatePrediction,
 } from '../queries';
 import { CheckLog } from '../components/CheckLog';
+import { ReceiptCard } from '../../receipts/ReceiptCard';
+import { useReceipt } from '../../receipts/useReceipt';
 import {
   describeDeadline,
   formatCountdown,
@@ -49,6 +51,7 @@ export function DetailScreen() {
   const reject = useRejectVerdict();
   const update = useUpdatePrediction();
   const snooze = useSnoozePrompt();
+  const receipt = useReceipt();
   const amend = useAmendPrediction();
   const remove = useDeletePrediction();
   const setSatisfied = useSetCriterionSatisfied();
@@ -82,7 +85,15 @@ export function DetailScreen() {
   };
 
   return (
-    <Screen title={author.displayName} subtitle={author.handle ?? undefined} back>
+    <Screen
+      title={
+        <Link to={`/author/${author.id}`} className="underline-offset-4 hover:underline">
+          {author.displayName}
+        </Link>
+      }
+      subtitle={author.handle ?? undefined}
+      back
+    >
       {/* The quote carries the page. */}
       <section className="paper border-b border-rule bg-surface px-5 py-6">
         <blockquote className="font-display text-[22px] leading-snug text-ink">
@@ -327,6 +338,25 @@ export function DetailScreen() {
       <section className="border-b border-rule px-5 py-5">
         <h2 className="text-[13px] font-semibold tracking-wide text-ink-dim uppercase">Actions</h2>
         <div className="mt-3 flex flex-wrap gap-2">
+          {isResolved(p.status) && (
+            <ActionButton
+              disabled={receipt.state === 'rendering'}
+              onClick={() =>
+                receipt.generate(
+                  <ReceiptCard
+                    prediction={p}
+                    author={author}
+                    sources={log.flatMap((entry) => entry.evidence).filter((e) => e.fetchStatus === 'ok')}
+                    amendmentCount={amendments.length}
+                  />,
+                  `${author.displayName} ${p.rawStatement}`,
+                  'receipt',
+                )
+              }
+            >
+              {receipt.state === 'rendering' ? 'Making the card...' : 'Share the receipt'}
+            </ActionButton>
+          )}
           {p.verificationMode === 'searchable' && (
             <ActionButton
               onClick={() => pull.mutate({ onlyPredictionId: p.id })}
@@ -354,6 +384,11 @@ export function DetailScreen() {
             Delete
           </ActionButton>
         </div>
+
+        {receipt.error && <p className="mt-2 text-[12px] text-miss">{receipt.error}</p>}
+        {receipt.state === 'downloaded' && (
+          <p className="mt-2 text-[12px] text-ink-faint">Saved to your downloads.</p>
+        )}
 
         {showResolve && (
           <div className="mt-4 rounded border border-rule bg-surface p-3">
