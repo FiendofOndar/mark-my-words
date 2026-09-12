@@ -24,6 +24,25 @@ allprojects {
     }
 }
 
+/*
+ * Some Capacitor plugins hardcode their own compileSdk instead of reading the
+ * project's. send-intent pins 35, while the androidx libraries it pulls in
+ * require 36 or later, so the build fails checking AAR metadata. Forcing every
+ * Android subproject onto this project's compileSdk is the documented way
+ * through, and is safe: compileSdk only controls which APIs are available at
+ * compile time, not the runtime behavior (targetSdk) or which devices can
+ * install the app (minSdk), both of which each plugin keeps.
+ */
+subprojects { subproject ->
+    afterEvaluate {
+        if (subproject.hasProperty('android')) {
+            subproject.android {
+                compileSdkVersion rootProject.ext.compileSdkVersion
+            }
+        }
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
