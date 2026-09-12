@@ -20,9 +20,13 @@ npm run build
 ### Getting the APK
 
 **From CI, with nothing installed locally.** Every push to `main` builds a debug
-APK and attaches it to the run. Go to the Actions tab, open the latest run, and
-download the `mark-my-words-debug-<sha>` artifact. You can also trigger a build
-by hand from that tab (Run workflow). Unzip it and sideload the `.apk`.
+APK and publishes it to a rolling release, so the download link never changes:
+
+    https://github.com/FiendofOndar/mark-my-words/releases/latest
+
+Open that on the phone, tap the `.apk`, and allow the install when Android asks
+about unknown sources. The same file is also attached to the workflow run as an
+artifact if you would rather have the zip.
 
 One caveat: a debug APK is signed with a keystore the runner generates fresh
 each time, so the signature changes between builds and Android will refuse to
