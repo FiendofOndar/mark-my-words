@@ -108,7 +108,7 @@ describe('a pull', () => {
     const prediction = addPrediction();
     const verifier = new ScriptedVerifier(() => hitResult());
 
-    const summary = await runPull(db, { verifier, fetcher: echoFetcher });
+    const summary = await runPull(db, { verifier, fetcher: echoFetcher }, { minGapMs: 0 });
 
     expect(summary).toMatchObject({ checked: 1, resolved: 1, errors: 0 });
 
@@ -129,7 +129,7 @@ describe('a pull', () => {
     addPrediction({ daysToDeadline: 3 });
     const verifier = new ScriptedVerifier(() => nothingYet());
 
-    const summary = await runPull(db, { verifier, fetcher: echoFetcher });
+    const summary = await runPull(db, { verifier, fetcher: echoFetcher }, { minGapMs: 0 });
 
     expect(verifier.calls).toBe(1);
     expect(summary.checked).toBe(1);
@@ -139,7 +139,7 @@ describe('a pull', () => {
     for (let i = 0; i < 5; i += 1) addPrediction();
     const verifier = new ScriptedVerifier(() => nothingYet());
 
-    const summary = await runPull(db, { verifier, fetcher: echoFetcher }, { budget: 2 });
+    const summary = await runPull(db, { verifier, fetcher: echoFetcher }, { budget: 2, minGapMs: 0 });
 
     expect(verifier.calls).toBe(2);
     expect(summary.deferred).toBe(3);
@@ -150,13 +150,13 @@ describe('a pull', () => {
     for (let i = 0; i < 4; i += 1) addPrediction();
     const verifier = new ScriptedVerifier(() => nothingYet());
 
-    const first = await runPull(db, { verifier, fetcher: echoFetcher }, { dailyQuota: 3 });
+    const first = await runPull(db, { verifier, fetcher: echoFetcher }, { dailyQuota: 3, minGapMs: 0 });
     expect(first.checked).toBe(3);
     expect(first.quotaBlocked).toBe(1);
     expect(db.quota.usedToday('scripted')).toBe(3);
 
     // The ceiling is a running total, not a per-pull allowance.
-    const second = await runPull(db, { verifier, fetcher: echoFetcher }, { dailyQuota: 3 });
+    const second = await runPull(db, { verifier, fetcher: echoFetcher }, { dailyQuota: 3, minGapMs: 0 });
     expect(second.checked).toBe(0);
     expect(second.quotaBlocked).toBeGreaterThan(0);
   });
@@ -165,7 +165,7 @@ describe('a pull', () => {
     const prediction = addPrediction();
     const verifier = new ScriptedVerifier(() => new VerifierError('Quota gone.', 'rate_limit'));
 
-    const summary = await runPull(db, { verifier, fetcher: echoFetcher });
+    const summary = await runPull(db, { verifier, fetcher: echoFetcher }, { minGapMs: 0 });
 
     expect(summary).toMatchObject({ checked: 0, errors: 1 });
     const after = db.predictions.getById(prediction.id)!;
@@ -174,7 +174,7 @@ describe('a pull', () => {
     expect(db.checks.listFor(prediction.id)[0]!.outcome).toBe('error');
 
     // Still due on the next pull.
-    const retry = await runPull(db, { verifier: new ScriptedVerifier(() => hitResult()), fetcher: echoFetcher });
+    const retry = await runPull(db, { verifier: new ScriptedVerifier(() => hitResult()), fetcher: echoFetcher }, { minGapMs: 0 });
     expect(retry.resolved).toBe(1);
   });
 
@@ -182,7 +182,7 @@ describe('a pull', () => {
     const prediction = addPrediction();
     const verifier = new ScriptedVerifier(() => hitResult(70));
 
-    const summary = await runPull(db, { verifier, fetcher: echoFetcher });
+    const summary = await runPull(db, { verifier, fetcher: echoFetcher }, { minGapMs: 0 });
 
     expect(summary.queued).toBe(1);
     expect(db.predictions.getById(prediction.id)!.status).toBe('open');
@@ -197,12 +197,16 @@ describe('a pull', () => {
       return nothingYet();
     });
 
-    await runPull(db, { verifier, fetcher: echoFetcher });
+    await runPull(db, { verifier, fetcher: echoFetcher }, { minGapMs: 0 });
 
     // Inside the final week the floor between checks is 12 hours, so the
     // second pull has to be later or the gate correctly refuses it.
     const later = new Date(Date.now() + 13 * 3_600_000);
-    await runPull(db, { verifier, fetcher: echoFetcher, now: () => later }, { now: () => later });
+    await runPull(
+      db,
+      { verifier, fetcher: echoFetcher, now: () => later },
+      { now: () => later, minGapMs: 0 },
+    );
 
     expect(seen).toHaveLength(2);
     expect(seen[0]).toBeNull();
@@ -213,8 +217,8 @@ describe('a pull', () => {
     addPrediction();
     const verifier = new ScriptedVerifier(() => nothingYet());
 
-    await runPull(db, { verifier, fetcher: echoFetcher });
-    const second = await runPull(db, { verifier, fetcher: echoFetcher });
+    await runPull(db, { verifier, fetcher: echoFetcher }, { minGapMs: 0 });
+    const second = await runPull(db, { verifier, fetcher: echoFetcher }, { minGapMs: 0 });
 
     expect(verifier.calls).toBe(1);
     expect(second.checked).toBe(0);
@@ -227,7 +231,7 @@ describe('a pull', () => {
     const summary = await runPull(
       db,
       { verifier, fetcher: echoFetcher },
-      { onlyPredictionId: stale.id, trigger: 'force' },
+      { onlyPredictionId: stale.id, trigger: 'force', minGapMs: 0 },
     );
 
     expect(summary.resolved).toBe(1);
@@ -236,10 +240,39 @@ describe('a pull', () => {
 
   it('says plainly when nothing was due', async () => {
     addPrediction({ daysToDeadline: 400, lastCheckedAt: new Date().toISOString() });
-    const summary = await runPull(db, {
-      verifier: new ScriptedVerifier(() => nothingYet()),
-      fetcher: echoFetcher,
-    });
+    const summary = await runPull(
+      db,
+      { verifier: new ScriptedVerifier(() => nothingYet()), fetcher: echoFetcher },
+      { minGapMs: 0 },
+    );
     expect(describePull(summary)).toBe('Nothing was due');
+  });
+});
+
+
+describe('staying under a per-minute limit', () => {
+  it('spaces its calls rather than firing them back to back', async () => {
+    addPrediction();
+    addPrediction();
+    const verifier = new ScriptedVerifier(() => nothingYet());
+
+    const started = Date.now();
+    await runPull(db, { verifier, fetcher: echoFetcher }, { minGapMs: 120 });
+    const elapsed = Date.now() - started;
+
+    expect(verifier.calls).toBe(2);
+    // One gap between two calls, and none before the first.
+    expect(elapsed).toBeGreaterThanOrEqual(110);
+  });
+
+  it('does not pause before the only call it makes', async () => {
+    addPrediction();
+    const started = Date.now();
+    await runPull(
+      db,
+      { verifier: new ScriptedVerifier(() => nothingYet()), fetcher: echoFetcher },
+      { minGapMs: 400 },
+    );
+    expect(Date.now() - started).toBeLessThan(400);
   });
 });

@@ -88,7 +88,11 @@ export interface PullPlan {
   skipped: number;
 }
 
-export const DEFAULT_PULL_BUDGET = 10;
+/**
+ * Checks are spaced to respect a per-minute rate limit, so this is also a
+ * ceiling on how long a pull takes. Six is about thirty-five seconds.
+ */
+export const DEFAULT_PULL_BUDGET = 6;
 
 /**
  * Decide what a single pull actually spends quota on.

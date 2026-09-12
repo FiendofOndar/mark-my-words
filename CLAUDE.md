@@ -85,6 +85,15 @@ is for.
 
 ## Unverified
 
+- **A 429 is three different limits.** Per minute, per day, and a separate
+  allowance for Google Search grounding. The body says which, and carries a
+  `retryDelay`. Never collapse them into one message: telling someone to come
+  back tomorrow when they hit a 10-per-minute cap is both wrong and infuriating.
+  `parseQuotaFailure` reads it; a short wait is retried once, automatically.
+- **Listing a model does not mean the key can call it.** The API reports what a
+  model supports, not what a key is entitled to, so paid-only models show up in
+  every free key's list. Selecting one in Settings tries it rather than trusting
+  the listing.
 - **Model ids get retired per account.** `gemini-2.5-flash` stopped being
   available to new keys and the app hard-failed on it. The default is now the
   `-latest` alias, and Settings can list what a key actually has, which is the

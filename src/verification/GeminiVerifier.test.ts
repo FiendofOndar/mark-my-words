@@ -262,3 +262,99 @@ describe('a retired model', () => {
     expect((error as VerifierError).detail).toContain('no longer available');
   });
 });
+
+describe('rate limits', () => {
+  const quotaBody = (quotaId: string, retryDelay?: string) =>
+    JSON.stringify({
+      error: {
+        code: 429,
+        status: 'RESOURCE_EXHAUSTED',
+        details: [
+          {
+            '@type': 'type.googleapis.com/google.rpc.QuotaFailure',
+            violations: [{ quotaId, quotaValue: '10' }],
+          },
+          ...(retryDelay
+            ? [{ '@type': 'type.googleapis.com/google.rpc.RetryInfo', retryDelay }]
+            : []),
+        ],
+      },
+    });
+
+  it('waits out a short per-minute limit instead of giving up', async () => {
+    let calls = 0;
+    const fetchImpl = vi.fn(async (..._args: FetchArgs) => {
+      calls += 1;
+      return calls === 1
+        ? new Response(quotaBody('GenerateRequestsPerMinutePerProjectPerModel-FreeTier', '0.05s'), {
+            status: 429,
+          })
+        : new Response(
+            JSON.stringify({ candidates: [{ content: { parts: [{ text: GOOD_JSON }] } }] }),
+            { status: 200 },
+          );
+    });
+
+    const result = await verifier(fetchImpl as never).structure(INPUT);
+    expect(calls).toBe(2);
+    expect(result.value.normalizedClaim).toContain('Cardinals');
+  });
+
+  it('retries at most once, then reports honestly', async () => {
+    const fetchImpl = vi.fn(
+      async (..._args: FetchArgs) =>
+        new Response(quotaBody('GenerateRequestsPerMinutePerProjectPerModel-FreeTier', '0.05s'), {
+          status: 429,
+        }),
+    );
+
+    const error = await verifier(fetchImpl as never)
+      .structure(INPUT)
+      .catch((e: VerifierError) => e);
+
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    expect(error).toMatchObject({ kind: 'rate_limit' });
+    expect((error as VerifierError).message).toMatch(/last minute/i);
+  });
+
+  it('does not sit waiting on a limit that lasts hours', async () => {
+    const fetchImpl = vi.fn(
+      async (..._args: FetchArgs) =>
+        new Response(quotaBody('GenerateRequestsPerDayPerProjectPerModel-FreeTier', '7200s'), {
+          status: 429,
+        }),
+    );
+
+    const error = await verifier(fetchImpl as never)
+      .structure(INPUT)
+      .catch((e: VerifierError) => e);
+
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect((error as VerifierError).message).toMatch(/used up/i);
+    expect((error as VerifierError).retryAfterSeconds).toBe(7200);
+  });
+
+  it('never tells you to come back tomorrow for a per-minute limit', async () => {
+    const fetchImpl = vi.fn(
+      async (..._args: FetchArgs) =>
+        new Response(quotaBody('GenerateRequestsPerMinutePerProjectPerModel-FreeTier'), {
+          status: 429,
+        }),
+    );
+    const error = await verifier(fetchImpl as never)
+      .structure(INPUT)
+      .catch((e: VerifierError) => e);
+    expect((error as VerifierError).message).not.toMatch(/tomorrow/i);
+  });
+
+  it('separates the grounding allowance from the request allowance', async () => {
+    const fetchImpl = vi.fn(
+      async (..._args: FetchArgs) =>
+        new Response(quotaBody('GroundingWithGoogleSearchRequestsPerDay-FreeTier'), { status: 429 }),
+    );
+    const error = await verifier(fetchImpl as never)
+      .structure(INPUT)
+      .catch((e: VerifierError) => e);
+    expect((error as VerifierError).message).toMatch(/drafting still works/i);
+  });
+});

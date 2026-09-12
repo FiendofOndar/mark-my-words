@@ -27,6 +27,8 @@ export interface PullSummary {
 
 export interface PullOptions {
   budget?: number;
+  /** Spacing between model calls, to stay under the per-minute limit. */
+  minGapMs?: number;
   /** null means the provider publishes no cap. */
   dailyQuota?: number | null;
   trigger?: CheckTriggerKind;
@@ -34,6 +36,11 @@ export interface PullOptions {
   /** Check exactly this one, bypassing the cadence gate. */
   onlyPredictionId?: string;
 }
+
+/** Six seconds apart keeps a pull under a 10-per-minute ceiling. */
+export const DEFAULT_MIN_GAP_MS = 6_500;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export function applyCheckPlan(db: Db, plan: CheckPlan): void {
   if (!plan.check && !plan.predictionPatch) return; // nothing happened
@@ -99,7 +106,14 @@ export async function runPull(
     plans: [],
   };
 
+  let first = true;
   for (const prediction of toCheck) {
+    // Free tiers cap requests per minute, not just per day. Firing a whole pull
+    // back to back trips that cap and turns a working pull into a row of
+    // rate-limit errors, so calls are spaced instead.
+    if (!first) await sleep(options.minGapMs ?? DEFAULT_MIN_GAP_MS);
+    first = false;
+
     const plan = await runCheck(deps, {
       prediction,
       criteria: db.predictions.criteriaFor(prediction.id),

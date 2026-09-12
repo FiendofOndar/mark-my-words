@@ -79,10 +79,25 @@ export function SettingsScreen() {
     }
   };
 
+  /**
+   * Listing a model does not mean this key may call it: the API reports what a
+   * model supports, not what a key is entitled to, and paid-only models appear
+   * in the list of every free key. So picking one proves it.
+   */
   const chooseModel = async (next: string) => {
     setModel(next);
     setStored(await saveVerifierConfig({ model: next }));
-    setTest({ state: 'idle' });
+    setTest({ state: 'running' });
+    try {
+      await new GeminiVerifier({ apiKey, model: next, timeoutMs: 20_000 }).testConnection();
+      setTest({ state: 'ok', message: `${next} works.` });
+    } catch (err) {
+      const detail = err instanceof VerifierError ? err.detail : undefined;
+      setTest({
+        state: 'fail',
+        message: `${next}: ${(err as Error).message}${detail ? ` ${detail}` : ''}`,
+      });
+    }
   };
 
   const runTest = async () => {
@@ -173,7 +188,7 @@ export function SettingsScreen() {
                   label="Model"
                   hint={
                     models
-                      ? `${models.length} available to this key.`
+                      ? `${models.length} listed. Not all of them are free, so picking one tries it.`
                       : `Blank uses ${DEFAULT_GEMINI_MODEL}. Google retires model names, so check what this key actually has.`
                   }
                 >
@@ -209,6 +224,10 @@ export function SettingsScreen() {
                   >
                     {listing ? 'Asking Google...' : 'Show models this key can use'}
                   </button>
+                  <p className="mt-2 text-[12px] text-ink-faint">
+                    Free keys are limited per minute as well as per day, so give it a few seconds
+                    between tries. Models with &ldquo;flash&rdquo; in the name have the most room.
+                  </p>
                 </Field>
 
                 <div className="flex flex-wrap gap-2">

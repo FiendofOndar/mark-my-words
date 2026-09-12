@@ -125,6 +125,8 @@ export class VerifierError extends Error {
       | 'refused'
       | 'unknown',
     readonly detail?: string,
+    /** Seconds Google asked us to wait, when it said. */
+    readonly retryAfterSeconds?: number | null,
   ) {
     super(message);
     this.name = 'VerifierError';

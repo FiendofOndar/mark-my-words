@@ -8,6 +8,7 @@ import {
 } from './types';
 import { extractJson, parseStructuredPrediction } from './structureSchema';
 import { parseCheckResponse } from './checkSchema';
+import { describeQuotaFailure, parseQuotaFailure } from './quotaError';
 import {
   STRUCTURE_RESPONSE_SCHEMA,
   STRUCTURE_SYSTEM_PROMPT,
@@ -30,6 +31,11 @@ export const DEFAULT_GEMINI_MODEL = 'gemini-flash-latest';
  * default for the quota meter; the real number belongs in settings.
  */
 export const GEMINI_FREE_DAILY_REQUESTS = 200;
+
+/** Longer than this and waiting inline is worse than reporting it. */
+const MAX_AUTO_RETRY_SECONDS = 70;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export interface GeminiOptions {
   apiKey: string;
@@ -232,6 +238,15 @@ export class GeminiVerifier implements Verifier {
       });
       if (!response.ok) {
         const detail = await response.text().catch(() => '');
+        if (response.status === 429) {
+          const failure = parseQuotaFailure(detail);
+          throw new VerifierError(
+            describeQuotaFailure(failure),
+            'rate_limit',
+            detail,
+            failure?.retryAfterSeconds ?? null,
+          );
+        }
         throw new VerifierError(describeStatus(response.status), kindForStatus(response.status), detail);
       }
       return await response.json();
@@ -248,7 +263,7 @@ export class GeminiVerifier implements Verifier {
     }
   }
 
-  private async post(path: string, body: unknown): Promise<GeminiResponse> {
+  private async post(path: string, body: unknown, attempt = 0): Promise<GeminiResponse> {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
 
@@ -276,7 +291,22 @@ export class GeminiVerifier implements Verifier {
 
     if (!response.ok) {
       const detail = await response.text().catch(() => '');
-      throw new VerifierError(describeStatus(response.status), kindForStatus(response.status), detail.slice(0, 500));
+
+      if (response.status === 429) {
+        const failure = parseQuotaFailure(detail);
+        const wait = failure?.retryAfterSeconds ?? null;
+
+        // Google usually names a short wait for a per-minute limit. Waiting it
+        // out once is far better than telling someone to come back tomorrow.
+        if (attempt === 0 && wait !== null && wait > 0 && wait <= MAX_AUTO_RETRY_SECONDS) {
+          await sleep(wait * 1000 + 250);
+          return this.post(path, body, attempt + 1);
+        }
+
+        throw new VerifierError(describeQuotaFailure(failure), 'rate_limit', detail, wait);
+      }
+
+      throw new VerifierError(describeStatus(response.status), kindForStatus(response.status), detail);
     }
 
     return (await response.json()) as GeminiResponse;
@@ -298,7 +328,7 @@ function describeStatus(status: number): string {
     case 'bad_model':
       return 'That model does not exist for this key. Pick one from the list.';
     case 'rate_limit':
-      return "Today's free quota is used up. Try again tomorrow.";
+      return 'Rate limited. Wait a moment and try again.';
     case 'network':
       return 'The model is unavailable right now.';
     default:

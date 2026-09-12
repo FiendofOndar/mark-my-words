@@ -107,8 +107,8 @@ describe('pull planning', () => {
     expect(plan.toCheck.map((p) => p.id)).toEqual([older.id, newer.id]);
   });
 
-  it('defaults to a budget of ten', () => {
-    const many = Array.from({ length: 14 }, () =>
+  it('spends no more than the default budget and defers the rest', () => {
+    const many = Array.from({ length: DEFAULT_PULL_BUDGET + 4 }, () =>
       makePrediction({ resolutionDate: isoDaysFrom(NOW, 300) }),
     );
     const plan = planPull(many, NOW);
