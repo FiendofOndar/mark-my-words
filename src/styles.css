@@ -98,6 +98,50 @@
     background-image: radial-gradient(rgba(0, 0, 0, 0.025) 1px, transparent 1px);
   }
 
+  /*
+   * Chrome draws an unchecked checkbox as a solid white box, which on a dark
+   * ground is the loudest thing on the screen: the review card's one blocker
+   * out-shouted the sentence it was asking about. Drawn by hand so unchecked is
+   * an outline and checked is the cream fill, in both themes.
+   */
+  .checkbox {
+    appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    border: 1.5px solid var(--color-ink-faint);
+    border-radius: 3px;
+    background: transparent;
+    display: grid;
+    place-content: center;
+  }
+
+  .checkbox:checked {
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+  }
+
+  .checkbox:checked::after {
+    content: '';
+    width: 0.65rem;
+    height: 0.35rem;
+    border-left: 2px solid var(--color-ground);
+    border-bottom: 2px solid var(--color-ground);
+    transform: translateY(-1px) rotate(-45deg);
+  }
+
+  /* The review card's blockers are amber, not cream, so they read as the thing
+     still holding the clock rather than as another setting. */
+  .checkbox-warn:checked {
+    border-color: var(--color-partial);
+    background: var(--color-partial);
+  }
+
+  .checkbox:focus-visible {
+    outline: 2px solid var(--color-ink-dim);
+    outline-offset: 2px;
+  }
+
   .stamp {
     font-family: var(--font-sans);
     letter-spacing: 0.14em;

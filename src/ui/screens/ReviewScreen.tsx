@@ -119,10 +119,12 @@ function IntakeBanner({ notes }: { notes: IntakeNotes }) {
           : `Drafted by ${notes.model}. Nothing is tracked until you confirm it.`}
       </p>
       {notes.warnings.length > 0 && (
-        <ul className="mt-2 space-y-1">
+        // A literal "·" typed in front of each item left a stray bullet
+        // floating on its own when there was only one warning.
+        <ul className="mt-2 list-disc space-y-1 pl-4 marker:text-ink-faint">
           {notes.warnings.map((warning) => (
             <li key={warning} className="text-[12px] text-ink-faint">
-              · {warning}
+              {warning}
             </li>
           ))}
         </ul>

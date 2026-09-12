@@ -59,10 +59,17 @@ describe('offline drafting', () => {
     expect(value.disconfirmingTrigger).toBeTruthy();
   });
 
-  it('always warns that it is not a model', async () => {
+  it('never lets an offline draft pass as a model reading', async () => {
     const result = await verifier.structure({ rawStatement: 'A thing happens.', today });
-    expect(result.warnings.join(' ')).toMatch(/without a model/i);
-    expect(result.value.ambiguities.join(' ')).toMatch(/pattern matching/i);
+
+    // The review screen keys its offline banner off the provider, so this is
+    // the field the warning actually depends on. It used to be said three times
+    // on one screen: here, in a warning, and in the blocker below.
     expect(result.provider).toBe('mock');
+
+    // And an offline draft always arrives with something the user has to
+    // resolve by hand before the clock can start.
+    expect(result.value.ambiguities.length).toBeGreaterThan(0);
+    expect(result.value.ambiguities.join(' ')).toMatch(/deadline/i);
   });
 });

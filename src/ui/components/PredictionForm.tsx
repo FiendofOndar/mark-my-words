@@ -270,7 +270,7 @@ export function PredictionForm({
                         prev.map((s, i) => (i === index ? e.target.checked : s)),
                       )
                     }
-                    className="mt-0.5 h-5 w-5 shrink-0 accent-partial"
+                    className="checkbox checkbox-warn mt-0.5"
                   />
                   <span className="text-[14px] text-ink-dim">{question}</span>
                 </label>
@@ -485,7 +485,7 @@ export function PredictionForm({
             type="checkbox"
             checked={v.forceManual}
             onChange={(e) => set('forceManual', e.target.checked)}
-            className="mt-0.5 h-5 w-5 shrink-0 accent-ink"
+            className="checkbox mt-0.5"
           />
           <span className="text-[13px] text-ink-dim">
             Never auto-resolve this one. Show me the evidence and let me call it.

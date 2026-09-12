@@ -46,8 +46,10 @@ export class MockVerifier implements Verifier {
         search_queries: [],
         category,
         tags: [],
+        // Where the draft came from is the banner's job to say. This is the
+        // blocker the user has to tick, so it is the work, not the provenance.
         ambiguities: [
-          'This draft came from offline pattern matching, not a model. Check the deadline and rewrite the criteria into something a search could actually settle.',
+          'Check the deadline, and rewrite the criteria into something a search could actually settle.',
         ],
       },
       { today: input.today },
@@ -57,7 +59,8 @@ export class MockVerifier implements Verifier {
 
     return {
       value: parsed.value,
-      warnings: ['Drafted offline without a model. Everything here is a guess.'],
+      // The offline banner already says this in larger type directly above.
+      warnings: [],
       provider: this.providerId,
       model: this.modelId,
       tokensUsed: null,
