@@ -4,7 +4,7 @@ import { Icon } from '../components/Icon';
 import { secondaryButton } from '../components/Field';
 import { PredictionRow } from '../components/PredictionRow';
 import { useAuthorPage } from '../queries';
-import { formatRate, formatRecord } from '../../domain/scoring';
+import { MIN_SCORED_TO_RANK, formatHeadline, formatRate, formatRecord } from '../../domain/scoring';
 import { ScorecardCard } from '../../receipts/ReceiptCard';
 import { useReceipt } from '../../receipts/useReceipt';
 
@@ -26,12 +26,18 @@ export function AuthorScreen() {
   return (
     <Screen
       title={author.displayName}
-      subtitle={`${formatRecord(record)} · ${formatRate(record)}`}
+      subtitle={record.ranked ? `${formatRecord(record)} · ${formatRate(record)}` : formatRecord(record)}
       back
     >
       <section className="border-b border-rule px-5 py-5">
         <div className="flex items-baseline gap-5">
-          <span className="font-display text-5xl tabular-nums">{formatRate(record)}</span>
+          {/* The rate only appears once it is allowed to mean something. An
+              author 1-0 headlined as "100%" is the cherry-picked number the
+              five-call threshold exists to refuse, printed directly above the
+              sentence explaining the threshold. */}
+          <span className="font-display text-5xl tabular-nums">
+            {formatHeadline(record)}
+          </span>
           <span className="text-[14px] text-ink-dim">
             {record.scored} settled
             {record.open > 0 && ` · ${record.open} running`}
@@ -40,7 +46,8 @@ export function AuthorScreen() {
         </div>
         {!record.ranked && record.scored > 0 && (
           <p className="mt-2 text-[12px] text-ink-faint">
-            Not ranked yet. Needs five settled calls.
+            A rate needs {MIN_SCORED_TO_RANK} settled calls, so one lucky guess cannot stand as a
+            record.
           </p>
         )}
 

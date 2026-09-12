@@ -83,3 +83,16 @@ export function formatRecord(r: AuthorRecord): string {
 export function formatRate(r: AuthorRecord): string {
   return r.rate === null ? '--' : `${Math.round(r.rate * 100)}%`;
 }
+
+/**
+ * The big number to put in front of someone's name.
+ *
+ * A hit rate is only shown once the record can carry one. An author 1-0
+ * displayed as "100%" is exactly the cherry-picked number the five-call
+ * threshold exists to refuse, and it was being printed on the author screen,
+ * in the standings, and on the card that leaves the app and gets shown to the
+ * person it is about. Three places, one rule, so the rule lives here.
+ */
+export function formatHeadline(r: AuthorRecord): string {
+  return r.ranked ? formatRate(r) : formatRecord(r);
+}

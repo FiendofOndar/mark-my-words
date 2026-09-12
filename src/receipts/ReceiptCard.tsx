@@ -1,6 +1,11 @@
 import type { Author, Evidence, Prediction } from '../domain/types';
 import { describeDeadline, formatDate, formatLateBadge, STATUS_LABEL } from '../domain/format';
-import { formatRate, formatRecord, type AuthorRecord } from '../domain/scoring';
+import {
+  MIN_SCORED_TO_RANK,
+  formatHeadline,
+  formatRecord,
+  type AuthorRecord,
+} from '../domain/scoring';
 
 export const CARD_WIDTH = 1080;
 export const CARD_HEIGHT = 1350;
@@ -118,11 +123,22 @@ export function ScorecardCard({
       </p>
       {author.handle && <p style={meta}>{author.handle}</p>}
 
+      {/*
+        An unranked author leads with the record, not the rate.
+        "100%" off one settled call is the cherry-picked number the five-call
+        threshold exists to refuse, and this is the card that leaves the app and
+        gets shown to the person it is about. The rate arrives when it means
+        something.
+      */}
       <p style={{ fontSize: 220, lineHeight: 1, marginTop: 64, fontFamily: SERIF }}>
-        {formatRate(record)}
+        {formatHeadline(record)}
       </p>
       <p style={{ ...meta, fontSize: 40, marginTop: 16 }}>
-        {formatRecord(record)} on {record.scored} settled call{record.scored === 1 ? '' : 's'}
+        {record.ranked
+          ? `${formatRecord(record)} on ${record.scored} settled calls`
+          : record.scored === 0
+            ? 'Nothing settled yet'
+            : `${record.scored} settled call${record.scored === 1 ? '' : 's'}. A rate needs ${MIN_SCORED_TO_RANK}.`}
       </p>
 
       <div style={{ flex: 1 }} />

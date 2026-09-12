@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MIN_SCORED_TO_RANK, formatRate, formatRecord, tallyRecord } from './scoring';
+import { MIN_SCORED_TO_RANK, formatHeadline, formatRate, formatRecord, tallyRecord } from './scoring';
 import { makePrediction } from './fixtures';
 
 const of = (status: Parameters<typeof makePrediction>[0] extends never ? never : string, extra = {}) =>
@@ -64,5 +64,20 @@ describe('author record', () => {
   it('formats the record with partials only when there are any', () => {
     expect(formatRecord(tallyRecord([of('hit'), of('miss')]))).toBe('1-1');
     expect(formatRecord(tallyRecord([of('hit'), of('miss'), of('partial')]))).toBe('1-1-1');
+  });
+
+  it('never headlines a rate an author has not earned', () => {
+    // One settled call shown as "100%" is the cherry-pick the threshold exists
+    // to refuse, and the headline is what goes on the shareable card.
+    const lucky = tallyRecord([of('hit')]);
+    expect(lucky.ranked).toBe(false);
+    expect(formatHeadline(lucky)).toBe('1-0');
+
+    const earned = tallyRecord(Array.from({ length: MIN_SCORED_TO_RANK }, () => of('hit')));
+    expect(formatHeadline(earned)).toBe('100%');
+  });
+
+  it('headlines a record rather than "--" when nothing has settled', () => {
+    expect(formatHeadline(tallyRecord([of('open')]))).toBe('0-0');
   });
 });
