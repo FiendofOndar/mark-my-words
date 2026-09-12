@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#FFFFFF</color>
+    <!-- The app's ground. Was Capacitor's default teal. -->
+    <color name="ic_launcher_background">#111014</color>
+    <color name="brand_ink">#EDE7DC</color>
 </resources>
