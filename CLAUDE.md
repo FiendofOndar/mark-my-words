@@ -85,6 +85,10 @@ is for.
 
 ## Unverified
 
+- **Never let a tested credential differ from the stored one.** Settings once
+  tested the typed key while every check used the last saved one, so a new key
+  could pass its test and never be used. Anything that spends a request commits
+  first, and the hint says which key is actually in force.
 - **Grounded checks on a free Gemini key get 20 per day.** They are billed
   against `GenerateRequestsPerDayPerProjectPerModel-FreeTier` (quotaValue 20,
   5/min), not the 5,000/day grounding allowance, which needs billing. The whole

@@ -58,10 +58,24 @@ export function SettingsScreen() {
     setTest({ state: 'idle' });
   };
 
+  /**
+   * Anything that spends a request commits the key first.
+   *
+   * Testing the typed key while checks keep using the last saved one is a trap:
+   * the test passes, the app carries on with the old key, and there is nothing
+   * on screen to say so.
+   */
+  const commit = async () => {
+    if (!keyDirty) return;
+    setStored(await saveVerifierConfig({ apiKey, model }));
+    setKeyDirty(false);
+  };
+
   const loadModels = async () => {
     setListing(true);
     setTest({ state: 'idle' });
     try {
+      await commit();
       const found = await new GeminiVerifier({ apiKey, model, timeoutMs: 20_000 }).listModels();
       setModels(found);
       if (found.length > 0 && !found.some((m) => m.id === model)) {
@@ -103,6 +117,7 @@ export function SettingsScreen() {
   const runTest = async () => {
     setTest({ state: 'running' });
     try {
+      await commit();
       await new GeminiVerifier({ apiKey, model, timeoutMs: 20_000 }).testConnection();
       setTest({ state: 'ok', message: 'The key works.' });
     } catch (err) {
@@ -168,7 +183,13 @@ export function SettingsScreen() {
               <>
                 <Field
                   label="API key"
-                  hint="Stays on this device. Never written to the database, so it is not in the export."
+                  hint={
+                    keyDirty
+                      ? 'Not in use yet. Testing or listing will commit it.'
+                      : stored.apiKey
+                        ? `In use: ${maskKey(stored.apiKey)}. Stays on this device, never written to the database.`
+                        : 'Stays on this device. Never written to the database, so it is not in the export.'
+                  }
                 >
                   <input
                     type="password"
