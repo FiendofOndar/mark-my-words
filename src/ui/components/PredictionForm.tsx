@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Field, SegmentedControl, inputClass, primaryButton } from './Field';
+import { Bullets } from './Bullets';
 import {
   CATEGORIES,
   type Author,
@@ -496,8 +497,11 @@ export function PredictionForm({
       <Field group label="What would settle it" hint="Each line is checked independently.">
         <div className="space-y-2">
           {v.criteria.map((value, index) => (
-            <div key={index} className="flex gap-2">
-              <input
+            <div key={index} className="flex items-start gap-2">
+              {/* A textarea, because a criterion is a sentence. In a one-line
+                  input the sentence scrolled out of sight as it was typed, and
+                  a criterion you cannot read back is one you cannot check. */}
+              <textarea
                 value={value}
                 onChange={(e) =>
                   set(
@@ -505,8 +509,9 @@ export function PredictionForm({
                     v.criteria.map((c, i) => (i === index ? e.target.value : c)),
                   )
                 }
+                rows={2}
                 placeholder={index === 0 ? 'The Cardinals win the 2026 World Series' : 'And...'}
-                className={inputClass}
+                className={`${inputClass} resize-y`}
               />
               {v.criteria.length > 1 && (
                 <button
@@ -518,7 +523,7 @@ export function PredictionForm({
                       v.criteria.filter((_, i) => i !== index),
                     )
                   }
-                  className="shrink-0 rounded border border-rule px-3 text-ink-faint"
+                  className="min-h-11 shrink-0 rounded border border-rule px-3 text-ink-faint"
                 >
                   −
                 </button>
@@ -567,11 +572,7 @@ export function PredictionForm({
       )}
 
       {problems.length > 0 && (
-        <ul className="space-y-1 text-[13px] text-ink-faint">
-          {problems.map((problem) => (
-            <li key={problem}>· {problem}</li>
-          ))}
-        </ul>
+        <Bullets items={problems} className="text-[13px] text-ink-faint" />
       )}
 
       <button

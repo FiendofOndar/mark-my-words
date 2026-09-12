@@ -17,6 +17,7 @@ import {
 } from '../queries';
 import { formatDate } from '../../domain/format';
 import type { IntakeNotes } from '../../domain/types';
+import { Bullets } from '../components/Bullets';
 
 /**
  * The review card. A draft is a real row already, so this survives a reload and
@@ -119,15 +120,7 @@ function IntakeBanner({ notes }: { notes: IntakeNotes }) {
           : `Drafted by ${notes.model}. Nothing is tracked until you confirm it.`}
       </p>
       {notes.warnings.length > 0 && (
-        // A literal "·" typed in front of each item left a stray bullet
-        // floating on its own when there was only one warning.
-        <ul className="mt-2 list-disc space-y-1 pl-4 marker:text-ink-faint">
-          {notes.warnings.map((warning) => (
-            <li key={warning} className="text-[12px] text-ink-faint">
-              {warning}
-            </li>
-          ))}
-        </ul>
+        <Bullets items={notes.warnings} className="mt-2 text-[12px] text-ink-faint" />
       )}
     </section>
   );

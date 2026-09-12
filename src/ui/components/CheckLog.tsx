@@ -2,6 +2,7 @@ import type { Check, Evidence, FetchStatus } from '../../domain/types';
 import type { CheckLogEntry } from '../queries';
 import { formatDate } from '../../domain/format';
 import { Pill } from './Stamp';
+import { Bullets } from './Bullets';
 
 const FETCH_LABEL: Record<FetchStatus, { glyph: string; label: string; tone: string }> = {
   ok: { glyph: '✓', label: 'Quote found on the page', tone: 'text-hit' },
@@ -92,11 +93,7 @@ function ScoreChip({ check }: { check: Check }) {
           </p>
         )}
         {gates.length > 0 && (
-          <ul className="mt-2 space-y-1 text-partial">
-            {gates.map((gate) => (
-              <li key={gate}>· {gate}</li>
-            ))}
-          </ul>
+          <Bullets items={gates} className="mt-2 text-partial" />
         )}
       </div>
     </details>
