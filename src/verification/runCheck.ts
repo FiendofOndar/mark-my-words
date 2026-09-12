@@ -328,6 +328,8 @@ function errorPlan(
       modelConfidence: null,
       summary: err.message,
       outcome: 'error',
+      // The raw provider response, so a failure can be diagnosed from the log
+      // rather than reproduced.
       errorMessage: detail ?? err.message,
     },
   };

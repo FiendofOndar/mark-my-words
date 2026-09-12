@@ -14,6 +14,8 @@ export interface QuotaFailure {
   limit: string | null;
   /** From RetryInfo, in seconds. */
   retryAfterSeconds: number | null;
+  /** Google's own prose. Often the only thing present. */
+  message: string | null;
 }
 
 interface Violation {
@@ -27,11 +29,14 @@ export function parseQuotaFailure(body: string): QuotaFailure | null {
   try {
     parsed = JSON.parse(body);
   } catch {
-    return null;
+    // Not JSON at all. The raw body is still better than a canned sentence.
+    const text = body.trim();
+    return text ? { scope: 'unknown', quotaId: null, limit: null, retryAfterSeconds: null, message: text.slice(0, 400) } : null;
   }
 
-  const details = (parsed as { error?: { details?: unknown[] } })?.error?.details;
-  if (!Array.isArray(details)) return null;
+  const error = (parsed as { error?: { details?: unknown[]; message?: string } })?.error;
+  const message = typeof error?.message === 'string' ? error.message : null;
+  const details = Array.isArray(error?.details) ? error.details : [];
 
   let violation: Violation | null = null;
   let retryAfterSeconds: number | null = null;
@@ -50,26 +55,29 @@ export function parseQuotaFailure(body: string): QuotaFailure | null {
     }
   }
 
-  if (!violation && retryAfterSeconds === null) return null;
+  if (!violation && retryAfterSeconds === null && !message) return null;
 
   const quotaId = violation?.quotaId ?? null;
   const metric = violation?.quotaMetric ?? '';
 
   return {
-    scope: scopeOf(quotaId, metric),
+    // The structured block is not always sent. Google's prose usually names the
+    // limit anyway, so it is classified too rather than thrown away.
+    scope: scopeOf(quotaId, `${metric} ${message ?? ''}`),
     quotaId,
     limit: violation?.quotaValue ?? null,
     retryAfterSeconds,
+    message,
   };
 }
 
 function scopeOf(quotaId: string | null, metric: string): QuotaScope {
-  const haystack = `${quotaId ?? ''} ${metric}`.toLowerCase();
+  const haystack = `${quotaId ?? ''} ${metric}`.toLowerCase().replace(/[\s_-]+/g, '');
   // Grounding is billed and limited separately from generation, so a check can
   // fail on it while drafting still works fine.
-  if (haystack.includes('grounding') || haystack.includes('search')) return 'grounding';
-  if (haystack.includes('perminute') || haystack.includes('per_minute')) return 'minute';
-  if (haystack.includes('perday') || haystack.includes('per_day')) return 'day';
+  if (haystack.includes('grounding') || haystack.includes('googlesearch')) return 'grounding';
+  if (haystack.includes('perminute') || haystack.includes('perminuteper')) return 'minute';
+  if (haystack.includes('perday')) return 'day';
   return 'unknown';
 }
 
@@ -91,7 +99,11 @@ export function describeQuotaFailure(failure: QuotaFailure | null): string {
     case 'grounding':
       return `The web-search allowance is used up${limit}. Drafting still works; checking does not.${wait}`;
     default:
-      return `Rate limited${limit}.${wait || ' Wait a moment and try again.'}`;
+      // Unclassified. Google's own words beat a canned sentence that says
+      // nothing, which is exactly how the last version wasted everyone's time.
+      return failure.message
+        ? `Rate limited: ${failure.message}`
+        : `Rate limited${limit}.${wait || ' Wait a moment and try again.'}`;
   }
 }
 

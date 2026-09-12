@@ -52,10 +52,47 @@ describe('reading which limit was hit', () => {
     expect(f).toMatchObject({ scope: 'unknown', retryAfterSeconds: 12 });
   });
 
-  it('returns nothing for a body with no quota detail at all', () => {
-    expect(parseQuotaFailure(body([]))).toBeNull();
+  it("keeps Google's prose when the structured block is missing", () => {
+    // This is the shape that actually turns up on a free key: a 429 with a
+    // message and no details array at all.
+    const f = parseQuotaFailure(
+      JSON.stringify({
+        error: {
+          code: 429,
+          status: 'RESOURCE_EXHAUSTED',
+          message:
+            'You exceeded your current quota. Please check plan and billing details. quota_metric: generate_content_free_tier_requests, quota_limit: GenerateRequestsPerDayPerProjectPerModel-FreeTier',
+        },
+      }),
+    );
+    expect(f).not.toBeNull();
+    expect(f?.message).toMatch(/exceeded your current quota/);
+  });
+
+  it('classifies from the prose when there is no violation block', () => {
+    const perMinute = parseQuotaFailure(
+      JSON.stringify({
+        error: { code: 429, message: 'quota_limit: GenerateRequestsPerMinutePerProjectPerModel-FreeTier' },
+      }),
+    );
+    expect(perMinute?.scope).toBe('minute');
+
+    const grounding = parseQuotaFailure(
+      JSON.stringify({
+        error: { code: 429, message: 'Quota exceeded for grounding with Google Search requests' },
+      }),
+    );
+    expect(grounding?.scope).toBe('grounding');
+  });
+
+  it('hands back a non-JSON body rather than swallowing it', () => {
+    const f = parseQuotaFailure('<html>429 Too Many Requests</html>');
+    expect(f?.message).toContain('429 Too Many Requests');
+  });
+
+  it('returns nothing only when there is genuinely nothing', () => {
     expect(parseQuotaFailure('{"error":{"code":429}}')).toBeNull();
-    expect(parseQuotaFailure('not json')).toBeNull();
+    expect(parseQuotaFailure('')).toBeNull();
   });
 });
 
@@ -88,6 +125,17 @@ describe('what the user is told', () => {
     const message = describeQuotaFailure(null);
     expect(message).toMatch(/wait a moment/i);
     expect(message).not.toMatch(/tomorrow|minute allowance/i);
+  });
+
+  it("quotes Google verbatim when it cannot classify the limit", () => {
+    // A canned "wait a moment" when the API told us exactly what was wrong is
+    // how the previous version wasted a debugging round trip.
+    const message = describeQuotaFailure(
+      parseQuotaFailure(
+        JSON.stringify({ error: { code: 429, message: 'Quota exceeded for aggregated requests' } }),
+      ),
+    );
+    expect(message).toContain('Quota exceeded for aggregated requests');
   });
 
   it('scales the wait it quotes', () => {

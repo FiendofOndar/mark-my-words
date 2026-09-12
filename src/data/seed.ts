@@ -14,6 +14,12 @@ function daysFromNow(days: number): string {
   return endOfLocalDay(toLocalDateInput(d.toISOString()));
 }
 
+/** M/D/YYYY, the way the claim would actually have been said out loud. */
+function usDate(iso: string): string {
+  const d = new Date(iso);
+  return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
+}
+
 function monthsFromNow(months: number): string {
   const d = new Date();
   d.setMonth(d.getMonth() + months);
@@ -202,6 +208,37 @@ export function seedDemoData(db: Db): void {
       category: 'Personal',
       criteria: ['No further mention of the gutters from the neighbors before October 31'],
     });
+
+    /*
+     * A live API test fixture, dated so it is always already resolvable: a
+     * local weather claim from two days ago that came due yesterday. Recent,
+     * narrow, and settled by public record, which makes it the cheapest way to
+     * tell whether verification actually works end to end.
+     */
+    const weather = db.predictions.create({
+      authorId: self.id,
+      rawStatement: 'Anacortes WA temps will hit 85 F on ' + usDate(daysFromNow(-1)) + '.',
+      normalizedClaim:
+        'The daily high temperature recorded for Anacortes, Washington reached 85 degrees Fahrenheit or higher on ' +
+        daysFromNow(-1).slice(0, 10) +
+        '.',
+      statementDate: daysFromNow(-2),
+      sourceContext: 'Dinner',
+      deadlineType: 'fixed_date',
+      resolutionDate: daysFromNow(-1),
+      verificationMode: 'searchable',
+      category: 'Weather/Climate',
+      criteria: [
+        'The daily high temperature recorded at a National Weather Service station or official weather reporting site serving Anacortes, WA is 85 degrees Fahrenheit or higher on ' +
+          daysFromNow(-1).slice(0, 10),
+      ],
+      searchQueries: [
+        'Anacortes WA high temperature ' + daysFromNow(-1).slice(0, 10),
+        'Anacortes Washington weather history daily high ' + daysFromNow(-1).slice(0, 10),
+        'NWS Seattle observed highs Skagit County ' + daysFromNow(-1).slice(0, 10),
+      ],
+    });
+    db.predictions.update(weather.id, { trend: 'unknown', updatedAt: nowIso() });
 
     // A resolved miss that came true two years later. Demonstrates the badge.
     const late = db.predictions.create({

@@ -9,6 +9,7 @@ import { seedDemoData } from './seed';
 import { CriteriaFrozenError } from './repositories/predictionRepo';
 import { resolve } from '../domain/prediction';
 import { tallyRecord } from '../domain/scoring';
+import { isDueForCheck } from '../domain/cadence';
 
 const require = createRequire(import.meta.url);
 const wasmDir = path.dirname(require.resolve('sql.js/dist/sql-wasm.js'));
@@ -364,8 +365,8 @@ describe('demo seed', () => {
     seedDemoData(db);
 
     const all = db.predictions.list();
-    expect(all.length).toBe(7);
-    expect(all.filter((p) => p.status === 'open').length).toBe(5);
+    expect(all.length).toBe(8);
+    expect(all.filter((p) => p.status === 'open').length).toBe(6);
     expect(all.filter((p) => p.lateHitAt).length).toBe(1);
     expect(all.filter((p) => p.status === 'hit').length).toBe(1);
     expect(all.filter((p) => p.verificationMode === 'manual').length).toBe(1);
@@ -378,6 +379,22 @@ describe('demo seed', () => {
     const me = db.authors.findByName('Me')!;
     const record = tallyRecord(db.predictions.list({ authorId: me.id }));
     expect(record.hit).toBe(1);
-    expect(record.open).toBe(1);
+    expect(record.open).toBe(2);
+  });
+
+  it('seeds a weather claim that is already past its deadline, ready to check', () => {
+    seedDemoData(db);
+    const weather = db.predictions
+      .list()
+      .find((p) => p.rawStatement.includes('Anacortes'))!;
+
+    expect(weather).toBeDefined();
+    expect(weather.status).toBe('open');
+    expect(weather.verificationMode).toBe('searchable');
+    // Overdue on purpose: a check should run on the very first pull rather
+    // than waiting for a cadence slot.
+    expect(new Date(weather.resolutionDate!).getTime()).toBeLessThan(Date.now());
+    expect(isDueForCheck(weather).due).toBe(true);
+    expect(weather.searchQueries.length).toBeGreaterThan(0);
   });
 });

@@ -40,6 +40,19 @@ export function CheckLog({ entries }: { entries: CheckLogEntry[] }) {
 
           <p className="mt-1.5 text-[15px] leading-snug text-ink-dim">{check.summary}</p>
 
+          {/* The provider's own words, verbatim. A summarized failure is a
+              failure you have to guess at. */}
+          {check.errorMessage && check.errorMessage !== check.summary && (
+            <details className="mt-1.5">
+              <summary className="cursor-pointer text-[12px] text-ink-faint">
+                What the provider said
+              </summary>
+              <pre className="mt-1.5 max-h-64 overflow-auto rounded border border-rule bg-surface p-2 text-[11px] leading-relaxed whitespace-pre-wrap text-ink-faint">
+                {check.errorMessage}
+              </pre>
+            </details>
+          )}
+
           {evidence.length > 0 && (
             <ul className="mt-2 space-y-1.5">
               {evidence.map((source) => (
