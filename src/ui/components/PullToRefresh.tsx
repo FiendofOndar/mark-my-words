@@ -10,10 +10,13 @@ const MAX_PULL = 110;
 export function PullToRefresh({
   onRefresh,
   busy,
+  progress,
   children,
 }: {
   onRefresh: () => void;
   busy: boolean;
+  /** How far through the pull is, when there is more than one thing to check. */
+  progress?: { done: number; total: number } | null;
   children: ReactNode;
 }) {
   const [pull, setPull] = useState(0);
@@ -62,7 +65,13 @@ export function PullToRefresh({
         aria-hidden={height === 0}
       >
         <span className="pb-3 font-display text-[15px] text-ink-faint italic">
-          {busy ? 'Checking...' : armed ? 'Release to check' : 'Pull to check'}
+          {busy
+            ? progress && progress.total > 1
+              ? `Checking ${Math.min(progress.done + 1, progress.total)} of ${progress.total}...`
+              : 'Checking...'
+            : armed
+              ? 'Release to check'
+              : 'Pull to check'}
         </span>
       </div>
       {children}

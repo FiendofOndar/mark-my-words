@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Db } from '../data/db';
 import { useDb } from './DbProvider';
@@ -362,7 +363,12 @@ export function usePull() {
   const db = useDb();
   const client = useQueryClient();
 
-  return useMutation<PullSummary, Error, { onlyPredictionId?: string } | void>({
+  // Checks are spaced to stay under a per-minute cap, so a full pull runs for
+  // most of a minute. This is what turns that into "3 of 6" instead of a word
+  // that could equally mean the thing has hung.
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+
+  const mutation = useMutation<PullSummary, Error, { onlyPredictionId?: string } | void>({
     mutationFn: async (args) => {
       const config = loadVerifierConfig();
       return runPull(
@@ -371,6 +377,7 @@ export function usePull() {
         {
           budget: DEFAULT_PULL_BUDGET,
           dailyQuota: config.dailyQuota,
+          onProgress: setProgress,
           ...(args?.onlyPredictionId
             ? { onlyPredictionId: args.onlyPredictionId, trigger: 'force' as const }
             : {}),
@@ -378,9 +385,12 @@ export function usePull() {
       );
     },
     onSettled: () => {
+      setProgress(null);
       void client.invalidateQueries();
     },
   });
+
+  return { ...mutation, progress };
 }
 
 export { describePull };

@@ -51,6 +51,15 @@ export interface PullOptions {
   now?: () => Date;
   /** Check exactly this one, bypassing the cadence gate. */
   onlyPredictionId?: string;
+  /**
+   * Called before each check and once when the pull ends.
+   *
+   * Calls are spaced to stay under a per-minute cap, so a full pull runs for
+   * the better part of a minute. Without this the only thing on screen for all
+   * of it is the word "Checking", and there is no way to tell a slow pull from
+   * a stuck one.
+   */
+  onProgress?: (progress: { done: number; total: number }) => void;
 }
 
 /** Six seconds apart keeps a pull under a 10-per-minute ceiling. */
@@ -134,6 +143,8 @@ export async function runPull(
     plans: [],
   };
 
+  options.onProgress?.({ done: 0, total: toCheck.length });
+
   let first = true;
   for (const prediction of toCheck) {
     // Free tiers cap requests per minute, not just per day. Firing a whole pull
@@ -151,6 +162,7 @@ export async function runPull(
 
     applyCheckPlan(db, plan);
     summary.plans.push(plan);
+    options.onProgress?.({ done: summary.plans.length, total: toCheck.length });
 
     if (plan.countsAsChecked) {
       summary.checked += 1;

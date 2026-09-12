@@ -110,7 +110,7 @@ export function FeedScreen() {
         </>
       }
     >
-      <PullToRefresh onRefresh={check} busy={pull.isPending}>
+      <PullToRefresh onRefresh={check} busy={pull.isPending} progress={pull.progress}>
         <div className="border-b border-rule px-4 py-3">
           <FilterChips chips={chips} active={filter} onChange={setFilter} />
         </div>

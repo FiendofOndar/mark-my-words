@@ -146,6 +146,26 @@ describe('a pull', () => {
     expect(describePull(summary)).toMatch(/3 deferred/);
   });
 
+  it('reports progress so a slow pull is not mistaken for a stuck one', async () => {
+    for (let i = 0; i < 3; i += 1) addPrediction();
+    const verifier = new ScriptedVerifier(() => nothingYet());
+    const seen: { done: number; total: number }[] = [];
+
+    await runPull(
+      db,
+      { verifier, fetcher: echoFetcher },
+      { minGapMs: 0, onProgress: (p) => seen.push(p) },
+    );
+
+    // One before the first check, then one after each.
+    expect(seen).toEqual([
+      { done: 0, total: 3 },
+      { done: 1, total: 3 },
+      { done: 2, total: 3 },
+      { done: 3, total: 3 },
+    ]);
+  });
+
   it('stops at the daily quota instead of failing partway', async () => {
     for (let i = 0; i < 4; i += 1) addPrediction();
     const verifier = new ScriptedVerifier(() => nothingYet());
