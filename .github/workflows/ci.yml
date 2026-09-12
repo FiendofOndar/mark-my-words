@@ -32,6 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write
     steps:
       - uses: actions/checkout@v4
 
@@ -60,8 +61,32 @@ jobs:
       - run: npx cap sync android
 
       - name: Assemble
+        id: assemble
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        run: |
+          set -o pipefail
+          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee ../gradle.log
+
+      # Raw job logs are served from blob storage that some networks cannot
+      # reach, so a failure is copied somewhere readable through the API
+      # instead of being locked inside the run.
+      - name: Report a failure where it can be read
+        if: failure() && steps.assemble.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "Gradle failed on \`${{ github.sha }}\`."
+            echo
+            echo "[Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            echo
+            echo '```'
+            grep -A 40 -m 1 'FAILURE: Build failed' ../gradle.log || tail -n 150 ../gradle.log
+            echo '```'
+          } > ../failure.md
+          gh issue create \
+            --title "Android build failed (${{ github.sha }})" \
+            --body-file ../failure.md
 
       - name: Name the file after the build
         id: apk
