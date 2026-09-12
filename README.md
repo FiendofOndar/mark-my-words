@@ -17,22 +17,39 @@ npm run typecheck
 npm run build
 ```
 
-### Building the APK
+### Getting the APK
 
-Needs Android Studio (or the command-line SDK) and a JDK 17+ on your machine.
-The Android project is committed, so this should work without extra setup:
+**From CI, with nothing installed locally.** Every push to `main` builds a debug
+APK and attaches it to the run. Go to the Actions tab, open the latest run, and
+download the `mark-my-words-debug-<sha>` artifact. You can also trigger a build
+by hand from that tab (Run workflow). Unzip it and sideload the `.apk`.
+
+One caveat: a debug APK is signed with a keystore the runner generates fresh
+each time, so the signature changes between builds and Android will refuse to
+install over the previous one. Uninstall first, or add a stable key (see below).
+
+**Locally**, with Android Studio or the command-line SDK and a JDK 21:
 
 ```bash
 npm run android:apk    # build, sync, then gradlew assembleDebug
 # -> android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Or `npm run android:open` to open the project in Android Studio and run it on a
-connected device. After any web change, `npm run android:sync` copies the built
-web assets into the native project.
+`npm run android:open` opens the project in Android Studio to run it on a
+connected device, which is the way to debug the native adapters. After any web
+change, `npm run android:sync` copies the built assets into the native project.
 
-The first Gradle run downloads the Android Gradle Plugin and the SDK platform,
-which takes a while and needs network.
+**A stable signing key**, once uninstalling on every update gets annoying:
+
+```bash
+keytool -genkey -v -keystore release.jks -keyalg RSA -keysize 2048   -validity 10000 -alias markmywords
+base64 -w0 release.jks   # put this in a repo secret
+```
+
+Then add a `signingConfigs` block to `android/app/build.gradle` reading the
+password from an environment variable, and have the workflow write the keystore
+out of the secret before `assembleDebug`. Not wired up, because it needs a key
+only you should hold.
 
 Demo predictions seed themselves on first run and cover every verdict state.
 Erase them from Settings.
