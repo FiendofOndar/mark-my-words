@@ -16,6 +16,7 @@ import type {
   DeadlineType,
   Evidence,
   FetchStatus,
+  IntakeNotes,
   Polarity,
   Prediction,
   PredictionStatus,
@@ -39,6 +40,16 @@ const num = (v: Cell): number => (v == null ? 0 : Number(v));
 const nnum = (v: Cell): number | null => (v == null ? null : Number(v));
 const bool = (v: Cell): boolean => Number(v) === 1;
 const bit = (v: boolean): number => (v ? 1 : 0);
+
+function intakeNotes(v: Cell): IntakeNotes | null {
+  if (v == null) return null;
+  try {
+    const parsed = JSON.parse(String(v));
+    return typeof parsed === 'object' && parsed !== null ? (parsed as IntakeNotes) : null;
+  } catch {
+    return null;
+  }
+}
 
 function jsonArray(v: Cell): string[] {
   if (v == null) return [];
@@ -107,6 +118,7 @@ export function toPrediction(r: Row): Prediction {
     isRetroactive: bool(r.is_retroactive),
     stakes: nstr(r.stakes),
     criteriaFrozenAt: nstr(r.criteria_frozen_at),
+    intakeNotes: intakeNotes(r.intake_notes),
     lastCheckedAt: nstr(r.last_checked_at),
     checkCount: num(r.check_count),
     createdAt: str(r.created_at),
@@ -222,6 +234,7 @@ export const PREDICTION_COLUMNS: Record<keyof Prediction, string> = {
   isRetroactive: 'is_retroactive',
   stakes: 'stakes',
   criteriaFrozenAt: 'criteria_frozen_at',
+  intakeNotes: 'intake_notes',
   lastCheckedAt: 'last_checked_at',
   checkCount: 'check_count',
   createdAt: 'created_at',
@@ -232,7 +245,7 @@ export const PREDICTION_COLUMNS: Record<keyof Prediction, string> = {
 /** Coerce a domain value into something SQLite will accept. */
 export function toSqlValue(key: keyof Prediction, value: unknown): SqlValue {
   if (value === undefined || value === null) return null;
-  if (key === 'searchQueries') return JSON.stringify(value);
+  if (key === 'searchQueries' || key === 'intakeNotes') return JSON.stringify(value);
   if (typeof value === 'boolean') return bit(value);
   if (typeof value === 'number') return value;
   return String(value);

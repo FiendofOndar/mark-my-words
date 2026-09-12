@@ -2,10 +2,11 @@
 
 A ledger for predictions and the people who make them. See [SPEC.md](./SPEC.md).
 
-## Phase 0.1 (current)
+## Phase 0.2 (current)
 
-The skeleton: schema, repositories, manual entry, feed, detail, manual resolve.
-No AI, no verification, no notifications, no network. Everything is local.
+Capture and intake. A statement goes in, a model drafts testable resolution
+criteria, you confirm, and the clock starts. No verification, no notifications,
+no archiving yet.
 
 ```bash
 npm install
@@ -21,7 +22,12 @@ Erase them from Settings.
 ### What works
 
 - SQLite schema (sql.js in the browser, IndexedDB-backed) with migrations
-- Authors, predictions, criteria elements, amendments
+- Authors, predictions, criteria elements, amendments, intake notes
+- Capture screen, AI-drafted resolution criteria, review card before the clock starts
+- Drafts are real rows, so a capture survives a reload or a failed model call
+- Ambiguities the model flags must be ticked off before a prediction can open
+- Gemini adapter with typed errors, plus a keyless offline drafter
+- Criteria freeze on first check or on resolution, amendments after that
 - Manual entry for all three deadline shapes: fixed date, window, event/race
 - Feed sorted by heat, with filter chips and live counts
 - Detail screen: quote, verdict or countdown, criteria, actions, amendment log
@@ -33,6 +39,8 @@ Erase them from Settings.
 ### What is stubbed
 
 - The check log says so. Verification lands in 0.3.
+- The offline drafter is regex pattern matching, not AI. It is labelled as such
+  everywhere it appears. Add a Gemini key in Settings for a real reading.
 - Export writes a raw `.sqlite` file. The JSON export with screenshots is 0.6.
 - Pull-to-refresh is not wired, because there is nothing to refresh yet.
 
@@ -41,6 +49,7 @@ Erase them from Settings.
 ```
 src/domain/      pure rules, no I/O: state machine, cadence, rubric, scoring, heat
 src/data/        driver port, migrations, repositories, row mapping
+src/verification/ provider port, prompts, response parsing, Gemini + offline adapters
 src/ui/          screens and components
 src/lib/         ids, theme
 ```
@@ -67,3 +76,9 @@ learn which one they are talking to.
   real gate.
 - **Unlayered CSS beats layered Tailwind utilities.** All custom CSS lives in
   `@layer base` / `@layer components` for this reason.
+- **The API key never touches the database.** Settings exports the whole SQLite
+  file, so credentials live in `src/lib/keyStore.ts` (localStorage today,
+  Android Keystore in 0.6) and nowhere else.
+- **A declared response schema is not a guarantee.** `parseStructuredPrediction`
+  validates and repairs every model response regardless, and separates repairs
+  the user should see (warnings) from responses that cannot be stored.

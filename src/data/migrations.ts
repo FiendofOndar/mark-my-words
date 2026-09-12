@@ -177,6 +177,13 @@ CREATE INDEX idx_evidence_check       ON evidence(check_id);
 CREATE INDEX idx_amend_pred           ON amendments(prediction_id, amended_at DESC);
 `,
   },
+  {
+    version: 2,
+    name: 'intake notes',
+    sql: `
+ALTER TABLE predictions ADD COLUMN intake_notes TEXT;
+`,
+  },
 ];
 
 export function currentVersion(driver: SqlDriver): number {

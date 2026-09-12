@@ -1,0 +1,177 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Screen } from '../components/Screen';
+import { Field, inputClass } from '../components/Field';
+import { today } from '../components/PredictionForm';
+import {
+  useAuthors,
+  useCreatePrediction,
+  useFindOrCreateAuthor,
+  useStructureStatement,
+} from '../queries';
+import { bareDraft, structuredToDraft } from '../../verification/toPrediction';
+import { loadVerifierConfig } from '../../lib/keyStore';
+import { DEFAULT_GEMINI_MODEL } from '../../verification/GeminiVerifier';
+import { VerifierError } from '../../verification/types';
+import { startOfLocalDay } from '../../domain/prediction';
+
+/**
+ * One screen, one job: get the quote and who said it out of your head and into
+ * the app. Everything else is the review card's problem.
+ */
+export function CaptureScreen() {
+  const navigate = useNavigate();
+  const { data: authors = [] } = useAuthors();
+  const config = loadVerifierConfig();
+
+  const findOrCreateAuthor = useFindOrCreateAuthor();
+  const createPrediction = useCreatePrediction();
+  const structure = useStructureStatement();
+
+  const [rawStatement, setRawStatement] = useState('');
+  const [authorName, setAuthorName] = useState('');
+  const [statementDate, setStatementDate] = useState(today);
+  const [sourceUrl, setSourceUrl] = useState('');
+  const [sourceContext, setSourceContext] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const ready = rawStatement.trim().length > 0 && authorName.trim().length > 0;
+  const usingModel = config.provider === 'gemini' && config.apiKey.trim().length > 0;
+  const busy = structure.isPending || createPrediction.isPending;
+
+  const base = () => ({
+    rawStatement: rawStatement.trim(),
+    statementDate: startOfLocalDay(statementDate),
+    sourceUrl: sourceUrl.trim() || null,
+    sourceContext: sourceContext.trim() || null,
+  });
+
+  const withAuthor = async () => {
+    const author = await findOrCreateAuthor.mutateAsync({ displayName: authorName.trim() });
+    return author.id;
+  };
+
+  const draftWithAi = async () => {
+    setError(null);
+    try {
+      const authorId = await withAuthor();
+      const result = await structure.mutateAsync({
+        rawStatement: rawStatement.trim(),
+        sourceUrl: sourceUrl.trim() || null,
+        sourceContext: sourceContext.trim() || null,
+        today: statementDate,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      });
+      const prediction = await createPrediction.mutateAsync(
+        structuredToDraft(result, { authorId, ...base() }),
+      );
+      navigate(`/draft/${prediction.id}`, { replace: true });
+    } catch (err) {
+      const detail = err instanceof VerifierError ? err.detail : undefined;
+      setError(`${(err as Error).message}${detail ? ` (${detail})` : ''}`);
+    }
+  };
+
+  const draftManually = async () => {
+    setError(null);
+    try {
+      const authorId = await withAuthor();
+      const prediction = await createPrediction.mutateAsync(bareDraft({ authorId, ...base() }));
+      navigate(`/draft/${prediction.id}`, { replace: true });
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  };
+
+  return (
+    <Screen title="Catch it" subtitle="Get it down now, sharpen it next" back>
+      <div className="space-y-5 px-5 py-5">
+        <Field label="What was said" hint="Verbatim. This is never edited later.">
+          <textarea
+            value={rawStatement}
+            onChange={(e) => setRawStatement(e.target.value)}
+            rows={4}
+            autoFocus
+            placeholder="Mark my words, ..."
+            className={`${inputClass} font-display text-[17px]`}
+          />
+        </Field>
+
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Who said it">
+            <input
+              list="capture-authors"
+              value={authorName}
+              onChange={(e) => setAuthorName(e.target.value)}
+              placeholder="Popops"
+              className={inputClass}
+            />
+            <datalist id="capture-authors">
+              {authors.map((a) => (
+                <option key={a.id} value={a.displayName} />
+              ))}
+            </datalist>
+          </Field>
+          <Field label="When">
+            <input
+              type="date"
+              value={statementDate}
+              onChange={(e) => setStatementDate(e.target.value)}
+              className={inputClass}
+            />
+          </Field>
+        </div>
+
+        <Field group label="Where" hint="Optional. A link, or just where you heard it.">
+          <input
+            value={sourceUrl}
+            onChange={(e) => setSourceUrl(e.target.value)}
+            placeholder="https://..."
+            inputMode="url"
+            className={inputClass}
+          />
+          <input
+            value={sourceContext}
+            onChange={(e) => setSourceContext(e.target.value)}
+            placeholder="Instagram story, said at dinner, CNN segment"
+            className={`${inputClass} mt-2`}
+          />
+        </Field>
+
+        {error && (
+          <div className="rounded border border-miss/50 bg-miss/5 px-3 py-2.5">
+            <p className="text-[13px] text-miss">{error}</p>
+            <p className="mt-1 text-[12px] text-ink-faint">
+              Nothing was lost. Fill it in yourself and keep the capture.
+            </p>
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={draftWithAi}
+            disabled={!ready || busy}
+            className="w-full rounded bg-ink py-3 font-display text-[17px] text-ground disabled:opacity-40"
+          >
+            {structure.isPending ? 'Reading it...' : 'Draft the criteria'}
+          </button>
+          <p className="text-center text-[12px] text-ink-faint">
+            {usingModel
+              ? `Using ${config.model || DEFAULT_GEMINI_MODEL}. You confirm everything before the clock starts.`
+              : 'No API key set, so this falls back to offline pattern matching. Add a key in Settings for a real reading.'}
+          </p>
+
+          <button
+            type="button"
+            onClick={draftManually}
+            disabled={!ready || busy}
+            className="w-full rounded border border-rule py-2.5 text-[15px] text-ink-dim disabled:opacity-40"
+          >
+            Fill it in myself
+          </button>
+        </div>
+      </div>
+    </Screen>
+  );
+}

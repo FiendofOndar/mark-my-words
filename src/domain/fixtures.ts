@@ -42,6 +42,7 @@ export function makePrediction(overrides: Partial<Prediction> = {}): Prediction 
     isRetroactive: false,
     stakes: null,
     criteriaFrozenAt: null,
+    intakeNotes: null,
     lastCheckedAt: null,
     checkCount: 0,
     createdAt: now,

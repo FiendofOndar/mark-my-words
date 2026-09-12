@@ -13,7 +13,9 @@ export function PredictionRow({ item }: { item: FeedItem }) {
 
   return (
     <Link
-      to={`/p/${p.id}`}
+      // A draft has nothing to show on a detail screen yet; send it to the
+      // review card so the next tap finishes the job.
+      to={p.status === 'draft' ? `/draft/${p.id}` : `/p/${p.id}`}
       className="paper block border-b border-rule bg-surface px-4 py-4 transition-colors active:bg-surface-raised"
     >
       <div className="flex items-baseline justify-between gap-3">

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Screen } from '../components/Screen';
 import { Stamp, LateBadge, Pill } from '../components/Stamp';
 import { TrendMark } from '../components/TrendMark';
@@ -104,6 +104,20 @@ export function DetailScreen() {
           </div>
         )}
       </section>
+
+      {p.status === 'draft' && (
+        <section className="border-b border-rule px-5 py-4">
+          <p className="text-[13px] text-ink-dim">
+            This is still a draft. Nothing is tracked and no clock is running.
+          </p>
+          <Link
+            to={`/draft/${p.id}`}
+            className="mt-2 inline-block rounded border border-draft px-3 py-1.5 text-[13px] text-draft"
+          >
+            Finish setting this up
+          </Link>
+        </section>
+      )}
 
       {/* Verdict or countdown. */}
       <section className="flex items-center justify-between gap-4 border-b border-rule px-5 py-5">

@@ -7,6 +7,9 @@ import { isPastDeadline } from '../domain/prediction';
 import type { PredictionPatch } from '../domain/prediction';
 import type { NewPrediction } from '../data/repositories/predictionRepo';
 import { tallyRecord, type AuthorRecord } from '../domain/scoring';
+import { confirmDraft } from '../domain/prediction';
+import { createVerifier } from '../verification/registry';
+import type { StructureInput, StructureResult } from '../verification/types';
 
 export type FeedFilter =
   | { kind: 'all' }
@@ -177,6 +180,34 @@ export function useFindOrCreateAuthor() {
   return useDbMutation((db, args: { displayName: string; handle?: string | null }) =>
     db.authors.findOrCreate(args),
   );
+}
+
+export function useUpdateDraft() {
+  return useDbMutation((db, args: { id: string; input: NewPrediction }) =>
+    db.predictions.updateDraft(args.id, args.input),
+  );
+}
+
+/**
+ * Flip a draft to open. This is the moment the clock starts and the record
+ * becomes something you can be held to.
+ */
+export function useConfirmDraft() {
+  return useDbMutation((db, id: string) => {
+    const prediction = db.predictions.getById(id);
+    if (!prediction) throw new Error(`No prediction ${id}`);
+    db.predictions.update(id, confirmDraft(prediction));
+  });
+}
+
+/**
+ * The intake call. Not a database mutation, so it does not invalidate caches
+ * and does not need the db at all.
+ */
+export function useStructureStatement() {
+  return useMutation<StructureResult, Error, StructureInput>({
+    mutationFn: (input) => createVerifier().structure(input),
+  });
 }
 
 export function useSetCriterionSatisfied() {

@@ -67,6 +67,23 @@ export interface CriteriaElement {
   deletedAt: Iso | null;
 }
 
+/**
+ * What the intake pass said while drafting the record. Kept alongside the
+ * prediction so the review card survives a reload, and so a resolved record
+ * still shows why its deadline is the date it is.
+ */
+export interface IntakeNotes {
+  deadlineReasoning: string;
+  verifiabilityReasoning: string;
+  /** Questions the user must settle before the clock starts. */
+  ambiguities: string[];
+  /** Fields the app had to repair in the model's response. */
+  warnings: string[];
+  provider: string;
+  model: string;
+  draftedAt: Iso;
+}
+
 export interface Prediction {
   id: Uuid;
   authorId: Uuid;
@@ -116,6 +133,7 @@ export interface Prediction {
   isRetroactive: boolean;
   stakes: string | null;
   criteriaFrozenAt: Iso | null;
+  intakeNotes: IntakeNotes | null;
   lastCheckedAt: Iso | null;
   checkCount: number;
   createdAt: Iso;

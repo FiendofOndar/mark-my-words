@@ -4,6 +4,7 @@ import type {
   Category,
   CriteriaElement,
   DeadlineType,
+  IntakeNotes,
   Polarity,
   Prediction,
   PredictionStatus,
@@ -12,7 +13,16 @@ import type {
 } from '../../domain/types';
 import { PREDICTION_COLUMNS, toAmendment, toAuthor, toCriteriaElement, toPrediction, toSqlValue } from '../rows';
 import { nowIso, uuid } from '../../lib/ids';
-import type { PredictionPatch } from '../../domain/prediction';
+import { areCriteriaEditable, freezeCriteria, type PredictionPatch } from '../../domain/prediction';
+
+export class CriteriaFrozenError extends Error {
+  constructor(predictionId: string) {
+    super(
+      `Criteria for ${predictionId} are frozen. Record an amendment instead of rewriting them.`,
+    );
+    this.name = 'CriteriaFrozenError';
+  }
+}
 
 export interface NewPrediction {
   authorId: string;
@@ -41,6 +51,7 @@ export interface NewPrediction {
   category: Category;
   isRetroactive?: boolean;
   stakes?: string | null;
+  intakeNotes?: IntakeNotes | null;
 
   criteria: string[];
   /** Manual entry in v0.1 skips the review card, so it can open immediately. */
@@ -180,6 +191,7 @@ export class PredictionRepo {
       isRetroactive: input.isRetroactive ?? false,
       stakes: input.stakes ?? null,
       criteriaFrozenAt: null,
+      intakeNotes: input.intakeNotes ?? null,
       lastCheckedAt: null,
       checkCount: 0,
       createdAt: now,
@@ -251,6 +263,11 @@ export class PredictionRepo {
    * callers past the freeze must go through `amend` so the change is on record.
    */
   replaceCriteria(predictionId: string, texts: string[]): void {
+    const current = this.getById(predictionId);
+    if (!current) throw new Error(`No prediction ${predictionId}`);
+    if (!areCriteriaEditable(current)) {
+      throw new CriteriaFrozenError(predictionId);
+    }
     const now = nowIso();
     this.db.transaction(() => {
       this.db.run('UPDATE criteria_elements SET deleted_at = ? WHERE prediction_id = ?', [
@@ -312,6 +329,57 @@ export class PredictionRepo {
       this.update(predictionId, { [field]: newValue, updatedAt: now } as PredictionPatch);
       return amendment;
     });
+  }
+
+  /**
+   * Rewrite a draft in place from a fresh set of intake values. Only drafts:
+   * an open prediction's fields move through `amend` so the change is visible.
+   */
+  updateDraft(id: string, input: NewPrediction): void {
+    const current = this.getById(id);
+    if (!current) throw new Error(`No prediction ${id}`);
+    if (current.status !== 'draft') {
+      throw new Error('Only a draft can be rewritten wholesale.');
+    }
+
+    this.db.transaction(() => {
+      this.update(id, {
+        authorId: input.authorId,
+        rawStatement: input.rawStatement.trim(),
+        normalizedClaim: (input.normalizedClaim || input.rawStatement).trim(),
+        polarity: input.polarity ?? 'positive',
+        disconfirmingTrigger: input.disconfirmingTrigger ?? null,
+        statementDate: input.statementDate,
+        sourceUrl: input.sourceUrl ?? null,
+        sourceContext: input.sourceContext ?? null,
+        deadlineType: input.deadlineType,
+        resolutionDate: input.resolutionDate ?? null,
+        windowStart: input.windowStart ?? null,
+        windowEnd: input.windowEnd ?? null,
+        triggerEvent: input.triggerEvent ?? null,
+        triggerExpectedDate: input.triggerExpectedDate ?? null,
+        raceEventB: input.raceEventB ?? null,
+        staleOutDate: input.staleOutDate ?? null,
+        verificationMode: input.verificationMode,
+        forceManual: input.forceManual ?? false,
+        searchQueries: input.searchQueries ?? [],
+        noCheckBefore: input.noCheckBefore ?? null,
+        category: input.category,
+        isRetroactive: input.isRetroactive ?? false,
+        stakes: input.stakes ?? null,
+        ...(input.intakeNotes !== undefined ? { intakeNotes: input.intakeNotes } : {}),
+        updatedAt: nowIso(),
+      });
+      this.replaceCriteria(id, input.criteria);
+    });
+  }
+
+  /** Called by the first verification check. Idempotent. */
+  freeze(predictionId: string): void {
+    const current = this.getById(predictionId);
+    if (!current) throw new Error(`No prediction ${predictionId}`);
+    const patch = freezeCriteria(current);
+    if (patch) this.update(predictionId, patch);
   }
 
   softDelete(id: string): void {

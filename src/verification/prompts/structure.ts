@@ -1,0 +1,112 @@
+import type { StructureInput } from '../types';
+import { CATEGORIES } from '../../domain/types';
+
+export const STRUCTURE_SYSTEM_PROMPT = `You turn offhand predictions into records that can be settled later without argument.
+
+You are given a statement somebody made about the future. Produce a structured reading of it.
+
+Rules that matter:
+
+1. CRITERIA MUST BE CHECKABLE. Each element is one thing a search could confirm or refute, with a threshold where the original was vague. "The AI bubble will crash" is not checkable. "An AI-weighted equity index falls 30% or more from its peak" is. Never restate an adjective as a criterion.
+
+2. EVERY CLAIM GETS A HARD DEADLINE, in one of three shapes:
+   - fixed_date: a single date it must happen by.
+   - window: a start and an end, for seasonal or period claims where a hit anywhere inside counts as on time.
+   - event: it resolves when some other event occurs rather than on a date. Use this when the claim has no timeframe of its own, and for races ("X before Y"), where race_event_b holds the competing event. Event claims also need a stale_out_date, the point at which an unresolved claim is abandoned. Default five years out.
+   Say why you chose that shape and those dates in deadline_reasoning. The user reads it and will often override you.
+
+3. NEGATIVE CLAIMS NEED A DISCONFIRMING TRIGGER. You cannot search for a non-event. If polarity is "negative", disconfirming_trigger must name the single concrete event that, if found, kills the claim. If you cannot name one, say so in ambiguities.
+
+4. FLAG AMBIGUITY, DO NOT GUESS IT AWAY. "The Cardinals" is two teams. "Next winter" depends on hemisphere. "The election" needs a year. Put each one in ambiguities as a direct question for the user. Still fill in your best reading of the other fields.
+
+5. VERIFIABILITY IS HONEST. Mark "manual" when no public source would report the outcome: private life, personal relationships, anything about the user's own household or neighbors. Also lean manual when general web search is structurally weak on the topic (local weather details, obscure sports statistics, niche hobbyist outcomes) and say so in verifiability_reasoning.
+
+6. DATES ARE YYYY-MM-DD. Relative phrases resolve against the given date of today. "In 6 months" from 2026-09-12 is 2027-03-12.
+
+7. no_check_before is the earliest date the claim could plausibly resolve. It saves pointless searching. Leave it null when the claim could resolve at any time.
+
+Return only the JSON object. No commentary.`;
+
+export function buildStructurePrompt(input: StructureInput): string {
+  const lines = [
+    `Today is ${input.today}.`,
+    input.timezone ? `The user's timezone is ${input.timezone}.` : null,
+    '',
+    'Statement:',
+    `"""${input.rawStatement}"""`,
+  ];
+
+  if (input.sourceContext) lines.push('', `Where it was said: ${input.sourceContext}`);
+  if (input.sourceUrl) lines.push('', `Source URL: ${input.sourceUrl}`);
+
+  return lines.filter((line) => line !== null).join('\n');
+}
+
+/**
+ * OpenAPI-subset schema, the shape Gemini's structured output accepts.
+ * Kept in lockstep with parseStructuredPrediction, which still validates the
+ * result because a declared schema is not a guarantee.
+ */
+export const STRUCTURE_RESPONSE_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    normalized_claim: { type: 'STRING' },
+    polarity: { type: 'STRING', enum: ['positive', 'negative'] },
+    disconfirming_trigger: { type: 'STRING', nullable: true },
+    criteria_elements: { type: 'ARRAY', items: { type: 'STRING' } },
+    deadline_type: { type: 'STRING', enum: ['fixed_date', 'window', 'event'] },
+    resolution_date: { type: 'STRING', nullable: true },
+    window_start: { type: 'STRING', nullable: true },
+    window_end: { type: 'STRING', nullable: true },
+    trigger_event: { type: 'STRING', nullable: true },
+    trigger_expected_date: { type: 'STRING', nullable: true },
+    race_event_b: { type: 'STRING', nullable: true },
+    stale_out_date: { type: 'STRING', nullable: true },
+    deadline_reasoning: { type: 'STRING' },
+    verifiability: { type: 'STRING', enum: ['searchable', 'manual'] },
+    verifiability_reasoning: { type: 'STRING' },
+    search_queries: { type: 'ARRAY', items: { type: 'STRING' } },
+    no_check_before: { type: 'STRING', nullable: true },
+    category: { type: 'STRING', enum: [...CATEGORIES] },
+    tags: { type: 'ARRAY', items: { type: 'STRING' } },
+    author_guess: { type: 'STRING', nullable: true },
+    statement_date_guess: { type: 'STRING', nullable: true },
+    ambiguities: { type: 'ARRAY', items: { type: 'STRING' } },
+  },
+  required: [
+    'normalized_claim',
+    'polarity',
+    'criteria_elements',
+    'deadline_type',
+    'deadline_reasoning',
+    'verifiability',
+    'verifiability_reasoning',
+    'search_queries',
+    'category',
+    'ambiguities',
+  ],
+  propertyOrdering: [
+    'normalized_claim',
+    'polarity',
+    'disconfirming_trigger',
+    'criteria_elements',
+    'deadline_type',
+    'resolution_date',
+    'window_start',
+    'window_end',
+    'trigger_event',
+    'trigger_expected_date',
+    'race_event_b',
+    'stale_out_date',
+    'deadline_reasoning',
+    'verifiability',
+    'verifiability_reasoning',
+    'search_queries',
+    'no_check_before',
+    'category',
+    'tags',
+    'author_guess',
+    'statement_date_guess',
+    'ambiguities',
+  ],
+} as const;

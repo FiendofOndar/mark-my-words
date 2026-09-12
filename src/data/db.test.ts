@@ -3,8 +3,10 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { openDatabase, type Db } from './db';
 import { MemoryPersistence } from './driver';
-import { MIGRATIONS } from './migrations';
+import { MIGRATIONS, migrate } from './migrations';
+import { createSqlJsDriver } from './sqlJsDriver';
 import { seedDemoData } from './seed';
+import { CriteriaFrozenError } from './repositories/predictionRepo';
 import { resolve } from '../domain/prediction';
 import { tallyRecord } from '../domain/scoring';
 
@@ -48,6 +50,35 @@ describe('migrations', () => {
     ]) {
       expect(names).toContain(table);
     }
+  });
+
+  it('upgrades a database that stopped at an earlier version', async () => {
+    // Build a v1 database by hand, then let migrate() carry it forward.
+    const driver = await createSqlJsDriver({
+      locateFile: (file) => path.join(wasmDir, file),
+      persistence: new MemoryPersistence(),
+      persistDebounceMs: 0,
+    });
+    const first = MIGRATIONS[0]!;
+    driver.transaction(() => {
+      for (const statement of first.sql
+        .replace(/^\s*--.*$/gm, '')
+        .split(';')
+        .map((x) => x.trim())
+        .filter(Boolean)) {
+        driver.run(statement);
+      }
+    });
+    driver.run(`PRAGMA user_version = ${first.version}`);
+
+    const before = driver.select<{ name: string }>("PRAGMA table_info('predictions')");
+    expect(before.map((c) => String(c.name))).not.toContain('intake_notes');
+
+    const version = migrate(driver);
+
+    expect(version).toBe(MIGRATIONS[MIGRATIONS.length - 1]!.version);
+    const after = driver.select<{ name: string }>("PRAGMA table_info('predictions')");
+    expect(after.map((c) => String(c.name))).toContain('intake_notes');
   });
 
   it('is idempotent', async () => {
@@ -162,6 +193,45 @@ describe('prediction repository', () => {
   it('refuses an amendment with no reason', () => {
     const created = samplePrediction();
     expect(() => db.predictions.amend(created.id, 'normalizedClaim', 'x', '   ')).toThrow();
+  });
+
+  it('lets criteria be rewritten before the freeze', () => {
+    const created = samplePrediction();
+    db.predictions.replaceCriteria(created.id, ['Something sharper', 'And a second element']);
+    expect(db.predictions.criteriaFor(created.id).map((c) => c.text)).toEqual([
+      'Something sharper',
+      'And a second element',
+    ]);
+  });
+
+  it('seals criteria once the first check has run', () => {
+    const created = samplePrediction();
+    db.predictions.freeze(created.id);
+
+    expect(db.predictions.getById(created.id)!.criteriaFrozenAt).toBeTruthy();
+    expect(() => db.predictions.replaceCriteria(created.id, ['moved goalposts'])).toThrow(
+      CriteriaFrozenError,
+    );
+    // The amendment path stays open, because editing is allowed and hiding is not.
+    expect(() =>
+      db.predictions.amend(created.id, 'normalizedClaim', 'Sharper claim', 'Was too vague'),
+    ).not.toThrow();
+  });
+
+  it('does not move the freeze stamp on a second check', () => {
+    const created = samplePrediction();
+    db.predictions.freeze(created.id);
+    const first = db.predictions.getById(created.id)!.criteriaFrozenAt;
+    db.predictions.freeze(created.id);
+    expect(db.predictions.getById(created.id)!.criteriaFrozenAt).toBe(first);
+  });
+
+  it('seals criteria on resolution even when no check ever ran', () => {
+    const created = samplePrediction();
+    db.predictions.update(created.id, resolve(created, 'hit', 'user', new Date()));
+    expect(() => db.predictions.replaceCriteria(created.id, ['too late'])).toThrow(
+      CriteriaFrozenError,
+    );
   });
 
   it('hides soft-deleted predictions from the list', () => {

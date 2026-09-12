@@ -215,6 +215,26 @@ export function setTrend(p: Prediction, trend: Trend, now: Date = new Date()): P
 }
 
 /**
+ * Criteria are free to edit right after capture and sealed once the first
+ * verification check has run against them. A resolved prediction counts as
+ * sealed too: there is nothing left to edit toward.
+ *
+ * Editing after the freeze is still allowed, but it goes through the amendment
+ * path so the change is on the record. Hiding the edit is what is forbidden,
+ * not the edit.
+ */
+export function areCriteriaEditable(p: Prediction): boolean {
+  return p.criteriaFrozenAt === null && !isResolved(p.status);
+}
+
+/** Stamped by the first check. Idempotent, so a second check does not move it. */
+export function freezeCriteria(p: Prediction, now: Date = new Date()): PredictionPatch | null {
+  if (p.criteriaFrozenAt) return null;
+  const iso = now.toISOString();
+  return { criteriaFrozenAt: iso, updatedAt: iso };
+}
+
+/**
  * A date-only deadline ("by Halloween") means the end of that day in the
  * user's local timezone, stored as UTC.
  */
