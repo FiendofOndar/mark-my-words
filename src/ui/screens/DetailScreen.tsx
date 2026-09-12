@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Screen } from '../components/Screen';
+import { Icon } from '../components/Icon';
 import { Stamp, LateBadge, Pill } from '../components/Stamp';
 import { TrendMark } from '../components/TrendMark';
 import {
@@ -100,8 +101,15 @@ export function DetailScreen() {
   return (
     <Screen
       title={
-        <Link to={`/author/${author.id}`} className="underline-offset-4 hover:underline">
-          {author.displayName}
+        // hover:underline is the only thing that said this was a link, and a
+        // phone has no hover. The chevron says it, and the vertical padding
+        // makes the 20px line reach the header's 44px band.
+        <Link
+          to={`/author/${author.id}`}
+          className="-my-2 flex min-w-0 items-center gap-1.5 py-2 active:opacity-60"
+        >
+          <span className="truncate">{author.displayName}</span>
+          <Icon name="chevron" size={16} className="shrink-0 text-ink-faint" />
         </Link>
       }
       subtitle={author.handle ?? undefined}
@@ -197,6 +205,15 @@ export function DetailScreen() {
           {isUnderLateWatch(p) && (
             <p className="mt-2 text-[12px] text-ink-faint">
               Still watching until {formatDate(p.lateWatchUntil)}
+            </p>
+          )}
+          {/* The feed row carried a stakes pill and this screen dropped it, so
+              tapping into the full story lost the one thing riding on it. It
+              belongs next to the clock: the bet and the deadline are the two
+              halves of the same sentence. */}
+          {p.stakes && (
+            <p className="mt-2 text-[13px] text-ink-dim">
+              Riding on it: <span className="text-ink">{p.stakes}</span>
             </p>
           )}
         </div>
