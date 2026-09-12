@@ -43,6 +43,26 @@ export function Field({
 export const inputClass =
   'w-full rounded border border-rule bg-surface px-3 py-2 text-[15px] outline-none focus:border-ink-dim';
 
+/**
+ * The filled action. One per screen.
+ *
+ * Disabled swaps to a surface token rather than diluting the cream. Both
+ * `opacity-40` and `bg-ink/20` end up as the same muddy grey rectangle, which
+ * reads as pressed rather than as unavailable, and the grey belongs to neither
+ * palette. Three screens each grew their own copy of this button and all three
+ * had the bug.
+ */
+export const primaryButton =
+  'rounded bg-ink text-ground disabled:border disabled:border-rule disabled:bg-surface-raised disabled:text-ink-faint';
+
+/**
+ * The outlined action. `border-rule` is already faint, so the disabled state
+ * leaves the outline alone and dims only the label; at 40% opacity the whole
+ * thing disappeared and the button looked like stray text.
+ */
+export const secondaryButton =
+  'rounded border border-rule text-ink-dim active:bg-surface-raised disabled:text-ink-faint';
+
 export function SegmentedControl<T extends string>({
   value,
   options,
@@ -63,7 +83,7 @@ export function SegmentedControl<T extends string>({
           role="radio"
           aria-checked={value === option.value}
           onClick={() => onChange(option.value)}
-          className={`flex-1 rounded border px-3 py-2 text-[13px] transition-colors ${
+          className={`min-h-11 flex-1 rounded border px-3 py-2 text-[13px] transition-colors ${
             value === option.value
               ? 'border-ink bg-ink text-ground'
               : 'border-rule text-ink-dim active:bg-surface-raised'

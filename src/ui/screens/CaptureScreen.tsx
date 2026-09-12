@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Screen } from '../components/Screen';
-import { Field, inputClass } from '../components/Field';
+import { Field, inputClass, primaryButton, secondaryButton } from '../components/Field';
 import { today } from '../components/PredictionForm';
 import {
   useAuthors,
@@ -173,10 +173,7 @@ export function CaptureScreen() {
             type="button"
             onClick={draftWithAi}
             disabled={!ready || busy}
-            // Dimming the whole cream fill to 40% gave a muddy grey block that
-            // read as pressed. Dimming only the fill keeps it recognisable as
-            // the primary action while making clear it will not do anything.
-            className="w-full rounded bg-ink py-3 font-display text-[17px] text-ground disabled:bg-ink/20 disabled:text-ink-faint"
+            className={`${primaryButton} w-full py-3 font-display text-[17px]`}
           >
             {structure.isPending ? 'Reading it...' : 'Draft the criteria'}
           </button>
@@ -198,9 +195,7 @@ export function CaptureScreen() {
             type="button"
             onClick={draftManually}
             disabled={!ready || busy}
-            // border-rule is already faint; at 40% opacity the outline disappears
-            // and the button looks like stray text.
-            className="w-full rounded border border-rule py-2.5 text-[15px] text-ink-dim disabled:text-ink-faint"
+            className={`${secondaryButton} w-full py-2.5 text-[15px]`}
           >
             Fill it in myself
           </button>

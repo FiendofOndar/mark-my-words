@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import { Field, SegmentedControl, inputClass } from './Field';
+import { Field, SegmentedControl, inputClass, primaryButton } from './Field';
 import {
   CATEGORIES,
   type Author,
@@ -578,7 +578,7 @@ export function PredictionForm({
         type="button"
         onClick={() => onSubmit(v, isRetroactive)}
         disabled={problems.length > 0 || busy}
-        className="w-full rounded bg-ink py-3 font-display text-[17px] text-ground disabled:opacity-40"
+        className={`${primaryButton} w-full py-3 font-display text-[17px]`}
       >
         {busy ? 'Working...' : submitLabel}
       </button>

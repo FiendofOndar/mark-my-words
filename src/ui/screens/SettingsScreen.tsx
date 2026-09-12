@@ -4,7 +4,7 @@ import { useDb } from '../DbProvider';
 import { resetDb } from '../../data/appDb';
 import { MIGRATIONS } from '../../data/migrations';
 import { applyTheme, readTheme, type Theme } from '../../lib/theme';
-import { Field, SegmentedControl, inputClass } from '../components/Field';
+import { Field, SegmentedControl, inputClass, primaryButton, secondaryButton } from '../components/Field';
 import {
   loadVerifierConfig,
   maskKey,
@@ -249,7 +249,7 @@ export function SettingsScreen() {
                     type="button"
                     onClick={() => void loadModels()}
                     disabled={!apiKey.trim() || listing}
-                    className="mt-2 rounded border border-rule min-h-11 px-4 text-[13px] text-ink-dim disabled:opacity-40"
+                    className={`${secondaryButton} mt-2 min-h-11 px-4 text-[13px]`}
                   >
                     {listing ? 'Asking Google...' : 'Show models this key can use'}
                   </button>
@@ -279,7 +279,7 @@ export function SettingsScreen() {
                     type="button"
                     onClick={() => void saveKey()}
                     disabled={!keyDirty}
-                    className="rounded bg-ink min-h-11 px-4 text-[13px] text-ground disabled:opacity-40"
+                    className={`${primaryButton} min-h-11 px-4 text-[13px]`}
                   >
                     {keyDirty ? 'Save' : 'Saved'}
                   </button>
@@ -287,7 +287,7 @@ export function SettingsScreen() {
                     type="button"
                     onClick={runTest}
                     disabled={!apiKey.trim() || test.state === 'running'}
-                    className="rounded border border-rule min-h-11 px-4 text-[13px] text-ink-dim disabled:opacity-40"
+                    className={`${secondaryButton} min-h-11 px-4 text-[13px]`}
                   >
                     {test.state === 'running' ? 'Testing...' : 'Test connection'}
                   </button>
@@ -400,19 +400,18 @@ export function SettingsScreen() {
 
         <section>
           <SectionTitle>Theme</SectionTitle>
-          <div className="mt-2 flex gap-2">
-            {(['dark', 'light'] as Theme[]).map((option) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => chooseTheme(option)}
-                className={`flex-1 rounded border min-h-11 px-4 text-[13px] capitalize ${
-                  theme === option ? 'border-ink bg-ink text-ground' : 'border-rule text-ink-dim'
-                }`}
-              >
-                {option}
-              </button>
-            ))}
+          {/* Hand-rolled, this was two buttons with no role and no aria-checked,
+              so nothing announced which theme was in force. */}
+          <div className="mt-2">
+            <SegmentedControl
+              ariaLabel="Theme"
+              value={theme}
+              onChange={chooseTheme}
+              options={[
+                { value: 'dark' as Theme, label: 'Dark' },
+                { value: 'light' as Theme, label: 'Light' },
+              ]}
+            />
           </div>
         </section>
 

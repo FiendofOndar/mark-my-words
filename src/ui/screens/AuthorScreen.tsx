@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { Screen } from '../components/Screen';
 import { Icon } from '../components/Icon';
+import { secondaryButton } from '../components/Field';
 import { PredictionRow } from '../components/PredictionRow';
 import { useAuthorPage } from '../queries';
 import { formatRate, formatRecord } from '../../domain/scoring';
@@ -53,7 +54,7 @@ export function AuthorScreen() {
             )
           }
           disabled={receipt.state === 'rendering'}
-          className="mt-4 rounded border border-rule min-h-11 px-4 text-[13px] text-ink-dim disabled:opacity-40"
+          className={`${secondaryButton} mt-4 min-h-11 px-4 text-[13px]`}
         >
           {receipt.state === 'rendering' ? 'Making the card...' : 'Share the record'}
         </button>
