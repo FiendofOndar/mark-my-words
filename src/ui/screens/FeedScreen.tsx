@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HeaderLink, Screen } from '../components/Screen';
+import { Icon } from '../components/Icon';
 import { FilterChips, type ChipDef } from '../components/FilterChips';
 import { CATEGORIES, type Category } from '../../domain/types';
 import { PredictionRow } from '../components/PredictionRow';
@@ -97,12 +98,15 @@ export function FeedScreen() {
             disabled={pull.isPending || Boolean(cooldown)}
             aria-label="Check what is due"
             title="Check what is due"
-            className="shrink-0 rounded-full px-2 py-1 text-lg text-ink-dim active:bg-surface-raised disabled:opacity-40"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink-dim active:bg-surface-raised disabled:opacity-40"
           >
-            {pull.isPending ? '…' : '⟳'}
+            <Icon
+              name="refresh"
+              className={pull.isPending ? 'animate-spin [animation-duration:1.4s]' : undefined}
+            />
           </button>
-          <HeaderLink to="/standings" label="Standings" glyph="▤" />
-          <HeaderLink to="/settings" label="Settings" glyph="⚙" />
+          <HeaderLink to="/standings" label="Standings" icon="standings" />
+          <HeaderLink to="/settings" label="Settings" icon="settings" />
         </>
       }
     >
@@ -164,9 +168,9 @@ export function FeedScreen() {
       <Link
         to="/new"
         aria-label="New prediction"
-        className="fixed right-5 bottom-[max(1.25rem,env(safe-area-inset-bottom))] flex h-14 w-14 items-center justify-center rounded-full bg-ink text-3xl leading-none text-ground shadow-lg active:scale-95"
+        className="fixed right-5 bottom-[max(1.25rem,env(safe-area-inset-bottom))] flex h-14 w-14 items-center justify-center rounded-full bg-ink text-ground shadow-lg active:scale-95"
       >
-        <span className="-mt-1">+</span>
+        <Icon name="plus" size={26} strokeWidth={2} />
       </Link>
     </Screen>
   );

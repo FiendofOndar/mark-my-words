@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Icon, type IconName } from './Icon';
 
 /** Shared page frame: fixed header, scrolling body, safe-area padding. */
 export function Screen({
@@ -29,9 +30,9 @@ export function Screen({
               type="button"
               onClick={() => navigate(-1)}
               aria-label="Back"
-              className="-ml-1 shrink-0 rounded-full px-2 py-1 text-xl text-ink-dim active:bg-surface-raised"
+              className="-ml-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink-dim active:bg-surface-raised"
             >
-              ‹
+              <Icon name="back" size={22} />
             </button>
           )}
           <div className="min-w-0 flex-1">
@@ -54,15 +55,15 @@ export function Screen({
   );
 }
 
-export function HeaderLink({ to, label, glyph }: { to: string; label: string; glyph: string }) {
+export function HeaderLink({ to, label, icon }: { to: string; label: string; icon: IconName }) {
   return (
     <Link
       to={to}
       aria-label={label}
       title={label}
-      className="shrink-0 rounded-full px-2 py-1 text-lg text-ink-dim active:bg-surface-raised"
+      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink-dim active:bg-surface-raised"
     >
-      {glyph}
+      <Icon name={icon} />
     </Link>
   );
 }

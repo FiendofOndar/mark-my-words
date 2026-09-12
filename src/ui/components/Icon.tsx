@@ -1,0 +1,79 @@
+/**
+ * A small, consistent icon set.
+ *
+ * These were unicode glyphs (⟳ ▤ ⚙), which render at whatever weight and
+ * baseline the device's font happens to use and never matched each other.
+ * Stroked paths at one width, inheriting colour, so they behave like type.
+ */
+export type IconName = 'refresh' | 'standings' | 'settings' | 'back' | 'plus' | 'share';
+
+const PATHS: Record<IconName, React.ReactNode> = {
+  // A circular arrow, open at the top right where the head sits.
+  refresh: (
+    <>
+      <path d="M19 12a7 7 0 1 1-2.05-4.95" />
+      <path d="M19 4v4h-4" />
+    </>
+  ),
+  // Ranked bars, shortest last, so it reads as a table rather than a menu.
+  standings: (
+    <>
+      <path d="M4 6h16" />
+      <path d="M4 12h11" />
+      <path d="M4 18h7" />
+    </>
+  ),
+  // Sliders rather than a gear: far clearer at 20px.
+  settings: (
+    <>
+      <path d="M4 7h9M17 7h3" />
+      <path d="M4 17h3M11 17h9" />
+      <circle cx="15" cy="7" r="2" />
+      <circle cx="9" cy="17" r="2" />
+    </>
+  ),
+  back: <path d="M15 5l-7 7 7 7" />,
+  plus: (
+    <>
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </>
+  ),
+  share: (
+    <>
+      <path d="M12 16V4" />
+      <path d="M8 8l4-4 4 4" />
+      <path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" />
+    </>
+  ),
+};
+
+export function Icon({
+  name,
+  size = 20,
+  strokeWidth = 1.7,
+  className,
+}: {
+  name: IconName;
+  size?: number;
+  strokeWidth?: number;
+  className?: string;
+}) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+      focusable="false"
+    >
+      {PATHS[name]}
+    </svg>
+  );
+}
