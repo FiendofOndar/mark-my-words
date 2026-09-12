@@ -13,6 +13,11 @@ npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
 GEMINI_API_KEY=... node scripts/validate-gemini.mjs   # the only live model call
+
+# Screen sweep: console errors, overflow, tap targets, a screenshot per screen.
+npm run dev &
+npm i --no-save playwright
+OUT=/tmp/audit node scripts/ui-audit.mjs
 ```
 
 ## Shape of the code
