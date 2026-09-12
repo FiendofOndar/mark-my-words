@@ -3,13 +3,41 @@ import { Screen } from '../components/Screen';
 import { useStandings, type Standing } from '../queries';
 import { MIN_SCORED_TO_RANK, formatRate, formatRecord } from '../../domain/scoring';
 
-/** Record first, then whatever else is worth saying. Zeroes are left out. */
+/**
+ * What an unranked author has so far.
+ *
+ * Deliberately no hit rate. A 1-0 record printed as "100%" is the cherry-picked
+ * number the ranking threshold exists to refuse, and putting it on the row said
+ * the opposite of what the paragraph above the list says.
+ */
 function describeProgress(standing: Standing): string {
   const parts = [formatRecord(standing.record)];
-  if (standing.record.rate !== null) parts.push(formatRate(standing.record));
   if (standing.record.open > 0) parts.push(`${standing.record.open} running`);
   if (standing.record.lateHits > 0) parts.push(`${standing.record.lateHits} late`);
   return parts.join(' · ');
+}
+
+/**
+ * How close this author is to being ranked at all.
+ *
+ * The unranked list is where everyone sits for the first months of using this,
+ * so it is worth saying what is actually missing. A record of "0-1 · 1 running"
+ * does not answer "when does this person get a rank"; five pips do.
+ */
+function RankProgress({ scored }: { scored: number }) {
+  const filled = Math.min(scored, MIN_SCORED_TO_RANK);
+  const label = `${scored} of ${MIN_SCORED_TO_RANK} settled calls toward a rank`;
+
+  return (
+    <span className="flex shrink-0 items-center gap-1" title={label} aria-label={label}>
+      {Array.from({ length: MIN_SCORED_TO_RANK }, (_, i) => (
+        <span
+          key={i}
+          className={`h-1.5 w-1.5 rounded-full ${i < filled ? 'bg-ink-dim' : 'bg-rule'}`}
+        />
+      ))}
+    </span>
+  );
 }
 
 export function StandingsScreen() {
@@ -79,12 +107,17 @@ export function StandingsScreen() {
               <li key={standing.author.id}>
                 <Link
                   to={`/author/${standing.author.id}`}
-                  className="flex min-h-12 items-center justify-between gap-3 border-b border-rule/60"
+                  className="flex min-h-14 items-center justify-between gap-3 border-b border-rule/60 py-2 active:bg-surface-raised"
                 >
-                  <span className="font-display text-[17px]">{standing.author.displayName}</span>
-                  <span className="shrink-0 text-[13px] tabular-nums text-ink-faint">
-                    {describeProgress(standing)}
+                  <span className="min-w-0">
+                    <span className="block truncate font-display text-[17px]">
+                      {standing.author.displayName}
+                    </span>
+                    <span className="block text-[12px] text-ink-faint">
+                      {describeProgress(standing)}
+                    </span>
                   </span>
+                  <RankProgress scored={standing.record.scored} />
                 </Link>
               </li>
             ))}
