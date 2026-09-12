@@ -71,8 +71,17 @@ Erase them from Settings.
 - Nothing in the spec's 1.0 scope, but see the two warnings below.
 - **Not one real model call has been made.** Every provider path is covered by
   tests against injected fakes, and the container this was built in has no API
-  key. The model id, the grounding tool name and the real free-tier quota all
-  need confirming against a live key before any of this can be trusted.
+  key. Before trusting a verdict, run:
+
+  ```bash
+  GEMINI_API_KEY=... node scripts/validate-gemini.mjs
+  ```
+
+  It checks the three things tests cannot: that the model id exists, that the
+  grounding tool is still called `google_search`, and that the model's cited
+  quotes actually appear on the pages it cites. That last one is the assumption
+  the whole anti-hallucination guardrail rests on. Get a free key at
+  https://aistudio.google.com/apikey.
 - **No native adapter has been run on a device.** The build container has no
   Android SDK (`dl.google.com` is blocked by its egress proxy), so
   `src/platform/` is written to the documented APIs and unverified. It compiles
