@@ -12,6 +12,7 @@ import {
   usePull,
   useQueuedVerdicts,
   useRejectVerdict,
+  useResolveManually,
   useSetCriterionSatisfied,
   useSnoozePrompt,
   useUpdatePrediction,
@@ -33,7 +34,6 @@ import {
   isUnderLateWatch,
   markLateHit,
   reopen,
-  resolve,
 } from '../../domain/prediction';
 import type { PredictionStatus } from '../../domain/types';
 
@@ -49,6 +49,7 @@ export function DetailScreen() {
   const pull = usePull();
   const approve = useApproveVerdict();
   const reject = useRejectVerdict();
+  const resolveManually = useResolveManually();
   const update = useUpdatePrediction();
   const snooze = useSnoozePrompt();
   const receipt = useReceipt();
@@ -80,7 +81,7 @@ export function DetailScreen() {
     p.status === 'open' && p.verificationMode === 'manual' && isPastDeadline(p);
 
   const onResolve = (verdict: PredictionStatus) => {
-    update.mutate({ id: p.id, patch: resolve(p, verdict, 'user') });
+    resolveManually.mutate({ id: p.id, verdict });
     setShowResolve(false);
   };
 
@@ -197,14 +198,14 @@ export function DetailScreen() {
           <div className="mt-3 flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={() => update.mutate({ id: p.id, patch: resolve(p, 'hit', 'user') })}
+              onClick={() => resolveManually.mutate({ id: p.id, verdict: 'hit' })}
               className="rounded border border-hit px-4 py-1.5 text-[13px] text-hit"
             >
               Yes
             </button>
             <button
               type="button"
-              onClick={() => update.mutate({ id: p.id, patch: resolve(p, 'miss', 'user') })}
+              onClick={() => resolveManually.mutate({ id: p.id, verdict: 'miss' })}
               className="rounded border border-miss px-4 py-1.5 text-[13px] text-miss"
             >
               No
@@ -357,7 +358,8 @@ export function DetailScreen() {
               {receipt.state === 'rendering' ? 'Making the card...' : 'Share the receipt'}
             </ActionButton>
           )}
-          {p.verificationMode === 'searchable' && (
+          {p.verificationMode === 'searchable' &&
+            (!isResolved(p.status) || isUnderLateWatch(p)) && (
             <ActionButton
               onClick={() => pull.mutate({ onlyPredictionId: p.id })}
               disabled={pull.isPending}

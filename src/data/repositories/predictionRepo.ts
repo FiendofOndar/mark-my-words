@@ -136,7 +136,9 @@ export class PredictionRepo {
   amendmentsFor(predictionId: string): Amendment[] {
     return this.db
       .select(
-        'SELECT * FROM amendments WHERE prediction_id = ? AND deleted_at IS NULL ORDER BY amended_at DESC',
+        `SELECT * FROM amendments
+         WHERE prediction_id = ? AND deleted_at IS NULL
+         ORDER BY amended_at DESC, rowid DESC`,
         [predictionId],
       )
       .map(toAmendment);

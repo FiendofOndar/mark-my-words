@@ -267,11 +267,17 @@ export function useCreatePrediction() {
       await db.driver.persist();
 
       // Fired after the row exists, so a slow or failing archive never costs
-      // the capture. Whatever it returns is recorded; pending gets retried.
+      // the capture. Whatever it returns is recorded; pending gets retried on
+      // the next app open. Wrapped because losing a capture to an archiving
+      // problem would be the worst possible trade.
       if (prediction.sourceUrl) {
-        const outcome = await archiveSource(prediction.sourceUrl, archiveHttp);
-        db.predictions.recordArchiveAttempt(prediction.id, outcome);
-        await db.driver.persist();
+        try {
+          const outcome = await archiveSource(prediction.sourceUrl, archiveHttp);
+          db.predictions.recordArchiveAttempt(prediction.id, outcome);
+          await db.driver.persist();
+        } catch {
+          /* stays pending, the retry queue will pick it up */
+        }
       }
 
       return prediction;
@@ -377,12 +383,19 @@ export function useApproveVerdict() {
       throw new Error('There is no verdict to approve.');
     }
 
+    // The prediction may have moved since the verdict was queued: settled by
+    // hand, reopened, or already carrying this exact verdict. Accepting is then
+    // just acknowledging the proposal, not applying it again.
+    if (prediction.status === check.proposedVerdict) {
+      db.checks.markActedOn(args.checkId, 'auto_resolved');
+      return;
+    }
+
     if (prediction.status === 'miss' && check.proposedVerdict === 'hit') {
       // A late hit never overwrites the verdict; it earns the badge.
-      db.predictions.update(
-        args.predictionId,
-        markLateHit(prediction, check.ranAt),
-      );
+      if (!prediction.lateHitAt) {
+        db.predictions.update(args.predictionId, markLateHit(prediction, check.ranAt));
+      }
     } else {
       db.predictions.update(
         args.predictionId,
@@ -393,6 +406,27 @@ export function useApproveVerdict() {
     }
     db.checks.markActedOn(args.checkId, 'auto_resolved');
   });
+}
+
+/**
+ * Settle a prediction by hand.
+ *
+ * Also clears any proposal that was waiting, because once the user has made the
+ * call there is nothing left to approve and leaving the card up reads as an
+ * unfinished job.
+ */
+export function useResolveManually() {
+  return useDbMutation(
+    (db, args: { id: string; verdict: PredictionStatus; by?: 'user' | 'user_override' }) => {
+      const prediction = db.predictions.getById(args.id);
+      if (!prediction) throw new Error(`No prediction ${args.id}`);
+
+      db.predictions.update(args.id, resolve(prediction, args.verdict, args.by ?? 'user'));
+
+      const pending = db.checks.queuedVerdicts().get(args.id);
+      if (pending) db.checks.markActedOn(pending.id, 'no_change');
+    },
+  );
 }
 
 export function useRejectVerdict() {

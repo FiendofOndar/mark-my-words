@@ -98,8 +98,8 @@ describe('a decisive, well-sourced check', () => {
     expect(plan.outcome).toBe('resolved');
     expect(plan.predictionPatch).toMatchObject({ status: 'hit', resolvedBy: 'auto' });
     expect(plan.predictionPatch!.confidenceScore).toBeGreaterThanOrEqual(95);
-    expect(plan.check.outcome).toBe('auto_resolved');
-    expect(plan.check.evidence).toHaveLength(3);
+    expect(plan.check!.outcome).toBe('auto_resolved');
+    expect(plan.check!.evidence).toHaveLength(3);
     expect(plan.countsAsChecked).toBe(true);
   });
 
@@ -150,8 +150,8 @@ describe('a check that should not decide anything', () => {
       ctx(makePrediction()),
     );
     expect(plan.outcome).toBe('queued');
-    expect(plan.check.outcome).toBe('queued');
-    expect(plan.check.proposedVerdict).toBe('hit');
+    expect(plan.check!.outcome).toBe('queued');
+    expect(plan.check!.proposedVerdict).toBe('hit');
     expect(plan.predictionPatch!.status).toBeUndefined();
   });
 
@@ -258,7 +258,7 @@ describe('stale-out', () => {
     );
     expect(plan.outcome).toBe('staled_out');
     expect(plan.predictionPatch).toMatchObject({ status: 'void', resolvedBy: 'auto' });
-    expect(plan.check.provider).toBe('system');
+    expect(plan.check!.provider).toBe('system');
   });
 });
 
@@ -272,8 +272,8 @@ describe('failures', () => {
     expect(plan.outcome).toBe('error');
     expect(plan.countsAsChecked).toBe(false);
     expect(plan.predictionPatch).toBeNull();
-    expect(plan.check.outcome).toBe('error');
-    expect(plan.check.errorMessage).toBe('HTTP 429');
+    expect(plan.check!.outcome).toBe('error');
+    expect(plan.check!.errorMessage).toBe('HTTP 429');
   });
 
   it('does not freeze the criteria on a failed check', async () => {
@@ -311,5 +311,40 @@ describe('what the model is told', () => {
     expect(seen!.polarity).toBe('negative');
     expect(seen!.disconfirmingTrigger).toBe('An index falls 30% from its peak');
     expect(seen!.today).toBe('2026-09-12');
+  });
+});
+
+describe('things with nothing left to decide', () => {
+  it('skips a settled prediction instead of throwing on the transition', async () => {
+    // A force check bypasses the cadence gate, so it can reach a prediction
+    // that already carries the verdict the model is about to confirm.
+    const plan = await runCheck(
+      deps(result()),
+      ctx(makePrediction({ status: 'hit', resolvedAt: NOW.toISOString(), resolvedBy: 'user' })),
+    );
+
+    expect(plan.outcome).toBe('skipped');
+    expect(plan.check).toBeNull();
+    expect(plan.predictionPatch).toBeNull();
+    expect(plan.countsAsChecked).toBe(false);
+  });
+
+  it('skips a draft, which has no clock running', async () => {
+    const plan = await runCheck(deps(result()), ctx(makePrediction({ status: 'draft' })));
+    expect(plan.outcome).toBe('skipped');
+  });
+
+  it('still checks a settled miss that is under late watch', async () => {
+    const plan = await runCheck(
+      deps(result()),
+      ctx(
+        makePrediction({
+          status: 'miss',
+          resolutionDate: isoDaysFrom(NOW, -400),
+          lateWatchUntil: isoDaysFrom(NOW, 365),
+        }),
+      ),
+    );
+    expect(plan.outcome).toBe('late_hit');
   });
 });

@@ -15,6 +15,7 @@ export interface PullSummary {
   queued: number;
   lateHits: number;
   staledOut: number;
+  skipped: number;
   errors: number;
   /** Due, but beyond this pull's budget. */
   deferred: number;
@@ -35,8 +36,10 @@ export interface PullOptions {
 }
 
 export function applyCheckPlan(db: Db, plan: CheckPlan): void {
+  if (!plan.check && !plan.predictionPatch) return; // nothing happened
+
   db.driver.transaction(() => {
-    db.checks.create(plan.check);
+    if (plan.check) db.checks.create(plan.check);
 
     if (plan.predictionPatch) db.predictions.update(plan.predictionId, plan.predictionPatch);
     if (plan.freeze) db.predictions.freeze(plan.predictionId);
@@ -45,7 +48,8 @@ export function applyCheckPlan(db: Db, plan: CheckPlan): void {
       db.predictions.setCriterionSatisfied(update.id, update.satisfied);
     }
 
-    if (plan.check.provider !== 'system') db.quota.record(plan.check.provider);
+    // 'system' covers work the app did without calling anybody.
+    if (plan.check && plan.check.provider !== 'system') db.quota.record(plan.check.provider);
   });
 }
 
@@ -87,6 +91,7 @@ export async function runPull(
     queued: 0,
     lateHits: 0,
     staledOut: 0,
+    skipped: 0,
     errors: 0,
     deferred,
     quotaBlocked,
@@ -110,6 +115,7 @@ export async function runPull(
     if (plan.outcome === 'queued') summary.queued += 1;
     if (plan.outcome === 'late_hit') summary.lateHits += 1;
     if (plan.outcome === 'staled_out') summary.staledOut += 1;
+    if (plan.outcome === 'skipped') summary.skipped += 1;
     if (plan.outcome === 'error') {
       summary.errors += 1;
       summary.firstError ??= plan.message;

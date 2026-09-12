@@ -12,6 +12,7 @@ import {
 } from '../domain/format';
 import {
   effectiveDeadline,
+  isResolved,
   isUnderLateWatch,
   markLateHit,
   resolve,
@@ -30,6 +31,7 @@ export type CheckPlanOutcome =
   | 'queued'
   | 'no_change'
   | 'staled_out'
+  | 'skipped'
   | 'error';
 
 export interface CheckPlan {
@@ -37,7 +39,8 @@ export interface CheckPlan {
   outcome: CheckPlanOutcome;
   /** One line for the pull summary. */
   message: string;
-  check: NewCheck;
+  /** Absent when nothing was done, so the check log is not padded with non-events. */
+  check: NewCheck | null;
   predictionPatch: PredictionPatch | null;
   criteriaUpdates: { id: string; satisfied: boolean | null }[];
   /** True on the first successful check, which seals the criteria. */
@@ -66,6 +69,15 @@ export async function runCheck(deps: CheckDeps, ctx: CheckContext): Promise<Chec
   const p = ctx.prediction;
 
   if (shouldStaleOut(p, now)) return staleOutPlan(p, now, ctx.trigger);
+
+  // Force-checking is allowed to bypass the cadence gate, but not the fact that
+  // a settled prediction has nothing left to decide. Without this, a model that
+  // confirms a verdict the prediction already carries throws on the transition
+  // and takes the whole pull down with it.
+  if (isResolved(p.status) && !isUnderLateWatch(p, now)) {
+    return skippedPlan(p, 'Already settled.');
+  }
+  if (p.status === 'draft') return skippedPlan(p, 'Still a draft, so the clock has not started.');
 
   const input: CheckInput = {
     claim: p.normalizedClaim,
@@ -237,6 +249,21 @@ function occurrenceDate(sources: ValidatedSource[], now: Date): string {
     .filter((d): d is string => d !== null)
     .sort();
   return dates[0] ? new Date(`${dates[0]}T12:00:00.000Z`).toISOString() : now.toISOString();
+}
+
+function skippedPlan(p: Prediction, message: string): CheckPlan {
+  return {
+    predictionId: p.id,
+    outcome: 'skipped',
+    message,
+    check: null,
+    predictionPatch: null,
+    criteriaUpdates: [],
+    freeze: false,
+    countsAsChecked: false,
+    rubric: null,
+    sources: [],
+  };
 }
 
 function staleOutPlan(p: Prediction, now: Date, trigger: CheckTriggerKind): CheckPlan {

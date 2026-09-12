@@ -251,6 +251,88 @@ describe('prediction repository', () => {
   });
 });
 
+describe('checks written in the same millisecond', () => {
+  function withCheck(predictionId: string, summary: string, outcome: 'queued' | 'no_change') {
+    db.checks.create({
+      predictionId,
+      trigger: 'pull',
+      provider: 'test',
+      model: null,
+      proposedVerdict: outcome === 'queued' ? 'hit' : 'no_change',
+      proposedTrend: null,
+      rubricScore: null,
+      rubricBreakdown: null,
+      modelConfidence: null,
+      summary,
+      outcome,
+    });
+  }
+
+  function sameMillisecond() {
+    db.driver.run("UPDATE checks SET ran_at = '2026-09-12T12:00:00.000Z'");
+  }
+
+  it('orders the log by what was written last, not by an ambiguous timestamp', () => {
+    const author = db.authors.create({ displayName: 'X' });
+    const p = db.predictions.create({
+      authorId: author.id,
+      rawStatement: 'A thing.',
+      statementDate: '2026-01-01T00:00:00.000Z',
+      deadlineType: 'fixed_date',
+      resolutionDate: '2027-01-01T00:00:00.000Z',
+      verificationMode: 'searchable',
+      category: 'Other',
+      criteria: ['A thing happens'],
+    });
+
+    withCheck(p.id, 'first', 'queued');
+    withCheck(p.id, 'second', 'no_change');
+    sameMillisecond();
+
+    expect(db.checks.listFor(p.id).map((c) => c.summary)).toEqual(['second', 'first']);
+  });
+
+  it('does not leave a superseded proposal showing as waiting on the user', () => {
+    const author = db.authors.create({ displayName: 'X' });
+    const p = db.predictions.create({
+      authorId: author.id,
+      rawStatement: 'A thing.',
+      statementDate: '2026-01-01T00:00:00.000Z',
+      deadlineType: 'fixed_date',
+      resolutionDate: '2027-01-01T00:00:00.000Z',
+      verificationMode: 'searchable',
+      category: 'Other',
+      criteria: ['A thing happens'],
+    });
+
+    withCheck(p.id, 'proposed a verdict', 'queued');
+    withCheck(p.id, 'later found nothing', 'no_change');
+    sameMillisecond();
+
+    expect(db.checks.queuedVerdicts().has(p.id)).toBe(false);
+  });
+
+  it('still surfaces a proposal that is genuinely the latest', () => {
+    const author = db.authors.create({ displayName: 'X' });
+    const p = db.predictions.create({
+      authorId: author.id,
+      rawStatement: 'A thing.',
+      statementDate: '2026-01-01T00:00:00.000Z',
+      deadlineType: 'fixed_date',
+      resolutionDate: '2027-01-01T00:00:00.000Z',
+      verificationMode: 'searchable',
+      category: 'Other',
+      criteria: ['A thing happens'],
+    });
+
+    withCheck(p.id, 'found nothing', 'no_change');
+    withCheck(p.id, 'proposed a verdict', 'queued');
+    sameMillisecond();
+
+    expect(db.checks.queuedVerdicts().get(p.id)?.summary).toBe('proposed a verdict');
+  });
+});
+
 describe('persistence', () => {
   it('survives a reopen', async () => {
     const persistence = new MemoryPersistence();

@@ -35,10 +35,17 @@ export interface NewCheck {
 export class CheckRepo {
   constructor(private db: SqlDriver) {}
 
+  /**
+   * Newest first. Ordered by rowid as well as timestamp: two checks written in
+   * the same millisecond are common inside one pull, and ordering by the
+   * timestamp alone puts them in an arbitrary order.
+   */
   listFor(predictionId: string): Check[] {
     return this.db
       .select(
-        'SELECT * FROM checks WHERE prediction_id = ? AND deleted_at IS NULL ORDER BY ran_at DESC',
+        `SELECT * FROM checks
+         WHERE prediction_id = ? AND deleted_at IS NULL
+         ORDER BY ran_at DESC, rowid DESC`,
         [predictionId],
       )
       .map(toCheck);
@@ -151,20 +158,30 @@ export class CheckRepo {
     });
   }
 
-  /** Predictions whose most recent check proposed a verdict awaiting approval. */
+  /**
+   * Predictions whose most recent check proposed a verdict awaiting approval.
+   *
+   * Matching on the newest rowid rather than the newest timestamp, because
+   * `MAX(ran_at)` ties when two checks land in the same millisecond, which
+   * would leave a superseded proposal still showing as waiting on the user.
+   */
   queuedVerdicts(): Map<string, Check> {
     const rows = this.db.select(
       `SELECT c.* FROM checks c
        WHERE c.outcome = 'queued' AND c.deleted_at IS NULL
-         AND c.ran_at = (
-           SELECT MAX(c2.ran_at) FROM checks c2
+         AND c.rowid = (
+           SELECT c2.rowid FROM checks c2
            WHERE c2.prediction_id = c.prediction_id AND c2.deleted_at IS NULL
+           ORDER BY c2.ran_at DESC, c2.rowid DESC
+           LIMIT 1
          )`,
     );
-    return new Map(rows.map((row) => {
-      const check = toCheck(row);
-      return [check.predictionId, check];
-    }));
+    return new Map(
+      rows.map((row) => {
+        const check = toCheck(row);
+        return [check.predictionId, check];
+      }),
+    );
   }
 
   /** Clear a queued proposal once the user has acted on it. */
