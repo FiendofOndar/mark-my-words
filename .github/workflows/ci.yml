@@ -65,28 +65,34 @@ jobs:
         working-directory: android
         run: |
           set -o pipefail
-          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee ../gradle.log
+          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 \
+            | tee "$GITHUB_WORKSPACE/gradle.log"
 
       # Raw job logs are served from blob storage that some networks cannot
-      # reach, so a failure is copied somewhere readable through the API
-      # instead of being locked inside the run.
+      # reach, so a failure is copied into two places that are readable through
+      # the API: the job summary, and an issue.
       - name: Report a failure where it can be read
         if: failure() && steps.assemble.outcome == 'failure'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          cd "$GITHUB_WORKSPACE"
           {
             echo "Gradle failed on \`${{ github.sha }}\`."
             echo
-            echo "[Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
-            echo
             echo '```'
-            grep -A 40 -m 1 'FAILURE: Build failed' ../gradle.log || tail -n 150 ../gradle.log
+            if grep -q 'FAILURE: Build failed' gradle.log; then
+              grep -A 60 -m 1 'FAILURE: Build failed' gradle.log
+            else
+              tail -n 200 gradle.log
+            fi
             echo '```'
-          } > ../failure.md
+          } > failure.md
+
+          cat failure.md >> "$GITHUB_STEP_SUMMARY"
           gh issue create \
             --title "Android build failed (${{ github.sha }})" \
-            --body-file ../failure.md
+            --body-file failure.md || echo "could not open an issue; the summary above still has it"
 
       - name: Name the file after the build
         id: apk
