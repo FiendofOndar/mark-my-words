@@ -4,12 +4,15 @@ import { migrate } from './migrations';
 import { AuthorRepo } from './repositories/authorRepo';
 import { PredictionRepo } from './repositories/predictionRepo';
 import { SettingsRepo } from './repositories/settingsRepo';
+import { CheckRepo, QuotaRepo } from './repositories/checkRepo';
 
 export interface Db {
   driver: SqlDriver;
   authors: AuthorRepo;
   predictions: PredictionRepo;
   settings: SettingsRepo;
+  checks: CheckRepo;
+  quota: QuotaRepo;
   schemaVersion: number;
 }
 
@@ -29,6 +32,8 @@ export async function openDatabase(opts: OpenOptions): Promise<Db> {
     authors: new AuthorRepo(driver),
     predictions: new PredictionRepo(driver),
     settings: new SettingsRepo(driver),
+    checks: new CheckRepo(driver),
+    quota: new QuotaRepo(driver),
     schemaVersion,
   };
 }

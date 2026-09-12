@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { HeaderLink, Screen } from '../components/Screen';
 import { FilterChips, type ChipDef } from '../components/FilterChips';
 import { PredictionRow } from '../components/PredictionRow';
-import { awaitsUser, useFeed, type FeedFilter } from '../queries';
+import { PullToRefresh } from '../components/PullToRefresh';
+import { awaitsUser, describePull, useFeed, usePull, useQuotaUsed, type FeedFilter } from '../queries';
 
 const CHIP_DEFS: ChipDef[] = [
   { label: 'All', filter: { kind: 'all' } },
@@ -18,6 +19,9 @@ export function FeedScreen() {
   const [filter, setFilter] = useState<FeedFilter>({ kind: 'all' });
   const all = useFeed({ kind: 'all' });
   const current = useFeed(filter);
+  const pull = usePull();
+  const quota = useQuotaUsed();
+  const [dismissed, setDismissed] = useState(false);
 
   const chips = useMemo<ChipDef[]>(() => {
     const items = all.data ?? [];
@@ -30,7 +34,9 @@ export function FeedScreen() {
             (i) => i.prediction.status === 'open' || i.prediction.status === 'draft',
           ).length;
         case 'needs_you':
-          return items.filter((i) => awaitsUser(i.prediction)).length;
+          return items.filter((i) =>
+            awaitsUser(i.prediction, new Date(), Boolean(i.hasQueuedVerdict)),
+          ).length;
         case 'resolved':
           return items.filter((i) =>
             ['hit', 'miss', 'partial', 'ambiguous'].includes(i.prediction.status),
@@ -48,32 +54,70 @@ export function FeedScreen() {
 
   const items = current.data ?? [];
 
+  const check = () => {
+    setDismissed(false);
+    pull.mutate();
+  };
+
   return (
     <Screen
       title="Mark My Words"
+      scroll={false}
       actions={
         <>
+          <button
+            type="button"
+            onClick={check}
+            disabled={pull.isPending}
+            aria-label="Check what is due"
+            title="Check what is due"
+            className="shrink-0 rounded-full px-2 py-1 text-lg text-ink-dim active:bg-surface-raised disabled:opacity-40"
+          >
+            {pull.isPending ? '…' : '⟳'}
+          </button>
           <HeaderLink to="/standings" label="Standings" glyph="▤" />
           <HeaderLink to="/settings" label="Settings" glyph="⚙" />
         </>
       }
     >
-      <div className="border-b border-rule px-4 py-3">
-        <FilterChips chips={chips} active={filter} onChange={setFilter} />
-      </div>
+      <PullToRefresh onRefresh={check} busy={pull.isPending}>
+        <div className="border-b border-rule px-4 py-3">
+          <FilterChips chips={chips} active={filter} onChange={setFilter} />
+        </div>
 
-      {items.length === 0 ? (
-        <EmptyState filterKind={filter.kind} />
-      ) : (
-        // Bottom padding keeps the last row clear of the floating add button.
-        <ul className="pb-24">
-          {items.map((item) => (
-            <li key={item.prediction.id}>
-              <PredictionRow item={item} />
-            </li>
-          ))}
-        </ul>
-      )}
+        {pull.data && !dismissed && (
+          <button
+            type="button"
+            onClick={() => setDismissed(true)}
+            className="block w-full border-b border-rule bg-surface px-4 py-2.5 text-left"
+          >
+            <span className="text-[13px] text-ink-dim">{describePull(pull.data)}</span>
+            {quota.data?.limit != null && (
+              <span className="mt-0.5 block text-[12px] text-ink-faint">
+                {quota.data.used} of {quota.data.limit} checks used today
+              </span>
+            )}
+          </button>
+        )}
+
+        {pull.error && !dismissed && (
+          <p className="border-b border-rule bg-miss/5 px-4 py-2.5 text-[13px] text-miss">
+            {pull.error.message}
+          </p>
+        )}
+
+        {items.length === 0 ? (
+          <EmptyState filterKind={filter.kind} />
+        ) : (
+          <ul className="pb-24">
+            {items.map((item) => (
+              <li key={item.prediction.id}>
+                <PredictionRow item={item} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </PullToRefresh>
 
       <Link
         to="/new"

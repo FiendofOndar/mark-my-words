@@ -5,11 +5,17 @@ import { Stamp, LateBadge, Pill } from '../components/Stamp';
 import { TrendMark } from '../components/TrendMark';
 import {
   useAmendPrediction,
+  useApproveVerdict,
+  useCheckLog,
   useDeletePrediction,
   usePrediction,
+  usePull,
+  useQueuedVerdicts,
+  useRejectVerdict,
   useSetCriterionSatisfied,
   useUpdatePrediction,
 } from '../queries';
+import { CheckLog } from '../components/CheckLog';
 import {
   describeDeadline,
   formatCountdown,
@@ -34,6 +40,11 @@ export function DetailScreen() {
   const navigate = useNavigate();
   const { data, isLoading } = usePrediction(id);
 
+  const { data: log = [] } = useCheckLog(id);
+  const { data: queued } = useQueuedVerdicts();
+  const pull = usePull();
+  const approve = useApproveVerdict();
+  const reject = useRejectVerdict();
   const update = useUpdatePrediction();
   const amend = useAmendPrediction();
   const remove = useDeletePrediction();
@@ -56,6 +67,7 @@ export function DetailScreen() {
 
   const { prediction: p, author, criteria, amendments } = data;
   const late = formatLateBadge(p);
+  const queuedVerdict = queued?.get(p.id) ?? null;
 
   const onResolve = (verdict: PredictionStatus) => {
     update.mutate({ id: p.id, patch: resolve(p, verdict, 'user') });
@@ -153,6 +165,40 @@ export function DetailScreen() {
         </div>
       )}
 
+      {queuedVerdict && (
+        <section className="border-b border-rule bg-partial/5 px-5 py-5">
+          <h2 className="text-[11px] font-semibold tracking-wide text-partial uppercase">
+            Verdict ready for you
+          </h2>
+          <p className="mt-2 font-display text-[17px] leading-snug text-ink">
+            {STATUS_LABEL[queuedVerdict.proposedVerdict as PredictionStatus]}
+            {queuedVerdict.rubricScore !== null && (
+              <span className="text-ink-faint"> · scored {queuedVerdict.rubricScore}/100</span>
+            )}
+          </p>
+          <p className="mt-1 text-[14px] text-ink-dim">{queuedVerdict.summary}</p>
+          <p className="mt-2 text-[12px] text-ink-faint">
+            The evidence is in the check log below. Nothing changes until you say so.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => approve.mutate({ predictionId: p.id, checkId: queuedVerdict.id })}
+              className="rounded border border-hit px-3 py-1.5 text-[13px] text-hit"
+            >
+              Accept it
+            </button>
+            <button
+              type="button"
+              onClick={() => reject.mutate(queuedVerdict.id)}
+              className="rounded border border-rule px-3 py-1.5 text-[13px] text-ink-dim"
+            >
+              Not convinced
+            </button>
+          </div>
+        </section>
+      )}
+
       {/* Criteria. */}
       <section className="border-b border-rule px-5 py-5">
         <div className="flex items-baseline justify-between">
@@ -237,6 +283,14 @@ export function DetailScreen() {
       <section className="border-b border-rule px-5 py-5">
         <h2 className="text-[13px] font-semibold tracking-wide text-ink-dim uppercase">Actions</h2>
         <div className="mt-3 flex flex-wrap gap-2">
+          {p.verificationMode === 'searchable' && (
+            <ActionButton
+              onClick={() => pull.mutate({ onlyPredictionId: p.id })}
+              disabled={pull.isPending}
+            >
+              {pull.isPending ? 'Checking...' : 'Check now'}
+            </ActionButton>
+          )}
           {!isResolved(p.status) && (
             <ActionButton onClick={() => setShowResolve((v) => !v)}>Resolve manually</ActionButton>
           )}
@@ -314,14 +368,16 @@ export function DetailScreen() {
         )}
       </section>
 
-      {/* Check log. */}
+      {/* Check log. The evidence trail is the record, so it is never collapsed. */}
       <section className="px-5 py-5">
         <h2 className="text-[13px] font-semibold tracking-wide text-ink-dim uppercase">Check log</h2>
-        <p className="mt-3 text-[14px] text-ink-faint italic">
-          {p.verificationMode === 'manual'
-            ? 'This one is yours to settle. Nothing is searched.'
-            : 'No checks run yet. Automatic verification arrives in the next phase.'}
-        </p>
+        {p.verificationMode === 'manual' ? (
+          <p className="mt-3 text-[14px] text-ink-faint italic">
+            This one is yours to settle. Nothing is searched.
+          </p>
+        ) : (
+          <CheckLog entries={log} />
+        )}
       </section>
     </Screen>
   );
@@ -331,16 +387,19 @@ function ActionButton({
   children,
   onClick,
   tone = 'normal',
+  disabled = false,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   tone?: 'normal' | 'danger';
+  disabled?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`rounded border px-3 py-1.5 text-[13px] active:bg-surface-raised ${
+      disabled={disabled}
+      className={`rounded border px-3 py-1.5 text-[13px] active:bg-surface-raised disabled:opacity-40 ${
         tone === 'danger' ? 'border-miss/50 text-miss' : 'border-rule text-ink-dim'
       }`}
     >

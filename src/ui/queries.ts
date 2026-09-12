@@ -7,9 +7,14 @@ import { isPastDeadline } from '../domain/prediction';
 import type { PredictionPatch } from '../domain/prediction';
 import type { NewPrediction } from '../data/repositories/predictionRepo';
 import { tallyRecord, type AuthorRecord } from '../domain/scoring';
-import { confirmDraft } from '../domain/prediction';
+import { confirmDraft, markLateHit, resolve } from '../domain/prediction';
 import { createVerifier } from '../verification/registry';
 import type { StructureInput, StructureResult } from '../verification/types';
+import type { Check, Evidence } from '../domain/types';
+import { describePull, runPull, type PullSummary } from '../verification/runPull';
+import { BrowserPageFetcher } from '../verification/validateSources';
+import { loadVerifierConfig } from '../lib/keyStore';
+import { DEFAULT_PULL_BUDGET } from '../domain/cadence';
 
 export type FeedFilter =
   | { kind: 'all' }
@@ -24,26 +29,33 @@ export type FeedFilter =
 export interface FeedItem extends HeatInput {
   author: Author;
   amendmentCount: number;
+  queuedVerdict: Check | null;
 }
 
 const RESOLVED: PredictionStatus[] = ['hit', 'miss', 'partial', 'ambiguous'];
 
 /** A prediction only you can settle, and the clock has run out. */
-export function awaitsUser(p: Prediction, now = new Date()): boolean {
+export function awaitsUser(p: Prediction, now = new Date(), hasQueuedVerdict = false): boolean {
   if (p.status === 'draft') return true;
+  if (hasQueuedVerdict) return true;
   if (p.status !== 'open') return false;
   if (p.verificationMode !== 'manual') return false;
   return isPastDeadline(p, now);
 }
 
-function matches(p: Prediction, filter: FeedFilter, now: Date): boolean {
+function matches(
+  p: Prediction,
+  filter: FeedFilter,
+  now: Date,
+  queued: Map<string, Check>,
+): boolean {
   switch (filter.kind) {
     case 'all':
       return true;
     case 'open':
       return p.status === 'open' || p.status === 'draft';
     case 'needs_you':
-      return awaitsUser(p, now);
+      return awaitsUser(p, now, queued.has(p.id));
     case 'resolved':
       return RESOLVED.includes(p.status);
     case 'late':
@@ -61,10 +73,11 @@ function buildFeed(db: Db, filter: FeedFilter): FeedItem[] {
   const now = new Date();
   const authors = new Map(db.authors.list().map((a) => [a.id, a]));
   const amendmentCounts = db.predictions.amendmentCounts();
+  const queued = db.checks.queuedVerdicts();
 
   const items = db.predictions
     .list()
-    .filter((p) => matches(p, filter, now))
+    .filter((p) => matches(p, filter, now, queued))
     .flatMap<FeedItem>((prediction) => {
       const author = authors.get(prediction.authorId);
       if (!author) return [];
@@ -73,6 +86,8 @@ function buildFeed(db: Db, filter: FeedFilter): FeedItem[] {
           prediction,
           author,
           amendmentCount: amendmentCounts.get(prediction.id) ?? 0,
+          hasQueuedVerdict: queued.has(prediction.id),
+          queuedVerdict: queued.get(prediction.id) ?? null,
         },
       ];
     });
@@ -85,6 +100,9 @@ export const keys = {
   prediction: (id: string) => ['prediction', id] as const,
   authors: () => ['authors'] as const,
   standings: () => ['standings'] as const,
+  checks: (id: string) => ['checks', id] as const,
+  queued: () => ['queued'] as const,
+  quota: () => ['quota'] as const,
 };
 
 export function useFeed(filter: FeedFilter) {
@@ -106,6 +124,48 @@ export function usePrediction(id: string | undefined) {
       if (!context) return null;
       return { ...context, amendments: db.predictions.amendmentsFor(id) };
     },
+  });
+}
+
+export interface CheckLogEntry {
+  check: Check;
+  evidence: Evidence[];
+}
+
+export function useCheckLog(predictionId: string | undefined) {
+  const db = useDb();
+  return useQuery({
+    queryKey: keys.checks(predictionId ?? ''),
+    enabled: Boolean(predictionId),
+    queryFn: (): CheckLogEntry[] => {
+      if (!predictionId) return [];
+      const evidence = db.checks.evidenceByCheck(predictionId);
+      return db.checks
+        .listFor(predictionId)
+        .map((check) => ({ check, evidence: evidence.get(check.id) ?? [] }));
+    },
+  });
+}
+
+/** Predictions whose latest check proposed a verdict nobody has acted on. */
+export function useQueuedVerdicts() {
+  const db = useDb();
+  return useQuery({
+    queryKey: keys.queued(),
+    queryFn: () => db.checks.queuedVerdicts(),
+  });
+}
+
+export function useQuotaUsed() {
+  const db = useDb();
+  const config = loadVerifierConfig();
+  return useQuery({
+    queryKey: keys.quota(),
+    queryFn: () => ({
+      used: db.quota.usedToday(config.provider),
+      limit: config.dailyQuota,
+      provider: config.provider,
+    }),
   });
 }
 
@@ -208,6 +268,71 @@ export function useStructureStatement() {
   return useMutation<StructureResult, Error, StructureInput>({
     mutationFn: (input) => createVerifier().structure(input),
   });
+}
+
+/**
+ * Run a pull. The only thing in the app that spends quota.
+ *
+ * Source validation uses the browser fetcher here, which cannot tell a dead URL
+ * from a cross-origin refusal, so nothing auto-resolves on the web build. The
+ * native build swaps the fetcher and the gates start biting.
+ */
+export function usePull() {
+  const db = useDb();
+  const client = useQueryClient();
+
+  return useMutation<PullSummary, Error, { onlyPredictionId?: string } | void>({
+    mutationFn: async (args) => {
+      const config = loadVerifierConfig();
+      return runPull(
+        db,
+        { verifier: createVerifier(config), fetcher: new BrowserPageFetcher() },
+        {
+          budget: DEFAULT_PULL_BUDGET,
+          dailyQuota: config.dailyQuota,
+          ...(args?.onlyPredictionId
+            ? { onlyPredictionId: args.onlyPredictionId, trigger: 'force' as const }
+            : {}),
+        },
+      );
+    },
+    onSettled: () => {
+      void client.invalidateQueries();
+    },
+  });
+}
+
+export { describePull };
+
+/** Accept a queued verdict. The record shows you made the call, not the model. */
+export function useApproveVerdict() {
+  return useDbMutation((db, args: { predictionId: string; checkId: string }) => {
+    const prediction = db.predictions.getById(args.predictionId);
+    const check = db.checks.listFor(args.predictionId).find((c) => c.id === args.checkId);
+    if (!prediction || !check || !check.proposedVerdict || check.proposedVerdict === 'no_change') {
+      throw new Error('There is no verdict to approve.');
+    }
+
+    if (prediction.status === 'miss' && check.proposedVerdict === 'hit') {
+      // A late hit never overwrites the verdict; it earns the badge.
+      db.predictions.update(
+        args.predictionId,
+        markLateHit(prediction, check.ranAt),
+      );
+    } else {
+      db.predictions.update(
+        args.predictionId,
+        resolve(prediction, check.proposedVerdict, 'user', new Date(), {
+          confidenceScore: check.rubricScore ?? undefined,
+        }),
+      );
+    }
+    db.checks.markActedOn(args.checkId, 'auto_resolved');
+  });
+}
+
+export function useRejectVerdict() {
+  return useDbMutation((db, checkId: string) => db.checks.markActedOn(checkId, 'no_change'));
 }
 
 export function useSetCriterionSatisfied() {

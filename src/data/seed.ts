@@ -68,7 +68,7 @@ export function seedDemoData(db: Db): void {
       criteria: ['Avengers: Doomsday is released', 'Thor loses an arm during the film'],
     });
 
-    db.predictions.create({
+    const cardinals = db.predictions.create({
       authorId: popops.id,
       rawStatement: 'The Cardinals will win the World Series this year.',
       normalizedClaim: 'The St. Louis Cardinals win the 2026 World Series.',
@@ -80,6 +80,93 @@ export function seedDemoData(db: Db): void {
       category: 'Sports',
       stakes: '$20',
       criteria: ['The St. Louis Cardinals win the 2026 World Series'],
+    });
+
+    // A check log with a queued verdict, so the evidence trail and the approval
+    // step are visible without waiting for a real check to land.
+    db.checks.create({
+      predictionId: cardinals.id,
+      trigger: 'pull',
+      provider: 'demo',
+      model: 'demo',
+      proposedVerdict: 'no_change',
+      proposedTrend: 'flat',
+      rubricScore: 12,
+      rubricBreakdown: {
+        independentSources: 0,
+        sourceTier: 0,
+        urlValidation: 0,
+        criteriaCoverage: 0,
+        temporalSanity: 0,
+        capApplied: false,
+        gates: ['No sources were cited.'],
+      },
+      modelConfidence: 12,
+      summary: 'The postseason has not started. Nothing to report yet.',
+      outcome: 'no_change',
+      evidence: [],
+    });
+
+    db.checks.create({
+      predictionId: cardinals.id,
+      trigger: 'pull',
+      provider: 'demo',
+      model: 'demo',
+      proposedVerdict: 'hit',
+      proposedTrend: 'toward_yes',
+      rubricScore: 88,
+      rubricBreakdown: {
+        independentSources: 30,
+        sourceTier: 25,
+        urlValidation: 10,
+        criteriaCoverage: 15,
+        temporalSanity: 10,
+        capApplied: true,
+        gates: [],
+      },
+      modelConfidence: 68,
+      summary:
+        'Two outlets report the Cardinals took the series in six games. One cited page could not be read, so this is not being resolved automatically.',
+      outcome: 'queued',
+      evidence: [
+        {
+          url: 'https://example.com/ap/cardinals-win',
+          title: 'Cardinals take the series',
+          publisher: 'AP',
+          publishedAt: daysFromNow(-1).slice(0, 10),
+          quotedText: 'The Cardinals took the series in six games on Sunday night.',
+          tier: 'major_outlet',
+          fetchStatus: 'ok',
+          fetchedAt: nowIso(),
+        },
+        {
+          url: 'https://example.com/reuters/cardinals-win',
+          title: 'St. Louis wins it all',
+          publisher: 'Reuters',
+          publishedAt: daysFromNow(-1).slice(0, 10),
+          quotedText: 'St. Louis closed out the series at home.',
+          tier: 'major_outlet',
+          fetchStatus: 'ok',
+          fetchedAt: nowIso(),
+        },
+        {
+          url: 'https://example.com/blocked/recap',
+          title: 'Series recap',
+          publisher: 'MLB.com',
+          publishedAt: daysFromNow(-1).slice(0, 10),
+          quotedText: 'A championship six years in the making.',
+          tier: 'primary',
+          fetchStatus: 'blocked',
+          fetchedAt: nowIso(),
+        },
+      ],
+    });
+    db.predictions.update(cardinals.id, {
+      lastCheckedAt: nowIso(),
+      checkCount: 2,
+      trend: 'toward_yes',
+      criteriaFrozenAt: nowIso(),
+      updatedAt: nowIso(),
     });
 
     db.predictions.create({

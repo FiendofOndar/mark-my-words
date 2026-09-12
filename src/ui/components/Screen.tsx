@@ -7,12 +7,15 @@ export function Screen({
   subtitle,
   back,
   actions,
+  scroll = true,
   children,
 }: {
   title: ReactNode;
   subtitle?: ReactNode;
   back?: boolean;
   actions?: ReactNode;
+  /** Set false when the child owns scrolling, so the two do not nest. */
+  scroll?: boolean;
   children: ReactNode;
 }) {
   const navigate = useNavigate();
@@ -38,7 +41,13 @@ export function Screen({
           {actions}
         </div>
       </header>
-      <main className="flex-1 overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+      <main
+        className={
+          scroll
+            ? 'flex-1 overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))]'
+            : 'min-h-0 flex-1'
+        }
+      >
         {children}
       </main>
     </div>

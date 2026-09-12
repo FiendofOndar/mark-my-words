@@ -9,7 +9,7 @@ import { isResolved } from '../../domain/prediction';
 export function PredictionRow({ item }: { item: FeedItem }) {
   const p = item.prediction;
   const late = formatLateBadge(p);
-  const needsYou = awaitsUser(p);
+  const needsYou = awaitsUser(p, new Date(), Boolean(item.hasQueuedVerdict));
 
   return (
     <Link
@@ -44,7 +44,8 @@ export function PredictionRow({ item }: { item: FeedItem }) {
       </p>
 
       <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-        {needsYou && <Pill tone="warn">Needs you</Pill>}
+        {item.hasQueuedVerdict && <Pill tone="warn">Verdict ready</Pill>}
+        {needsYou && !item.hasQueuedVerdict && <Pill tone="warn">Needs you</Pill>}
         {p.status === 'draft' && <Pill tone="warn">Draft</Pill>}
         {late && <LateBadge label={late} />}
         {p.verificationMode === 'manual' && <Pill tone="muted">You decide</Pill>}

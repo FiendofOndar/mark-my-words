@@ -1,4 +1,12 @@
-import type { Category, DeadlineType, Polarity, VerificationMode } from '../domain/types';
+import type {
+  Category,
+  DeadlineType,
+  Polarity,
+  PredictionStatus,
+  SourceTier,
+  Trend,
+  VerificationMode,
+} from '../domain/types';
 
 /** What the intake AI is asked to turn a raw quote into. */
 export interface StructureInput {
@@ -53,6 +61,58 @@ export interface StructureResult {
   tokensUsed: number | null;
 }
 
+/** Mirrors the `trigger` column on a check row. */
+export type CheckTriggerKind = 'pull' | 'force' | 'deadline' | 'backfill';
+
+/** What a verification pass is asked to settle. */
+export interface CheckInput {
+  claim: string;
+  polarity: Polarity;
+  disconfirmingTrigger: string | null;
+  criteriaElements: string[];
+  statementDate: string;
+  deadlineDescription: string;
+  raceEventB: string | null;
+  suggestedQueries: string[];
+  /** A short digest of the last couple of checks, so the model has continuity. */
+  priorFindings: string | null;
+  today: string;
+}
+
+export type CheckVerdict = Extract<
+  PredictionStatus,
+  'hit' | 'miss' | 'partial' | 'ambiguous'
+> | 'no_change';
+
+export interface CitedSource {
+  url: string;
+  title: string | null;
+  publisher: string | null;
+  publishedAt: string | null;
+  quotedText: string;
+  tier: SourceTier;
+}
+
+export interface CriterionStatus {
+  index: number;
+  satisfied: boolean;
+  basis: 'quoted' | 'inferred' | 'none';
+  why: string;
+}
+
+export interface CheckResult {
+  verdict: CheckVerdict;
+  trend: Trend;
+  summary: string;
+  criteriaStatus: CriterionStatus[];
+  sources: CitedSource[];
+  /** 0-100, as reported. Used only to lower the app's own score. */
+  modelConfidence: number | null;
+  provider: string;
+  model: string;
+  tokensUsed: number | null;
+}
+
 export class VerifierError extends Error {
   constructor(
     message: string,
@@ -70,6 +130,7 @@ export interface Verifier {
   /** null when the provider publishes no daily cap. */
   readonly dailyQuota: number | null;
   structure(input: StructureInput): Promise<StructureResult>;
+  check(input: CheckInput): Promise<CheckResult>;
   /** Cheap round trip to prove the key works. */
   testConnection(): Promise<void>;
 }

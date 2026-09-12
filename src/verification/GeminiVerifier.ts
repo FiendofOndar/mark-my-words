@@ -1,15 +1,19 @@
 import {
   VerifierError,
+  type CheckInput,
+  type CheckResult,
   type StructureInput,
   type StructureResult,
   type Verifier,
 } from './types';
 import { extractJson, parseStructuredPrediction } from './structureSchema';
+import { parseCheckResponse } from './checkSchema';
 import {
   STRUCTURE_RESPONSE_SCHEMA,
   STRUCTURE_SYSTEM_PROMPT,
   buildStructurePrompt,
 } from './prompts/structure';
+import { CHECK_RESPONSE_SCHEMA, CHECK_SYSTEM_PROMPT, buildCheckPrompt } from './prompts/check';
 
 const BASE = 'https://generativelanguage.googleapis.com/v1beta';
 
@@ -94,6 +98,60 @@ export class GeminiVerifier implements Verifier {
     return {
       value: parsed.value,
       warnings: parsed.warnings,
+      provider: this.providerId,
+      model: this.modelId,
+      tokensUsed: response.usageMetadata?.totalTokenCount ?? null,
+    };
+  }
+
+  /**
+   * Verification runs with Google Search grounding. Gemini does not allow a
+   * declared responseSchema alongside a tool, so the JSON shape is asked for in
+   * the prompt and the parser does the enforcing it would otherwise do.
+   */
+  async check(input: CheckInput): Promise<CheckResult> {
+    const body = {
+      systemInstruction: {
+        parts: [
+          {
+            text: `${CHECK_SYSTEM_PROMPT}\n\nReturn a single JSON object with exactly this shape:\n${JSON.stringify(
+              CHECK_RESPONSE_SCHEMA,
+              null,
+              1,
+            )}`,
+          },
+        ],
+      },
+      contents: [{ role: 'user', parts: [{ text: buildCheckPrompt(input) }] }],
+      tools: [{ google_search: {} }],
+      generationConfig: { temperature: 0.1 },
+    };
+
+    const response = await this.post(`${this.modelId}:generateContent`, body);
+    const text = this.firstText(response);
+
+    let raw: unknown;
+    try {
+      raw = extractJson(text);
+    } catch (err) {
+      throw new VerifierError(
+        'The check did not come back as JSON.',
+        'bad_response',
+        (err as Error).message,
+      );
+    }
+
+    const parsed = parseCheckResponse(raw, input.criteriaElements.length);
+    if (!parsed.ok) {
+      throw new VerifierError(
+        'The check came back unusable.',
+        'bad_response',
+        parsed.problems.join(' '),
+      );
+    }
+
+    return {
+      ...parsed.value,
       provider: this.providerId,
       model: this.modelId,
       tokensUsed: response.usageMetadata?.totalTokenCount ?? null,

@@ -1,0 +1,245 @@
+import { beforeEach, describe, expect, it } from 'vitest';
+import { createRequire } from 'node:module';
+import path from 'node:path';
+import { openDatabase, type Db } from '../data/db';
+import { MemoryPersistence } from '../data/driver';
+import { describePull, runPull } from './runPull';
+import type { PageFetchOutcome, PageFetcher } from './validateSources';
+import { VerifierError, type CheckInput, type CheckResult, type StructureInput, type StructureResult, type Verifier } from './types';
+
+const require = createRequire(import.meta.url);
+const wasmDir = path.dirname(require.resolve('sql.js/dist/sql-wasm.js'));
+
+const QUOTE = 'the thing definitively happened on Tuesday in front of everyone';
+
+class ScriptedVerifier implements Verifier {
+  readonly providerId = 'scripted';
+  readonly modelId = 'scripted-1';
+  readonly dailyQuota = null;
+  calls = 0;
+  constructor(private next: (input: CheckInput, call: number) => CheckResult | Error) {}
+  async structure(_i: StructureInput): Promise<StructureResult> {
+    throw new Error('not used');
+  }
+  async check(input: CheckInput): Promise<CheckResult> {
+    this.calls += 1;
+    const outcome = this.next(input, this.calls);
+    if (outcome instanceof Error) throw outcome;
+    return outcome;
+  }
+  async testConnection(): Promise<void> {}
+}
+
+const echoFetcher: PageFetcher = {
+  canProveUnreachable: true,
+  async fetchPage(): Promise<PageFetchOutcome> {
+    return { kind: 'ok', text: QUOTE };
+  },
+};
+
+function hitResult(confidence = 98): CheckResult {
+  return {
+    verdict: 'hit',
+    trend: 'toward_yes',
+    summary: 'It happened, widely reported.',
+    criteriaStatus: [{ index: 0, satisfied: true, basis: 'quoted', why: 'Reported.' }],
+    sources: ['AP', 'Reuters', 'BBC'].map((publisher, i) => ({
+      url: `https://outlet${i}.com/story`,
+      title: 'It happened',
+      publisher,
+      publishedAt: new Date().toISOString().slice(0, 10),
+      quotedText: QUOTE,
+      tier: 'primary' as const,
+    })),
+    modelConfidence: confidence,
+    provider: 'scripted',
+    model: 'scripted-1',
+    tokensUsed: 500,
+  };
+}
+
+const nothingYet = (): CheckResult => ({
+  ...hitResult(),
+  verdict: 'no_change',
+  trend: 'flat',
+  summary: 'Nothing reported yet.',
+  sources: [],
+  criteriaStatus: [],
+  modelConfidence: 10,
+});
+
+let db: Db;
+
+beforeEach(async () => {
+  db = await openDatabase({
+    locateFile: (file) => path.join(wasmDir, file),
+    persistence: new MemoryPersistence(),
+    persistDebounceMs: 0,
+  });
+});
+
+function addPrediction(overrides: { daysToDeadline?: number; lastCheckedAt?: string | null } = {}) {
+  const author = db.authors.findOrCreate({ displayName: 'Popops' });
+  const deadline = new Date();
+  deadline.setDate(deadline.getDate() + (overrides.daysToDeadline ?? 3));
+
+  const prediction = db.predictions.create({
+    authorId: author.id,
+    rawStatement: 'The thing will happen.',
+    statementDate: new Date(Date.now() - 86_400_000 * 30).toISOString(),
+    deadlineType: 'fixed_date',
+    resolutionDate: deadline.toISOString(),
+    verificationMode: 'searchable',
+    category: 'Other',
+    criteria: ['The thing happens'],
+  });
+
+  if (overrides.lastCheckedAt !== undefined) {
+    db.predictions.update(prediction.id, {
+      lastCheckedAt: overrides.lastCheckedAt,
+      updatedAt: new Date().toISOString(),
+    });
+  }
+  return prediction;
+}
+
+describe('a pull', () => {
+  it('resolves a well-evidenced prediction and records the evidence', async () => {
+    const prediction = addPrediction();
+    const verifier = new ScriptedVerifier(() => hitResult());
+
+    const summary = await runPull(db, { verifier, fetcher: echoFetcher });
+
+    expect(summary).toMatchObject({ checked: 1, resolved: 1, errors: 0 });
+
+    const after = db.predictions.getById(prediction.id)!;
+    expect(after.status).toBe('hit');
+    expect(after.resolvedBy).toBe('auto');
+    expect(after.checkCount).toBe(1);
+    expect(after.criteriaFrozenAt).toBeTruthy();
+
+    const checks = db.checks.listFor(prediction.id);
+    expect(checks).toHaveLength(1);
+    expect(db.checks.evidenceFor(checks[0]!.id)).toHaveLength(3);
+    expect(db.checks.evidenceFor(checks[0]!.id).every((e) => e.fetchStatus === 'ok')).toBe(true);
+  });
+
+  it('only checks what the cadence gate says is due', async () => {
+    addPrediction({ daysToDeadline: 400, lastCheckedAt: new Date().toISOString() });
+    addPrediction({ daysToDeadline: 3 });
+    const verifier = new ScriptedVerifier(() => nothingYet());
+
+    const summary = await runPull(db, { verifier, fetcher: echoFetcher });
+
+    expect(verifier.calls).toBe(1);
+    expect(summary.checked).toBe(1);
+  });
+
+  it('spends its budget and reports what it deferred', async () => {
+    for (let i = 0; i < 5; i += 1) addPrediction();
+    const verifier = new ScriptedVerifier(() => nothingYet());
+
+    const summary = await runPull(db, { verifier, fetcher: echoFetcher }, { budget: 2 });
+
+    expect(verifier.calls).toBe(2);
+    expect(summary.deferred).toBe(3);
+    expect(describePull(summary)).toMatch(/3 deferred/);
+  });
+
+  it('stops at the daily quota instead of failing partway', async () => {
+    for (let i = 0; i < 4; i += 1) addPrediction();
+    const verifier = new ScriptedVerifier(() => nothingYet());
+
+    const first = await runPull(db, { verifier, fetcher: echoFetcher }, { dailyQuota: 3 });
+    expect(first.checked).toBe(3);
+    expect(first.quotaBlocked).toBe(1);
+    expect(db.quota.usedToday('scripted')).toBe(3);
+
+    // The ceiling is a running total, not a per-pull allowance.
+    const second = await runPull(db, { verifier, fetcher: echoFetcher }, { dailyQuota: 3 });
+    expect(second.checked).toBe(0);
+    expect(second.quotaBlocked).toBeGreaterThan(0);
+  });
+
+  it('leaves a failed check due rather than pushing it a full interval out', async () => {
+    const prediction = addPrediction();
+    const verifier = new ScriptedVerifier(() => new VerifierError('Quota gone.', 'rate_limit'));
+
+    const summary = await runPull(db, { verifier, fetcher: echoFetcher });
+
+    expect(summary).toMatchObject({ checked: 0, errors: 1 });
+    const after = db.predictions.getById(prediction.id)!;
+    expect(after.lastCheckedAt).toBeNull();
+    expect(after.criteriaFrozenAt).toBeNull();
+    expect(db.checks.listFor(prediction.id)[0]!.outcome).toBe('error');
+
+    // Still due on the next pull.
+    const retry = await runPull(db, { verifier: new ScriptedVerifier(() => hitResult()), fetcher: echoFetcher });
+    expect(retry.resolved).toBe(1);
+  });
+
+  it('queues a verdict the rubric will not settle on its own', async () => {
+    const prediction = addPrediction();
+    const verifier = new ScriptedVerifier(() => hitResult(70));
+
+    const summary = await runPull(db, { verifier, fetcher: echoFetcher });
+
+    expect(summary.queued).toBe(1);
+    expect(db.predictions.getById(prediction.id)!.status).toBe('open');
+    expect(db.checks.queuedVerdicts().get(prediction.id)?.proposedVerdict).toBe('hit');
+  });
+
+  it('hands the model what earlier checks found', async () => {
+    addPrediction();
+    const seen: (string | null)[] = [];
+    const verifier = new ScriptedVerifier((input) => {
+      seen.push(input.priorFindings);
+      return nothingYet();
+    });
+
+    await runPull(db, { verifier, fetcher: echoFetcher });
+
+    // Inside the final week the floor between checks is 12 hours, so the
+    // second pull has to be later or the gate correctly refuses it.
+    const later = new Date(Date.now() + 13 * 3_600_000);
+    await runPull(db, { verifier, fetcher: echoFetcher, now: () => later }, { now: () => later });
+
+    expect(seen).toHaveLength(2);
+    expect(seen[0]).toBeNull();
+    expect(seen[1]).toContain('Nothing reported yet.');
+  });
+
+  it('refuses a second pull inside the twelve hour floor', async () => {
+    addPrediction();
+    const verifier = new ScriptedVerifier(() => nothingYet());
+
+    await runPull(db, { verifier, fetcher: echoFetcher });
+    const second = await runPull(db, { verifier, fetcher: echoFetcher });
+
+    expect(verifier.calls).toBe(1);
+    expect(second.checked).toBe(0);
+  });
+
+  it('checks one prediction on demand, cadence or no cadence', async () => {
+    const stale = addPrediction({ daysToDeadline: 400, lastCheckedAt: new Date().toISOString() });
+    const verifier = new ScriptedVerifier(() => hitResult());
+
+    const summary = await runPull(
+      db,
+      { verifier, fetcher: echoFetcher },
+      { onlyPredictionId: stale.id, trigger: 'force' },
+    );
+
+    expect(summary.resolved).toBe(1);
+    expect(db.checks.listFor(stale.id)[0]!.trigger).toBe('force');
+  });
+
+  it('says plainly when nothing was due', async () => {
+    addPrediction({ daysToDeadline: 400, lastCheckedAt: new Date().toISOString() });
+    const summary = await runPull(db, {
+      verifier: new ScriptedVerifier(() => nothingYet()),
+      fetcher: echoFetcher,
+    });
+    expect(describePull(summary)).toBe('Nothing was due');
+  });
+});

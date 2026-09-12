@@ -1,4 +1,4 @@
-import type { StructureInput, StructureResult, Verifier } from './types';
+import type { CheckInput, CheckResult, StructureInput, StructureResult, Verifier } from './types';
 import { parseStructuredPrediction } from './structureSchema';
 import { CATEGORIES, type Category } from '../domain/types';
 
@@ -58,6 +58,25 @@ export class MockVerifier implements Verifier {
     return {
       value: parsed.value,
       warnings: ['Drafted offline without a model. Everything here is a guess.'],
+      provider: this.providerId,
+      model: this.modelId,
+      tokensUsed: null,
+    };
+  }
+
+  /**
+   * There is no offline way to learn what happened in the world, so this
+   * reports exactly that rather than inventing a verdict.
+   */
+  async check(_input: CheckInput): Promise<CheckResult> {
+    return {
+      verdict: 'no_change',
+      trend: 'unknown',
+      summary:
+        'No provider is configured, so nothing was searched. Add a Gemini key in Settings to check this against the world.',
+      criteriaStatus: [],
+      sources: [],
+      modelConfidence: 0,
       provider: this.providerId,
       model: this.modelId,
       tokensUsed: null,
