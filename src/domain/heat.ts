@@ -3,7 +3,7 @@
  * app means whatever is overdue, waiting on the user, or about to land.
  */
 import type { Prediction } from './types';
-import { daysUntilDeadline, isUnderLateWatch } from './prediction';
+import { daysUntilDeadline, effectiveDeadline, isUnderLateWatch } from './prediction';
 
 export interface HeatInput {
   prediction: Prediction;
@@ -41,8 +41,33 @@ export function sortByHeat(inputs: HeatInput[], now: Date = new Date()): HeatInp
   return [...inputs].sort((a, b) => {
     const diff = heatScore(b, now) - heatScore(a, now);
     if (diff !== 0) return diff;
-    return (
-      new Date(b.prediction.updatedAt).getTime() - new Date(a.prediction.updatedAt).getTime()
-    );
+
+    // Heat flattens past sixty days out, so everything further away scores the
+    // same and the tail of the feed came out in whatever order the rows
+    // happened to arrive in. Two loads of identical data listed a five-month
+    // prediction above and below a two-year one. Soonest first is what reading
+    // down a list of deadlines implies.
+    const da = deadlineMs(a);
+    const db = deadlineMs(b);
+    if (da !== db) {
+      // Open-ended claims have no date to compare, so they sink below the ones
+      // that do rather than sorting as though they were due immediately.
+      if (da === null) return 1;
+      if (db === null) return -1;
+      return da - db;
+    }
+
+    const updated =
+      new Date(b.prediction.updatedAt).getTime() - new Date(a.prediction.updatedAt).getTime();
+    if (updated !== 0) return updated;
+
+    // Last resort. Rows written in one transaction share a millisecond, and two
+    // of them must not be free to swap between renders.
+    return a.prediction.id < b.prediction.id ? -1 : a.prediction.id > b.prediction.id ? 1 : 0;
   });
+}
+
+function deadlineMs(input: HeatInput): number | null {
+  const iso = effectiveDeadline(input.prediction);
+  return iso === null ? null : new Date(iso).getTime();
 }
