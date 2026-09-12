@@ -8,7 +8,7 @@ reasoning, including the ones that look arbitrary.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 216 tests, all of them fast
+npm test           # 285 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -59,6 +59,16 @@ capability by adding a port, not a branch.
   change; stable ids make that idempotent.
 - **Shared state belongs in one place.** Notification preferences were briefly
   two `useState` copies of the same row and silently diverged.
+- **Measure a scroller with a ResizeObserver, not on render.** On first render
+  the display font has not loaded, so the filter strip measured as not
+  overflowing and drew no edge fade until someone scrolled it.
+- **Chrome draws an unchecked checkbox as a solid white box.** On the dark
+  ground that made a checkbox the loudest thing on screen. Use `.checkbox`.
+- **A disabled cream fill becomes a muddy grey block**, whether by `opacity-40`
+  or `bg-ink/20`, and reads as pressed. `primaryButton` swaps to a surface
+  token instead. Use `primaryButton` / `secondaryButton`, not a fourth copy.
+- **Never type "·" in front of list items.** `Bullets` renders one item as a
+  sentence, because a bullet in front of a single line is just a dot.
 
 ## Rules the product depends on
 
@@ -68,6 +78,10 @@ is for.
 - **Criteria freeze on the first check.** After that, editing goes through the
   amendment log with a required reason. Editing is allowed; hiding the edit is
   not. This is the whole anti-slippage mechanism.
+- **The feed sorts by heat, and heat flattens past sixty days.** Everything
+  further out scores identically, so `sortByHeat` must keep breaking the tie
+  itself: deadline first, then `updatedAt`, then the id. Without the last two
+  the same eight predictions came back in a different order on every load.
 - **A late hit never changes the verdict.** The timeframe was part of the claim,
   so a miss stays a miss and earns a badge instead.
 - **Model confidence can only lower the score, never raise it.** The score is
