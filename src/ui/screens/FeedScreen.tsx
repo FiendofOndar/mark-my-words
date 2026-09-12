@@ -4,7 +4,16 @@ import { HeaderLink, Screen } from '../components/Screen';
 import { FilterChips, type ChipDef } from '../components/FilterChips';
 import { PredictionRow } from '../components/PredictionRow';
 import { PullToRefresh } from '../components/PullToRefresh';
-import { awaitsUser, describePull, useFeed, usePull, useQuotaUsed, type FeedFilter } from '../queries';
+import {
+  awaitsUser,
+  describePull,
+  useClearCooldown,
+  useCooldown,
+  useFeed,
+  usePull,
+  useQuotaUsed,
+  type FeedFilter,
+} from '../queries';
 
 const CHIP_DEFS: ChipDef[] = [
   { label: 'All', filter: { kind: 'all' } },
@@ -21,6 +30,8 @@ export function FeedScreen() {
   const current = useFeed(filter);
   const pull = usePull();
   const quota = useQuotaUsed();
+  const { data: cooldown } = useCooldown();
+  const clearHold = useClearCooldown();
   const [dismissed, setDismissed] = useState(false);
 
   const chips = useMemo<ChipDef[]>(() => {
@@ -68,7 +79,7 @@ export function FeedScreen() {
           <button
             type="button"
             onClick={check}
-            disabled={pull.isPending}
+            disabled={pull.isPending || Boolean(cooldown)}
             aria-label="Check what is due"
             title="Check what is due"
             className="shrink-0 rounded-full px-2 py-1 text-lg text-ink-dim active:bg-surface-raised disabled:opacity-40"
@@ -84,6 +95,22 @@ export function FeedScreen() {
         <div className="border-b border-rule px-4 py-3">
           <FilterChips chips={chips} active={filter} onChange={setFilter} />
         </div>
+
+        {cooldown && (
+          <div className="border-b border-rule bg-partial/5 px-4 py-2.5">
+            <p className="text-[13px] text-partial">{cooldown.message}</p>
+            <p className="mt-1 text-[12px] text-ink-faint">
+              Checks are paused so the next one is not wasted. Drafting still works.
+            </p>
+            <button
+              type="button"
+              onClick={() => clearHold.mutate(undefined)}
+              className="mt-2 rounded border border-rule px-2.5 py-1 text-[12px] text-ink-dim"
+            >
+              Try anyway
+            </button>
+          </div>
+        )}
 
         {pull.data && !dismissed && (
           <button

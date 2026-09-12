@@ -85,6 +85,18 @@ is for.
 
 ## Unverified
 
+- **Grounded checks on a free Gemini key get 20 per day.** They are billed
+  against `GenerateRequestsPerDayPerProjectPerModel-FreeTier` (quotaValue 20,
+  5/min), not the 5,000/day grounding allowance, which needs billing. The whole
+  cadence design exists because of numbers like this; do not add anything that
+  spends a check casually.
+- **A spent allowance ends the pull and blocks the next one.** Otherwise every
+  further attempt is a guaranteed failure that still costs a request and fills
+  the log with identical errors. `readCooldown` gates it, and the feed offers a
+  deliberate override.
+- **A 429 with no retry delay is the daily bucket.** A per-minute limit always
+  carries one. That absence is the signal, and daily quotas reset at midnight
+  Pacific, not local midnight and not on a rolling 24 hours.
 - **A 429 is three different limits.** Per minute, per day, and a separate
   allowance for Google Search grounding. The body says which, and carries a
   `retryDelay`. Never collapse them into one message: telling someone to come

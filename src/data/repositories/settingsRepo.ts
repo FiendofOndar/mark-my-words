@@ -39,4 +39,5 @@ export const SETTING_KEYS = {
   seeded: 'demo_seeded',
   pullBudget: 'pull_budget',
   lateWatchDefault: 'late_watch_default',
+  cooldown: 'provider_cooldown',
 } as const;

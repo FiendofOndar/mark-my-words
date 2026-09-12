@@ -49,6 +49,8 @@ export interface CheckPlan {
   countsAsChecked: boolean;
   rubric: RubricResult | null;
   sources: ValidatedSource[];
+  /** Present on a failure, so callers can react to why rather than to text. */
+  error?: Error;
 }
 
 export interface CheckDeps {
@@ -316,6 +318,7 @@ function errorPlan(
     sources: [],
     criteriaUpdates: [],
     predictionPatch: null,
+    error: err,
     check: {
       predictionId: p.id,
       trigger,

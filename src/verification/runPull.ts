@@ -7,7 +7,10 @@
 import type { Db } from '../data/db';
 import { DEFAULT_PULL_BUDGET, planPull } from '../domain/cadence';
 import { runCheck, type CheckDeps, type CheckPlan } from './runCheck';
-import type { CheckTriggerKind } from './types';
+import { VerifierError, type CheckTriggerKind } from './types';
+import { cooldownFor, describeCooldown, isCoolingDown, type Cooldown } from './cooldown';
+import { parseQuotaFailure } from './quotaError';
+import { SETTING_KEYS } from '../data/repositories/settingsRepo';
 
 export interface PullSummary {
   checked: number;
@@ -22,7 +25,18 @@ export interface PullSummary {
   /** Due, but beyond what today's quota allows. */
   quotaBlocked: number;
   firstError: string | null;
+  /** Set when the run stopped because the provider's allowance is spent. */
+  cooledDown: Cooldown | null;
   plans: CheckPlan[];
+}
+
+export function readCooldown(db: Db): Cooldown | null {
+  const stored = db.settings.getJson<Cooldown | null>(SETTING_KEYS.cooldown, null);
+  return isCoolingDown(stored) ? stored : null;
+}
+
+export function clearCooldown(db: Db): void {
+  db.settings.setJson(SETTING_KEYS.cooldown, null);
 }
 
 export interface PullOptions {
@@ -92,6 +106,17 @@ export async function runPull(
     }
   }
 
+  // Refuse to spend an allowance already known to be gone. Every attempt past
+  // that point is a guaranteed failure that still costs a request.
+  const held = readCooldown(db);
+  if (held) {
+    return {
+      checked: 0, resolved: 0, queued: 0, lateHits: 0, staledOut: 0, skipped: 0,
+      errors: 0, deferred: 0, quotaBlocked: toCheck.length, firstError: describeCooldown(held, now),
+      cooledDown: held, plans: [],
+    };
+  }
+
   const summary: PullSummary = {
     checked: 0,
     resolved: 0,
@@ -103,6 +128,7 @@ export async function runPull(
     deferred,
     quotaBlocked,
     firstError: null,
+    cooledDown: null,
     plans: [],
   };
 
@@ -133,6 +159,16 @@ export async function runPull(
     if (plan.outcome === 'error') {
       summary.errors += 1;
       summary.firstError ??= plan.message;
+
+      // A spent allowance ends the pull. Carrying on would burn the rest of
+      // the budget on identical failures.
+      const cooldown = cooldownFrom(plan);
+      if (cooldown) {
+        db.settings.setJson(SETTING_KEYS.cooldown, cooldown);
+        summary.cooledDown = cooldown;
+        summary.quotaBlocked += toCheck.length - summary.plans.length;
+        break;
+      }
     }
   }
 
@@ -140,8 +176,16 @@ export async function runPull(
   return summary;
 }
 
+function cooldownFrom(plan: CheckPlan): Cooldown | null {
+  const error = plan.error;
+  if (!(error instanceof VerifierError) || error.kind !== 'rate_limit') return null;
+  const failure = error.detail ? parseQuotaFailure(error.detail) : null;
+  return cooldownFor(failure?.scope ?? 'unknown', error.retryAfterSeconds ?? null);
+}
+
 /** One line for the pull banner. */
 export function describePull(summary: PullSummary): string {
+  if (summary.cooledDown) return describeCooldown(summary.cooledDown);
   if (summary.firstError && summary.checked === 0) return summary.firstError;
 
   const parts: string[] = [];

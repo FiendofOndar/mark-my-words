@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { openDatabase, type Db } from '../data/db';
 import { MemoryPersistence } from '../data/driver';
-import { describePull, runPull } from './runPull';
+import { clearCooldown, describePull, readCooldown, runPull } from './runPull';
 import type { PageFetchOutcome, PageFetcher } from './validateSources';
 import { VerifierError, type CheckInput, type CheckResult, type StructureInput, type StructureResult, type Verifier } from './types';
 
@@ -163,7 +163,7 @@ describe('a pull', () => {
 
   it('leaves a failed check due rather than pushing it a full interval out', async () => {
     const prediction = addPrediction();
-    const verifier = new ScriptedVerifier(() => new VerifierError('Quota gone.', 'rate_limit'));
+    const verifier = new ScriptedVerifier(() => new VerifierError('Could not reach the model.', 'network'));
 
     const summary = await runPull(db, { verifier, fetcher: echoFetcher }, { minGapMs: 0 });
 
@@ -274,5 +274,94 @@ describe('staying under a per-minute limit', () => {
       { minGapMs: 400 },
     );
     expect(Date.now() - started).toBeLessThan(400);
+  });
+});
+
+describe('a spent allowance', () => {
+  const dailyQuotaBody = JSON.stringify({
+    error: {
+      code: 429,
+      status: 'RESOURCE_EXHAUSTED',
+      // The real shape a free key returns: no QuotaFailure, no RetryInfo,
+      // just prose and a help link.
+      message: 'You exceeded your current quota, please check your plan and billing details.',
+      details: [{ '@type': 'type.googleapis.com/google.rpc.Help', links: [] }],
+    },
+  });
+
+  const exhausted = () => new VerifierError('Rate limited', 'rate_limit', dailyQuotaBody, null);
+
+  it('stops the pull instead of burning the rest of the budget on it', async () => {
+    for (let i = 0; i < 4; i += 1) addPrediction();
+    const verifier = new ScriptedVerifier(() => exhausted());
+
+    const summary = await runPull(db, { verifier, fetcher: echoFetcher }, { minGapMs: 0 });
+
+    expect(verifier.calls).toBe(1);
+    expect(summary.cooledDown).not.toBeNull();
+    expect(summary.quotaBlocked).toBeGreaterThan(0);
+  });
+
+  it('refuses to try again until the allowance resets', async () => {
+    addPrediction();
+    await runPull(
+      db,
+      { verifier: new ScriptedVerifier(() => exhausted()), fetcher: echoFetcher },
+      { minGapMs: 0 },
+    );
+
+    const second = new ScriptedVerifier(() => nothingYet());
+    const summary = await runPull(db, { verifier: second, fetcher: echoFetcher }, { minGapMs: 0 });
+
+    expect(second.calls).toBe(0);
+    expect(summary.checked).toBe(0);
+    expect(describePull(summary)).toMatch(/midnight Pacific/i);
+  });
+
+  it('lets checks resume once the hold is cleared', async () => {
+    addPrediction();
+    await runPull(
+      db,
+      { verifier: new ScriptedVerifier(() => exhausted()), fetcher: echoFetcher },
+      { minGapMs: 0 },
+    );
+    expect(readCooldown(db)).not.toBeNull();
+
+    clearCooldown(db);
+
+    const verifier = new ScriptedVerifier(() => hitResult());
+    const summary = await runPull(db, { verifier, fetcher: echoFetcher }, { minGapMs: 0 });
+    expect(summary.resolved).toBe(1);
+  });
+
+  it('does not hold for a brief per-minute wait it can sit out', async () => {
+    addPrediction();
+    const perMinute = new VerifierError(
+      'Rate limited',
+      'rate_limit',
+      JSON.stringify({
+        error: {
+          code: 429,
+          details: [
+            {
+              '@type': 'type.googleapis.com/google.rpc.QuotaFailure',
+              violations: [{ quotaId: 'GenerateRequestsPerMinutePerProjectPerModel-FreeTier' }],
+            },
+            { '@type': 'type.googleapis.com/google.rpc.RetryInfo', retryDelay: '30s' },
+          ],
+        },
+      }),
+      30,
+    );
+
+    await runPull(
+      db,
+      { verifier: new ScriptedVerifier(() => perMinute), fetcher: echoFetcher },
+      { minGapMs: 0 },
+    );
+
+    const hold = readCooldown(db)!;
+    // Thirty seconds, not until tomorrow morning.
+    expect(new Date(hold.until).getTime() - Date.now()).toBeLessThan(35_000);
   });
 });

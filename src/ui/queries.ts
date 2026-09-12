@@ -12,7 +12,14 @@ import { snoozePrompt } from '../domain/notifications';
 import { createVerifier } from '../verification/registry';
 import type { StructureInput, StructureResult } from '../verification/types';
 import type { Check, Evidence } from '../domain/types';
-import { describePull, runPull, type PullSummary } from '../verification/runPull';
+import {
+  clearCooldown,
+  describePull,
+  readCooldown,
+  runPull,
+  type PullSummary,
+} from '../verification/runPull';
+import { describeCooldown } from '../verification/cooldown';
 import { BrowserPageFetcher, type PageFetcher } from '../verification/validateSources';
 import { CapacitorPageFetcher } from '../platform/CapacitorPageFetcher';
 import { isNative } from '../platform';
@@ -373,6 +380,25 @@ export function usePull() {
 }
 
 export { describePull };
+
+/** The provider's allowance is spent; nothing will be checked until it resets. */
+export function useCooldown() {
+  const db = useDb();
+  return useQuery({
+    queryKey: ['cooldown'],
+    queryFn: () => {
+      const cooldown = readCooldown(db);
+      return cooldown ? { cooldown, message: describeCooldown(cooldown) } : null;
+    },
+    // The only query with a deadline of its own, so it has to age out.
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+  });
+}
+
+export function useClearCooldown() {
+  return useDbMutation((db) => clearCooldown(db));
+}
 
 /** Accept a queued verdict. The record shows you made the call, not the model. */
 export function useApproveVerdict() {

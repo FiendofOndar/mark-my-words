@@ -28,7 +28,15 @@ const KEYS = {
   quota: 'mmw-daily-quota',
 } as const;
 
-const EMPTY: VerifierConfig = { provider: 'mock', apiKey: '', model: '', dailyQuota: null };
+/** Observed value of GenerateRequestsPerDayPerProjectPerModel-FreeTier. */
+export const FREE_TIER_DAILY_CHECKS = 20;
+
+const EMPTY: VerifierConfig = {
+  provider: 'mock',
+  apiKey: '',
+  model: '',
+  dailyQuota: FREE_TIER_DAILY_CHECKS,
+};
 
 let cache: VerifierConfig = { ...EMPTY };
 
@@ -45,7 +53,9 @@ export async function initVerifierConfig(): Promise<VerifierConfig> {
     provider: provider === 'gemini' ? 'gemini' : 'mock',
     apiKey: apiKey ?? '',
     model: model ?? '',
-    dailyQuota: quota === null || quota === '' ? null : Number(quota),
+    // Grounded checks on a free key come out of a 20-per-day bucket, so that is
+    // the honest default for the meter rather than "no limit".
+    dailyQuota: quota === null || quota === '' ? FREE_TIER_DAILY_CHECKS : Number(quota),
   };
   return cache;
 }
