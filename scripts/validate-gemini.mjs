@@ -17,7 +17,7 @@ if (!key) {
   process.exit(1);
 }
 
-const MODEL = process.argv[2] ?? 'gemini-2.5-flash';
+const MODEL = process.argv[2] ?? 'gemini-flash-latest';
 const BASE = 'https://generativelanguage.googleapis.com/v1beta';
 
 let failures = 0;
@@ -60,8 +60,33 @@ function extractJson(text) {
 
 console.log(`\nModel: ${MODEL}\n`);
 
+// 0. What this key can actually reach. Model names get retired per account, so
+// a 404 here is about the id, not the key.
+console.log('0. Models available to this key');
+{
+  const response = await fetch(`${BASE}/models?pageSize=1000`, {
+    headers: { 'x-goog-api-key': key },
+  });
+  if (!response.ok) {
+    bad(`could not list models: HTTP ${response.status} ${(await response.text()).slice(0, 200)}`);
+  } else {
+    const { models = [] } = await response.json();
+    const usable = models
+      .filter((m) => m.supportedGenerationMethods?.includes('generateContent'))
+      .map((m) => m.name.replace(/^models\//, ''));
+    ok(`${usable.length} usable`);
+    for (const id of usable.filter((m) => m.includes('flash')).slice(0, 8)) {
+      console.log(`        ${id}${id === MODEL ? '   <- using this' : ''}`);
+    }
+    if (!usable.includes(MODEL)) {
+      bad(`"${MODEL}" is not among them. Re-run with one of the ids above.`);
+      process.exit(1);
+    }
+  }
+}
+
 // 1. The model exists and answers at all.
-console.log('1. Reachability');
+console.log('\n1. Reachability');
 {
   const { status, text } = await post({
     contents: [{ role: 'user', parts: [{ text: 'Reply with the single word: ready' }] }],
@@ -70,7 +95,7 @@ console.log('1. Reachability');
   if (status === 200) ok(`${MODEL} answered`);
   else {
     bad(`HTTP ${status}: ${text.slice(0, 300)}`);
-    if (status === 404) console.log('        The model id is wrong. Try: node scripts/validate-gemini.mjs gemini-2.0-flash');
+    if (status === 404) console.log('        The model id is wrong. Pick one from the list above.');
     process.exit(1);
   }
 }

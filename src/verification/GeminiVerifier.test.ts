@@ -202,3 +202,63 @@ describe('testConnection', () => {
     });
   });
 });
+
+describe('listing what a key can use', () => {
+  const MODELS = JSON.stringify({
+    models: [
+      { name: 'models/gemini-pro-latest', displayName: 'Gemini Pro', supportedGenerationMethods: ['generateContent'] },
+      { name: 'models/embedding-001', displayName: 'Embedding', supportedGenerationMethods: ['embedContent'] },
+      { name: 'models/gemini-flash-latest', displayName: 'Gemini Flash', supportedGenerationMethods: ['generateContent'] },
+      { name: 'models/aqa', displayName: 'AQA', supportedGenerationMethods: ['generateAnswer'] },
+    ],
+  });
+
+  function respondOk(body: string) {
+    return vi.fn(async (..._args: FetchArgs) => new Response(body, { status: 200 }));
+  }
+
+  it('returns only models that can actually generate content', async () => {
+    const found = await verifier(respondOk(MODELS) as never).listModels();
+    expect(found.map((m) => m.id)).toEqual(['gemini-flash-latest', 'gemini-pro-latest']);
+  });
+
+  it('strips the models/ prefix and keeps the display name', async () => {
+    const found = await verifier(respondOk(MODELS) as never).listModels();
+    expect(found[0]).toEqual({ id: 'gemini-flash-latest', label: 'Gemini Flash' });
+  });
+
+  it('sends the key as a header on the listing too', async () => {
+    const fetchImpl = respondOk(MODELS);
+    await verifier(fetchImpl as never).listModels();
+    const [url, init] = fetchImpl.mock.calls[0]!;
+    expect(String(url)).toContain('/models?');
+    expect(init!.headers).toMatchObject({ 'x-goog-api-key': 'test-key-123' });
+  });
+
+  it('copes with a key that has nothing', async () => {
+    const found = await verifier(respondOk('{}') as never).listModels();
+    expect(found).toEqual([]);
+  });
+
+  it('reports a rejected key rather than returning an empty list', async () => {
+    await expect(verifier(failWith(403) as never).listModels()).rejects.toMatchObject({
+      kind: 'no_key',
+    });
+  });
+});
+
+describe('a retired model', () => {
+  it('is reported as a model problem, not a key problem', async () => {
+    // Google retires specific versions per account; saying "check your key"
+    // sends you to look at the wrong thing entirely.
+    const body = '{"error":{"code":404,"message":"This model models/gemini-2.5-flash is no longer available to new users."}}';
+    const error = await verifier(failWith(404, body) as never)
+      .structure(INPUT)
+      .catch((e: VerifierError) => e);
+
+    expect(error).toMatchObject({ kind: 'bad_model' });
+    expect((error as VerifierError).message).toMatch(/does not exist for this key/i);
+    // The whole message survives, including the part naming the replacement.
+    expect((error as VerifierError).detail).toContain('no longer available');
+  });
+});

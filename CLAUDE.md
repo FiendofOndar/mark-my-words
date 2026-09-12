@@ -85,8 +85,14 @@ is for.
 
 ## Unverified
 
-- **No real model call has been made.** Run `scripts/validate-gemini.mjs` before
-  trusting a verdict. It checks the model id, the grounding tool name, and
-  whether cited quotes actually appear on the cited pages.
+- **Model ids get retired per account.** `gemini-2.5-flash` stopped being
+  available to new keys and the app hard-failed on it. The default is now the
+  `-latest` alias, and Settings can list what a key actually has, which is the
+  fix that survives the next rename. Never hardcode a pinned version as a
+  default again.
+- **Grounded verification has still never run for real.** Reachability and
+  structured intake are confirmed against a live key; the Google Search
+  grounding path and whether cited quotes appear on cited pages are not.
+  `scripts/validate-gemini.mjs` checks all of it.
 - **No native adapter has been run on a device.** `src/platform/` is written to
   the documented APIs and compiles, but the build container has no Android SDK.

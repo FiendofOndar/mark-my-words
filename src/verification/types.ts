@@ -116,7 +116,14 @@ export interface CheckResult {
 export class VerifierError extends Error {
   constructor(
     message: string,
-    readonly kind: 'no_key' | 'network' | 'rate_limit' | 'bad_response' | 'refused' | 'unknown',
+    readonly kind:
+      | 'no_key'
+      | 'bad_model'
+      | 'network'
+      | 'rate_limit'
+      | 'bad_response'
+      | 'refused'
+      | 'unknown',
     readonly detail?: string,
   ) {
     super(message);

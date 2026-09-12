@@ -17,7 +17,13 @@ import { CHECK_RESPONSE_SCHEMA, CHECK_SYSTEM_PROMPT, buildCheckPrompt } from './
 
 const BASE = 'https://generativelanguage.googleapis.com/v1beta';
 
-export const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash';
+/**
+ * An alias rather than a pinned version. Google retires specific versions for
+ * new accounts without warning (2.5-flash went that way), and an alias keeps
+ * following whatever the current fast model is. Settings can list what a key
+ * actually has access to, which is the real answer when this goes stale again.
+ */
+export const DEFAULT_GEMINI_MODEL = 'gemini-flash-latest';
 
 /**
  * Free-tier daily request cap. Published limits move, so this is only the
@@ -31,6 +37,12 @@ export interface GeminiOptions {
   /** Injected in tests. */
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
+}
+
+interface GeminiModel {
+  name: string;
+  displayName?: string;
+  supportedGenerationMethods?: string[];
 }
 
 interface GeminiResponse {
@@ -158,6 +170,27 @@ export class GeminiVerifier implements Verifier {
     };
   }
 
+  /**
+   * What this key can actually use. Model ids change and get retired per
+   * account, so the app asks rather than assuming.
+   */
+  async listModels(): Promise<{ id: string; label: string }[]> {
+    const response = await this.get('?pageSize=1000');
+    const models = (response as { models?: GeminiModel[] }).models ?? [];
+
+    return models
+      .filter((m) => m.supportedGenerationMethods?.includes('generateContent'))
+      .map((m) => ({
+        id: m.name.replace(/^models\//, ''),
+        label: m.displayName ?? m.name.replace(/^models\//, ''),
+      }))
+      // Fast models first: they are the cheap, high-quota ones this app wants.
+      .sort((a, b) => {
+        const rank = (id: string) => (id.includes('flash') ? 0 : id.includes('pro') ? 1 : 2);
+        return rank(a.id) - rank(b.id) || a.id.localeCompare(b.id);
+      });
+  }
+
   async testConnection(): Promise<void> {
     await this.post(`${this.modelId}:generateContent`, {
       contents: [{ role: 'user', parts: [{ text: 'Reply with the single word: ready' }] }],
@@ -187,6 +220,32 @@ export class GeminiVerifier implements Verifier {
       );
     }
     return text;
+  }
+
+  private async get(query: string): Promise<unknown> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+    try {
+      const response = await this.fetchImpl(`${BASE}/models${query}`, {
+        headers: { 'x-goog-api-key': this.apiKey },
+        signal: controller.signal,
+      });
+      if (!response.ok) {
+        const detail = await response.text().catch(() => '');
+        throw new VerifierError(describeStatus(response.status), kindForStatus(response.status), detail);
+      }
+      return await response.json();
+    } catch (err) {
+      if (err instanceof VerifierError) throw err;
+      const aborted = (err as Error).name === 'AbortError';
+      throw new VerifierError(
+        aborted ? 'The request timed out.' : 'Could not reach the model.',
+        'network',
+        (err as Error).message,
+      );
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
   private async post(path: string, body: unknown): Promise<GeminiResponse> {
@@ -226,6 +285,7 @@ export class GeminiVerifier implements Verifier {
 
 function kindForStatus(status: number): VerifierError['kind'] {
   if (status === 400 || status === 401 || status === 403) return 'no_key';
+  if (status === 404) return 'bad_model';
   if (status === 429) return 'rate_limit';
   if (status >= 500) return 'network';
   return 'unknown';
@@ -235,6 +295,8 @@ function describeStatus(status: number): string {
   switch (kindForStatus(status)) {
     case 'no_key':
       return 'The API key was rejected. Check it in Settings.';
+    case 'bad_model':
+      return 'That model does not exist for this key. Pick one from the list.';
     case 'rate_limit':
       return "Today's free quota is used up. Try again tomorrow.";
     case 'network':

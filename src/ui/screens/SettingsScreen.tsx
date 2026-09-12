@@ -31,6 +31,8 @@ export function SettingsScreen() {
   const [apiKey, setApiKey] = useState(stored.apiKey);
   const [model, setModel] = useState(stored.model);
   const [keyDirty, setKeyDirty] = useState(false);
+  const [models, setModels] = useState<{ id: string; label: string }[] | null>(null);
+  const [listing, setListing] = useState(false);
   const [test, setTest] = useState<{ state: 'idle' | 'running' | 'ok' | 'fail'; message?: string }>({
     state: 'idle',
   });
@@ -56,6 +58,33 @@ export function SettingsScreen() {
     setTest({ state: 'idle' });
   };
 
+  const loadModels = async () => {
+    setListing(true);
+    setTest({ state: 'idle' });
+    try {
+      const found = await new GeminiVerifier({ apiKey, model, timeoutMs: 20_000 }).listModels();
+      setModels(found);
+      if (found.length > 0 && !found.some((m) => m.id === model)) {
+        // What was configured is gone; move to something that exists rather
+        // than leaving a dead id sitting in the box.
+        const next = found[0]!.id;
+        setModel(next);
+        setStored(await saveVerifierConfig({ model: next }));
+      }
+    } catch (err) {
+      const detail = err instanceof VerifierError ? err.detail : undefined;
+      setTest({ state: 'fail', message: `${(err as Error).message}${detail ? ` ${detail}` : ''}` });
+    } finally {
+      setListing(false);
+    }
+  };
+
+  const chooseModel = async (next: string) => {
+    setModel(next);
+    setStored(await saveVerifierConfig({ model: next }));
+    setTest({ state: 'idle' });
+  };
+
   const runTest = async () => {
     setTest({ state: 'running' });
     try {
@@ -65,7 +94,7 @@ export function SettingsScreen() {
       const detail = err instanceof VerifierError ? err.detail : undefined;
       setTest({
         state: 'fail',
-        message: `${(err as Error).message}${detail ? ` (${detail.slice(0, 160)})` : ''}`,
+        message: `${(err as Error).message}${detail ? ` ${detail}` : ''}`,
       });
     }
   };
@@ -139,17 +168,47 @@ export function SettingsScreen() {
                   />
                 </Field>
 
-                <Field label="Model" hint={`Blank uses ${DEFAULT_GEMINI_MODEL}.`}>
-                  <input
-                    value={model}
-                    onChange={(e) => {
-                      setModel(e.target.value);
-                      setKeyDirty(true);
-                    }}
-                    placeholder={DEFAULT_GEMINI_MODEL}
-                    autoComplete="off"
-                    className={inputClass}
-                  />
+                <Field
+                  group
+                  label="Model"
+                  hint={
+                    models
+                      ? `${models.length} available to this key.`
+                      : `Blank uses ${DEFAULT_GEMINI_MODEL}. Google retires model names, so check what this key actually has.`
+                  }
+                >
+                  {models && models.length > 0 ? (
+                    <select
+                      value={model}
+                      onChange={(e) => void chooseModel(e.target.value)}
+                      className={inputClass}
+                    >
+                      {models.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.label} ({m.id})
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      value={model}
+                      onChange={(e) => {
+                        setModel(e.target.value);
+                        setKeyDirty(true);
+                      }}
+                      placeholder={DEFAULT_GEMINI_MODEL}
+                      autoComplete="off"
+                      className={inputClass}
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => void loadModels()}
+                    disabled={!apiKey.trim() || listing}
+                    className="mt-2 rounded border border-rule px-3 py-1.5 text-[13px] text-ink-dim disabled:opacity-40"
+                  >
+                    {listing ? 'Asking Google...' : 'Show models this key can use'}
+                  </button>
                 </Field>
 
                 <div className="flex flex-wrap gap-2">
