@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Screen } from '../components/Screen';
 import { Icon } from '../components/Icon';
-import { Stamp, LateBadge, Pill } from '../components/Stamp';
+import { Stamp, LateBadge, Pill, STATUS_TONE } from '../components/Stamp';
 import { TrendMark } from '../components/TrendMark';
 import {
   useAmendPrediction,
@@ -61,6 +61,20 @@ export function DetailScreen() {
 
   const [showResolve, setShowResolve] = useState(false);
   const [amending, setAmending] = useState(false);
+
+  /**
+   * Both of these panels open underneath the action buttons, which sit at the
+   * bottom of a long screen, so tapping "Resolve manually" looked like it did
+   * nothing at all: the panel it opened was below the fold.
+   */
+  const revealed = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (showResolve || amending) {
+      // 'end', not 'nearest': nearest scrolls the minimum, which left the last
+      // verdict button half off the bottom of the screen.
+      revealed.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  }, [showResolve, amending]);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [lateDate, setLateDate] = useState('');
 
@@ -474,15 +488,21 @@ export function DetailScreen() {
         )}
 
         {showResolve && (
-          <div className="mt-4 rounded border border-rule bg-surface p-3">
+          <div ref={revealed} className="mt-4 rounded border border-rule bg-surface p-3">
             <p className="text-[13px] text-ink-dim">What actually happened?</p>
+            {/* Each verdict in its own colour, the same one the stamp will use
+                once it is chosen. Five identical outlines made picking one a
+                reading exercise, and the app already has a palette for exactly
+                this. The label carries the meaning, so colour is never alone. */}
             <div className="mt-2 flex flex-wrap gap-2">
               {VERDICTS.map((v) => (
                 <button
                   key={v}
                   type="button"
                   onClick={() => onResolve(v)}
-                  className="min-h-11 rounded border border-rule px-4 text-[13px] active:bg-surface-raised"
+                  // The void stamp is struck through, which on a button someone
+                  // has not pressed yet reads as disabled.
+                  className={`min-h-11 rounded border px-4 text-[13px] active:bg-surface-raised ${STATUS_TONE[v].replace(' line-through', '')}`}
                 >
                   {STATUS_LABEL[v]}
                 </button>
@@ -520,6 +540,7 @@ export function DetailScreen() {
 
         {amending && (
           <AmendForm
+            hostRef={revealed}
             initial={p.normalizedClaim}
             onCancel={() => setAmending(false)}
             onSubmit={(value, reason) => {
@@ -562,17 +583,19 @@ function AmendForm({
   initial,
   onSubmit,
   onCancel,
+  hostRef,
 }: {
   initial: string;
   onSubmit: (value: string, reason: string) => void;
   onCancel: () => void;
+  hostRef?: React.Ref<HTMLDivElement>;
 }) {
   const [value, setValue] = useState(initial);
   const [reason, setReason] = useState('');
   const valid = value.trim().length > 0 && reason.trim().length > 0 && value !== initial;
 
   return (
-    <div className="mt-4 rounded border border-partial/40 bg-surface p-3">
+    <div ref={hostRef} className="mt-4 rounded border border-partial/40 bg-surface p-3">
       <p className="text-[13px] text-ink-dim">
         Editing is allowed. Hiding the edit is not, so the reason goes on the record.
       </p>

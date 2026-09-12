@@ -1,7 +1,8 @@
 import type { PredictionStatus } from '../../domain/types';
 import { STATUS_LABEL } from '../../domain/format';
 
-const TONE: Record<PredictionStatus, string> = {
+/** Border and text for a status, shared with anything that offers a verdict. */
+export const STATUS_TONE: Record<PredictionStatus, string> = {
   hit: 'text-hit border-hit',
   miss: 'text-miss border-miss',
   partial: 'text-partial border-partial',
@@ -33,7 +34,7 @@ export function Stamp({
 
   return (
     <span
-      className={`stamp ${tilt ? 'stamp-tilt' : ''} ${TONE[status]} ${scale} inline-block font-semibold opacity-90`}
+      className={`stamp ${tilt ? 'stamp-tilt' : ''} ${STATUS_TONE[status]} ${scale} inline-block font-semibold opacity-90`}
     >
       {STATUS_LABEL[status]}
     </span>
