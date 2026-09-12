@@ -28,6 +28,7 @@ import {
   STATUS_LABEL,
 } from '../../domain/format';
 import {
+  daysUntilDeadline,
   endOfLocalDay,
   isResolved,
   isPastDeadline,
@@ -78,6 +79,16 @@ export function DetailScreen() {
   const queuedVerdict = queued?.get(p.id) ?? null;
   // The in-app twin of the deadline notification's inline buttons, which work
   // everywhere even where the platform cannot put buttons on a notification.
+  const overdueDays = daysUntilDeadline(p);
+  const countdownTone =
+    p.status === 'draft'
+      ? 'text-draft'
+      : overdueDays !== null && overdueDays < 0
+        ? 'text-miss'
+        : overdueDays !== null && overdueDays <= 7
+          ? 'text-partial'
+          : 'text-ink';
+
   const awaitingAnswer =
     p.status === 'open' && p.verificationMode === 'manual' && isPastDeadline(p);
 
@@ -151,24 +162,40 @@ export function DetailScreen() {
         </section>
       )}
 
-      {/* Verdict or countdown. */}
-      <section className="flex items-center justify-between gap-4 border-b border-rule px-5 py-5">
+      {/* Where it stands. The single most useful thing on the screen, so it
+          gets the size rather than sharing a grey band with everything else. */}
+      <section className="flex items-center justify-between gap-4 border-b border-rule px-5 py-6">
         <div className="min-w-0">
-          <p className="text-[13px] text-ink-faint">{describeDeadline(p)}</p>
           {isResolved(p.status) ? (
-            <p className="mt-1 text-[13px] text-ink-dim">
-              {STATUS_LABEL[p.status]} on {formatDate(p.resolvedAt)}
-              {p.resolvedBy === 'user_override' && ' · overridden'}
-              {p.resolvedBy === 'auto' && ` · auto, ${p.confidenceScore ?? '--'}/100`}
-            </p>
+            <>
+              {/* The stamp already says the verdict, so saying it again in
+                  words beside it is just noise. This carries the when. */}
+              <p className="font-display text-[26px] leading-none">
+                {formatDate(p.resolvedAt)}
+              </p>
+              <p className="mt-2 text-[13px] text-ink-faint">
+                {p.resolvedBy === 'user_override'
+                  ? 'Overridden by you'
+                  : p.resolvedBy === 'user'
+                    ? 'You called it'
+                    : p.resolvedBy === 'auto'
+                      ? `Settled automatically, scored ${p.confidenceScore ?? '--'}/100`
+                      : 'Settled'}
+              </p>
+            </>
           ) : (
-            <p className="mt-1 flex items-center gap-1.5 font-display text-xl">
-              <TrendMark trend={p.trend} />
-              {formatCountdown(p)}
-            </p>
+            <>
+              <p
+                className={`flex items-center gap-2 font-display text-[32px] leading-none ${countdownTone}`}
+              >
+                <TrendMark trend={p.trend} />
+                {p.status === 'draft' ? 'Unfinished' : formatCountdown(p)}
+              </p>
+              <p className="mt-2 text-[13px] text-ink-faint">{describeDeadline(p)}</p>
+            </>
           )}
           {isUnderLateWatch(p) && (
-            <p className="mt-1 text-[12px] text-ink-faint">
+            <p className="mt-2 text-[12px] text-ink-faint">
               Still watching until {formatDate(p.lateWatchUntil)}
             </p>
           )}
@@ -259,7 +286,7 @@ export function DetailScreen() {
       {/* Criteria. */}
       <section className="border-b border-rule px-5 py-5">
         <div className="flex items-baseline justify-between">
-          <h2 className="text-[13px] font-semibold tracking-wide text-ink-dim uppercase">
+          <h2 className="text-[11px] font-semibold tracking-wide text-ink-faint uppercase">
             Resolution criteria
           </h2>
           {p.criteriaFrozenAt || isResolved(p.status) ? (
@@ -278,7 +305,9 @@ export function DetailScreen() {
 
         <ul className="mt-3 space-y-2">
           {criteria.map((c) => (
-            <li key={c.id} className="flex items-start gap-5 py-1">
+            <li key={c.id} className="flex items-start gap-4 py-1.5">
+              {/* The padding is the tap target; the border is the mark. Putting
+                  both on one element drew a 36px box around a 12px glyph. */}
               <button
                 type="button"
                 aria-label={`Mark element ${c.position + 1} as ${c.satisfied ? 'unknown' : 'satisfied'}`}
@@ -288,15 +317,19 @@ export function DetailScreen() {
                     satisfied: c.satisfied === true ? false : c.satisfied === false ? null : true,
                   })
                 }
-                className={`-m-2 box-content h-5 w-5 shrink-0 rounded border p-2 text-[12px] leading-[18px] ${
-                  c.satisfied === true
-                    ? 'border-hit text-hit'
-                    : c.satisfied === false
-                      ? 'border-miss text-miss'
-                      : 'border-rule text-ink-faint'
-                }`}
+                className="-m-2 shrink-0 p-2"
               >
-                {c.satisfied === true ? '✓' : c.satisfied === false ? '✕' : '?'}
+                <span
+                  className={`flex h-5 w-5 items-center justify-center rounded border text-[12px] ${
+                    c.satisfied === true
+                      ? 'border-hit text-hit'
+                      : c.satisfied === false
+                        ? 'border-miss text-miss'
+                        : 'border-rule text-ink-faint'
+                  }`}
+                >
+                  {c.satisfied === true ? '✓' : c.satisfied === false ? '✕' : '?'}
+                </span>
               </button>
               <span className="text-[15px] leading-snug text-ink-dim">{c.text}</span>
             </li>
@@ -336,9 +369,25 @@ export function DetailScreen() {
         )}
       </section>
 
+      {/* Check log. The evidence trail is the record, so it is never collapsed. */}
+      <section className="px-5 py-5">
+        <h2 className="text-[11px] font-semibold tracking-wide text-ink-faint uppercase">
+          Check log
+        </h2>
+        {p.verificationMode === 'manual' ? (
+          <p className="mt-3 text-[14px] text-ink-faint italic">
+            This one is yours to settle. Nothing is searched.
+          </p>
+        ) : (
+          <CheckLog entries={log} />
+        )}
+      </section>
+
       {/* Actions. */}
-      <section className="border-b border-rule px-5 py-5">
-        <h2 className="text-[13px] font-semibold tracking-wide text-ink-dim uppercase">Actions</h2>
+      <section className="border-t border-rule px-5 pt-5 pb-8">
+        <h2 className="text-[11px] font-semibold tracking-wide text-ink-faint uppercase">
+          Actions
+        </h2>
         <div className="mt-3 flex flex-wrap gap-2">
           {isResolved(p.status) && (
             <ActionButton
@@ -460,18 +509,6 @@ export function DetailScreen() {
           />
         )}
       </section>
-
-      {/* Check log. The evidence trail is the record, so it is never collapsed. */}
-      <section className="px-5 py-5">
-        <h2 className="text-[13px] font-semibold tracking-wide text-ink-dim uppercase">Check log</h2>
-        {p.verificationMode === 'manual' ? (
-          <p className="mt-3 text-[14px] text-ink-faint italic">
-            This one is yours to settle. Nothing is searched.
-          </p>
-        ) : (
-          <CheckLog entries={log} />
-        )}
-      </section>
     </Screen>
   );
 }
@@ -493,7 +530,7 @@ function ActionButton({
       onClick={onClick}
       disabled={disabled}
       className={`min-h-11 rounded border px-4 text-[13px] active:bg-surface-raised disabled:opacity-40 ${
-        tone === 'danger' ? 'border-miss/50 text-miss' : 'border-rule text-ink-dim'
+        tone === 'danger' ? 'border-miss/40 text-miss/90' : 'border-rule/70 text-ink-faint'
       }`}
     >
       {children}
