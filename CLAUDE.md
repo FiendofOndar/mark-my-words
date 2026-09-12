@@ -8,7 +8,7 @@ reasoning, including the ones that look arbitrary.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 285 tests, all of them fast
+npm test           # 287 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -97,6 +97,10 @@ is for.
   could not check; a dead host means the citation is probably invented. Only the
   second one is treated as evidence of a fake. Calling a real citation invented
   is the one mistake this layer exists to prevent.
+- **A hit rate is never shown for an author who is not ranked.** `formatHeadline`
+  is the one place that decides. A 1-0 record printed as "100%" is the
+  cherry-pick the five-call threshold exists to refuse, and it had reached the
+  shareable card. Show the record until the rate means something.
 - **Retroactive entries never count toward a hit rate.** Backfilled predictions
   are cherry-picked by construction.
 - **The API key never touches the database**, because Settings exports the whole
