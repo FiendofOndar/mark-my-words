@@ -89,6 +89,7 @@ export function toPrediction(r: Row): Prediction {
     sourceUrl: nstr(r.source_url),
     archiveUrl: nstr(r.archive_url),
     archiveStatus: str(r.archive_status) as ArchiveStatus,
+    archiveAttempts: num(r.archive_attempts),
     screenshotPath: nstr(r.screenshot_path),
     sourceContext: nstr(r.source_context),
 
@@ -211,6 +212,7 @@ export const PREDICTION_COLUMNS: Record<keyof Prediction, string> = {
   sourceUrl: 'source_url',
   archiveUrl: 'archive_url',
   archiveStatus: 'archive_status',
+  archiveAttempts: 'archive_attempts',
   screenshotPath: 'screenshot_path',
   sourceContext: 'source_context',
   deadlineType: 'deadline_type',

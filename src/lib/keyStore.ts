@@ -3,9 +3,15 @@
  *
  * The API key deliberately never touches the SQLite database, because the
  * export in Settings hands the whole database file to whatever the user shares
- * it with. Phase 0.6 swaps this implementation for Android Keystore-backed
- * secure storage; the interface is what the rest of the app depends on.
+ * it with. On device it is held in Android Keystore-backed storage; in a
+ * browser it falls back to localStorage, which is why the web build should be
+ * treated as development rather than somewhere to keep a real key.
+ *
+ * The underlying store is async, so values are read once at startup and held in
+ * memory. Everything that renders reads the cache synchronously.
  */
+import { secureStore } from '../platform/secureStore';
+
 export type ProviderId = 'gemini' | 'mock';
 
 export interface VerifierConfig {
@@ -22,47 +28,63 @@ const KEYS = {
   quota: 'mmw-daily-quota',
 } as const;
 
-function read(key: string): string | null {
-  try {
-    return localStorage.getItem(key);
-  } catch {
-    return null;
-  }
-}
+const EMPTY: VerifierConfig = { provider: 'mock', apiKey: '', model: '', dailyQuota: null };
 
-function write(key: string, value: string | null): void {
-  try {
-    if (value === null) localStorage.removeItem(key);
-    else localStorage.setItem(key, value);
-  } catch {
-    /* private window or blocked site data: the setting simply will not stick */
-  }
+let cache: VerifierConfig = { ...EMPTY };
+
+/** Call once before the app renders. */
+export async function initVerifierConfig(): Promise<VerifierConfig> {
+  const [provider, apiKey, model, quota] = await Promise.all([
+    secureStore.get(KEYS.provider),
+    secureStore.get(KEYS.apiKey),
+    secureStore.get(KEYS.model),
+    secureStore.get(KEYS.quota),
+  ]);
+
+  cache = {
+    provider: provider === 'gemini' ? 'gemini' : 'mock',
+    apiKey: apiKey ?? '',
+    model: model ?? '',
+    dailyQuota: quota === null || quota === '' ? null : Number(quota),
+  };
+  return cache;
 }
 
 export function loadVerifierConfig(): VerifierConfig {
-  const stored = read(KEYS.provider);
-  const provider: ProviderId = stored === 'gemini' ? 'gemini' : 'mock';
-  const quota = read(KEYS.quota);
-
-  return {
-    provider,
-    apiKey: read(KEYS.apiKey) ?? '',
-    model: read(KEYS.model) ?? '',
-    dailyQuota: quota === null || quota === '' ? null : Number(quota),
-  };
+  return cache;
 }
 
-export function saveVerifierConfig(config: Partial<VerifierConfig>): void {
-  if (config.provider !== undefined) write(KEYS.provider, config.provider);
-  if (config.apiKey !== undefined) write(KEYS.apiKey, config.apiKey.trim() || null);
-  if (config.model !== undefined) write(KEYS.model, config.model.trim() || null);
-  if (config.dailyQuota !== undefined) {
-    write(KEYS.quota, config.dailyQuota === null ? null : String(config.dailyQuota));
+export async function saveVerifierConfig(config: Partial<VerifierConfig>): Promise<VerifierConfig> {
+  cache = { ...cache, ...config };
+  if (typeof config.apiKey === 'string') cache.apiKey = config.apiKey.trim();
+  if (typeof config.model === 'string') cache.model = config.model.trim();
+
+  const writes: Promise<void>[] = [];
+  if (config.provider !== undefined) writes.push(secureStore.set(KEYS.provider, cache.provider));
+  if (config.apiKey !== undefined) {
+    writes.push(
+      cache.apiKey ? secureStore.set(KEYS.apiKey, cache.apiKey) : secureStore.remove(KEYS.apiKey),
+    );
   }
+  if (config.model !== undefined) {
+    writes.push(
+      cache.model ? secureStore.set(KEYS.model, cache.model) : secureStore.remove(KEYS.model),
+    );
+  }
+  if (config.dailyQuota !== undefined) {
+    writes.push(
+      cache.dailyQuota === null
+        ? secureStore.remove(KEYS.quota)
+        : secureStore.set(KEYS.quota, String(cache.dailyQuota)),
+    );
+  }
+
+  await Promise.all(writes);
+  return cache;
 }
 
-export function clearApiKey(): void {
-  write(KEYS.apiKey, null);
+export async function clearApiKey(): Promise<void> {
+  await saveVerifierConfig({ apiKey: '' });
 }
 
 /** Never print a key in full. */

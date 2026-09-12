@@ -2,19 +2,37 @@
 
 A ledger for predictions and the people who make them. See [SPEC.md](./SPEC.md).
 
-## Phase 0.5 (current)
+## Phase 0.6 (current)
 
-Capture, intake, verification, notifications, author records and shareable
-receipts. A statement goes in, a model drafts testable criteria, you confirm,
-pulls check it against the world, and you can hand somebody a card proving it.
+Everything, wrapped for Android. A statement goes in from the share sheet, a
+model drafts testable criteria, you confirm, pulls check it against the world,
+notifications reach you when something is due, and you can hand somebody a card
+proving it.
 
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # domain + data layer
+npm test
 npm run typecheck
 npm run build
 ```
+
+### Building the APK
+
+Needs Android Studio (or the command-line SDK) and a JDK 17+ on your machine.
+The Android project is committed, so this should work without extra setup:
+
+```bash
+npm run android:apk    # build, sync, then gradlew assembleDebug
+# -> android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+Or `npm run android:open` to open the project in Android Studio and run it on a
+connected device. After any web change, `npm run android:sync` copies the built
+web assets into the native project.
+
+The first Gradle run downloads the Android Gradle Plugin and the SDK platform,
+which takes a while and needs network.
 
 Demo predictions seed themselves on first run and cover every verdict state.
 Erase them from Settings.
@@ -50,11 +68,15 @@ Erase them from Settings.
 
 ### What is stubbed
 
-- The Capacitor wrap, the Android share target and source archiving (0.6).
+- Nothing in the spec's 1.0 scope, but see the two warnings below.
 - **Not one real model call has been made.** Every provider path is covered by
   tests against injected fakes, and the container this was built in has no API
   key. The model id, the grounding tool name and the real free-tier quota all
   need confirming against a live key before any of this can be trusted.
+- **No native adapter has been run on a device.** The build container has no
+  Android SDK (`dl.google.com` is blocked by its egress proxy), so
+  `src/platform/` is written to the documented APIs and unverified. It compiles
+  and the web build is unaffected, but expect to debug it on first run.
 - Browser notifications only fire while a tab is open. The Settings screen says
   so rather than implying otherwise.
 - The offline drafter is regex pattern matching, not AI, and its checker returns
@@ -68,12 +90,25 @@ Erase them from Settings.
 ## Architecture
 
 ```
-src/domain/      pure rules, no I/O: state machine, cadence, rubric, scoring, heat
-src/data/        driver port, migrations, repositories, row mapping
-src/verification/ provider port, prompts, response parsing, Gemini + offline adapters
-src/ui/          screens and components
-src/lib/         ids, theme
+src/domain/       pure rules, no I/O: state machine, cadence, rubric, scoring,
+                  heat, notification planning
+src/data/         driver port, migrations, repositories, row mapping
+src/verification/ provider port, prompts, response parsing, source validation,
+                  the check orchestrator and the pull
+src/notifications/ delivery port, browser notifier, preferences
+src/capture/      share target, source archiving and its retry queue
+src/receipts/     the shareable cards and their rasterizer
+src/platform/     every native adapter, and the only file that knows there are
+                  two answers
+src/ui/           screens and components
+src/lib/          ids, theme, credential storage
 ```
+
+Every capability the web cannot do properly sits behind a port: the database
+image (`Persistence`), page fetching (`PageFetcher`), notification delivery
+(`Notifier`), image sharing (`ImageSharer`), credentials (`SecureStore`). The
+native build swaps implementations and changes nothing else. sql.js runs in the
+Android WebView as-is, so even the database is the same code on both.
 
 `src/domain/` is plain functions over plain objects, so the cadence gate, the
 state machine and the hit-rate math are unit-tested without a database or a

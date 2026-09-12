@@ -17,6 +17,7 @@ export function makePrediction(overrides: Partial<Prediction> = {}): Prediction 
     sourceUrl: null,
     archiveUrl: null,
     archiveStatus: 'not_applicable',
+    archiveAttempts: 0,
     screenshotPath: null,
     sourceContext: null,
     deadlineType: 'fixed_date',

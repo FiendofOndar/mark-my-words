@@ -192,6 +192,13 @@ ALTER TABLE predictions ADD COLUMN prompt_snoozes INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE predictions ADD COLUMN prompt_next_at TEXT;
 `,
   },
+  {
+    version: 4,
+    name: 'archive attempts',
+    sql: `
+ALTER TABLE predictions ADD COLUMN archive_attempts INTEGER NOT NULL DEFAULT 0;
+`,
+  },
 ];
 
 export function currentVersion(driver: SqlDriver): number {

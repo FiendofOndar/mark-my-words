@@ -1,6 +1,7 @@
 import type { SqlDriver } from '../driver';
 import type {
   Amendment,
+  ArchiveStatus,
   Category,
   CriteriaElement,
   DeadlineType,
@@ -166,6 +167,7 @@ export class PredictionRepo {
       sourceUrl: input.sourceUrl ?? null,
       archiveUrl: null,
       archiveStatus: input.sourceUrl ? 'pending' : 'not_applicable',
+      archiveAttempts: 0,
       screenshotPath: null,
       sourceContext: input.sourceContext ?? null,
       deadlineType: input.deadlineType,
@@ -374,6 +376,31 @@ export class PredictionRepo {
       });
       this.replaceCriteria(id, input.criteria);
     });
+  }
+
+  /** Captures whose source has not been archived yet and is still worth retrying. */
+  awaitingArchive(maxAttempts: number): Prediction[] {
+    return this.db
+      .select(
+        `SELECT * FROM predictions
+         WHERE deleted_at IS NULL AND archive_status = 'pending'
+           AND source_url IS NOT NULL AND archive_attempts < ?`,
+        [maxAttempts],
+      )
+      .map(toPrediction);
+  }
+
+  recordArchiveAttempt(
+    id: string,
+    outcome: { status: ArchiveStatus; archiveUrl: string | null },
+  ): void {
+    const now = nowIso();
+    this.db.run(
+      `UPDATE predictions
+       SET archive_status = ?, archive_url = ?, archive_attempts = archive_attempts + 1, updated_at = ?
+       WHERE id = ?`,
+      [outcome.status, outcome.archiveUrl, now, id],
+    );
   }
 
   /** Called by the first verification check. Idempotent. */

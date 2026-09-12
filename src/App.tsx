@@ -1,4 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { useShareTarget } from './capture/useShareTarget';
+import { useArchiveQueue } from './capture/useArchiveQueue';
+import { useScheduledNotifications } from './ui/useNotifications';
 import { FeedScreen } from './ui/screens/FeedScreen';
 import { DetailScreen } from './ui/screens/DetailScreen';
 import { CaptureScreen } from './ui/screens/CaptureScreen';
@@ -8,6 +11,11 @@ import { AuthorScreen } from './ui/screens/AuthorScreen';
 import { SettingsScreen } from './ui/screens/SettingsScreen';
 
 export function App() {
+  // Mounted once, above the routes, so they run whatever screen is showing.
+  useShareTarget();
+  useArchiveQueue();
+  useScheduledNotifications();
+
   return (
     <Routes>
       <Route path="/" element={<FeedScreen />} />

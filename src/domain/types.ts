@@ -100,6 +100,7 @@ export interface Prediction {
   sourceUrl: string | null;
   archiveUrl: string | null;
   archiveStatus: ArchiveStatus;
+  archiveAttempts: number;
   screenshotPath: string | null;
   sourceContext: string | null;
 

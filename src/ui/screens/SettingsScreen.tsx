@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Screen } from '../components/Screen';
 import { useDb } from '../DbProvider';
-import { resetDb } from '../../data/browserDb';
+import { resetDb } from '../../data/appDb';
 import { MIGRATIONS } from '../../data/migrations';
 import { applyTheme, readTheme, type Theme } from '../../lib/theme';
 import { Field, SegmentedControl, inputClass } from '../components/Field';
@@ -19,13 +19,14 @@ import {
   useScheduledNotifications,
 } from '../useNotifications';
 import { formatDate } from '../../domain/format';
+import { platformName } from '../../platform';
 
 export function SettingsScreen() {
   const db = useDb();
   const [theme, setTheme] = useState<Theme>(readTheme);
   const [busy, setBusy] = useState(false);
 
-  const stored = loadVerifierConfig();
+  const [stored, setStored] = useState(loadVerifierConfig);
   const [provider, setProvider] = useState<ProviderId>(stored.provider);
   const [apiKey, setApiKey] = useState(stored.apiKey);
   const [model, setModel] = useState(stored.model);
@@ -43,14 +44,14 @@ export function SettingsScreen() {
     setTheme(next);
   };
 
-  const persistProvider = (next: ProviderId) => {
+  const persistProvider = async (next: ProviderId) => {
     setProvider(next);
-    saveVerifierConfig({ provider: next });
+    setStored(await saveVerifierConfig({ provider: next }));
     setTest({ state: 'idle' });
   };
 
-  const saveKey = () => {
-    saveVerifierConfig({ apiKey, model });
+  const saveKey = async () => {
+    setStored(await saveVerifierConfig({ apiKey, model }));
     setKeyDirty(false);
     setTest({ state: 'idle' });
   };
@@ -111,7 +112,7 @@ export function SettingsScreen() {
               <SegmentedControl
                 ariaLabel="Provider"
                 value={provider}
-                onChange={persistProvider}
+                onChange={(next) => void persistProvider(next)}
                 options={[
                   { value: 'mock', label: 'Offline' },
                   { value: 'gemini', label: 'Gemini' },
@@ -154,7 +155,7 @@ export function SettingsScreen() {
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
-                    onClick={saveKey}
+                    onClick={() => void saveKey()}
                     disabled={!keyDirty}
                     className="rounded bg-ink px-3 py-2 text-[13px] text-ground disabled:opacity-40"
                   >
@@ -321,8 +322,8 @@ export function SettingsScreen() {
         </section>
 
         <p className="text-[12px] text-ink-faint">
-          Phase 0.4. Capture, intake, verification and notifications work. Receipts, the Android
-          wrap and source archiving do not exist yet.
+          Phase 0.6 on {platformName()}. None of the native adapters have been run on a device
+          yet.
         </p>
       </div>
     </Screen>

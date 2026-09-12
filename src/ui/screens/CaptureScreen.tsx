@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Screen } from '../components/Screen';
 import { Field, inputClass } from '../components/Field';
 import { today } from '../components/PredictionForm';
@@ -21,6 +21,8 @@ import { startOfLocalDay } from '../../domain/prediction';
  */
 export function CaptureScreen() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const shared = location.state as { text?: string; url?: string | null } | null;
   const { data: authors = [] } = useAuthors();
   const config = loadVerifierConfig();
 
@@ -28,12 +30,18 @@ export function CaptureScreen() {
   const createPrediction = useCreatePrediction();
   const structure = useStructureStatement();
 
-  const [rawStatement, setRawStatement] = useState('');
+  const [rawStatement, setRawStatement] = useState(shared?.text ?? '');
   const [authorName, setAuthorName] = useState('');
   const [statementDate, setStatementDate] = useState(today);
-  const [sourceUrl, setSourceUrl] = useState('');
+  const [sourceUrl, setSourceUrl] = useState(shared?.url ?? '');
   const [sourceContext, setSourceContext] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  // A share arriving while this screen is already mounted still has to land.
+  useEffect(() => {
+    if (shared?.text) setRawStatement(shared.text);
+    if (shared?.url) setSourceUrl(shared.url);
+  }, [shared?.text, shared?.url]);
 
   const ready = rawStatement.trim().length > 0 && authorName.trim().length > 0;
   const usingModel = config.provider === 'gemini' && config.apiKey.trim().length > 0;

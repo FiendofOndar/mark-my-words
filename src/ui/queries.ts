@@ -13,9 +13,13 @@ import { createVerifier } from '../verification/registry';
 import type { StructureInput, StructureResult } from '../verification/types';
 import type { Check, Evidence } from '../domain/types';
 import { describePull, runPull, type PullSummary } from '../verification/runPull';
-import { BrowserPageFetcher } from '../verification/validateSources';
+import { BrowserPageFetcher, type PageFetcher } from '../verification/validateSources';
+import { CapacitorPageFetcher } from '../platform/CapacitorPageFetcher';
+import { isNative } from '../platform';
 import { loadVerifierConfig } from '../lib/keyStore';
 import { DEFAULT_PULL_BUDGET } from '../domain/cadence';
+import { archiveSource } from '../capture/archive';
+import { archiveHttp } from '../capture/http';
 
 export type FeedFilter =
   | { kind: 'all' }
@@ -254,7 +258,28 @@ function useDbMutation<TArgs, TResult>(fn: (db: Db, args: TArgs) => TResult) {
 }
 
 export function useCreatePrediction() {
-  return useDbMutation((db, input: NewPrediction) => db.predictions.create(input));
+  const db = useDb();
+  const client = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: NewPrediction) => {
+      const prediction = db.predictions.create(input);
+      await db.driver.persist();
+
+      // Fired after the row exists, so a slow or failing archive never costs
+      // the capture. Whatever it returns is recorded; pending gets retried.
+      if (prediction.sourceUrl) {
+        const outcome = await archiveSource(prediction.sourceUrl, archiveHttp);
+        db.predictions.recordArchiveAttempt(prediction.id, outcome);
+        await db.driver.persist();
+      }
+
+      return prediction;
+    },
+    onSuccess: () => {
+      void client.invalidateQueries();
+    },
+  });
 }
 
 export function useUpdatePrediction() {
@@ -308,13 +333,14 @@ export function useStructureStatement() {
   });
 }
 
-/**
- * Run a pull. The only thing in the app that spends quota.
- *
- * Source validation uses the browser fetcher here, which cannot tell a dead URL
- * from a cross-origin refusal, so nothing auto-resolves on the web build. The
- * native build swaps the fetcher and the gates start biting.
- */
+function pageFetcher(): PageFetcher {
+  // The browser fetcher cannot tell a dead URL from a cross-origin refusal, so
+  // nothing auto-resolves on the web build. The native one goes through native
+  // code, sees real status codes, and the gates start biting.
+  return isNative() ? new CapacitorPageFetcher() : new BrowserPageFetcher();
+}
+
+/** Run a pull. The only thing in the app that spends quota. */
 export function usePull() {
   const db = useDb();
   const client = useQueryClient();
@@ -324,7 +350,7 @@ export function usePull() {
       const config = loadVerifierConfig();
       return runPull(
         db,
-        { verifier: createVerifier(config), fetcher: new BrowserPageFetcher() },
+        { verifier: createVerifier(config), fetcher: pageFetcher() },
         {
           budget: DEFAULT_PULL_BUDGET,
           dailyQuota: config.dailyQuota,

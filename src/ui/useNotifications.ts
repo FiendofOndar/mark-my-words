@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useDb } from './DbProvider';
-import { BrowserNotifier, type NotificationPermission } from '../notifications/Notifier';
+import {
+  BrowserNotifier,
+  type Notifier,
+  type NotificationPermission,
+} from '../notifications/Notifier';
+import { CapacitorNotifier } from '../platform/CapacitorNotifier';
+import { isNative } from '../platform';
 import { loadPrefs, savePrefs } from '../notifications/prefs';
 import {
   DEFAULT_PREFS,
@@ -9,7 +15,7 @@ import {
   type NotificationPrefs,
 } from '../domain/notifications';
 
-const notifier = new BrowserNotifier();
+const notifier: Notifier = isNative() ? new CapacitorNotifier() : new BrowserNotifier();
 
 const PREFS_KEY = ['notification-prefs'] as const;
 const PLAN_KEY = ['notification-plan'] as const;

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { Db } from '../data/db';
-import { getDb } from '../data/browserDb';
+import { getDb } from '../data/appDb';
 import { seedDemoData } from '../data/seed';
 
 const DbContext = createContext<Db | null>(null);

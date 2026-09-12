@@ -3,9 +3,11 @@ import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { toBlob } from 'html-to-image';
 import { CARD_HEIGHT, CARD_WIDTH } from './ReceiptCard';
-import { BrowserImageSharer, receiptFilename } from './share';
+import { BrowserImageSharer, receiptFilename, type ImageSharer } from './share';
+import { CapacitorImageSharer } from '../platform/CapacitorImageSharer';
+import { isNative } from '../platform';
 
-const sharer = new BrowserImageSharer();
+const sharer: ImageSharer = isNative() ? new CapacitorImageSharer() : new BrowserImageSharer();
 
 let fontCss: Promise<string> | null = null;
 
