@@ -44,6 +44,19 @@ export function CaptureScreen() {
   }, [shared?.text, shared?.url]);
 
   const ready = rawStatement.trim().length > 0 && authorName.trim().length > 0;
+
+  // A dead button with no explanation is the worst state this screen has. Both
+  // actions need the same two fields, so say which one is still empty rather
+  // than leaving someone to work it out by elimination.
+  const missing =
+    rawStatement.trim().length === 0 && authorName.trim().length === 0
+      ? 'Add what was said and who said it.'
+      : rawStatement.trim().length === 0
+        ? 'Add what was said.'
+        : authorName.trim().length === 0
+          ? 'Add who said it.'
+          : null;
+  const started = rawStatement.trim().length > 0 || authorName.trim().length > 0;
   const usingModel = config.provider === 'gemini' && config.apiKey.trim().length > 0;
   const busy = structure.isPending || createPrediction.isPending;
 
@@ -160,21 +173,34 @@ export function CaptureScreen() {
             type="button"
             onClick={draftWithAi}
             disabled={!ready || busy}
-            className="w-full rounded bg-ink py-3 font-display text-[17px] text-ground disabled:opacity-40"
+            // Dimming the whole cream fill to 40% gave a muddy grey block that
+            // read as pressed. Dimming only the fill keeps it recognisable as
+            // the primary action while making clear it will not do anything.
+            className="w-full rounded bg-ink py-3 font-display text-[17px] text-ground disabled:bg-ink/20 disabled:text-ink-faint"
           >
             {structure.isPending ? 'Reading it...' : 'Draft the criteria'}
           </button>
-          <p className="text-center text-[12px] text-ink-faint">
-            {usingModel
-              ? `Using ${config.model || DEFAULT_GEMINI_MODEL}. You confirm everything before the clock starts.`
-              : 'No API key set, so this falls back to offline pattern matching. Add a key in Settings for a real reading.'}
+          {/* Tinted only once one of the two fields is filled. On an untouched
+              form the hint is just orientation, and colouring it is scolding
+              someone for not having typed yet. */}
+          <p
+            className={`text-center text-[12px] ${
+              missing && started ? 'text-partial' : 'text-ink-faint'
+            }`}
+          >
+            {missing ??
+              (usingModel
+                ? `Using ${config.model || DEFAULT_GEMINI_MODEL}. You confirm everything before the clock starts.`
+                : 'No API key set, so this falls back to offline pattern matching. Add a key in Settings for a real reading.')}
           </p>
 
           <button
             type="button"
             onClick={draftManually}
             disabled={!ready || busy}
-            className="w-full rounded border border-rule py-2.5 text-[15px] text-ink-dim disabled:opacity-40"
+            // border-rule is already faint; at 40% opacity the outline disappears
+            // and the button looks like stray text.
+            className="w-full rounded border border-rule py-2.5 text-[15px] text-ink-dim disabled:text-ink-faint"
           >
             Fill it in myself
           </button>
