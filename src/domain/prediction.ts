@@ -263,7 +263,11 @@ export function reopen(p: Prediction, now: Date = new Date()): PredictionPatch {
 export function confirmDraft(p: Prediction, now: Date = new Date()): PredictionPatch {
   if (!canTransition(p.status, 'open')) throw new InvalidTransitionError(p.status, 'open');
   const iso = now.toISOString();
-  return { status: 'open', trend: 'unknown', updatedAt: iso };
+  // Confirming is the freeze. The criteria used to stay editable until the
+  // first check, which for a claim due months out left a long window in which
+  // they could be quietly rewritten with nothing on the record. Editing is
+  // still allowed after this; it goes through the amendment log.
+  return { status: 'open', trend: 'unknown', criteriaFrozenAt: iso, updatedAt: iso };
 }
 
 /**
@@ -282,9 +286,10 @@ export function setTrend(p: Prediction, trend: Trend, now: Date = new Date()): P
 }
 
 /**
- * Criteria are free to edit right after capture and sealed once the first
- * verification check has run against them. A resolved prediction counts as
- * sealed too: there is nothing left to edit toward.
+ * Criteria are free to edit while the prediction is a draft and sealed the
+ * moment it is confirmed. A resolved prediction counts as sealed too: there is
+ * nothing left to edit toward. (`criteriaFrozenAt` is also stamped by the
+ * first check, as a backstop for rows that opened another way.)
  *
  * Editing after the freeze is still allowed, but it goes through the amendment
  * path so the change is on the record. Hiding the edit is what is forbidden,

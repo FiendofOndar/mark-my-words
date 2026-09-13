@@ -234,9 +234,9 @@ Still open, smaller:
 - **The "Held:" label** in the check log now mostly means "a late-watch
   re-check confirmed the miss". Rows from before this session that read Held
   meant "held for thin evidence". The label is true of both, so it stayed.
-- **Freeze at confirm rather than at first check** was recommended in the
-  review and not decided. The window between confirm and first check is
-  unaudited, and for a far-out claim that is a month at the earliest.
+- **Freeze at confirm** was decided on 2026-09-13 and built (PR #19). The
+  detail screen's "Editable until first check" pill is now "Not yet frozen"
+  and should be unreachable for anything confirmed by the app.
 
 ---
 
@@ -352,8 +352,8 @@ next session does not re-litigate them without new evidence.
    billing model. Stop spending sessions on the prompt for cost; spend one on
    verifying the billing unit.
 
-6. **Criteria frozen at first check, amendable with an audit trail.** Holds.
-   Freeze-at-confirm was recommended and is undecided (section 5).
+6. **Criteria frozen at confirm, amendable with an audit trail.** Holds.
+   Moved from first-check to confirm on the owner's decision (section 5).
 
 7. **Quoted-text matching in any form.** No. Removed. The quote is still
    requested and shown, as the citation, for a person to read.
