@@ -13,7 +13,7 @@
     .card {
       width: 360px; height: 680px; box-sizing: border-box; position: relative; overflow: hidden;
       background:
-        radial-gradient(ellipse 480px 320px at 50% 108%, oklch(0.32 0.09 68 / 0.5), transparent 62%),
+        radial-gradient(ellipse 480px 320px at 50% 108%, var(--glow), transparent 62%),
         oklch(0.145 0.012 270);
       color: oklch(0.96 0.01 90);
       font-family: 'IBM Plex Mono', monospace;
@@ -29,14 +29,14 @@
       background: oklch(0.94 0.01 90 / 0.06);
       backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
       border: 1px solid oklch(0.9 0.01 90 / 0.12);
-      box-shadow: 0 20px 40px oklch(0.35 0.1 68 / 0.25);
+      box-shadow: 0 20px 40px var(--glow);
     }
-    .glass .tag { font-size: 10.5px; letter-spacing: 1.5px; color: oklch(0.78 0.13 72); text-transform: uppercase; font-weight: 600; margin-bottom: 10px; }
+    .glass .tag { font-size: 10.5px; letter-spacing: 1.5px; color: var(--accent); text-transform: uppercase; font-weight: 600; margin-bottom: 10px; }
     .glass .verdict { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 28px; margin: 0 0 8px 0; }
     .glass .detail { font-size: 12px; color: oklch(0.68 0.01 90); line-height: 1.5; }
   </style>
 </helmet>
-<div class="card">
+<div class="card" style="--accent: {{accent}}; --glow: {{glow}}">
   <div class="label">Resolved</div>
   <div class="quote-zone"><p class="quote">&ldquo;The Cardinals win it all this year.&rdquo;</p></div>
   <div class="who">@popops <span>&middot; said Mar 12 &middot; sports</span></div>
@@ -47,5 +47,16 @@
   </div>
 </div>
 </x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#dba456","options":["#dba456","#5b8fd0","#4fae86","#b968a0"]}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#dba456';
+    return {
+      accent,
+      glow: `color-mix(in srgb, ${accent} 42%, transparent)`,
+    };
+  }
+}
+</script>
 </body>
 </html>
