@@ -128,6 +128,37 @@ describe('model confidence is a cap, not a bonus', () => {
     expect(result.score).toBe(100);
     expect(result.breakdown.capApplied).toBe(false);
   });
+
+  it('still stops an unsure model from auto-resolving', () => {
+    const result = scoreCheck(input({ modelConfidence: 43 }));
+    expect(result.breakdown.evidenceTotal).toBe(100);
+    expect(result.score).toBe(63);
+    expect(result.decision).not.toBe('auto_resolve');
+  });
+
+  it('does not let an unsure model bury evidence the app verified itself', () => {
+    // The real one: four sources, three publishers, two quotes confirmed on the
+    // page, an observed value nowhere near the claim. The model reported 43 of
+    // its own accord, which capped the score to 63, under the queue threshold,
+    // and the whole finding was filed as "no change". A model that is unsure of
+    // itself is exactly when a person should be asked.
+    const result = scoreCheck(input({ modelConfidence: 43 }));
+    expect(result.score).toBeLessThan(QUEUE_AT);
+    expect(result.breakdown.evidenceTotal).toBeGreaterThanOrEqual(QUEUE_AT);
+    expect(result.decision).toBe('queue');
+  });
+
+  it('holds when the evidence itself is thin, whatever the model says', () => {
+    const result = scoreCheck(
+      input({
+        sources: [source({ tier: 'social', publisher: 'A blog' })],
+        coverage: 'inferred',
+        modelConfidence: 40,
+      }),
+    );
+    expect(result.breakdown.evidenceTotal).toBeLessThan(QUEUE_AT);
+    expect(result.decision).toBe('hold');
+  });
 });
 
 describe('url validation', () => {

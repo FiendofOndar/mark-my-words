@@ -177,14 +177,31 @@ export function scoreCheck(input: RubricInput): RubricResult {
   breakdown.capApplied = cap < breakdown.evidenceTotal;
 
   const gates = collectGates(input, independent);
+
+  /*
+   * The cap governs automation, not whether the user hears about it.
+   *
+   * Model confidence can only ever lower the score, which is right. But the
+   * band is twenty points, so a model reporting 43 caps everything at 63, and
+   * nothing can reach the approval queue below 80. That let a model's own
+   * humility silently bury evidence the app had verified for itself: four
+   * sources, three publishers, two quotes confirmed on the page, a primary
+   * outlet, an unambiguous observed value well outside the claim, filed as "no
+   * change" because the model was unsure of itself.
+   *
+   * A model that is unsure is exactly when a person should be asked. So the
+   * capped score still gates auto-resolution, and the evidence the app checked
+   * itself is enough to put it in front of someone.
+   */
+  const canQueue = breakdown.score >= QUEUE_AT || breakdown.evidenceTotal >= QUEUE_AT;
   const decision =
     gates.length > 0
-      ? breakdown.score >= QUEUE_AT
+      ? canQueue
         ? 'queue'
         : 'hold'
       : breakdown.score >= AUTO_RESOLVE_AT
         ? 'auto_resolve'
-        : breakdown.score >= QUEUE_AT
+        : canQueue
           ? 'queue'
           : 'hold';
 
