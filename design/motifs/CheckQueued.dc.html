@@ -17,13 +17,13 @@
       --ink-dim: oklch(0.68 0.01 90);
       --ink-faint: oklch(0.52 0.01 270);
       --accent: #dba456;
-      --glow: color-mix(in srgb, #dba456 40%, transparent);
+      --glow: color-mix(in srgb, #dba456 20%, transparent);
       --hit: #5aa87a;
       --partial: #d29a43;
 
       width: 375px; height: 1100px; box-sizing: border-box; overflow: hidden;
       background:
-        radial-gradient(ellipse 460px 320px at 50% 40%, var(--glow), transparent 62%),
+        radial-gradient(ellipse 940px 760px at 50% 34%, var(--glow), transparent 78%),
         var(--ground);
       color: var(--ink);
       font-family: 'IBM Plex Mono', monospace;
@@ -50,8 +50,8 @@
     .gates .lab { font-size: 9.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 8px; }
     .gates ul { margin: 0; padding-left: 15px; }
     .gates li { font-family: 'Barlow Condensed', sans-serif; font-size: 14.5px; line-height: 1.4;
-      color: var(--partial); margin-bottom: 5px; }
-    .gates li::marker { color: color-mix(in srgb, var(--partial) 55%, transparent); }
+      color: oklch(0.9 0.012 85); margin-bottom: 5px; }
+    .gates li::marker { color: oklch(0.46 0.012 80); }
 
     .actions { display: flex; gap: 8px; margin-top: 16px; }
     .btn { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 14px; letter-spacing: 0.4px;

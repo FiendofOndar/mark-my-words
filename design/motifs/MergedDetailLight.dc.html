@@ -18,7 +18,7 @@
       --ink-dim: oklch(0.45 0.02 70);
       --ink-faint: oklch(0.6 0.015 70);
       --accent-ink: oklch(0.52 0.12 68);
-      --glow: oklch(0.86 0.11 76 / 0.9);
+      --glow: oklch(0.88 0.075 78 / 0.62);
       --miss: oklch(0.48 0.17 27);
 
       /* the AI panel is a raised warm surface, lifted off the page by a warm shadow */
@@ -28,7 +28,7 @@
 
       width: 375px; height: 980px; box-sizing: border-box; overflow: hidden;
       background:
-        radial-gradient(ellipse 460px 300px at 50% 44%, var(--glow), transparent 62%),
+        radial-gradient(ellipse 940px 760px at 50% 36%, var(--glow), transparent 78%),
         var(--ground);
       color: var(--ink);
       font-family: 'IBM Plex Mono', monospace;
@@ -45,7 +45,7 @@
       background: var(--panel); color: var(--ink);
       border: 1px solid var(--panel-edge);
       box-shadow: 0 16px 36px color-mix(in srgb, #b8822f 26%, transparent); }
-    .panel .tag { font-size: 10px; letter-spacing: 1.6px; color: var(--accent-ink); text-transform: uppercase; font-weight: 600; margin-bottom: 11px; }
+    .panel .tag { font-size: 10px; letter-spacing: 1.6px; color: var(--ink-faint); text-transform: uppercase; font-weight: 600; margin-bottom: 11px; }
     .panel .verdict { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 30px; margin: 0 0 9px 0; color: var(--miss); letter-spacing: 0.5px; }
     .panel .detail { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; color: var(--ink-dim); line-height: 1.4; margin: 0 0 14px 0; }
     .panel .strip { font-size: 10px; letter-spacing: 1.1px; color: var(--ink-faint); border-top: 1px solid var(--panel-rule); padding-top: 11px; }

@@ -19,14 +19,14 @@
       --ink-dim: oklch(0.68 0.01 90);
       --ink-faint: oklch(0.52 0.01 270);
       --accent: #dba456;
-      --glow: color-mix(in srgb, #dba456 34%, transparent);
+      --glow: color-mix(in srgb, #dba456 20%, transparent);
       /* verdict colors are fixed and never follow the accent */
       --hit: #5aa87a;
       --miss: oklch(0.66 0.15 27);
 
       width: 375px; height: 812px; box-sizing: border-box; overflow: hidden;
       background:
-        radial-gradient(ellipse 420px 260px at 50% 20%, var(--glow), transparent 64%),
+        radial-gradient(ellipse 900px 620px at 50% 6%, var(--glow), transparent 76%),
         var(--ground);
       color: var(--ink);
       font-family: 'IBM Plex Mono', monospace;
@@ -83,7 +83,7 @@
     <div class="flag">VERDICT READY &mdash; NEEDS YOU</div>
     <p class="claim-lg">&ldquo;The Cardinals win it all this year.&rdquo;</p>
     <div class="foot">
-      <span class="meta">@popops &middot; 3 sources &middot; score 92</span>
+      <span class="meta">@popops &middot; 3 sources, links work</span>
       <span class="verdict-chip">PROVEN?</span>
     </div>
   </div>
@@ -94,7 +94,7 @@
       <div class="body">
         <div class="author">fastcompany.com &middot; tech/ai</div>
         <p class="claim">&ldquo;The AI bubble crashes by spring.&rdquo;</p>
-        <div class="meta">RESOLVED MAR 20 &middot; SCORE 96 &middot; 4 SRC</div>
+        <div class="meta">RESOLVED MAR 20 &middot; 3 SOURCES</div>
       </div>
       <span class="tag miss">BUSTED</span>
     </div>
@@ -103,7 +103,7 @@
       <div class="body">
         <div class="author">@jordan &middot; personal</div>
         <p class="claim">&ldquo;Neighbors drop the gutter thing by Nov.&rdquo;</p>
-        <div class="meta">RESOLVED AUG 30 &middot; SCORE 100 &middot; 4 SRC</div>
+        <div class="meta">RESOLVED AUG 30 &middot; 4 SOURCES</div>
       </div>
       <span class="tag hit">PROVEN</span>
     </div>

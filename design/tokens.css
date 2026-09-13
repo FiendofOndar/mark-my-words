@@ -62,11 +62,30 @@
    * --color-accent-ink is the same accent darkened enough to hold as small
    * text on a light ground; use it instead of --color-accent under
    * data-theme='light' wherever the accent is text rather than fill.
+   *
+   * THE ACCENT MEANS "THIS NEEDS YOU". It is not a decoration and not an
+   * emphasis colour: it marks the places where the app is asking for
+   * something. "Waiting on you", the verdict-ready flag on the feed, the mark
+   * beside a dead link, the Sample badge, a source credited to the wrong
+   * outlet. A label saying "auto-resolved" is not asking for anything, and
+   * neither is the prose explaining why a check was held, so both are neutral
+   * ink. Reading text takes the accent nowhere: a colour the user can change
+   * is a promise about legibility that cannot be kept, and saturated yellow
+   * text on a dark ground glares worse than any other hue at equal chroma.
+   * Keeping it off prose also leaves green and red as the only coloured text
+   * in the app, which is what makes a verdict land.
    */
   --color-accent: #dba456;                                          /* NEW */
   --color-accent-ink: oklch(0.52 0.12 68);                          /* NEW */
-  --color-glow: color-mix(in srgb, var(--color-accent) 40%, transparent); /* NEW */
-  --color-glow-soft: color-mix(in srgb, var(--color-accent) 26%, transparent); /* NEW */
+
+  /* Ambient warmth, not a spotlight. Paint it with an ellipse far wider than
+   * the frame and an origin near or past an edge, so only the soft falloff is
+   * ever on screen: an origin inside the frame puts the hot centre on the
+   * glass and the whole thing reads as a stage light.
+   * Reference: ellipse 940px 760px at 50% 34%, transparent by 78%.
+   */
+  --color-glow: color-mix(in srgb, var(--color-accent) 20%, transparent); /* NEW */
+  --color-glow-soft: color-mix(in srgb, var(--color-accent) 12%, transparent); /* NEW */
 
   /* Curated accent presets for the Settings picker. Deliberately no reds and
    * no greens: those hues are reserved for verdicts, so no choice a user
@@ -148,8 +167,8 @@
      * The glow has to be more saturated here than on dark to register against
      * a bright ground, and accent text has to darken to stay legible.
      */
-    --color-glow: oklch(0.86 0.11 76 / 0.9);
-    --color-glow-soft: oklch(0.88 0.07 78 / 0.7);
+    --color-glow: oklch(0.88 0.075 78 / 0.62);
+    --color-glow-soft: oklch(0.9 0.05 80 / 0.45);
 
     /* ---- Verdicts (light) ----------------------------------------------- */
     --color-hit: #2f7a4f;
