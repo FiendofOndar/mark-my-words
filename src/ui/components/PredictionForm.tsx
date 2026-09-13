@@ -163,7 +163,35 @@ export function validateFormValues(v: PredictionFormValues): string[] {
     problems.push('An event needs a stale-out date or it hangs in the feed forever.');
   if (v.criteria.every((c) => !c.trim()))
     problems.push('Add at least one thing that would settle it.');
+
+  // A criterion is judged at the deadline, so a date inside one that falls
+  // after the deadline cannot ever be satisfied in time. This is the whole
+  // slippage the app exists to refuse, and it had been arriving from the
+  // drafting model: a claim about the 11th came back with criteria written
+  // about the 12th, and the check then correctly reported "not yet" forever.
+  // Only dates past the deadline are flagged; an earlier one is usually a
+  // baseline the criterion is measuring against.
+  for (const stray of criteriaDatesPastDeadline(v.criteria, deadlineDate)) {
+    problems.push(`A criterion says ${stray}, which is after the deadline. One of them is wrong.`);
+  }
+
   return problems;
+}
+
+const ISO_DATE = /\d{4}-\d{2}-\d{2}/g;
+
+export function criteriaDatesPastDeadline(
+  criteria: string[],
+  deadline: string | null,
+): string[] {
+  if (!deadline) return [];
+  const stray = new Set<string>();
+  for (const text of criteria) {
+    for (const found of text.match(ISO_DATE) ?? []) {
+      if (found > deadline) stray.add(found);
+    }
+  }
+  return [...stray];
 }
 
 /** Form values to the shape the repository stores. Author is resolved by the caller. */

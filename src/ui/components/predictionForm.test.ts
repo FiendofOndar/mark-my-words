@@ -76,6 +76,43 @@ describe('dates that do not make sense', () => {
     expect(problems).toContain('It gives up before the event is even expected.');
   });
 
+  it('refuses criteria dated past the deadline', () => {
+    // The real one: a claim about temperatures on 9/11 came back from the
+    // drafting model with criteria written about 9/12. Every check after that
+    // correctly answered "the day is not over", forever.
+    const problems = validateFormValues(
+      form({
+        rawStatement: 'Anacortes WA temps will hit 85 F on 9/11/2026.',
+        resolutionDate: '2026-09-11',
+        criteria: ['The daily high in Anacortes, WA is 85 F or higher on 2026-09-12'],
+      }),
+    );
+    expect(problems).toContain(
+      'A criterion says 2026-09-12, which is after the deadline. One of them is wrong.',
+    );
+  });
+
+  it('leaves a date inside the claim window alone', () => {
+    expect(
+      validateFormValues(
+        form({
+          resolutionDate: '2026-09-11',
+          criteria: ['The daily high is 85 F or higher on 2026-09-11'],
+        }),
+      ),
+    ).toEqual([]);
+  });
+
+  it('leaves an earlier date alone, since a criterion may measure against one', () => {
+    expect(
+      validateFormValues(
+        form({
+          criteria: ['Higher than the record set on 2024-07-01'],
+        }),
+      ),
+    ).toEqual([]);
+  });
+
   it('accepts a well-formed event claim', () => {
     expect(
       validateFormValues(
