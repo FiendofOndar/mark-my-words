@@ -1,0 +1,16 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": -980, "w": 1100, "h": 900 },
+    { "file": "IconQuote.dc.html", "x": 0, "y": 0, "w": 480, "h": 480 },
+    { "file": "IconQuoteRing.dc.html", "x": 560, "y": 0, "w": 480, "h": 480 },
+    { "file": "IconTally.dc.html", "x": 1120, "y": 0, "w": 480, "h": 480 },
+    { "file": "IconMonogram.dc.html", "x": 1680, "y": 0, "w": 480, "h": 480 }
+  ],
+  "annotations": [
+    { "id": "lbl-a", "x": 0, "y": -56, "w": 380, "text": "A — Quote: the app is about what people said" },
+    { "id": "lbl-b", "x": 560, "y": -56, "w": 380, "text": "B — Quote + clock: the claim, and the deadline running on it" },
+    { "id": "lbl-c", "x": 1120, "y": -56, "w": 380, "text": "C — Tally: the ledger, keeping count" },
+    { "id": "lbl-d", "x": 1680, "y": -56, "w": 380, "text": "D — Monogram: the conventional option, for comparison" }
+  ],
+  "launch": { "view": "canvas" }
+}

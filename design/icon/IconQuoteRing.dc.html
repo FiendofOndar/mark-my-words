@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; }
+    .icon { width: 480px; height: 480px; border-radius: 104px; box-sizing: border-box;
+      background: oklch(0.16 0.012 270);
+      display: flex; align-items: center; justify-content: center; }
+  </style>
+</helmet>
+<div class="icon">
+  <svg width="330" height="330" viewBox="0 0 240 240">
+    <!-- the clock around the claim: an arc with the last quarter still to run -->
+    <circle cx="120" cy="120" r="97" fill="none" stroke="oklch(0.34 0.02 270)" stroke-width="17"/>
+    <path d="M 120 23 A 97 97 0 1 1 23 120" fill="none" stroke="oklch(0.95 0.014 88)"
+          stroke-width="17" stroke-linecap="round"/>
+    <g fill="oklch(0.95 0.014 88)" transform="translate(64 78) scale(0.52)">
+      <g>
+        <circle cx="50" cy="52" r="30"/>
+        <path d="M 38 72 L 80 72 C 80 104 64 126 36 140 L 22 118 C 40 108 38 92 38 72 Z"/>
+      </g>
+      <g transform="translate(110 0)">
+        <circle cx="50" cy="52" r="30"/>
+        <path d="M 38 72 L 80 72 C 80 104 64 126 36 140 L 22 118 C 40 108 38 92 38 72 Z"/>
+      </g>
+    </g>
+  </svg>
+</div>
+</x-dc>
+</body>
+</html>
