@@ -7,6 +7,7 @@
  * the model itself is unsure, and can never push one up.
  */
 import type { FetchStatus, PredictionStatus, SourceTier } from './types';
+import { publisherMismatch, registrableDomain, tierForUrl } from './sources';
 
 export interface SourceAssessment {
   url: string;
@@ -71,22 +72,20 @@ const TIER_POINTS: Record<SourceTier, number> = {
   social: 4,
 };
 
-/** Two articles from the same publisher are one source, not two. */
+/**
+ * Two articles from the same outlet are one source, not two.
+ *
+ * Keyed on the domain, not on the publisher name. The name is a field in the
+ * model's own JSON, so two pages on one site labelled "AP" and "Reuters"
+ * counted as two independent sources and earned the full thirty points for it.
+ * The domain is the part of a citation that cannot be typed into existence.
+ */
 export function countIndependentSources(sources: SourceAssessment[]): number {
   const seen = new Set<string>();
   for (const source of sources) {
-    const key = (source.publisher ?? hostOf(source.url) ?? source.url).toLowerCase();
-    seen.add(key);
+    seen.add(registrableDomain(source.url) ?? source.url.toLowerCase());
   }
   return seen.size;
-}
-
-function hostOf(url: string): string | null {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '');
-  } catch {
-    return null;
-  }
 }
 
 function sourceCountPoints(independent: number): number {
@@ -96,11 +95,15 @@ function sourceCountPoints(independent: number): number {
   return 30;
 }
 
+/**
+ * The best tier among the sources, judged by domain rather than by what the
+ * model called itself. `source.tier` arrived in the model's JSON and was worth
+ * twenty-five points on its own word.
+ */
 function tierPoints(sources: SourceAssessment[]): number {
   let best = 0;
   for (const source of sources) {
-    if (!source.tier) continue;
-    best = Math.max(best, TIER_POINTS[source.tier]);
+    best = Math.max(best, TIER_POINTS[tierForUrl(source.url)]);
   }
   return best;
 }
@@ -247,6 +250,16 @@ function collectGates(input: RubricInput, independent: number): string[] {
   }
   if (input.sources.some((s) => s.fetchStatus === 'unreachable')) {
     gates.push('A cited source did not resolve, which is how invented citations look.');
+  }
+
+  // A name the host cannot support. Dressing a blog up as a wire service is the
+  // cheapest way to make weak evidence look strong, and it costs nothing to
+  // check against a domain the app already recognises.
+  const misnamed = input.sources.filter((s) => publisherMismatch(s.url, s.publisher));
+  if (misnamed.length > 0) {
+    gates.push(
+      `A source is credited to ${misnamed[0]!.publisher}, which is not whose site it is on.`,
+    );
   }
 
   const statement = new Date(input.statementDate).getTime();

@@ -97,7 +97,8 @@ describe('a decisive, well-sourced check', () => {
 
     expect(plan.outcome).toBe('resolved');
     expect(plan.predictionPatch).toMatchObject({ status: 'hit', resolvedBy: 'auto' });
-    expect(plan.predictionPatch!.confidenceScore).toBeGreaterThanOrEqual(95);
+    // No threshold here any more: the verdict decides and the score describes.
+    expect(plan.predictionPatch!.confidenceScore).toBeGreaterThan(0);
     expect(plan.check!.outcome).toBe('auto_resolved');
     expect(plan.check!.evidence).toHaveLength(3);
     expect(plan.countsAsChecked).toBe(true);

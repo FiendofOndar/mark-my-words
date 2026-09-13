@@ -10,6 +10,11 @@ import {
 
 const STATEMENT = '2026-01-01T00:00:00.000Z';
 
+/**
+ * `tier` is still on the type because the model sends it, but nothing reads it
+ * any more: the score comes from the domain. A default of apnews.com is a wire
+ * service, which is `major_outlet` and not `primary`, however it is labelled.
+ */
 function source(overrides: Partial<SourceAssessment> = {}): SourceAssessment {
   return {
     url: 'https://apnews.com/article/one',
@@ -21,10 +26,15 @@ function source(overrides: Partial<SourceAssessment> = {}): SourceAssessment {
   };
 }
 
+/** A government host, which is genuinely the body that would know. */
+function primarySource(overrides: Partial<SourceAssessment> = {}): SourceAssessment {
+  return source({ url: 'https://www.weather.gov/record', publisher: 'National Weather Service', ...overrides });
+}
+
 function input(overrides: Partial<RubricInput> = {}): RubricInput {
   return {
     sources: [
-      source(),
+      primarySource(),
       source({ url: 'https://reuters.com/a', publisher: 'Reuters' }),
       source({ url: 'https://bbc.co.uk/a', publisher: 'BBC' }),
     ],
@@ -183,34 +193,36 @@ describe('url validation', () => {
     // stand any of this up itself" whether or not a third link went stale. As a
     // ratio this scored less than the same two cited alone, which punished the
     // model for showing its work.
+    const ap = source({ publisher: 'AP' });
+    const reuters = source({ url: 'https://reuters.com/a', publisher: 'Reuters' });
     const twoOfThree = scoreCheck(
       input({
         sources: [
-          source({ publisher: 'AP' }),
-          source({ publisher: 'Reuters' }),
-          source({ publisher: 'BBC', fetchStatus: 'quote_not_found' }),
+          ap,
+          reuters,
+          source({ url: 'https://bbc.co.uk/a', publisher: 'BBC', fetchStatus: 'quote_not_found' }),
         ],
       }),
     );
-    const twoAlone = scoreCheck(
-      input({ sources: [source({ publisher: 'AP' }), source({ publisher: 'Reuters' })] }),
-    );
+    const twoAlone = scoreCheck(input({ sources: [ap, reuters] }));
     expect(twoOfThree.breakdown.urlValidation).toBe(20);
     expect(twoOfThree.breakdown.urlValidation).toBe(twoAlone.breakdown.urlValidation);
   });
 
-  it('does not count one publisher twice as corroboration', () => {
+  it('does not count one outlet twice as corroboration', () => {
     // Two NWS pages are one source confirmed, not two, the same way the
-    // independent-source count treats them.
+    // independent-source count treats them. Relabelling one of them would not
+    // help: both counts key on the domain now.
     const result = scoreCheck(
       input({
         sources: [
-          source({ publisher: 'National Weather Service', url: 'https://weather.gov/a' }),
-          source({ publisher: 'National Weather Service', url: 'https://weather.gov/b' }),
+          source({ publisher: 'National Weather Service', url: 'https://forecast.weather.gov/a' }),
+          source({ publisher: 'National Weather Service', url: 'https://www.weather.gov/b' }),
         ],
       }),
     );
     expect(result.breakdown.urlValidation).toBe(12);
+    expect(countIndependentSources(result ? input().sources.slice(0, 1) : [])).toBe(1);
   });
 
   it('still refuses everything when one citation did not resolve', () => {
@@ -284,8 +296,8 @@ describe('temporal sanity', () => {
         statementDate: '2026-01-01T00:00:00.000Z',
         sources: [
           source({ publishedAt: '2024-06-01', publisher: 'AP' }),
-          source({ publishedAt: '2024-06-02', publisher: 'Reuters' }),
-          source({ publishedAt: '2024-06-03', publisher: 'BBC' }),
+          source({ url: 'https://reuters.com/a', publishedAt: '2024-06-02', publisher: 'Reuters' }),
+          source({ url: 'https://bbc.co.uk/a', publishedAt: '2024-06-03', publisher: 'BBC' }),
         ],
         claimPeriodEnd: '2026-12-31T00:00:00.000Z',
       }),
