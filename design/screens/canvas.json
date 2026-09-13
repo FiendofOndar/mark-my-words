@@ -1,6 +1,22 @@
 {
   "artboards": [
     {
+      "file": "Palette.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 900,
+      "h": 1160,
+      "page": "page-palette"
+    },
+    {
+      "file": "AccentCheck.dc.html",
+      "x": 1020,
+      "y": 0,
+      "w": 1180,
+      "h": 960,
+      "page": "page-palette"
+    },
+    {
       "file": "Main.dc.html",
       "x": 0,
       "y": -420,
@@ -99,6 +115,22 @@
   ],
   "annotations": [
     {
+      "id": "p-0",
+      "x": 0,
+      "y": -56,
+      "w": 560,
+      "text": "Locked. Every colour has one job, written next to it.",
+      "page": "page-palette"
+    },
+    {
+      "id": "p-1",
+      "x": 1020,
+      "y": -56,
+      "w": 620,
+      "text": "The one accent decision, made once. Violet is what the canvas already uses.",
+      "page": "page-palette"
+    },
+    {
       "id": "n-0",
       "x": 0,
       "y": -56,
@@ -189,9 +221,13 @@
   ],
   "launch": {
     "view": "canvas",
-    "page": "page-capture"
+    "page": "page-palette"
   },
   "pages": [
+    {
+      "id": "page-palette",
+      "name": "Palette"
+    },
     {
       "id": "page-capture",
       "name": "Capture + review"

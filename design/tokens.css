@@ -3,8 +3,8 @@
  *
  * The single list of every design value the app uses. Nothing else should
  * hardcode a color, a radius, or a type size: everything refers to a name
- * here. Changing a theme, or letting someone pick their own accent, is then
- * a matter of swapping values rather than hunting through components.
+ * here. Changing a theme is then a matter of swapping values rather than
+ * hunting through components.
  *
  * This is written to drop into src/styles.css. It follows that file's
  * existing structure: Tailwind v4 reads `@theme` and generates utilities from
@@ -45,11 +45,10 @@
 
   /* ---- Prose ink -------------------------------------------------------
    * Running prose is warm white made partly transparent, so the glow behind
-   * tints it and the text belongs to whatever accent the viewer chose,
-   * without anyone hand-tuning a colour per hue. Alphas are picked to land
-   * at roughly the brightness the solid ink values had over bare ground, so
-   * this adds a tint where there is glow and changes nothing where there is
-   * not.
+   * it tints it and the text belongs to the ground it sits on rather than
+   * floating above it. Alphas are picked to land at roughly the brightness the
+   * solid ink values had over bare ground, so this adds a tint where there is
+   * glow and changes nothing where there is not.
    *
    * Prose only. Anything small or uppercase - metadata, timestamps, source
    * hosts, the letterspaced labels - stays SOLID: transparency costs
@@ -71,26 +70,32 @@
   --shadow-panel: 0 20px 42px oklch(0 0 0 / 0.34);  /* NEW */
 
   /* ---- Accent ----------------------------------------------------------
-   * The one token a user can change. It carries brand highlights, the glow,
-   * and active states. It is NOT a verdict color: the values below stay put
-   * no matter what accent someone picks, or a user who chooses red ends up
-   * unable to tell their own theme from a failed prediction.
+   * ONE accent, fixed. There is no picker and no preset list.
    *
-   * --color-accent-ink is the same accent darkened enough to hold as small
-   * text on a light ground; use it instead of --color-accent under
-   * data-theme='light' wherever the accent is text rather than fill.
+   * A selectable accent sounded generous and was not. Every screen then had
+   * to work in six palettes, which means designing for the worst of them, so
+   * nothing gets tuned for any of them. It also turned every design review
+   * into "do I like this colour" instead of "does this screen work", which is
+   * the wrong question and an exhausting one to be asked repeatedly.
+   *
+   * Violet is not a taste call, it is the only hue left. Green, red and gold
+   * are spoken for by the verdicts, and amber is the attention signal. An
+   * accent in any of those hues makes a decoration look like a verdict. That
+   * leaves blue through violet, and this sits at the violet end so it does
+   * not read as generic system blue.
    *
    * The accent carries the glow, fills and active states. It never carries
-   * reading text: a colour the user can change is a promise about legibility
-   * that cannot be kept, and saturated yellow text on a dark ground glares
-   * worse than any other hue at equal chroma. Keeping it off prose also
-   * leaves the verdict colours as the only coloured text in the app, which
-   * is what makes a verdict land.
+   * reading text: keeping it off prose leaves the verdict colours as the only
+   * coloured text in the app, which is what makes a verdict land.
+   *
+   * --color-accent-ink is the same hue darkened enough to hold as small text
+   * on a light ground; use it instead of --color-accent under
+   * data-theme='light' wherever the accent is text rather than fill.
    */
-  --color-accent: #dba456;                                          /* NEW */
-  --color-accent-ink: oklch(0.52 0.12 68);                          /* NEW */
+  --color-accent: #8a8cd8;                                          /* NEW */
+  --color-accent-ink: oklch(0.46 0.13 286);                         /* NEW */
 
-  /* Ambient warmth, not a spotlight. Paint it with an ellipse far wider than
+  /* Ambient colour, not a spotlight. Paint it with an ellipse far wider than
    * the frame and an origin near or past an edge, so only the soft falloff is
    * ever on screen: an origin inside the frame puts the hot centre on the
    * glass and the whole thing reads as a stage light.
@@ -100,13 +105,14 @@
   --color-glow-soft: color-mix(in srgb, var(--color-accent) 12%, transparent); /* NEW */
 
   /* ---- Attention -------------------------------------------------------
-   * "THIS NEEDS YOU", and fixed for the same reason the verdicts are. It
-   * marks the places the app is asking for something: "Waiting on you", the
-   * verdict-ready flag on the feed, the mark beside a dead link, the Sample
-   * badge, a source credited to the wrong outlet. It deliberately does NOT
-   * follow the accent - someone who picks Steel would otherwise get a grey
-   * attention signal that stops reading as urgent, which is the same failure
-   * as letting a verdict follow the accent.
+   * "THIS NEEDS YOU". It marks the places the app is asking for something:
+   * "Waiting on you", the verdict-ready flag on the feed, the mark beside a
+   * dead link, the Sample badge, a source credited to the wrong outlet.
+   *
+   * It is a different hue from the accent on purpose. When the accent was
+   * amber these two were the same value, and an ask was indistinguishable
+   * from ordinary brand warmth. Now the accent is violet and nothing else in
+   * the app is amber, so amber only ever means the app is waiting on you.
    *
    * A label saying "auto-resolved" is not an ask, and neither is the prose
    * explaining why a check was held. Those are neutral ink.
@@ -116,16 +122,6 @@
    * partially came true".
    */
   --color-attention: #dba456;                                       /* NEW */
-
-  /* Curated accent presets for the Settings picker. Deliberately no reds and
-   * no greens: those hues are reserved for verdicts, so no choice a user
-   * makes can be mistaken for one. Ember and Dusk are the two gradients. */
-  --preset-amber: #dba456;                                          /* NEW */
-  --preset-ember: linear-gradient(135deg, #e2a24a, #c9703f);        /* NEW */
-  --preset-dusk: linear-gradient(135deg, #6f8fd6, #9a5fae);         /* NEW */
-  --preset-reef: #3f9cb8;                                           /* NEW */
-  --preset-orchid: #b968a0;                                         /* NEW */
-  --preset-steel: #8792ab;                                          /* NEW */
 
   /* ---- Verdicts --------------------------------------------------------
    * Fixed, semantic, never user-themeable. Every one of these is also always
@@ -191,14 +187,15 @@
     --color-glass-fill: #fffcf4;
     --color-glass-edge: oklch(0.85 0.05 80);
     --color-glass-rule: oklch(0.89 0.03 82);
-    --shadow-panel: 0 16px 36px color-mix(in srgb, #b8822f 26%, transparent);
+    --shadow-panel: 0 16px 36px color-mix(in srgb, #5a55a8 24%, transparent);
 
     /* ---- Accent (light) -------------------------------------------------
      * The glow has to be more saturated here than on dark to register against
-     * a bright ground, and accent text has to darken to stay legible.
+     * a bright ground, and accent text has to darken to stay legible. Same
+     * hue as the dark theme; only the lightness and alpha move.
      */
-    --color-glow: oklch(0.88 0.075 78 / 0.62);
-    --color-glow-soft: oklch(0.9 0.05 80 / 0.45);
+    --color-glow: oklch(0.86 0.07 286 / 0.6);
+    --color-glow-soft: oklch(0.89 0.05 286 / 0.44);
 
     /* ---- Prose ink (light) ----------------------------------------------
      * NOT YET DESIGNED. Transparency runs the other way on paper: dark ink

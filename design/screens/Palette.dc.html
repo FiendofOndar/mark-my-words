@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,600;1,600&family=Oswald:wght@500;600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .screen {
+      --ground: oklch(0.145 0.012 270);
+      --surface: oklch(0.19 0.012 270);
+      --rule: oklch(0.26 0.01 270);
+      --ink: oklch(0.96 0.01 90);
+      --ink-dim: oklch(0.68 0.01 90);
+      --ink-faint: oklch(0.52 0.01 270);
+      --accent: #8a8cd8;
+      /* Fixed. "The app needs you" is semantic, so it never follows the accent. */
+      --attention: #dba456;
+      --glow: color-mix(in srgb, #8a8cd8 20%, transparent);
+      --prose: oklch(0.97 0.01 90 / 0.82);
+      --prose-dim: oklch(0.97 0.01 90 / 0.6);
+      --prose-faint: oklch(0.97 0.01 90 / 0.46);
+      --hit: #5aa87a;
+      --miss: oklch(0.66 0.15 27);
+      --partial: #d29a43;
+
+      box-sizing: border-box; overflow: hidden;
+      background:
+        radial-gradient(ellipse 940px 760px at 50% 34%, var(--glow), transparent 78%),
+        var(--ground);
+      color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex; flex-direction: column;
+    }
+    .hdr { padding: 42px 18px 12px 18px; border-bottom: 1px solid var(--rule);
+      display: flex; align-items: flex-start; gap: 10px; flex: none; }
+    .hdr .ttl { flex: 1; min-width: 0; }
+    .hdr h1 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 20px;
+      margin: 0; letter-spacing: 0.4px; }
+    .hdr .sub { font-size: 10.5px; color: var(--ink-faint); margin-top: 3px; letter-spacing: 0.3px; }
+    .hdr .act { font-size: 11.5px; color: var(--miss); flex: none; padding-top: 3px; }
+    .back { width: 22px; height: 22px; flex: none; color: var(--ink-dim); margin-left: -4px; }
+
+    .pad { padding: 16px 18px; }
+    .lbl { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 11px;
+      letter-spacing: 1.4px; text-transform: uppercase; color: var(--ink-faint); display: block; }
+    .hint { font-size: 10.5px; color: var(--prose-faint); line-height: 1.45; }
+    .prose { font-size: 11.5px; color: var(--prose-dim); line-height: 1.5; }
+    .input { border: 1px solid var(--rule); border-radius: 8px; background: oklch(0.96 0.01 90 / 0.04);
+      padding: 10px 11px; font-size: 12.5px; color: var(--ink); font-family: inherit;
+      display: block; width: 100%; box-sizing: border-box; }
+    .input.ph { color: var(--ink-faint); }
+    .btn { border-radius: 9px; text-align: center; font-family: 'Oswald', sans-serif;
+      font-weight: 600; letter-spacing: 0.6px; display: block; }
+    .btn.primary { background: var(--accent); color: oklch(0.18 0.02 270); padding: 12px; font-size: 15px; }
+    .btn.secondary { border: 1px solid var(--rule); color: var(--ink-dim); padding: 9px; font-size: 13px; }
+    .glass { border-radius: 13px; background: oklch(0.94 0.01 90 / 0.07);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid oklch(0.9 0.01 90 / 0.13); box-shadow: 0 16px 34px oklch(0 0 0 / 0.3); }
+    .quote { font-family: 'Cormorant', serif; font-weight: 600; line-height: 1.24; margin: 0; }
+    .tag { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 11.5px; letter-spacing: 0.8px;
+      padding: 3px 8px; border-radius: 3px; border: 1.5px solid; flex: none;
+      min-width: 68px; box-sizing: border-box; text-align: center; }
+    .tag.hit { color: var(--hit); border-color: color-mix(in srgb, var(--hit) 55%, transparent); }
+    .tag.miss { color: var(--miss); border-color: color-mix(in srgb, var(--miss) 55%, transparent); }
+    .tag.partial { color: var(--partial); border-color: color-mix(in srgb, var(--partial) 55%, transparent); }
+    .tag.open { color: var(--ink-dim); border-color: var(--rule);
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+    .row { display: flex; align-items: center; gap: 12px; padding: 13px 18px; border-top: 1px solid var(--rule); }
+    .author { font-size: 9.5px; text-transform: uppercase; letter-spacing: 1.2px;
+      color: var(--ink-faint); margin-bottom: 3px; }
+    .claim { font-family: 'Cormorant', serif; font-weight: 600; font-size: 17px; line-height: 1.2; margin: 0 0 4px 0; }
+    .meta { font-size: 9.5px; color: var(--ink-faint); letter-spacing: 0.4px; }
+
+    .pal { width: 900px; box-sizing: border-box; padding: 38px 42px 44px;
+      background: #131218; color: #f2ede3; font-family: 'IBM Plex Mono', monospace; }
+    .pal h1 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 26px;
+      letter-spacing: 0.5px; text-transform: uppercase; margin: 0 0 8px; }
+    .pal .intro { font-size: 13.5px; line-height: 1.65; color: oklch(0.97 0.01 90 / 0.6);
+      margin: 0 0 8px; max-width: 700px; }
+    .pal h2 { font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 12px;
+      letter-spacing: 1.6px; text-transform: uppercase; color: oklch(0.97 0.01 90 / 0.46);
+      margin: 30px 0 6px; padding-bottom: 7px; border-bottom: 1px solid #2e2a35; }
+    .pal .lead { font-size: 12px; line-height: 1.55; color: oklch(0.97 0.01 90 / 0.6); margin: 0 0 10px; }
+    .prow { display: flex; align-items: center; gap: 14px; padding: 7px 0; }
+    .chip { width: 30px; height: 30px; border-radius: 7px; flex: none;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
+    .tok { width: 178px; flex: none; font-size: 12px; color: #f2ede3; }
+    .val { width: 172px; flex: none; font-size: 11.5px; color: oklch(0.97 0.01 90 / 0.46); }
+    .note { flex: 1; font-size: 12px; color: oklch(0.97 0.01 90 / 0.6); line-height: 1.45; }
+
+  </style>
+</helmet>
+<div class="pal"><h1>The palette</h1><p class="intro">Locked. Every colour below has one job, and the job is written next to it. If a new screen needs a colour, it takes one of these; if none of them fits, the screen is doing something the app has not decided how to say yet.</p><section><h2>The accent</h2><p class="lead">One value. It carries the glow, fills and active states, and never carries reading text.</p><div class="prow"><span class="chip" style="background:#8a8cd8"></span><span class="tok">--color-accent</span><span class="val">#8a8cd8</span><span class="note">Glow, primary buttons, active chips, selection.</span></div><div class="prow"><span class="chip" style="background:oklch(0.46 0.13 286)"></span><span class="tok">--color-accent-ink</span><span class="val">oklch(0.46 0.13 286)</span><span class="note">The same hue, dark enough to be text on the light theme.</span></div></section><section><h2>Attention</h2><p class="lead">Amber means one thing: the app is waiting on you. Nothing decorative is ever amber.</p><div class="prow"><span class="chip" style="background:#dba456"></span><span class="tok">--color-attention</span><span class="val">#dba456</span><span class="note">Waiting on you, verdict-ready, dead link, Sample badge, mislabelled source.</span></div></section><section><h2>Verdicts</h2><p class="lead">Fixed and semantic. Every one is always paired with its word, never carried by colour alone.</p><div class="prow"><span class="chip" style="background:#5aa87a"></span><span class="tok">--color-hit</span><span class="val">#5aa87a</span><span class="note">Proven</span></div><div class="prow"><span class="chip" style="background:#cf6049"></span><span class="tok">--color-miss</span><span class="val">#cf6049</span><span class="note">Busted</span></div><div class="prow"><span class="chip" style="background:#d29a43"></span><span class="tok">--color-partial</span><span class="val">#d29a43</span><span class="note">Split</span></div><div class="prow"><span class="chip" style="background:#8a8078"></span><span class="tok">--color-ambiguous</span><span class="val">#8a8078</span><span class="note">Unclear</span></div><div class="prow"><span class="chip" style="background:#5d5650"></span><span class="tok">--color-voided</span><span class="val">#5d5650</span><span class="note">Moot</span></div><div class="prow"><span class="chip" style="background:#c9a227"></span><span class="tok">--color-late</span><span class="val">#c9a227</span><span class="note">Came true, after the deadline. A badge, never a verdict.</span></div><div class="prow"><span class="chip" style="background:#7a8fb8"></span><span class="tok">--color-draft</span><span class="val">#7a8fb8</span><span class="note">Draft. Nothing is running yet.</span></div></section><section><h2>Ground and ink</h2><p class="lead">The dark theme. The light theme redefines these names and nothing else.</p><div class="prow"><span class="chip" style="background:#131218"></span><span class="tok">--color-ground</span><span class="val">#131218</span><span class="note">The page.</span></div><div class="prow"><span class="chip" style="background:#1a181e"></span><span class="tok">--color-surface</span><span class="val">#1a181e</span><span class="note">Cards and rows.</span></div><div class="prow"><span class="chip" style="background:#2e2a35"></span><span class="tok">--color-rule</span><span class="val">#2e2a35</span><span class="note">Every divider.</span></div><div class="prow"><span class="chip" style="background:#f2ede3"></span><span class="tok">--color-ink</span><span class="val">#f2ede3</span><span class="note">Titles, quotes, anything that has to be read first.</span></div><div class="prow"><span class="chip" style="background:#a9a196"></span><span class="tok">--color-ink-dim</span><span class="val">#a9a196</span><span class="note">Supporting values.</span></div><div class="prow"><span class="chip" style="background:#736b61"></span><span class="tok">--color-ink-faint</span><span class="val">#736b61</span><span class="note">Labels, timestamps, hosts.</span></div></section><section><h2>The mark</h2><p class="lead">The icon's ramp. Fixed, and the only place these three appear together.</p><div class="prow"><span class="chip" style="background:#5fbb8c"></span><span class="tok">icon ramp start</span><span class="val">#5fbb8c</span><span class="note">12 o'clock on the dial.</span></div><div class="prow"><span class="chip" style="background:#ddb45e"></span><span class="tok">icon ramp mid</span><span class="val">#ddb45e</span><span class="note">Through the middle.</span></div><div class="prow"><span class="chip" style="background:#d9533a"></span><span class="tok">icon ramp end</span><span class="val">#d9533a</span><span class="note">The tail, and the minute hand.</span></div></section></div>
+</x-dc>
+</body>
+</html>

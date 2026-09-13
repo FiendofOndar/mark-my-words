@@ -99,14 +99,6 @@
     .knob { position: absolute; top: 2.5px; left: 2.5px; width: 18px; height: 18px; border-radius: 50%;
       background: oklch(0.96 0.01 90); }
     .track.on .knob { left: auto; right: 2.5px; }
-    .swatches { display: flex; gap: 11px; padding: 4px 18px 16px 18px; flex-wrap: wrap; }
-    .sw-item { width: 46px; }
-    .dot { width: 46px; height: 46px; border-radius: 13px; box-sizing: border-box; }
-    .dot.on { box-shadow: 0 0 0 2px var(--ground), 0 0 0 4px var(--ink); }
-    .sw-item .n { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 10px;
-      letter-spacing: 0.8px; text-transform: uppercase; color: var(--ink-faint);
-      text-align: center; margin-top: 6px; }
-    .sw-item.sel .n { color: var(--ink); }
     .settings .keyhint { color: var(--attention); }
     .settings .danger { color: var(--miss); }
 
@@ -141,9 +133,15 @@
       <div class="input sel"><span>Sunday</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div></div>
   </div>
 
-  <h2>Theme</h2>
-  <div class="swatches"><div class="sw-item"><div class="dot" style="background:#dba456"></div><div class="n">Amber</div></div><div class="sw-item"><div class="dot" style="background:linear-gradient(135deg,#e2a24a,#c9703f)"></div><div class="n">Ember</div></div><div class="sw-item sel"><div class="dot on" style="background:linear-gradient(135deg,#6f8fd6,#9a5fae)"></div><div class="n">Dusk</div></div><div class="sw-item"><div class="dot" style="background:#3f9cb8"></div><div class="n">Reef</div></div><div class="sw-item"><div class="dot" style="background:#b968a0"></div><div class="n">Orchid</div></div><div class="sw-item"><div class="dot" style="background:#8792ab"></div><div class="n">Steel</div></div></div>
-  <p class="hint" style="margin:-6px 18px 0 18px">Verdict colours and the amber &ldquo;needs you&rdquo; flag never follow this. They mean something.</p>
+  <h2>Appearance</h2>
+  <div class="grp">
+    <div class="fld"><span class="lbl">Theme</span>
+      <div class="input sel"><span>Match the system</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+      <!-- The accent picker used to live here. One fixed accent instead: six
+           palettes meant designing for the worst of them, and it turned every
+           screen into a colour question rather than a layout one. -->
+      <div class="hint">Dark, light, or whatever the phone is set to.</div></div>
+  </div>
 
   <h2>Data</h2>
   <div class="grp">
