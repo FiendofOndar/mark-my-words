@@ -4,6 +4,7 @@ import { Screen } from '../components/Screen';
 import { Icon } from '../components/Icon';
 import { Stamp, LateBadge, Pill, STATUS_TONE } from '../components/Stamp';
 import { TrendMark } from '../components/TrendMark';
+import { ExternalLink } from '../components/ExternalLink';
 import {
   useAmendCriterion,
   useAmendPrediction,
@@ -174,24 +175,20 @@ export function DetailScreen() {
         {(p.sourceUrl || p.archiveUrl) && (
           <div className="mt-3 flex flex-wrap gap-2">
             {p.sourceUrl && (
-              <a
+              <ExternalLink
                 href={p.sourceUrl}
-                target="_blank"
-                rel="noreferrer noopener"
                 className="rounded-full border border-rule px-2.5 py-0.5 text-[11px] text-ink-dim underline-offset-2 hover:underline"
               >
                 Source
-              </a>
+              </ExternalLink>
             )}
             {p.archiveUrl ? (
-              <a
+              <ExternalLink
                 href={p.archiveUrl}
-                target="_blank"
-                rel="noreferrer noopener"
                 className="rounded-full border border-rule px-2.5 py-0.5 text-[11px] text-ink-dim underline-offset-2 hover:underline"
               >
                 Archived copy
-              </a>
+              </ExternalLink>
             ) : (
               p.sourceUrl && <Pill tone="muted">Archive {p.archiveStatus}</Pill>
             )}
@@ -288,15 +285,13 @@ export function DetailScreen() {
           <div className="mt-4">
             <p className="text-[15px] leading-snug text-ink-dim">{settledBy.check.summary}</p>
             {settledSource && (
-              <a
+              <ExternalLink
                 href={settledSource.url}
-                target="_blank"
-                rel="noreferrer noopener"
                 className="mt-2 inline-flex items-center gap-1 text-[13px] text-ink-dim underline-offset-2 hover:underline"
               >
                 {settledSource.publisher ?? hostOf(settledSource.url) ?? 'Source'}
                 <Icon name="chevron" size={14} className="text-ink-faint" />
-              </a>
+              </ExternalLink>
             )}
           </div>
         )}
