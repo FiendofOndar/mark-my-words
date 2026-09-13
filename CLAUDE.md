@@ -9,6 +9,91 @@ the owner's working constraints, the reasoning behind the decisions that took
 longest to reach, where the last run actually landed, and the open bugs with
 their diagnosis already done.
 
+## How we work
+
+Process rules, not style rules. Every one of them is here because skipping it
+cost real time on this project, and the note after each says what it cost.
+Ordered by value, because the ones at the top get followed best.
+
+**This section is portable.** Nothing in it is specific to this app. Copy it
+whole into any other repository's CLAUDE.md.
+
+**Diagnose before fixing.** Before the first code change on a bug, list the
+likeliest causes and how we would tell them apart. If there is only one
+candidate, say why the others are ruled out. *Nine consecutive rounds were spent
+fixing nine different mechanisms that each suppressed a correct verdict, one
+symptom at a time.*
+
+**Label the basis of every factual claim.** When asserting an API shape, a
+response field, a config key, a library behavior, a version or a limit, say
+whether it came from a file you just read, from documentation fetched this
+session, or from memory. Memory is a hypothesis. Verify before shipping
+anything that depends on it. *`groundingMetadata.webSearchQueries` was written
+from memory, stated as fact, shipped, and returned nothing.*
+
+**The third-time rule.** When you are about to fix a third distinct mechanism
+producing the same user-visible symptom, stop. Say so, name the pattern you
+think is underneath, and propose the structural change instead. Raise this
+yourself; do not wait to be asked. *The insight that the scoring layer was
+structurally adversarial to correct answers was available after failure three
+and was not named until failure nine.*
+
+**Instrumentation beats iteration.** If diagnosing something would take more
+than two trips through a slow or costly feedback loop (a device build, a paid
+API call, a deploy), stop and propose building visibility first. Say what it
+would cost and what it would show. *An afternoon spent on a debug view would
+have paid for itself four times over.*
+
+**Capture the failure before fixing it.** When a real failure is observed, save
+the actual inputs and outputs as a fixture and write the failing test before
+changing anything. An expensive loop becomes a free one. *Every diagnosis here
+went through a ten-minute phone round trip and a paid API call.*
+
+**Predict the outcome.** Before handing back something to test, say what should
+be visible if it worked and what should be visible if it did not. If you cannot
+name a difference, it is not testable yet and should not ship.
+
+**Report what you ran, not what you wrote.** A feature is not working because
+the code exists. Say what command you ran, what it printed, and what you
+observed. "Tests pass" needs the count. "It builds" needs the output.
+
+**Open-ended time needs a boundary.** When given an autonomous stretch, restate
+the constraints before starting: what is in scope, what is off limits, what done
+means. If none were given, propose them and work to your own proposal. *The
+worst defects of this project were produced during unbounded autonomous work.*
+
+**Surface silent judgment calls.** When a change required picking a number, a
+threshold, a weight or a default that was not specified, list them at the end of
+the work. Do not bury them in a diff. *A series of unreviewed scoring weights,
+several of them wrong.*
+
+**Never invent data.** No fabricated facts in fixtures, seeds, samples, demos or
+examples. If a fixture states something checkable, verify it against a real
+source first and say in the commit that you did. Labelling it sample data is a
+backstop, not a licence. *A fabricated World Series result sat in the seed,
+was believed, and was reasoned from.*
+
+**Say what you did not do.** If part of a task was skipped, blocked, or finished
+only partly, say so in the same message as the result. Never report completion
+for partial work.
+
+**Cheapest version first.** For anything touching more than one file or costing
+money, propose the smallest version that would show whether the idea is right
+before building the full one.
+
+**Name the cost before spending it.** Paid API calls, long builds, anything with
+a bill attached.
+
+**Fix the record in the same commit.** When you discover that something written
+in CLAUDE.md, HANDOFF.md or SPEC.md is no longer true, correct it as part of the
+change that made it untrue. *Three claims in this file went stale inside a
+single day, including one asserting that the thing we had just proven working
+had never run.*
+
+**Re-read this file when resuming from a summary.** A long session compacts, and
+what survives is the task, not the rules. If you are picking up from a
+summarized context, read this before acting.
+
 ## Commands
 
 ```bash

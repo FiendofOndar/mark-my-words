@@ -38,6 +38,10 @@ services, no "just re-run it to see." If you need to test the pipeline, use
 
 ## 2. How the owner works
 
+The process rules live in `CLAUDE.md` under "How we work", and they are the
+half of this that is enforceable. What follows is the style and the shape of
+the collaboration, which is not.
+
 Stated preferences, honored throughout this session:
 
 - **Conclusion first, then reasoning.** For any decision or analysis, lead with
