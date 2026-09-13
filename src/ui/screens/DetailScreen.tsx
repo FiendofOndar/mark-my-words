@@ -124,9 +124,16 @@ export function DetailScreen() {
 
   // Either nothing can search it, or something did and could not settle it.
   // Both end in the same place: the answer has to come from the person.
+  //
+  // Not when a verdict is already queued, though. That card asks the same
+  // question with an answer attached, and stacking a bare "Did it happen?
+  // Yes / No" above it makes the screen ask twice and contradict itself about
+  // whether the app found anything. Answer the verdict or reject it; rejecting
+  // brings this back.
   const searchedInVain = checkedButUnsettled(p);
   const awaitingAnswer =
     p.status === 'open' &&
+    queuedVerdict === null &&
     ((p.verificationMode === 'manual' && isPastDeadline(p)) || searchedInVain);
 
   const onResolve = (verdict: PredictionStatus) => {
@@ -338,10 +345,11 @@ export function DetailScreen() {
             <h2 className="text-[11px] font-semibold tracking-wide text-partial uppercase">
               Verdict ready for you
             </h2>
-            {/* The seeded demo verdict says the Cardinals took a World Series
-                that has not been played, citing example.com under real wire
-                service names. Presented on this card it is indistinguishable
-                from a real finding, and it was believed. */}
+            {/* A seeded verdict is indistinguishable from a real finding on
+                this card, and one was believed: the seed used to assert a
+                World Series that had not been played, on example.com under
+                real wire service names. The sample now carries a verified
+                result on real addresses, and the badge stays either way. */}
             {queuedVerdict.provider === 'demo' && <Pill tone="warn">Sample</Pill>}
           </div>
           <p className="mt-2 font-display text-[17px] leading-snug text-ink">

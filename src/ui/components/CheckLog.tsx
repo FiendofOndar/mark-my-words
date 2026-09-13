@@ -32,6 +32,12 @@ const FETCH_LABEL: Record<FetchStatus, { glyph: string; short: string; label: st
     label: 'Could not read the page',
     tone: 'text-ink-faint',
   },
+  not_checked: {
+    glyph: '·',
+    short: 'not checked',
+    label: 'The app has not opened this page',
+    tone: 'text-ink-faint',
+  },
   unreachable: {
     glyph: '✕',
     short: 'link did not resolve',
@@ -106,6 +112,13 @@ export function describeSources(evidence: Evidence[]): string {
       .map((e) => registrableDomain(e.url) ?? e.url),
   );
   if (supported.size > 0) return `${supported.size} of ${domains.size} match on the figures`;
+
+  // "None quoted back" implies the app looked. On a seeded or imported check
+  // it never did, and saying otherwise is the same small lie as marking those
+  // rows "page would not open".
+  if (evidence.every((e) => e.fetchStatus === 'not_checked')) {
+    return `${domains.size} ${plural}, none checked`;
+  }
   return `${domains.size} ${plural}, none quoted back`;
 }
 

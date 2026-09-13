@@ -86,24 +86,37 @@ export function seedDemoData(db: Db): void {
       criteria: ['Avengers: Doomsday is released', 'Thor loses an arm during the film'],
     });
 
-    const cardinals = db.predictions.create({
+    /*
+     * A settled bet with a real, checkable answer.
+     *
+     * This slot used to hold a fabricated World Series win for a season that
+     * had not been played, on example.com URLs dressed in wire-service names,
+     * with fetchStatus hardcoded to "ok" so the app reported a quote verified
+     * on pages it had never opened. A Sample badge was not enough: the first
+     * thing anyone reads is the verdict, and the verdict was false.
+     *
+     * The result below was verified against live sources before it was written
+     * here: the Dodgers beat the Blue Jays 5-4 in eleven innings in Game 7 on
+     * November 1, 2025, taking the series 4-3 and repeating as champions.
+     */
+    const dodgers = db.predictions.create({
       authorId: popops.id,
-      rawStatement: 'The Cardinals will win the World Series this year.',
-      normalizedClaim: 'The St. Louis Cardinals win the 2026 World Series.',
-      statementDate: daysFromNow(-160),
+      rawStatement: 'The Dodgers are going back-to-back. Mark my words.',
+      normalizedClaim: 'The Los Angeles Dodgers win the 2025 World Series.',
+      statementDate: '2025-10-20T02:00:00.000Z',
       sourceContext: 'Said at dinner, twice',
       deadlineType: 'fixed_date',
-      resolutionDate: daysFromNow(45),
+      resolutionDate: '2025-11-30T23:59:59.999Z',
       verificationMode: 'searchable',
       category: 'Sports',
       stakes: '$20',
-      criteria: ['The St. Louis Cardinals win the 2026 World Series'],
+      criteria: ['The Los Angeles Dodgers win the 2025 World Series'],
     });
 
     // A check log with a queued verdict, so the evidence trail and the approval
     // step are visible without waiting for a real check to land.
     db.checks.create({
-      predictionId: cardinals.id,
+      predictionId: dodgers.id,
       trigger: 'pull',
       provider: 'demo',
       model: 'demo',
@@ -120,69 +133,74 @@ export function seedDemoData(db: Db): void {
         gates: ['No sources were cited.'],
       },
       modelConfidence: 12,
-      summary: 'The postseason has not started. Nothing to report yet.',
+      summary: 'The series is tied at three. Nothing settled yet.',
       outcome: 'no_change',
       evidence: [],
     });
 
+    /*
+     * Queued rather than resolved because the model reported 68, under the 70
+     * the rubric treats as sure, which is the honest reason this sits waiting
+     * for a person. The evidence carries no quoted text and no fetch result,
+     * because nothing here was fetched: these are real addresses the app has
+     * never opened, and saying otherwise is what went wrong last time.
+     */
     db.checks.create({
-      predictionId: cardinals.id,
+      predictionId: dodgers.id,
       trigger: 'pull',
       provider: 'demo',
       model: 'demo',
       proposedVerdict: 'hit',
       proposedTrend: 'toward_yes',
-      rubricScore: 98,
+      rubricScore: 65,
       rubricBreakdown: {
         independentSources: 30,
-        sourceTier: 25,
-        urlValidation: 20,
+        sourceTier: 10,
+        urlValidation: 0,
         criteriaCoverage: 15,
         temporalSanity: 10,
-        capApplied: true,
+        capApplied: false,
         gates: [],
       },
       modelConfidence: 68,
       summary:
-        'St. Louis took the series in six games, closing it out at home on Sunday night.',
+        'Los Angeles won Game 7 in Toronto 5-4 in eleven innings on November 1, taking the series 4-3.',
       outcome: 'queued',
-      // Sample data, like the rest of this check. It is here so the cost line
-      // on the log has something to show before the first real check runs.
-      searchQueries: ['2026 world series result', 'cardinals world series game 6'],
+      searchQueries: ['2025 world series result', 'dodgers blue jays game 7 final score'],
       evidence: [
         {
-          url: 'https://apnews.com/article/cardinals-win-2026-world-series',
-          title: 'Cardinals take the series',
-          publisher: 'AP',
-          publishedAt: dayOf(daysFromNow(-1)),
-          quotedText: 'The Cardinals took the series in six games on Sunday night.',
-          tier: 'major_outlet',
-          fetchStatus: 'ok',
-          fetchedAt: nowIso(),
+          url: 'https://www.espn.com/mlb/story/_/id/46796786/world-series-2025-los-angeles-dodgers-champions-repeat-dynasty',
+          title: 'Game 7 win cements Dodgers dynasty',
+          publisher: 'ESPN',
+          publishedAt: '2025-11-02',
+          quotedText: null,
+          tier: 'secondary',
+          fetchStatus: 'not_checked',
+          fetchedAt: null,
         },
         {
-          url: 'https://www.reuters.com/sports/baseball/cardinals-win-2026',
-          title: 'St. Louis wins it all',
-          publisher: 'Reuters',
-          publishedAt: dayOf(daysFromNow(-1)),
-          quotedText: 'St. Louis closed out the series at home.',
-          tier: 'major_outlet',
-          fetchStatus: 'ok',
-          fetchedAt: nowIso(),
+          url: 'https://www.baseball-reference.com/boxes/TOR/TOR202511010.shtml',
+          title: 'Dodgers at Blue Jays box score, November 1, 2025',
+          publisher: 'Baseball-Reference',
+          publishedAt: '2025-11-01',
+          quotedText: null,
+          tier: 'secondary',
+          fetchStatus: 'not_checked',
+          fetchedAt: null,
         },
         {
-          url: 'https://www.mlb.com/news/2026-world-series-recap',
-          title: 'Series recap',
-          publisher: 'MLB.com',
-          publishedAt: dayOf(daysFromNow(-1)),
-          quotedText: 'A championship six years in the making.',
-          tier: 'primary',
-          fetchStatus: 'blocked',
-          fetchedAt: nowIso(),
+          url: 'https://www.foxsports.com/mlb/world-series-game-7-los-angeles-dodgers-vs-toronto-blue-jays-nov-01-2025-game-boxscore-94232',
+          title: 'World Series Game 7 box score',
+          publisher: 'FOX Sports',
+          publishedAt: '2025-11-01',
+          quotedText: null,
+          tier: 'secondary',
+          fetchStatus: 'not_checked',
+          fetchedAt: null,
         },
       ],
     });
-    db.predictions.update(cardinals.id, {
+    db.predictions.update(dodgers.id, {
       lastCheckedAt: nowIso(),
       checkCount: 2,
       trend: 'toward_yes',

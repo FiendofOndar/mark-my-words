@@ -205,8 +205,20 @@ export type SourceTier = 'primary' | 'major_outlet' | 'secondary' | 'social';
  * the wording. A page carrying "71" and "Anacortes" and "September 5" is not
  * proof of a fabricated citation, which is the one thing this layer exists to
  * catch.
+ *
+ * `not_checked` is for evidence that never went through the fetch stage at all
+ * - seeded samples, imported records. It is not `blocked`: nobody tried. The
+ * sample check used to say "page would not open" about three pages the app had
+ * never opened, which is a small lie in the one part of the screen that exists
+ * to tell you what the app verified for itself.
  */
-export type FetchStatus = 'ok' | 'facts_found' | 'unreachable' | 'quote_not_found' | 'blocked';
+export type FetchStatus =
+  | 'ok'
+  | 'facts_found'
+  | 'unreachable'
+  | 'quote_not_found'
+  | 'blocked'
+  | 'not_checked';
 
 export interface Evidence {
   id: Uuid;

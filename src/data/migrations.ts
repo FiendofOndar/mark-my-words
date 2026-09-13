@@ -243,6 +243,38 @@ CREATE INDEX idx_evidence_check ON evidence(check_id);
 ALTER TABLE checks ADD COLUMN search_queries TEXT;
 `,
   },
+  /*
+   * Another CHECK widened, another rebuild: SQLite cannot alter one in place
+   * and v5 spelled its list out. `not_checked` is what a seeded or imported
+   * citation actually is, as against `blocked`, which claims a fetch was tried.
+   */
+  {
+    version: 7,
+    name: 'not_checked fetch status',
+    sql: `
+CREATE TABLE evidence_v7 (
+  id             TEXT PRIMARY KEY,
+  check_id       TEXT NOT NULL REFERENCES checks(id) ON DELETE CASCADE,
+  url            TEXT NOT NULL,
+  title          TEXT,
+  publisher      TEXT,
+  published_at   TEXT,
+  quoted_text    TEXT,
+  tier           TEXT CHECK (tier IN ('primary','major_outlet','secondary','social')),
+  fetch_status   TEXT NOT NULL
+                   CHECK (fetch_status IN
+                     ('ok','facts_found','unreachable','quote_not_found','blocked','not_checked')),
+  fetched_at     TEXT,
+  created_at     TEXT NOT NULL,
+  updated_at     TEXT NOT NULL,
+  deleted_at     TEXT
+);
+INSERT INTO evidence_v7 SELECT * FROM evidence;
+DROP TABLE evidence;
+ALTER TABLE evidence_v7 RENAME TO evidence;
+CREATE INDEX idx_evidence_check ON evidence(check_id);
+`,
+  },
 ];
 
 export function currentVersion(driver: SqlDriver): number {

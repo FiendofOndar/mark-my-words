@@ -143,12 +143,21 @@ is for.
   act on is still a verdict somebody should see.
 - **Model confidence can only lower the score, never raise it.** The score is
   computed by the app from evidence the app verified itself.
-- **The seed writes checks that look exactly like real ones.** `provider:
-  'demo'`, example.com URLs under real wire-service names, `fetchStatus: 'ok'`
-  hardcoded so the app says "quote verified" for a page it never fetched, and a
-  World Series winner for a season that has not been played. Anything rendering
-  a check must badge `provider === 'demo'`, and evidence rows must show the
-  host, not only the publisher the model typed.
+- **A seeded check is indistinguishable from a real one on screen, so it must
+  never assert anything false.** The seed once claimed a World Series winner for
+  a season that had not been played, on example.com URLs under real wire-service
+  names, with `fetchStatus: 'ok'` hardcoded so the app reported a quote verified
+  on pages it had never opened. It was believed, twice. The sample verdict now
+  carries a result checked against live sources, on the publishers' real
+  addresses, with no quoted text and no fetch result, because nothing in a seed
+  was ever fetched. The badge is the backstop, not the fix: anything rendering a
+  check must badge `provider === 'demo'`, and evidence rows must show the host
+  rather than only the publisher name.
+- **`not_checked` is not `blocked`.** Blocked means the app tried the page and
+  was refused. Not checked means nobody tried: a seeded sample, an imported
+  record. The sample verdict marked three real addresses "page would not open"
+  about pages the app had never opened, in the one part of the screen that
+  exists to say what the app confirmed for itself.
 - **`blocked` is not `unreachable`.** A bot wall or a CORS refusal means the app
   could not read the page; a dead URL means there may be no page. Neither is
   proof of a fake on its own. Calling a real citation invented is the one

@@ -140,12 +140,16 @@ describe('migrations', () => {
     expect(String(rows[0]!.url)).toBe('https://weather.gov/x');
     expect(String(rows[0]!.fetch_status)).toBe('quote_not_found');
 
-    // And the widened constraint now accepts the new outcome.
+    // And the widened constraint now accepts the outcomes added since.
     driver.run(
       `INSERT INTO evidence (id, check_id, url, fetch_status, created_at, updated_at)
        VALUES ('e2', 'c1', 'https://weather.gov/y', 'facts_found', '2026-01-01', '2026-01-01')`,
     );
-    expect(driver.select('SELECT id FROM evidence')).toHaveLength(2);
+    driver.run(
+      `INSERT INTO evidence (id, check_id, url, fetch_status, created_at, updated_at)
+       VALUES ('e3', 'c1', 'https://weather.gov/z', 'not_checked', '2026-01-01', '2026-01-01')`,
+    );
+    expect(driver.select('SELECT id FROM evidence')).toHaveLength(3);
   });
 
   it('is idempotent', async () => {
