@@ -14,6 +14,18 @@ function daysFromNow(days: number): string {
   return endOfLocalDay(toLocalDateInput(d.toISOString()));
 }
 
+/**
+ * The same day as `daysFromNow`, written out.
+ *
+ * Never `.slice(0, 10)` on one of these. They are local end-of-day instants, so
+ * in any timezone west of Greenwich the UTC date is already tomorrow: a claim
+ * whose deadline rendered as Sep 11 had criteria written about Sep 12, and
+ * every check then correctly answered that the day was not over yet.
+ */
+function dayOf(iso: string): string {
+  return toLocalDateInput(iso);
+}
+
 /** M/D/YYYY, the way the claim would actually have been said out loud. */
 function usDate(iso: string): string {
   const d = new Date(iso);
@@ -139,7 +151,7 @@ export function seedDemoData(db: Db): void {
           url: 'https://example.com/ap/cardinals-win',
           title: 'Cardinals take the series',
           publisher: 'AP',
-          publishedAt: daysFromNow(-1).slice(0, 10),
+          publishedAt: dayOf(daysFromNow(-1)),
           quotedText: 'The Cardinals took the series in six games on Sunday night.',
           tier: 'major_outlet',
           fetchStatus: 'ok',
@@ -149,7 +161,7 @@ export function seedDemoData(db: Db): void {
           url: 'https://example.com/reuters/cardinals-win',
           title: 'St. Louis wins it all',
           publisher: 'Reuters',
-          publishedAt: daysFromNow(-1).slice(0, 10),
+          publishedAt: dayOf(daysFromNow(-1)),
           quotedText: 'St. Louis closed out the series at home.',
           tier: 'major_outlet',
           fetchStatus: 'ok',
@@ -159,7 +171,7 @@ export function seedDemoData(db: Db): void {
           url: 'https://example.com/blocked/recap',
           title: 'Series recap',
           publisher: 'MLB.com',
-          publishedAt: daysFromNow(-1).slice(0, 10),
+          publishedAt: dayOf(daysFromNow(-1)),
           quotedText: 'A championship six years in the making.',
           tier: 'primary',
           fetchStatus: 'blocked',
@@ -220,7 +232,7 @@ export function seedDemoData(db: Db): void {
       rawStatement: 'Anacortes WA temps will hit 85 F on ' + usDate(daysFromNow(-1)) + '.',
       normalizedClaim:
         'The daily high temperature recorded for Anacortes, Washington reached 85 degrees Fahrenheit or higher on ' +
-        daysFromNow(-1).slice(0, 10) +
+        dayOf(daysFromNow(-1)) +
         '.',
       statementDate: daysFromNow(-2),
       sourceContext: 'Dinner',
@@ -230,12 +242,12 @@ export function seedDemoData(db: Db): void {
       category: 'Weather/Climate',
       criteria: [
         'The daily high temperature recorded at a National Weather Service station or official weather reporting site serving Anacortes, WA is 85 degrees Fahrenheit or higher on ' +
-          daysFromNow(-1).slice(0, 10),
+          dayOf(daysFromNow(-1)),
       ],
       searchQueries: [
-        'Anacortes WA high temperature ' + daysFromNow(-1).slice(0, 10),
-        'Anacortes Washington weather history daily high ' + daysFromNow(-1).slice(0, 10),
-        'NWS Seattle observed highs Skagit County ' + daysFromNow(-1).slice(0, 10),
+        'Anacortes WA high temperature ' + dayOf(daysFromNow(-1)),
+        'Anacortes Washington weather history daily high ' + dayOf(daysFromNow(-1)),
+        'NWS Seattle observed highs Skagit County ' + dayOf(daysFromNow(-1)),
       ],
     });
     db.predictions.update(weather.id, { trend: 'unknown', updatedAt: nowIso() });

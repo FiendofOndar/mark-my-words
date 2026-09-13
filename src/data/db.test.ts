@@ -7,7 +7,7 @@ import { MIGRATIONS, migrate } from './migrations';
 import { createSqlJsDriver } from './sqlJsDriver';
 import { seedDemoData } from './seed';
 import { CriteriaFrozenError } from './repositories/predictionRepo';
-import { resolve } from '../domain/prediction';
+import { resolve, toLocalDateInput } from '../domain/prediction';
 import { tallyRecord } from '../domain/scoring';
 import { isDueForCheck } from '../domain/cadence';
 
@@ -425,5 +425,28 @@ describe('demo seed', () => {
     expect(new Date(weather.resolutionDate!).getTime()).toBeLessThan(Date.now());
     expect(isDueForCheck(weather).due).toBe(true);
     expect(weather.searchQueries.length).toBeGreaterThan(0);
+  });
+
+  it('writes the same day into the deadline, the claim and the criteria', () => {
+    // The seed built its prose with `.slice(0, 10)` on a local end-of-day
+    // instant, which is the next day's UTC date everywhere west of Greenwich.
+    // The deadline rendered as the 11th while the criteria asked about the
+    // 12th, so every check correctly reported that the day was not over yet and
+    // the claim could never settle. The suite runs in Pacific so this can fail.
+    seedDemoData(db);
+    const weather = db.predictions
+      .list()
+      .find((p) => p.rawStatement.includes('Anacortes'))!;
+
+    const deadline = toLocalDateInput(weather.resolutionDate!);
+    expect(deadline).not.toBe(weather.resolutionDate!.slice(0, 10));
+
+    for (const element of db.predictions.criteriaFor(weather.id)) {
+      expect(element.text).toContain(deadline);
+    }
+    expect(weather.normalizedClaim).toContain(deadline);
+    for (const query of weather.searchQueries) {
+      expect(query).toContain(deadline);
+    }
   });
 });
