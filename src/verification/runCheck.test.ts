@@ -351,7 +351,6 @@ describe('what the model is told', () => {
     const spy: Verifier = {
       providerId: verifier.providerId,
       modelId: verifier.modelId,
-      dailyQuota: verifier.dailyQuota,
       structure: (input) => verifier.structure(input),
       testConnection: () => verifier.testConnection(),
       check: async (input) => {
@@ -389,7 +388,6 @@ describe('what the model is told', () => {
     const spy: Verifier = {
       providerId: verifier.providerId,
       modelId: verifier.modelId,
-      dailyQuota: verifier.dailyQuota,
       structure: (input) => verifier.structure(input),
       testConnection: () => verifier.testConnection(),
       check: async (input) => {

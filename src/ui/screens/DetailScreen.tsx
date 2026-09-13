@@ -231,7 +231,7 @@ export function DetailScreen() {
                   : p.resolvedBy === 'user'
                     ? 'You called it'
                     : p.resolvedBy === 'auto'
-                      ? `Settled automatically${settledBy ? ` · ${describeSources(settledBy.evidence)}` : ''}`
+                      ? `Settled by the app${settledBy ? ` · ${describeSources(settledBy.evidence)}` : ''}`
                       : 'Settled'}
               </p>
 

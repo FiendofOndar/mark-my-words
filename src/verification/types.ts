@@ -154,8 +154,6 @@ export class VerifierError extends Error {
 export interface Verifier {
   readonly providerId: string;
   readonly modelId: string;
-  /** null when the provider publishes no daily cap. */
-  readonly dailyQuota: number | null;
   structure(input: StructureInput): Promise<StructureResult>;
   check(input: CheckInput): Promise<CheckResult>;
   /** Cheap round trip to prove the key works. */

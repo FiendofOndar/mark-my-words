@@ -26,12 +26,6 @@ const BASE = 'https://generativelanguage.googleapis.com/v1beta';
  */
 export const DEFAULT_GEMINI_MODEL = 'gemini-flash-latest';
 
-/**
- * Free-tier daily request cap. Published limits move, so this is only the
- * default for the quota meter; the real number belongs in settings.
- */
-export const GEMINI_FREE_DAILY_REQUESTS = 200;
-
 /** Longer than this and waiting inline is worse than reporting it. */
 const MAX_AUTO_RETRY_SECONDS = 70;
 
@@ -64,7 +58,6 @@ interface GeminiResponse {
 export class GeminiVerifier implements Verifier {
   readonly providerId = 'gemini';
   readonly modelId: string;
-  readonly dailyQuota = GEMINI_FREE_DAILY_REQUESTS;
 
   private readonly apiKey: string;
   private readonly fetchImpl: typeof fetch;
