@@ -114,6 +114,14 @@
       "w": 430,
       "h": 1240,
       "page": "page-checks"
+    },
+    {
+      "file": "AlphaTextAcrossAccents.dc.html",
+      "x": 0,
+      "y": 1380,
+      "w": 1360,
+      "h": 820,
+      "page": "page-checks"
     }
   ],
   "annotations": [
@@ -195,6 +203,14 @@
       "y": -60,
       "w": 400,
       "text": "Accent text \u2014 four treatments of the same panel",
+      "page": "page-checks"
+    },
+    {
+      "id": "label-alphaaccents",
+      "x": 0,
+      "y": 1320,
+      "w": 480,
+      "text": "Alpha text under four accents \u2014 flat neutral on top, reduced alpha below",
       "page": "page-checks"
     }
   ],
