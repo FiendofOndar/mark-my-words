@@ -52,13 +52,19 @@ None at the switch. The three from the Apple work are decided
 main line as a GitHub issue), EU trader status yes, Apple enrollment starts
 now.
 
-## What is next on this branch after the Apple work
+## What is next on this branch
 
-Nothing planned. The owner may ask for more research (Play-side equivalents
-of 2.10, the Gemini free-tier grounding question in Stage 0, Google's API
-terms on user keys). Stage 0 of the roadmap (`VIABILITY.md` section 5) is
-the first real work and it is verification, not code: it needs a live free
-Gemini key, which only the owner has.
+Nothing scheduled. `VIABILITY.md` section 5 is the to-do list, written as
+checkboxes so it can be worked through and ticked. Stage 0 is the live one
+and almost none of it is code: put the existing APK in front of five to ten
+people, answer the two Google questions, check the name, and let the Apple
+enrollment run. The owner does those; this branch's job is to keep the
+record straight as answers come back.
+
+If the owner asks for more work here, the likely shapes are: research on
+the two legal questions in 8.0h and 8.0i before Stage 2, Play-side
+equivalents of the Apple findings in 4.1a, or turning a Stage 0 answer
+into a document revision.
 
 ## When the branch merges
 

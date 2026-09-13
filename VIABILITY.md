@@ -521,6 +521,99 @@ for. It is the reason this item is in section 2 and not section 4.
 
 ---
 
+### 2.11 Time to value is months, which is the hardest shape there is
+
+Raised in review on 2026-09-13. The spec saw half of it (risk table: "App
+is opened rarely enough that checks never run", rated Medium, answered with
+"the three notification triggers are the only thing pulling the user back")
+and nothing in this document addressed it until now.
+
+**The problem.** A new user wipes the seed, records their first real claim,
+pulls, and gets `no_change`, because that is what the check prompt tells the
+model to return when nothing has happened. If the claim is due in three
+months the cadence gate then has nothing to say for fourteen days
+(`src/domain/cadence.ts`). The thing that makes this app different from the
+twenty self-graded trackers in 4.1, a verdict with citations, arrives in a
+season. Every retention benchmark quoted in 4.3 comes from products that
+pay off in the first session.
+
+This is not a store problem or a cost problem, and no amount of either
+fixes it. It is the reason an install becomes a deletion in week three.
+
+**The cheapest answer is already in the codebase.** Backfilled predictions
+resolve immediately, because the events have happened. An onboarding that
+invites someone to record something already settled ("what did you call
+that turned out right?") produces a real verdict, with real citations, in
+the first five minutes, and the existing rule that retroactive entries
+never count toward a hit rate keeps the record honest. One seeded example
+already does this work on a fresh install; the gap is that the user's own
+first claim does not.
+
+Other levers, none costed: make the weekly digest say something when
+nothing resolved; let a user follow a public figure's claim that resolves
+soon; lead the store screenshots with a settled verdict rather than an
+empty feed.
+
+**What to measure.** Day-three and week-three opens, and how many days pass
+between a user's first capture and their first real verdict. Section 7 has
+the rows. The demand test in Stage 0 is the first chance to see it.
+
+### 2.12 Publishing a judgment about a named person
+
+Raised in review on 2026-09-13. Nothing in the plan had looked at it.
+
+Authors are first-class records and can be real named people
+(`AuthorKind` is `person | outlet | self`), they accumulate a scored
+record, and the plan adds public receipt pages (2.7). Put together, that
+publishes an AI-generated judgment about a named private individual who
+never consented and cannot be contacted. Two consequences, neither
+hypothetical:
+
+- **Data protection.** Releasing to the EU from the start (section 10)
+  means those people are data subjects. A named third party has access and
+  erasure rights over data about them, and there is no mechanism to serve
+  either. A private on-device ledger is defensible; a public page is a
+  different thing.
+- **Defamation.** A wrong verdict about a named person on a public URL is
+  a claim the owner published. Section 7 records two wrong verdicts
+  already, both caught by hand.
+
+**The cheap version, to decide before the receipt page is built rather
+than after.** Hosted receipts show a third-party author by initials or a
+label the sharer chooses, unless the author is the sharer or a public
+figure. The receipt page carries a takedown contact. Nothing changes
+on device, where the ledger stays private and the full name is fine.
+
+Not researched: whether the fair-comment and public-figure defenses that
+publishers rely on reach a one-person app, and what a takedown obligation
+looks like in practice. Worth an hour before Stage 2, not before Stage 1.
+
+### 2.13 The things that do not exist yet
+
+Checked on 2026-09-13 against the repository. Each is small; each blocks
+something.
+
+- **No LICENSE file**, in a public repository. Until there is one, nobody
+  can legally reuse the code and the owner has not decided what is being
+  published. One decision, one file.
+- **No privacy policy and no terms of service.** Both stores require the
+  policy, with a URL in the listing and a link in the app; the terms are
+  what let the owner set expectations about verdicts being wrong. Neither
+  exists in any form.
+- **No support contact anywhere.** A grep for `mailto:`, `support@` and
+  `contact` across `src/` returns nothing. Both stores require a way to
+  reach the developer, and the EU trader details (4.1a) publish one
+  anyway.
+- **The pool has no home.** It is specified in 2.1 and has no repository,
+  no chosen host, no deploy path, no monitoring, and nobody on call. It
+  is a live service that spends the owner's money and, when it is down,
+  breaks the default path for every user without a key.
+- **The name was never checked.** "Mark My Words" is a common phrase.
+  Check both stores for a conflict and secure a domain, which is needed
+  for the policy page and the receipt pages regardless.
+
+---
+
 ## 3. Cost structure
 
 ### 3.1 What one check costs
@@ -1114,72 +1207,122 @@ table above is the fallback and its arithmetic applies.
 
 ## 5. Roadmap with gates
 
-Each stage has an entry condition and an exit condition. Nothing in a later
-stage starts before the earlier stage's exit condition is met, because every
-stage's design depends on a number the previous stage produces.
+The to-do list. Each stage has an entry condition and an exit condition,
+and nothing in a later stage starts before the earlier stage's exit is met,
+because every stage's design depends on a number the previous one produces.
+Check the boxes as they land; the boxes are the record, so tick them here
+rather than remembering.
 
-### Stage 0: the two questions (before any other work)
+**On the estimates.** Given in evenings, where an evening is two or three
+hours with an assistant doing the typing. They are guesses by the author of
+this document, not measurements, and the honest error bar is half to
+double. They are here because their absence was itself a gap: a plan with
+no hours in it reads like a company roadmap and gets worked like one, and
+this is one person with a full-time job. If a stage looks too long, that is
+the estimate doing its job. Cut scope rather than the estimate.
+
+### Stage 0: the questions that could change the plan (days, not evenings)
 
 Entry: this document adopted on `main`.
 
-- Confirm, against Google's own pages or a live free key, that Search
-  grounding works on the free tier and what the daily limit is today.
-- Read the Gemini API terms for what a third-party app may do with a key
-  the user supplies.
+- [ ] **Put the current APK in front of five to ten people.** The build
+      already exists and the owner's own key or a shared one covers it. No
+      store work, no server, no polish. Watch two things: what they do in
+      the first ten minutes, and whether they open it again in week three
+      (2.11). This is the only item here that can end the project, and it
+      is the cheapest one in the document. *A few hours of work, two to
+      three weeks of calendar.*
+- [ ] Confirm, against Google's own pages or a live free key, that Search
+      grounding works on the free tier and what the daily limit is today
+      (8.0). *One evening.*
+- [ ] Read the Gemini API terms for what a third-party app may do with a
+      key the user supplies (8.0a). *Same evening.*
+- [ ] Check both stores for a name conflict with "Mark My Words" and
+      secure a domain (2.13). *One hour.*
+- [ ] Start the Apple enrollment (4.1a), which runs in the background
+      through everything below. *One evening, then waiting.*
 
-Exit: both answered and recorded in section 8. A "no" on either sends the
-plan to the fallback in 4.4 before a line of store work is written.
+Exit: the two Google questions answered and recorded in section 8; the
+demand test run and what it showed written down. A "no" on either Google
+question sends the plan to the fallback in 4.4 before a line of store work
+is written. A flat result on the demand test is a reason to fix 2.11
+before building anything else, not a reason to build the store version and
+hope.
 
 ### Stage 1: the closed test (to the first outside users)
 
-Entry: Stage 0 exit.
+Entry: Stage 0 exit. *Roughly 25 to 35 evenings of build, plus a 14-day
+closed test that runs while the rest continues. Call it two to three
+months of evenings.*
 
-Build:
-- The keyless layer as a deliberate manual-first flow, replacing the regex
-  drafter's apologies with a good form (2.1 part 1).
-- The guided key flow (2.1 part 2), with completion counted.
-- The community pool: one monthly counter capped at the free allowance,
-  per-device daily and lifetime caps, kill switch, a line per call,
-  reviewer allowance, BYOK bypass (2.1 part 3).
-- Release signing with a stable upload key in CI; `versionCode` from CI;
-  `versionName` from `package.json` (2.5).
-- Privacy policy page and the consent screen before the first model call
-  (2.6).
-- JSON export and import through the share sheet (2.2 step 1).
-- Crash reporting, opt-in, no content (2.4).
-- Play Console account ($25), listing, data safety form; closed testing
-  track with at least 12 testers opted in for 14 continuous days, which is
-  what a personal account created after November 2023 needs before it can
-  apply for production (4.1a, snippet; read the help page first).
-- Fix the stale README (section 8).
+Product:
+- [ ] The keyless layer as a deliberate manual-first flow, replacing the
+      regex drafter's apologies with a good form (2.1 part 1). *4 to 6.*
+- [ ] The guided key flow (2.1 part 2), with completion counted. *3 to 4.*
+- [ ] A first-run path that produces a real verdict in the first five
+      minutes, most likely by inviting a backfilled claim (2.11). *2 to 4.*
+
+Infrastructure:
+- [ ] Decide where the pool lives: repository, host, deploy, monitoring,
+      and what happens when it is down (2.13). *1, and it gates the next
+      item.*
+- [ ] The community pool: one monthly counter capped at the free
+      allowance, per-device daily and lifetime caps, kill switch, a line
+      per call, reviewer allowance, BYOK bypass (2.1 part 3). *6 to 10.*
+- [ ] Release signing with a stable upload key in CI; `versionCode` from
+      CI; `versionName` from `package.json` (2.5). *2.*
+- [ ] Crash reporting, opt-in, no content (2.4). *2.*
+- [ ] JSON export and import through the share sheet (2.2 step 1). *3 to 4.*
+
+Paperwork, none of it optional:
+- [ ] LICENSE file (2.13). *One decision.*
+- [ ] Privacy policy page, hosted, linked in the listing and in the app
+      (2.6). *1 to 2.*
+- [ ] Terms of service, including what the app does not promise about a
+      verdict (2.13). *1.*
+- [ ] A support contact that reaches the owner, in the app and in the
+      listing (2.13). *An hour.*
+- [ ] The consent screen before the first model call, on every path (2.6).
+      *1 to 2.*
+- [ ] Play Console account ($25), identity verification, listing, data
+      safety form; closed testing track with at least 12 testers opted in
+      for 14 continuous days, which is what a personal account created
+      after November 2023 needs before it can apply for production (4.1a,
+      snippet; read the help page first). *3 to 4, plus the 14 days.*
+- [ ] Fix the stale README (section 8). *1.*
 
 Exit: the closed test has run its period; the pool has logged a month of
 real checks; section 7 has values for queries per check, tokens per check,
-the `no_change` share, key-flow completion, and the day of the month the
-pool ran out.
+the `no_change` share, key-flow completion, the day of the month the pool
+ran out, and the first retention numbers from 2.11.
 
 Predicted outcome, so the stage is testable: at the end of it the provider
 bill and the pool's own totals agree to within a few percent, the observed
 queries per check is a number rather than a guess, and more than half of
 the testers who start the key flow finish it. If the last one fails, the
-key flow is the next piece of work, not the unlock.
+key flow is the next piece of work, not anything in Stage 2.
 
-### Stage 2: the unlock and the link (first hundred users)
+### Stage 2: the purchase and the link (first hundred users)
 
-Entry: Stage 1 exit.
+Entry: Stage 1 exit. *Roughly 17 to 26 evenings.*
 
-Build:
-- The hosted receipt page (2.7): static, public, generated on share, with
-  the store link under it. The supporter unlock's custom handle rides on it.
-- The supporter unlock: one non-consumable in-app purchase through
-  RevenueCat's Capacitor SDK or the store directly (4.1a), gating only what
-  4.2 lists.
-- The pre-check (3.5), sized from the observed `no_change` share, to
-  stretch the pool and keep free-tier keys under their daily limit.
-- The standing fixture run and the wrong-verdict flag (2.9).
+- [ ] Decide how a hosted receipt names a third-party author, before the
+      page exists (2.12). *An hour of reading, one decision.*
+- [ ] The hosted receipt page (2.7): static, public, generated on share,
+      with the store link under it and a takedown contact on it. The
+      supporter purchase's custom handle rides on it. *5 to 8.*
+- [ ] The supporter purchase: one non-consumable in-app purchase through
+      RevenueCat's Capacitor SDK or the store directly (4.1a), gating only
+      what 4.2 lists, with a working Restore Purchases button. *4 to 6.*
+- [ ] Check the EU right of withdrawal on a digital purchase before it
+      ships (8.0h). *An hour.*
+- [ ] The pre-check (3.5), sized from the observed `no_change` share, to
+      stretch the pool and keep free-tier keys under their daily limit.
+      *5 to 8.*
+- [ ] The standing fixture run and the wrong-verdict flag (2.9). *3 to 4.*
 
 Exit: the first receipts have been opened by people who were not the
-sharer; the first unlocks have been bought; the pool's exhaustion day has
+sharer; the first purchases have been made; the pool's exhaustion day has
 moved later, not earlier, after the pre-check.
 
 ### Stage 3: durability (first thousand)
@@ -1187,26 +1330,25 @@ moved later, not earlier, after the pre-check.
 Entry: Stage 2 exit and either the median ledger size or the first jank
 report crosses the threshold in section 7.
 
-Build:
-- Native SQLite driver behind `SqlDriver` (2.3).
-- Accounts and sync, behind the unlock, using one of the options in 3.4
-  (2.2 step 2). Email-only or no third-party login, to stay clear of
-  Apple's 4.8.
-- A second provider behind the `Verifier` port on the pool, so a model
-  retirement or a price change is a config change, not an outage. BYOK
-  users choose their own.
+- [ ] Native SQLite driver behind `SqlDriver` (2.3).
+- [ ] Accounts and sync, behind the purchase, using one of the options in
+      3.4 (2.2 step 2). Email-only or no third-party login, to stay clear
+      of Apple's 4.8.
+- [ ] A second provider behind the `Verifier` port on the pool, so a model
+      retirement or a price change is a config change, not an outage. BYOK
+      users choose their own.
 
 Exit: a user has moved phones and kept the ledger; a provider switch has
 been rehearsed on the pool.
 
 ### Stage 4: reach (beyond)
 
-Entry: Stage 3 exit and unlocks covering fixed costs for three consecutive
-months.
+Entry: Stage 3 exit and purchases covering fixed costs for three
+consecutive months.
 
-Build:
-- iOS (2.8), with the Share Extension verified first.
-- Public author pages only if there is demand from the hosted receipts.
+- [ ] iOS (2.8), with the Share Extension verified first.
+- [ ] Public author pages only if there is demand from the hosted
+      receipts, and only after 2.12 is settled.
 
 ---
 
@@ -1238,6 +1380,9 @@ way `CLAUDE.md` asks for partial work to be reported.
   Xcode's report; no UIWebView symbols in the archive.
 - Crash reporting reports nothing that identifies a person or quotes a
   prediction.
+- A support contact still reaches somebody, and the privacy policy and
+  terms are still hosted and still linked from the listing and the app.
+- Hosted receipts still name third-party authors the way 2.12 decided.
 - Section 7 updated with the month's numbers.
 
 ### Monthly, while there are users
@@ -1307,6 +1452,9 @@ permission to guess. Each cell says when and how it was measured.
 | `no_change` share of checks | | pool log or check table | sizes the pre-check (3.5) |
 | Unlocks a month | | store console | against about 50 to 70 a year (4.4) |
 | Receipts shared, and opened by someone else | | client counter; receipt page log | growth lever |
+| Day-three opens, share of installs | | client counter, from Stage 0's demand test | the 2.11 problem, seen early |
+| Week-three opens, share of installs | | client counter | under a quarter: fix 2.11 before building more |
+| Days from a user's first capture to their first real verdict | | client counter | over a week: the first-run path is not working |
 | Model version the alias resolves to | | pool log `modelVersion` | on change, re-verify 3.1 |
 | Wrong verdicts | 2, both caught by the owner (HANDOFF.md) | wrong-verdict flag (2.9), fixture run | any fixture mismatch: stop and diagnose |
 | Fixture run agreement | 6 of 6 on the last live pull (HANDOFF.md, 2026-09-13) | scheduled run (2.9) | any mismatch |
@@ -1354,6 +1502,13 @@ Ordered by how much of the plan rests on them.
    by humans is from search snippets; the terms page is blocked here. It
    decides the wording of the consent screen and whether the Play form says
    "shared". Read the page.
+
+0h. **The EU right of withdrawal on a digital purchase.** Releasing to the
+   EU with a paid item means EU consumer law applies to it. Not
+   researched. One hour before the purchase ships (Stage 2).
+0i. **Whether a one-person app can rely on the fair-comment and
+   public-figure defenses a publisher would** (2.12), and what a takedown
+   obligation looks like in practice. Not researched. Before Stage 2.
 
 1. **Which model family `gemini-flash-latest` resolves to today.** The
    billing schemes themselves are now sourced (3.1, fetched): the 3.x
