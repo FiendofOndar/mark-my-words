@@ -35,6 +35,12 @@ describe('validateSources', () => {
     expect(result[0]!.fetchStatus).toBe('unreachable');
   });
 
+  it('marks a source missing when the host answered that there is no page', async () => {
+    const s = source();
+    const result = await validateSources([s], new FakeFetcher({ [s.url]: { kind: 'missing' } }));
+    expect(result[0]!.fetchStatus).toBe('missing');
+  });
+
   it('marks a source blocked rather than unreachable when it was refused', async () => {
     const s = source();
     const result = await validateSources([s], new FakeFetcher({ [s.url]: { kind: 'blocked' } }));

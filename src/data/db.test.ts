@@ -146,7 +146,11 @@ describe('migrations', () => {
       `INSERT INTO evidence (id, check_id, url, fetch_status, created_at, updated_at)
        VALUES ('e3', 'c1', 'https://weather.gov/z', 'not_checked', '2026-01-01', '2026-01-01')`,
     );
-    expect(driver.select('SELECT id FROM evidence')).toHaveLength(2);
+    driver.run(
+      `INSERT INTO evidence (id, check_id, url, fetch_status, created_at, updated_at)
+       VALUES ('e5', 'c1', 'https://weather.gov/v', 'missing', '2026-01-01', '2026-01-01')`,
+    );
+    expect(driver.select('SELECT id FROM evidence')).toHaveLength(3);
     expect(() =>
       driver.run(
         `INSERT INTO evidence (id, check_id, url, fetch_status, created_at, updated_at)
@@ -414,6 +418,25 @@ describe('what a check cost', () => {
     write(before, ['d', 'e']);
 
     expect(db.quota.searchesThisMonth(at)).toBe(3);
+  });
+
+  it('does not count a seeded sample as spend', () => {
+    const id = predictionFor();
+    db.checks.create({
+      predictionId: id,
+      trigger: 'pull',
+      provider: 'demo',
+      model: 'demo',
+      proposedVerdict: 'no_change',
+      proposedTrend: null,
+      modelConfidence: null,
+      summary: 's',
+      outcome: 'no_change',
+      tokensUsed: 999,
+      searchQueries: ['a', 'b'],
+    });
+    expect(db.quota.searchesThisMonth()).toBe(0);
+    expect(db.quota.tokensUsed()).toEqual({ allTime: 0, thisMonth: 0 });
   });
 
   it('totals the tokens the provider reported, by instant for the month', () => {

@@ -205,8 +205,12 @@ export type SourceTier = 'primary' | 'major_outlet' | 'secondary' | 'social';
 /**
  * What the app learned by opening a cited link itself: whether it goes
  * anywhere. `ok` means the page answered, `blocked` means the host answered
- * but refused the app (a bot wall, a paywall, a timeout), `unreachable` means
- * there is no page there. Only the last is evidence of an invented citation.
+ * but refused the app (a bot wall, a paywall, a timeout), `missing` means the
+ * host answered that there is no page at that address, `unreachable` means
+ * there is no such host. Only the last is evidence of an invented citation:
+ * a real publisher with a rotted or misremembered deep link is `missing`,
+ * and it still counts as a publisher the model found, which is what
+ * corroboration is counting.
  *
  * There used to be two more, for a page that loaded but did not carry the
  * quoted sentence, or carried its figures without its wording. Neither reached
@@ -216,7 +220,7 @@ export type SourceTier = 'primary' | 'major_outlet' | 'secondary' | 'social';
  * `not_checked` is for evidence that never went through the fetch stage at all
  * - seeded samples, imported records. It is not `blocked`: nobody tried.
  */
-export type FetchStatus = 'ok' | 'unreachable' | 'blocked' | 'not_checked';
+export type FetchStatus = 'ok' | 'blocked' | 'missing' | 'unreachable' | 'not_checked';
 
 export interface Evidence {
   id: Uuid;

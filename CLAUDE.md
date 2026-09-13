@@ -98,7 +98,7 @@ summarized context, read this before acting.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 323 tests, all of them fast
+npm test           # 326 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -212,9 +212,12 @@ is for.
   single dead link used to gate the check, and it twice stopped a correct
   verdict backed by two pages that did resolve. A model that found real pages is
   not inventing citations; it got one deep link wrong. The gate fires only when
-  every cited source is unreachable. A dead link still costs its place in the
-  independent-source count, because a page that does not exist corroborates
-  nothing. `blocked` gates nothing.
+  no cited page could be opened at all. `blocked` gates nothing.
+- **`missing` is not `unreachable`.** A real host answering "no page here" is
+  a rotted or misremembered deep link on a publisher that exists; a host that
+  does not exist is what an invented citation looks like. Only the second
+  costs its place in the independent-source count. Two rotted deep links on
+  Return of the King once held a verdict that three agreeing sources carried.
 - **Reporting comes after the event, so a late publication date is not a
   problem.** A rule once required every source to be published before the
   deadline the claim named. A Sunday night game is written up on Monday

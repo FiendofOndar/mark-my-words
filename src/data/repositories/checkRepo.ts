@@ -223,6 +223,12 @@ export class QuotaRepo {
     return Number(rows[0]?.calls ?? 0);
   }
 
+  /*
+   * Seeded sample checks carry `provider: 'demo'` and are excluded from both
+   * totals below. Settings read "2 searches run this month" on a fresh
+   * install with zero real checks, because the Dodgers sample carries two.
+   */
+
   /**
    * Searches run this calendar month, which is what a grounded check is
    * actually billed in: Gemini charges per search query, not per prompt, so a
@@ -241,6 +247,7 @@ export class QuotaRepo {
     const rows = this.db.select<{ search_queries: string }>(
       `SELECT search_queries FROM checks
         WHERE deleted_at IS NULL AND search_queries IS NOT NULL
+          AND provider <> 'demo'
           AND ran_at >= ? AND ran_at < ?`,
       [start, end],
     );
@@ -272,7 +279,7 @@ export class QuotaRepo {
       `SELECT COALESCE(SUM(tokens_used), 0) AS all_time,
               COALESCE(SUM(CASE WHEN ran_at >= ? AND ran_at < ? THEN tokens_used ELSE 0 END), 0) AS this_month
          FROM checks
-        WHERE deleted_at IS NULL AND tokens_used IS NOT NULL`,
+        WHERE deleted_at IS NULL AND tokens_used IS NOT NULL AND provider <> 'demo'`,
       [start, end],
     );
     return { allTime: Number(rows[0]?.all_time ?? 0), thisMonth: Number(rows[0]?.this_month ?? 0) };

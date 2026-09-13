@@ -31,7 +31,9 @@ export class CapacitorPageFetcher implements PageFetcher {
       });
 
       const status = response.status;
-      if (status === 404 || status === 410) return { kind: 'unreachable' };
+      // The host answered. A 404 on a real publisher is a deep link the model
+      // got wrong, not an invented outlet; an invented outlet has no host.
+      if (status === 404 || status === 410) return { kind: 'missing' };
       if (status === 401 || status === 403 || status === 429) return { kind: 'blocked' };
       if (status < 200 || status >= 400) return { kind: 'blocked' };
 

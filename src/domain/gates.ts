@@ -59,7 +59,11 @@ export const CONFIDENT_AT = 70;
 export function countIndependentSources(sources: SourceAssessment[]): number {
   const seen = new Set<string>();
   for (const source of sources) {
-    // A page that does not exist corroborates nothing.
+    // A host that does not exist corroborates nothing. A real host with no
+    // page at the cited address is still a publisher the model found: a
+    // rotted or misremembered deep link, which on the first six-fixture run
+    // held a verdict backed by three agreeing sources because two of the
+    // three deep links had gone. Corroboration counts publishers.
     if (source.fetchStatus === 'unreachable') continue;
     seen.add(registrableDomain(source.url) ?? source.url.toLowerCase());
   }
@@ -125,9 +129,11 @@ function collectGates(input: AssessmentInput): string[] {
 
   // Fabrication looks like nothing resolving, not like something failing. A
   // model that found real pages is not inventing citations; it got one deep
-  // link wrong, which the log shows and which no longer counts as corroboration.
-  if (input.sources.length > 0 && input.sources.every((s) => s.fetchStatus === 'unreachable')) {
-    gates.push('No cited source resolved, which is how invented citations look.');
+  // link wrong, which the log shows. The gate is for a check where no cited
+  // page could be opened at all: every host missing, or every page gone.
+  const opened = input.sources.some((s) => s.fetchStatus === 'ok' || s.fetchStatus === 'blocked');
+  if (input.sources.length > 0 && !opened) {
+    gates.push('No cited page could be opened, which is how invented citations look.');
   }
 
   /*

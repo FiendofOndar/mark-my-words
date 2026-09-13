@@ -722,7 +722,8 @@ const TIER_RANK: Record<string, number> = {
 /** The one citation to put a verdict's name on: confirmed first, then tier. */
 function bestSource(evidence: Evidence[]): Evidence | null {
   const ranked = [...evidence].sort((a, b) => {
-    const confirmed = Number(b.fetchStatus !== 'unreachable') - Number(a.fetchStatus !== 'unreachable');
+    const opens = (e: Evidence) => e.fetchStatus === 'ok' || e.fetchStatus === 'blocked';
+    const confirmed = Number(opens(b)) - Number(opens(a));
     if (confirmed !== 0) return confirmed;
     return (TIER_RANK[a.tier ?? 'social'] ?? 3) - (TIER_RANK[b.tier ?? 'social'] ?? 3);
   });
