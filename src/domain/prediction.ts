@@ -149,12 +149,12 @@ export const DEFAULT_LATE_WATCH: LateWatchPeriod = '3y';
  * Late watch is for "X will happen by Y" claims that land after Y. A claim
  * pinned to a date, like the high temperature on a given day, cannot come true
  * later, and every miss used to get three years of monthly checks anyway,
- * each one a paid call asking the same question. Event-shaped claims are the
- * ones that can still happen; dated ones default to no watch, and a person
- * can still turn it on for a particular prediction.
+ * each one a paid call asking the same question. `canHappenLate` is set at
+ * intake and editable on the review card; the deadline type alone could not
+ * tell "Bitcoin by the end of 2024" from "85F on September 12".
  */
-export function defaultLateWatch(p: Pick<Prediction, 'deadlineType'>): LateWatchPeriod {
-  return p.deadlineType === 'event' ? DEFAULT_LATE_WATCH : 'never';
+export function defaultLateWatch(p: Pick<Prediction, 'canHappenLate'>): LateWatchPeriod {
+  return p.canHappenLate ? DEFAULT_LATE_WATCH : 'never';
 }
 
 /**

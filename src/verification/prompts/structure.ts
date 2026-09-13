@@ -27,6 +27,8 @@ Rules that matter:
 
 8. no_check_before is the earliest date the claim could plausibly resolve. It saves pointless searching. Leave it null when the claim could resolve at any time.
 
+9. can_happen_late is whether the claim could still come true AFTER its deadline. "Bitcoin passes $100k before the end of 2024" can happen in 2025, later than promised but still the thing that was called: true. "Anacortes reaches 85F on September 12" and "the Eagles win Super Bowl LIX" are pinned to one day or one event and can never happen on another: false. Event-shaped claims are almost always true. A late occurrence never changes the verdict; it earns a separate badge, so this only decides whether the app keeps looking.
+
 Return only the JSON object. No commentary.`;
 
 export function buildStructurePrompt(input: StructureInput): string {
@@ -69,6 +71,7 @@ export const STRUCTURE_RESPONSE_SCHEMA = {
     verifiability_reasoning: { type: 'STRING' },
     search_queries: { type: 'ARRAY', items: { type: 'STRING' } },
     no_check_before: { type: 'STRING', nullable: true },
+    can_happen_late: { type: 'BOOLEAN' },
     category: { type: 'STRING', enum: [...CATEGORIES] },
     tags: { type: 'ARRAY', items: { type: 'STRING' } },
     author_guess: { type: 'STRING', nullable: true },
@@ -105,6 +108,7 @@ export const STRUCTURE_RESPONSE_SCHEMA = {
     'verifiability_reasoning',
     'search_queries',
     'no_check_before',
+    'can_happen_late',
     'category',
     'tags',
     'author_guess',

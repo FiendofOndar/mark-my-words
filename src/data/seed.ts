@@ -301,6 +301,7 @@ export function seedDemoData(db: Db): void {
     const late = db.predictions.create({
       authorId: economist.id,
       rawStatement: 'The AI bubble will crash within 6 months.',
+      canHappenLate: true,
       normalizedClaim:
         'An AI-weighted equity index falls 30% or more from its peak within six months.',
       statementDate: '2024-01-15T12:00:00.000Z',
@@ -331,6 +332,7 @@ export function seedDemoData(db: Db): void {
     const hit = db.predictions.create({
       authorId: self.id,
       rawStatement: 'Bitcoin passes $100k before the end of 2024.',
+      canHappenLate: true,
       normalizedClaim: 'Bitcoin trades above $100,000 USD before December 31, 2024.',
       statementDate: '2024-03-01T12:00:00.000Z',
       deadlineType: 'fixed_date',

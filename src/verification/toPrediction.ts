@@ -52,6 +52,7 @@ export function structuredToDraft(
     forceManual: false,
     searchQueries: s.searchQueries,
     noCheckBefore: s.noCheckBefore ? startOfLocalDay(s.noCheckBefore) : null,
+    canHappenLate: s.canHappenLate,
     category: s.category,
     stakes: null,
     criteria: s.criteriaElements,

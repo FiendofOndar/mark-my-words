@@ -48,6 +48,8 @@ export interface NewPrediction {
   forceManual?: boolean;
   searchQueries?: string[];
   noCheckBefore?: string | null;
+  /** Defaults to true for event-shaped claims, false for dated ones. */
+  canHappenLate?: boolean;
 
   category: Category;
   isRetroactive?: boolean;
@@ -184,6 +186,7 @@ export class PredictionRepo {
       forceManual: input.forceManual ?? false,
       searchQueries: input.searchQueries ?? [],
       noCheckBefore: input.noCheckBefore ?? null,
+      canHappenLate: input.canHappenLate ?? input.deadlineType === 'event',
       status: input.status ?? 'open',
       trend: (input.status ?? 'open') === 'open' ? 'unknown' : null,
       resolvedAt: null,
@@ -436,6 +439,7 @@ export class PredictionRepo {
         forceManual: input.forceManual ?? false,
         searchQueries: input.searchQueries ?? [],
         noCheckBefore: input.noCheckBefore ?? null,
+        canHappenLate: input.canHappenLate ?? input.deadlineType === 'event',
         category: input.category,
         isRetroactive: input.isRetroactive ?? false,
         stakes: input.stakes ?? null,

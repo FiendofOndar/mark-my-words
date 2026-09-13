@@ -43,6 +43,8 @@ export interface StructuredPrediction {
   verifiabilityReasoning: string;
   searchQueries: string[];
   noCheckBefore: string | null;
+  /** Whether the claim could still come true after its deadline. */
+  canHappenLate: boolean;
 
   category: Category;
   tags: string[];

@@ -106,6 +106,7 @@ export function toPrediction(r: Row): Prediction {
     forceManual: bool(r.force_manual),
     searchQueries: jsonArray(r.search_queries),
     noCheckBefore: nstr(r.no_check_before),
+    canHappenLate: bool(r.can_happen_late),
 
     status: str(r.status) as PredictionStatus,
     trend: (nstr(r.trend) as Trend | null) ?? null,
@@ -226,6 +227,7 @@ export const PREDICTION_COLUMNS: Record<keyof Prediction, string> = {
   forceManual: 'force_manual',
   searchQueries: 'search_queries',
   noCheckBefore: 'no_check_before',
+  canHappenLate: 'can_happen_late',
   status: 'status',
   trend: 'trend',
   resolvedAt: 'resolved_at',

@@ -309,6 +309,18 @@ ALTER TABLE evidence_v8 RENAME TO evidence;
 CREATE INDEX idx_evidence_check ON evidence(check_id);
 `,
   },
+  /*
+   * Whether a claim can still come true after its deadline. Backfilled from
+   * the rule it replaces: event-shaped claims could, dated ones could not.
+   */
+  {
+    version: 9,
+    name: 'can_happen_late',
+    sql: `
+ALTER TABLE predictions ADD COLUMN can_happen_late INTEGER NOT NULL DEFAULT 0;
+UPDATE predictions SET can_happen_late = 1 WHERE deadline_type = 'event';
+`,
+  },
 ];
 
 export function currentVersion(driver: SqlDriver): number {

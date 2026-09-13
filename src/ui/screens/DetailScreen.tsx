@@ -623,7 +623,10 @@ export function DetailScreen() {
           </div>
         )}
 
-        {p.status === 'miss' && !p.lateHitAt && (
+        {/* Only where the claim could still come true. A day's high temperature
+            cannot happen later, and offering to log that it did was the app
+            asking a question with no possible answer. */}
+        {p.status === 'miss' && !p.lateHitAt && p.canHappenLate && (
           <div className="mt-4 rounded border border-late/40 bg-late/5 p-3">
             <p className="text-[13px] text-ink-dim">It happened anyway. When?</p>
             <div className="mt-2 flex flex-wrap items-center gap-2">
