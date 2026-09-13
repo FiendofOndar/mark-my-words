@@ -16,7 +16,22 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // One key for every debug build, checked in, so a new APK installs over
+    // the old one and keeps the database and the saved API key. Gradle's
+    // default is a per-machine debug key, which on CI is a fresh one per run.
+    signingConfigs {
+        debug {
+            storeFile file('../debug.keystore')
+            storeType 'PKCS12'
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
