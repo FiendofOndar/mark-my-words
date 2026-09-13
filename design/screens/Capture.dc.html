@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,600;1,600&family=Oswald:wght@500;600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .screen {
+      --ground: oklch(0.145 0.012 270);
+      --surface: oklch(0.19 0.012 270);
+      --rule: oklch(0.26 0.01 270);
+      --ink: oklch(0.96 0.01 90);
+      --ink-dim: oklch(0.68 0.01 90);
+      --ink-faint: oklch(0.52 0.01 270);
+      --accent: #8a8cd8;
+      /* Fixed. "The app needs you" is semantic, so it never follows the accent. */
+      --attention: #dba456;
+      --glow: color-mix(in srgb, #8a8cd8 20%, transparent);
+      --prose: oklch(0.97 0.01 90 / 0.82);
+      --prose-dim: oklch(0.97 0.01 90 / 0.6);
+      --prose-faint: oklch(0.97 0.01 90 / 0.46);
+      --hit: #5aa87a;
+      --miss: oklch(0.66 0.15 27);
+      --partial: #d29a43;
+
+      box-sizing: border-box; overflow: hidden;
+      background:
+        radial-gradient(ellipse 940px 760px at 50% 34%, var(--glow), transparent 78%),
+        var(--ground);
+      color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex; flex-direction: column;
+    }
+    .hdr { padding: 42px 18px 12px 18px; border-bottom: 1px solid var(--rule);
+      display: flex; align-items: flex-start; gap: 10px; flex: none; }
+    .hdr .ttl { flex: 1; min-width: 0; }
+    .hdr h1 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 20px;
+      margin: 0; letter-spacing: 0.4px; }
+    .hdr .sub { font-size: 10.5px; color: var(--ink-faint); margin-top: 3px; letter-spacing: 0.3px; }
+    .hdr .act { font-size: 11.5px; color: var(--miss); flex: none; padding-top: 3px; }
+    .back { width: 22px; height: 22px; flex: none; color: var(--ink-dim); margin-left: -4px; }
+
+    .pad { padding: 16px 18px; }
+    .lbl { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 11px;
+      letter-spacing: 1.4px; text-transform: uppercase; color: var(--ink-faint); display: block; }
+    .hint { font-size: 10.5px; color: var(--prose-faint); line-height: 1.45; }
+    .prose { font-size: 11.5px; color: var(--prose-dim); line-height: 1.5; }
+    .input { border: 1px solid var(--rule); border-radius: 8px; background: oklch(0.96 0.01 90 / 0.04);
+      padding: 10px 11px; font-size: 12.5px; color: var(--ink); font-family: inherit;
+      display: block; width: 100%; box-sizing: border-box; }
+    .input.ph { color: var(--ink-faint); }
+    .btn { border-radius: 9px; text-align: center; font-family: 'Oswald', sans-serif;
+      font-weight: 600; letter-spacing: 0.6px; display: block; }
+    .btn.primary { background: var(--accent); color: oklch(0.18 0.02 270); padding: 12px; font-size: 15px; }
+    .btn.secondary { border: 1px solid var(--rule); color: var(--ink-dim); padding: 9px; font-size: 13px; }
+    .glass { border-radius: 13px; background: oklch(0.94 0.01 90 / 0.07);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid oklch(0.9 0.01 90 / 0.13); box-shadow: 0 16px 34px oklch(0 0 0 / 0.3); }
+    .quote { font-family: 'Cormorant', serif; font-weight: 600; line-height: 1.24; margin: 0; }
+    .tag { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 11.5px; letter-spacing: 0.8px;
+      padding: 3px 8px; border-radius: 3px; border: 1.5px solid; flex: none;
+      min-width: 68px; box-sizing: border-box; text-align: center; }
+    .tag.hit { color: var(--hit); border-color: color-mix(in srgb, var(--hit) 55%, transparent); }
+    .tag.miss { color: var(--miss); border-color: color-mix(in srgb, var(--miss) 55%, transparent); }
+    .tag.partial { color: var(--partial); border-color: color-mix(in srgb, var(--partial) 55%, transparent); }
+    .tag.open { color: var(--ink-dim); border-color: var(--rule);
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+    .row { display: flex; align-items: center; gap: 12px; padding: 13px 18px; border-top: 1px solid var(--rule); }
+    .author { font-size: 9.5px; text-transform: uppercase; letter-spacing: 1.2px;
+      color: var(--ink-faint); margin-bottom: 3px; }
+    .claim { font-family: 'Cormorant', serif; font-weight: 600; font-size: 17px; line-height: 1.2; margin: 0 0 4px 0; }
+    .meta { font-size: 9.5px; color: var(--ink-faint); letter-spacing: 0.4px; }
+
+    .screen.capture { width: 375px; height: 812px; }
+    .capture .fields { padding: 16px 18px; display: flex; flex-direction: column; gap: 16px; }
+    .capture textarea.input { height: 96px; font-family: 'Cormorant', serif; font-weight: 600;
+      font-size: 19px; line-height: 1.26; }
+    .capture .two { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+    .capture .lbl + .hint { margin: 2px 0 6px 0; }
+    .capture .lbl { margin-bottom: 6px; }
+    .capture .foot { margin-top: 4px; display: flex; flex-direction: column; gap: 9px; }
+    .capture .modelnote { font-size: 10.5px; color: var(--prose-faint); text-align: center;
+      line-height: 1.45; padding: 0 6px; }
+    .capture .modelnote b { color: var(--prose-dim); font-weight: 500; }
+
+  </style>
+</helmet>
+<div class="screen capture">
+  <div class="hdr"><svg class="back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg><div class="ttl"><h1>Catch it</h1>
+    <div class="sub">Get it down now, sharpen it next</div></div></div>
+
+  <div class="fields">
+    <div>
+      <span class="lbl">What was said</span>
+      <div class="hint" style="margin:-3px 0 7px 0">Verbatim. This is never edited later.</div>
+      <div class="input" style="height:96px;font-family:'Cormorant',serif;font-weight:600;font-size:19px;line-height:1.26">Mark my words, the Cardinals win it all this year.</div>
+    </div>
+
+    <div class="two">
+      <div><span class="lbl" style="margin-bottom:6px">Who said it</span>
+        <div class="input">Popops</div></div>
+      <div><span class="lbl" style="margin-bottom:6px">When</span>
+        <div class="input">2026-04-03</div></div>
+    </div>
+
+    <div>
+      <span class="lbl">Where</span>
+      <div class="hint" style="margin:-3px 0 7px 0">Optional. A link, or just where you heard it.</div>
+      <div class="input ph">https://&hellip;</div>
+      <div class="input ph" style="margin-top:8px">Instagram story, said at dinner, CNN segment</div>
+    </div>
+
+    <div class="foot">
+      <div class="btn primary">Draft the criteria</div>
+      <!-- Neutral on an untouched form. Tinting this amber before anyone has
+           typed is scolding them for not having started. -->
+      <div class="modelnote">Using <b>gemini-flash-latest</b>. You confirm everything before the clock starts.</div>
+      <div class="btn secondary">Fill it in myself</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

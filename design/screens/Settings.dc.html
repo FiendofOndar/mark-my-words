@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,600;1,600&family=Oswald:wght@500;600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .screen {
+      --ground: oklch(0.145 0.012 270);
+      --surface: oklch(0.19 0.012 270);
+      --rule: oklch(0.26 0.01 270);
+      --ink: oklch(0.96 0.01 90);
+      --ink-dim: oklch(0.68 0.01 90);
+      --ink-faint: oklch(0.52 0.01 270);
+      --accent: #8a8cd8;
+      /* Fixed. "The app needs you" is semantic, so it never follows the accent. */
+      --attention: #dba456;
+      --glow: color-mix(in srgb, #8a8cd8 20%, transparent);
+      --prose: oklch(0.97 0.01 90 / 0.82);
+      --prose-dim: oklch(0.97 0.01 90 / 0.6);
+      --prose-faint: oklch(0.97 0.01 90 / 0.46);
+      --hit: #5aa87a;
+      --miss: oklch(0.66 0.15 27);
+      --partial: #d29a43;
+
+      box-sizing: border-box; overflow: hidden;
+      background:
+        radial-gradient(ellipse 940px 760px at 50% 34%, var(--glow), transparent 78%),
+        var(--ground);
+      color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex; flex-direction: column;
+    }
+    .hdr { padding: 42px 18px 12px 18px; border-bottom: 1px solid var(--rule);
+      display: flex; align-items: flex-start; gap: 10px; flex: none; }
+    .hdr .ttl { flex: 1; min-width: 0; }
+    .hdr h1 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 20px;
+      margin: 0; letter-spacing: 0.4px; }
+    .hdr .sub { font-size: 10.5px; color: var(--ink-faint); margin-top: 3px; letter-spacing: 0.3px; }
+    .hdr .act { font-size: 11.5px; color: var(--miss); flex: none; padding-top: 3px; }
+    .back { width: 22px; height: 22px; flex: none; color: var(--ink-dim); margin-left: -4px; }
+
+    .pad { padding: 16px 18px; }
+    .lbl { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 11px;
+      letter-spacing: 1.4px; text-transform: uppercase; color: var(--ink-faint); display: block; }
+    .hint { font-size: 10.5px; color: var(--prose-faint); line-height: 1.45; }
+    .prose { font-size: 11.5px; color: var(--prose-dim); line-height: 1.5; }
+    .input { border: 1px solid var(--rule); border-radius: 8px; background: oklch(0.96 0.01 90 / 0.04);
+      padding: 10px 11px; font-size: 12.5px; color: var(--ink); font-family: inherit;
+      display: block; width: 100%; box-sizing: border-box; }
+    .input.ph { color: var(--ink-faint); }
+    .btn { border-radius: 9px; text-align: center; font-family: 'Oswald', sans-serif;
+      font-weight: 600; letter-spacing: 0.6px; display: block; }
+    .btn.primary { background: var(--accent); color: oklch(0.18 0.02 270); padding: 12px; font-size: 15px; }
+    .btn.secondary { border: 1px solid var(--rule); color: var(--ink-dim); padding: 9px; font-size: 13px; }
+    .glass { border-radius: 13px; background: oklch(0.94 0.01 90 / 0.07);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid oklch(0.9 0.01 90 / 0.13); box-shadow: 0 16px 34px oklch(0 0 0 / 0.3); }
+    .quote { font-family: 'Cormorant', serif; font-weight: 600; line-height: 1.24; margin: 0; }
+    .tag { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 11.5px; letter-spacing: 0.8px;
+      padding: 3px 8px; border-radius: 3px; border: 1.5px solid; flex: none;
+      min-width: 68px; box-sizing: border-box; text-align: center; }
+    .tag.hit { color: var(--hit); border-color: color-mix(in srgb, var(--hit) 55%, transparent); }
+    .tag.miss { color: var(--miss); border-color: color-mix(in srgb, var(--miss) 55%, transparent); }
+    .tag.partial { color: var(--partial); border-color: color-mix(in srgb, var(--partial) 55%, transparent); }
+    .tag.open { color: var(--ink-dim); border-color: var(--rule);
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+    .row { display: flex; align-items: center; gap: 12px; padding: 13px 18px; border-top: 1px solid var(--rule); }
+    .author { font-size: 9.5px; text-transform: uppercase; letter-spacing: 1.2px;
+      color: var(--ink-faint); margin-bottom: 3px; }
+    .claim { font-family: 'Cormorant', serif; font-weight: 600; font-size: 17px; line-height: 1.2; margin: 0 0 4px 0; }
+    .meta { font-size: 9.5px; color: var(--ink-faint); letter-spacing: 0.4px; }
+
+    .screen.settings { width: 375px; height: 1340px; }
+    .settings h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 11px;
+      letter-spacing: 1.4px; text-transform: uppercase; color: var(--ink-faint);
+      margin: 0; padding: 20px 18px 8px 18px; }
+    .settings .grp { border-top: 1px solid var(--rule); }
+    .settings .fld { padding: 11px 18px 13px 18px; border-bottom: 1px solid var(--rule); }
+    .settings .fld .lbl { margin-bottom: 6px; }
+    .settings .fld .hint { margin-top: 6px; }
+    .settings .sel { display: flex; align-items: center; justify-content: space-between; }
+    .settings .sel .chev { width: 14px; height: 14px; color: var(--ink-faint); }
+    .settings .inline { display: flex; gap: 9px; align-items: flex-end; }
+    .settings .inline .input { flex: 1; }
+    .settings .test { border: 1px solid var(--rule); border-radius: 8px; color: var(--ink-dim);
+      padding: 10px 14px; font-size: 12px; flex: none; }
+    .settings .sw { display: flex; align-items: center; justify-content: space-between;
+      gap: 14px; padding: 13px 18px; border-bottom: 1px solid var(--rule); }
+    .settings .sw .t { font-size: 12.5px; }
+    .settings .sw .d { font-size: 10.5px; color: var(--prose-faint); margin-top: 3px; line-height: 1.45; }
+    .track { width: 40px; height: 23px; border-radius: 999px; background: var(--rule); flex: none; position: relative; }
+    .track.on { background: var(--accent); }
+    .knob { position: absolute; top: 2.5px; left: 2.5px; width: 18px; height: 18px; border-radius: 50%;
+      background: oklch(0.96 0.01 90); }
+    .track.on .knob { left: auto; right: 2.5px; }
+    .swatches { display: flex; gap: 11px; padding: 4px 18px 16px 18px; flex-wrap: wrap; }
+    .sw-item { width: 46px; }
+    .dot { width: 46px; height: 46px; border-radius: 13px; box-sizing: border-box; }
+    .dot.on { box-shadow: 0 0 0 2px var(--ground), 0 0 0 4px var(--ink); }
+    .sw-item .n { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 10px;
+      letter-spacing: 0.8px; text-transform: uppercase; color: var(--ink-faint);
+      text-align: center; margin-top: 6px; }
+    .sw-item.sel .n { color: var(--ink); }
+    .settings .keyhint { color: var(--attention); }
+    .settings .danger { color: var(--miss); }
+
+  </style>
+</helmet>
+<div class="screen settings">
+  <div class="hdr"><svg class="back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg><div class="ttl"><h1>Settings</h1>
+    <div class="sub">14 of 20 checks left today</div></div></div>
+
+  <h2>Drafting</h2>
+  <div class="grp">
+    <div class="fld"><span class="lbl">Provider</span>
+      <div class="input sel"><span>Google Gemini</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div></div>
+    <div class="fld"><span class="lbl">API key</span>
+      <div class="inline"><div class="input">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;4f2c</div>
+        <div class="test">Test</div></div>
+      <!-- The key never touches the database, because Data exports the whole
+           file. The hint has to name the key actually in force, or a tested key
+           and a saved key can silently differ. -->
+      <div class="hint">Stored in the device keychain, never in the database. The key ending <b style="color:var(--prose-dim);font-weight:500">4f2c</b> is the one every check uses.</div></div>
+    <div class="fld"><span class="lbl">Model</span>
+      <div class="input sel"><span>gemini-flash-latest</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="hint">List what this key can actually call. Listing a model is not the same as being entitled to it.</div></div>
+    <div class="fld"><span class="lbl">Checks per day</span>
+      <div class="input sel"><span>20</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="hint keyhint">A free key gets 20 grounded checks a day. Every check costs a request whether it resolves anything or not.</div></div>
+  </div>
+
+  <h2>Notifications</h2>
+  <div class="grp"><div class="sw"><span><div class="t">Deadline day</div><div class="d">The morning a call comes due.</div></span><span class="track on"><span class="knob"></span></span></div><div class="sw"><span><div class="t">Questions only you can answer</div><div class="d">A check finished but needs a human to settle it.</div></span><span class="track on"><span class="knob"></span></span></div><div class="sw"><span><div class="t">Weekly digest</div><div class="d">What moved, once a week.</div></span><span class="track"><span class="knob"></span></span></div>
+    <div class="fld"><span class="lbl">Digest day</span>
+      <div class="input sel"><span>Sunday</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div></div>
+  </div>
+
+  <h2>Theme</h2>
+  <div class="swatches"><div class="sw-item"><div class="dot" style="background:#dba456"></div><div class="n">Amber</div></div><div class="sw-item"><div class="dot" style="background:linear-gradient(135deg,#e2a24a,#c9703f)"></div><div class="n">Ember</div></div><div class="sw-item sel"><div class="dot on" style="background:linear-gradient(135deg,#6f8fd6,#9a5fae)"></div><div class="n">Dusk</div></div><div class="sw-item"><div class="dot" style="background:#3f9cb8"></div><div class="n">Reef</div></div><div class="sw-item"><div class="dot" style="background:#b968a0"></div><div class="n">Orchid</div></div><div class="sw-item"><div class="dot" style="background:#8792ab"></div><div class="n">Steel</div></div></div>
+  <p class="hint" style="margin:-6px 18px 0 18px">Verdict colours and the amber &ldquo;needs you&rdquo; flag never follow this. They mean something.</p>
+
+  <h2>Data</h2>
+  <div class="grp">
+    <div class="fld"><span class="lbl">Export</span>
+      <div class="hint">The whole database as one file. It does not contain your API key.</div></div>
+    <div class="fld"><span class="lbl">Import</span>
+      <div class="hint">Replaces everything currently on this device.</div></div>
+    <div class="fld" style="border-bottom:none"><span class="lbl danger">Erase everything</span>
+      <div class="hint">Every prediction, author and check. There is no undo.</div></div>
+  </div>
+  <div style="height:24px"></div>
+</div>
+</x-dc>
+</body>
+</html>

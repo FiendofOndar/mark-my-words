@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,600;1,600&family=Oswald:wght@500;600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .screen {
+      --ground: oklch(0.145 0.012 270);
+      --surface: oklch(0.19 0.012 270);
+      --rule: oklch(0.26 0.01 270);
+      --ink: oklch(0.96 0.01 90);
+      --ink-dim: oklch(0.68 0.01 90);
+      --ink-faint: oklch(0.52 0.01 270);
+      --accent: #8a8cd8;
+      /* Fixed. "The app needs you" is semantic, so it never follows the accent. */
+      --attention: #dba456;
+      --glow: color-mix(in srgb, #8a8cd8 20%, transparent);
+      --prose: oklch(0.97 0.01 90 / 0.82);
+      --prose-dim: oklch(0.97 0.01 90 / 0.6);
+      --prose-faint: oklch(0.97 0.01 90 / 0.46);
+      --hit: #5aa87a;
+      --miss: oklch(0.66 0.15 27);
+      --partial: #d29a43;
+
+      box-sizing: border-box; overflow: hidden;
+      background:
+        radial-gradient(ellipse 940px 760px at 50% 34%, var(--glow), transparent 78%),
+        var(--ground);
+      color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex; flex-direction: column;
+    }
+    .hdr { padding: 42px 18px 12px 18px; border-bottom: 1px solid var(--rule);
+      display: flex; align-items: flex-start; gap: 10px; flex: none; }
+    .hdr .ttl { flex: 1; min-width: 0; }
+    .hdr h1 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 20px;
+      margin: 0; letter-spacing: 0.4px; }
+    .hdr .sub { font-size: 10.5px; color: var(--ink-faint); margin-top: 3px; letter-spacing: 0.3px; }
+    .hdr .act { font-size: 11.5px; color: var(--miss); flex: none; padding-top: 3px; }
+    .back { width: 22px; height: 22px; flex: none; color: var(--ink-dim); margin-left: -4px; }
+
+    .pad { padding: 16px 18px; }
+    .lbl { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 11px;
+      letter-spacing: 1.4px; text-transform: uppercase; color: var(--ink-faint); display: block; }
+    .hint { font-size: 10.5px; color: var(--prose-faint); line-height: 1.45; }
+    .prose { font-size: 11.5px; color: var(--prose-dim); line-height: 1.5; }
+    .input { border: 1px solid var(--rule); border-radius: 8px; background: oklch(0.96 0.01 90 / 0.04);
+      padding: 10px 11px; font-size: 12.5px; color: var(--ink); font-family: inherit;
+      display: block; width: 100%; box-sizing: border-box; }
+    .input.ph { color: var(--ink-faint); }
+    .btn { border-radius: 9px; text-align: center; font-family: 'Oswald', sans-serif;
+      font-weight: 600; letter-spacing: 0.6px; display: block; }
+    .btn.primary { background: var(--accent); color: oklch(0.18 0.02 270); padding: 12px; font-size: 15px; }
+    .btn.secondary { border: 1px solid var(--rule); color: var(--ink-dim); padding: 9px; font-size: 13px; }
+    .glass { border-radius: 13px; background: oklch(0.94 0.01 90 / 0.07);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid oklch(0.9 0.01 90 / 0.13); box-shadow: 0 16px 34px oklch(0 0 0 / 0.3); }
+    .quote { font-family: 'Cormorant', serif; font-weight: 600; line-height: 1.24; margin: 0; }
+    .tag { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 11.5px; letter-spacing: 0.8px;
+      padding: 3px 8px; border-radius: 3px; border: 1.5px solid; flex: none;
+      min-width: 68px; box-sizing: border-box; text-align: center; }
+    .tag.hit { color: var(--hit); border-color: color-mix(in srgb, var(--hit) 55%, transparent); }
+    .tag.miss { color: var(--miss); border-color: color-mix(in srgb, var(--miss) 55%, transparent); }
+    .tag.partial { color: var(--partial); border-color: color-mix(in srgb, var(--partial) 55%, transparent); }
+    .tag.open { color: var(--ink-dim); border-color: var(--rule);
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+    .row { display: flex; align-items: center; gap: 12px; padding: 13px 18px; border-top: 1px solid var(--rule); }
+    .author { font-size: 9.5px; text-transform: uppercase; letter-spacing: 1.2px;
+      color: var(--ink-faint); margin-bottom: 3px; }
+    .claim { font-family: 'Cormorant', serif; font-weight: 600; font-size: 17px; line-height: 1.2; margin: 0 0 4px 0; }
+    .meta { font-size: 9.5px; color: var(--ink-faint); letter-spacing: 0.4px; }
+
+    .card {
+      --ink: #f0e9dd; --dim: #a49c8f; --faint: #6f675c; --rule: #2e2a35;
+      --hit: #5aa87a; --miss: #d9533a; --partial: #d29a43; --gold: #ddb45e;
+      width: 1080px; height: 1350px; box-sizing: border-box; padding: 80px;
+      background:
+        radial-gradient(ellipse 1500px 1100px at 50% 14%, rgba(138,140,216,0.16), transparent 76%),
+        #141320;
+      color: var(--ink); font-family: 'IBM Plex Mono', monospace;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    /* The brand rule carries the icon's ramp. Fixed, never the user's accent:
+       this card leaves the app and is the only thing strangers ever see. */
+    .brandrule { height: 10px; border-radius: 5px; flex: none;
+      background: linear-gradient(90deg, #5fbb8c, #ddb45e 50%, #d9533a); }
+    .card .meta { margin: 0; font-size: 30px; color: var(--dim); letter-spacing: 0.5px; }
+    .card .label { margin: 0; font-size: 24px; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--faint); font-family: 'Barlow Condensed', sans-serif; font-weight: 600; }
+    .card blockquote { margin: 0; font-family: 'Cormorant', serif; font-weight: 600; line-height: 1.17; }
+    .card .oq { color: var(--faint); }
+    /* Flat, unrotated, filled. The rotated outline stamp was the case-file
+       aesthetic this project dropped, and it reads as a novelty sticker in a feed. */
+    .stamp { display: inline-block; padding: 18px 40px 16px 40px; border-radius: 10px;
+      font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 62px;
+      letter-spacing: 6px; text-transform: uppercase; color: #141320; }
+    .stamp.miss { background: var(--miss); }
+    .stamp.hit { background: var(--hit); }
+    .card .cite { margin: 0; margin-top: 16px; font-size: 27px; color: var(--dim); }
+    /* The host, always, next to the publisher: the model types the publisher
+       name and two pages on one site once counted as two independent sources. */
+    .card .cite .host { color: var(--faint); }
+    .card .foot { display: flex; justify-content: space-between; align-items: center;
+      border-top: 4px solid var(--rule); padding-top: 30px; font-size: 28px; }
+    .card .wordmark { display: flex; align-items: center; gap: 18px;
+      font-family: 'Oswald', sans-serif; font-weight: 500; letter-spacing: 1.5px; font-size: 30px; }
+
+  </style>
+</helmet>
+<div class="card">
+  <div class="brandrule"></div>
+  <p class="meta" style="margin-top:52px">Popops &middot; @popops &middot; Nov 2, 2025</p>
+
+  <blockquote style="margin-top:30px;font-size:78px">
+    <span class="oq">&ldquo;</span>They&rsquo;ll never finish that bridge on time.<span class="oq">&rdquo;</span>
+  </blockquote>
+
+  <p class="label" style="margin-top:56px">Called for</p>
+  <p class="meta" style="margin-top:10px">By Mar 1, 2026</p>
+
+  <div style="display:flex;align-items:center;gap:32px;margin-top:48px">
+    <span class="stamp miss">Busted</span>
+    <span class="meta">Settled Mar 1, 2026</span>
+  </div>
+
+  <div style="flex:1"></div>
+
+  <div style="margin-bottom:40px">
+    <p class="label">Evidence</p>
+    <p class="cite">Associated Press <span class="host">&middot; apnews.com &middot; Feb 28, 2026</span></p>
+    <p class="cite">Reuters <span class="host">&middot; reuters.com &middot; Mar 1, 2026</span></p>
+    <p class="cite">WSDOT <span class="host">&middot; wsdot.wa.gov &middot; Mar 1, 2026</span></p>
+  </div>
+
+  <div class="foot">
+    <span class="wordmark"><svg width="46" height="46" viewBox="0 0 240 240"><defs><linearGradient id="cra" gradientUnits="userSpaceOnUse" x1="61" y1="70" x2="175" y2="181"><stop offset="0%" stop-color="#5fbb8c"/><stop offset="50%" stop-color="#ddb45e"/><stop offset="100%" stop-color="#d9533a"/></linearGradient></defs><g transform="translate(9 6)" fill="none" stroke-linejoin="round" stroke-linecap="round"><path d="M 40.6 143.9 A 86 86 0 1 1 71 180.6 L 10 212 Z" stroke="url(#cra)" stroke-width="15"/><line x1="120" y1="106" x2="120" y2="50" stroke="#f2e8d8" stroke-width="14"/><line x1="120" y1="106" x2="155" y2="126" stroke="#f2593a" stroke-width="14"/><circle cx="120" cy="106" r="8" fill="#f2e8d8"/></g></svg>Mark My Words</span>
+    <span style="color:var(--faint)">Stakes: a case of beer</span>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

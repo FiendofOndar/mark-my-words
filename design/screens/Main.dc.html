@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400&display=swap">
+  <style>
+    body { margin: 0; }
+    .sheet { width: 1400px; box-sizing: border-box; padding: 40px 46px 44px;
+      background: oklch(0.115 0.008 270); font-family: 'Barlow Condensed', sans-serif;
+      color: oklch(0.96 0.01 90); }
+    h1 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 27px; letter-spacing: 0.5px;
+      margin: 0 0 8px; text-transform: uppercase; }
+    p { font-family: 'IBM Plex Mono', monospace; font-size: 14px; line-height: 1.65;
+      color: oklch(0.97 0.01 90 / 0.6); margin: 0 0 12px; max-width: 1000px; }
+    b { color: oklch(0.97 0.01 90 / 0.86); font-weight: 400; }
+    .cols { display: flex; gap: 46px; margin-top: 18px; }
+    .col { flex: 1; }
+    h2 { font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 1.6px;
+      text-transform: uppercase; color: oklch(0.97 0.01 90 / 0.46); margin: 0 0 8px;
+      padding-bottom: 7px; border-bottom: 1px solid oklch(0.26 0.01 270); }
+    li { font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 1.6;
+      color: oklch(0.97 0.01 90 / 0.6); margin-bottom: 7px; }
+    ul { margin: 0; padding-left: 17px; }
+  </style>
+</helmet>
+<div class="sheet">
+  <h1>The remaining screens</h1>
+  <p>Every screen in <b>src/ui/screens</b> that the theme work had not reached yet, plus the two
+  cards that leave the app. Built on the settled tokens: dusk accent rendered as if the user had
+  picked it, amber reserved for the app asking you something, verdict colours fixed, the serif
+  only ever on a human's own words.</p>
+  <div class="cols">
+    <div class="col">
+      <h2>Rules these screens are carrying</h2>
+      <ul>
+        <li>A hit rate is never shown for an unranked author. Both the Author screen and the
+        Scorecard lead with the record instead.</li>
+        <li>Retroactive entries are marked at intake, because they never count toward a rate.</li>
+        <li>Criteria freeze on the first check; Review says so before you commit.</li>
+        <li>The API key is never in the database, and the Settings hint names the key actually
+        in force rather than the one last typed.</li>
+        <li>Evidence rows show the host next to the publisher. The publisher is a name the model
+        typed; the host is where the fetch landed.</li>
+      </ul>
+    </div>
+    <div class="col">
+      <h2>Two changes to what is on main</h2>
+      <ul>
+        <li><b>The receipt stamp is no longer rotated or outlined.</b> That was the case-file
+        aesthetic this project dropped, and at feed size a tilted outline reads as a novelty
+        sticker rather than a verdict. It is flat and filled now.</li>
+        <li><b>Both cards carry a brand rule in the icon's ramp.</b> Fixed, never the user's
+        accent: this is the only surface strangers ever see, so it should not change colour
+        depending on a setting inside the app.</li>
+      </ul>
+      <h2 style="margin-top:20px">Still to do</h2>
+      <ul>
+        <li>Fold <b>design/tokens.css</b> into <b>src/styles.css</b> and self-host the four faces.
+        A card rasterised through a foreignObject cannot reach a remote font.</li>
+        <li>Restyle the Box Score flyer to these tokens and change MISS to BUSTED.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
