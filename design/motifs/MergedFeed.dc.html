@@ -58,11 +58,11 @@
     .author { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink-faint); margin-bottom: 3px; }
     .claim { font-family: 'Cormorant', serif; font-weight: 600; font-size: 18px; line-height: 1.2; margin: 0 0 4px 0; }
     .meta { font-size: 10px; color: var(--ink-faint); letter-spacing: 0.4px; }
-    /* fixed-width status column: "CHECKS OUT" is far wider than "BUSTED",
-       and a ragged right edge undoes the tabular rhythm */
+    /* fixed-width status column, sized to the longest verdict (UNCLEAR):
+       a ragged right edge undoes the tabular rhythm */
     .tag { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 11.5px; letter-spacing: 0.8px;
       padding: 3px 8px; border-radius: 3px; border: 1.5px solid; flex-shrink: 0;
-      min-width: 80px; box-sizing: border-box; text-align: center; }
+      min-width: 68px; box-sizing: border-box; text-align: center; }
     .tag.hit { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
     .tag.miss { color: var(--miss); border-color: color-mix(in srgb, var(--miss) 55%, transparent); }
     .tag.open { color: var(--ink-dim); border-color: var(--rule); font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 11px; }
@@ -79,7 +79,7 @@
     <p class="claim-lg">&ldquo;The Cardinals win it all this year.&rdquo;</p>
     <div class="foot">
       <span class="meta">@popops &middot; 3 sources &middot; score 92</span>
-      <span class="verdict-chip">CHECKS OUT?</span>
+      <span class="verdict-chip">PROVEN?</span>
     </div>
   </div>
 
@@ -100,7 +100,7 @@
         <p class="claim">&ldquo;Neighbors drop the gutter thing by Nov.&rdquo;</p>
         <div class="meta">RESOLVED AUG 30 &middot; SCORE 100 &middot; 4 SRC</div>
       </div>
-      <span class="tag hit">CHECKS OUT</span>
+      <span class="tag hit">PROVEN</span>
     </div>
     <div class="row">
       <div class="mono-badge">LZ</div>

@@ -8,7 +8,7 @@ import { daysUntilDeadline, effectiveDeadline, lateByMonths } from './prediction
 export const STATUS_LABEL: Record<PredictionStatus, string> = {
   draft: 'Draft',
   open: 'Open',
-  hit: 'Checks out',
+  hit: 'Proven',
   miss: 'Busted',
   partial: 'Split',
   ambiguous: 'Unclear',
