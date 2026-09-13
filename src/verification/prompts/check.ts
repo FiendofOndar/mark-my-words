@@ -42,7 +42,7 @@ Rules that matter:
    - ambiguous: the evidence cannot settle it, or the criteria do not cleanly apply
    - no_change: still open, nothing decisive found
 
-12. CRITERIA_STATUS IS ONE ENTRY PER CRITERION, in the order given. "satisfied" is whether that criterion was met. "basis" is how you know, and it is about the answer, not about the answer being yes:
+12. CRITERIA_STATUS IS ONE ENTRY PER CRITERION, in the order given. "index" is the criterion's number as listed below, starting at 1: the first criterion is index 1, the second is index 2. "satisfied" is whether that criterion was met. "basis" is how you know, and it is about the answer, not about the answer being yes:
    - quoted: a source you cited states it, whether it states that it happened or that it did not
    - inferred: you are reasoning from what you found rather than reading it off the page
    - none: you could not establish it either way

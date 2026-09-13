@@ -115,10 +115,24 @@ export function parseCheckResponse(raw: unknown, criteriaCount: number): CheckPa
   const rawStatus = Array.isArray(input.criteria_status ?? input.criteriaStatus)
     ? ((input.criteria_status ?? input.criteriaStatus) as unknown[])
     : [];
-  for (const entry of rawStatus) {
-    if (typeof entry !== 'object' || entry === null) continue;
-    const c = entry as Record<string, unknown>;
-    const index = Number(c.index);
+  /*
+   * The prompt lists the criteria as 1., 2., 3. and asks for them back by
+   * number, so the wire format is 1-based. This parsed it as 0-based for as
+   * long as the feature existed: on a one-criterion prediction the model's 1
+   * was out of range and dropped, so coverage read 0/15 on correct checks, and
+   * on a two-criterion one its 1 marked the second criterion and its 2 was
+   * discarded, so a HIT showed its headline criterion unticked.
+   *
+   * A response that uses 0 anywhere is 0-based whatever the prompt said, and
+   * is taken as it is rather than shifted off the end.
+   */
+  const entries = rawStatus.filter(
+    (entry): entry is Record<string, unknown> => typeof entry === 'object' && entry !== null,
+  );
+  const zeroBased = entries.some((c) => Number(c.index) === 0);
+  for (const c of entries) {
+    const raw = Number(c.index);
+    const index = zeroBased ? raw : raw - 1;
     if (!Number.isInteger(index) || index < 0 || index >= criteriaCount) {
       warnings.push(`Ignored a criterion status pointing at element ${String(c.index)}.`);
       continue;
