@@ -8,7 +8,7 @@ export const STATUS_TONE: Record<PredictionStatus, string> = {
   partial: 'text-partial border-partial/55',
   ambiguous: 'text-ambiguous border-ambiguous/55',
   void: 'text-voided border-voided/55 line-through',
-  open: 'text-ink-dim border-rule font-mono !font-medium !tracking-normal',
+  open: 'text-ink-dim border-rule',
   draft: 'text-draft border-draft/55',
 };
 
@@ -35,8 +35,12 @@ export function Stamp({
         ? 'min-w-[68px] px-2 py-[3px] text-[11.5px]'
         : 'min-w-[86px] px-3 py-1 text-[14px]';
 
+  // Open and Draft are not verdicts, they are states, so they stay in the mono
+  // voice the rest of a row's metadata uses rather than shouting in Oswald.
+  const voice = status === 'open' || status === 'draft' ? 'font-mono font-medium tracking-normal' : '';
+
   return (
-    <span className={`stamp ${STATUS_TONE[status]} ${scale} inline-block`}>
+    <span className={`stamp ${STATUS_TONE[status]} ${scale} ${voice} inline-block`}>
       {STATUS_LABEL[status]}
     </span>
   );

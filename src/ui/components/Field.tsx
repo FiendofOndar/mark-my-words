@@ -56,7 +56,7 @@ export const inputClass =
  * had the bug.
  */
 export const primaryButton =
-  'rounded-lg bg-accent font-display font-semibold tracking-wide text-ground disabled:border disabled:border-rule disabled:bg-surface-raised disabled:font-normal disabled:text-ink-faint';
+  'rounded-lg bg-accent font-display font-semibold tracking-wide text-on-accent disabled:border disabled:border-rule disabled:bg-surface-raised disabled:font-normal disabled:text-ink-faint';
 
 /**
  * The outlined action. `border-rule` is already faint, so the disabled state
@@ -88,7 +88,7 @@ export function SegmentedControl<T extends string>({
           onClick={() => onChange(option.value)}
           className={`min-h-11 flex-1 rounded-lg border px-3 py-2 font-sans text-[14px] font-semibold tracking-wide uppercase transition-colors ${
             value === option.value
-              ? 'border-accent bg-accent text-ground'
+              ? 'border-accent bg-accent text-on-accent'
               : 'border-rule text-ink-dim active:bg-surface-raised'
           }`}
         >

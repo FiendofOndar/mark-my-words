@@ -33,7 +33,7 @@
   --color-surface-raised: #221f28;
   --color-ink: #f2ede3;
   --color-ink-dim: #a9a196;
-  --color-ink-faint: #736b61;
+  --color-ink-faint: #877e72;
   --color-rule: #2e2a35;
 
   /* ---- Prose ink -------------------------------------------------------
@@ -44,7 +44,7 @@
    */
   --color-prose: oklch(0.97 0.01 90 / 0.82);
   --color-prose-dim: oklch(0.97 0.01 90 / 0.6);
-  --color-prose-faint: oklch(0.97 0.01 90 / 0.46);
+  --color-prose-faint: oklch(0.97 0.01 90 / 0.48);
 
   /* ---- The AI panel ----------------------------------------------------
    * Frosted glass over the glow on dark, a raised warm card on light. The
@@ -52,7 +52,6 @@
    */
   --color-glass-fill: oklch(0.94 0.01 90 / 0.07);
   --color-glass-edge: oklch(0.9 0.01 90 / 0.13);
-  --color-glass-rule: oklch(0.9 0.01 90 / 0.1);
   --shadow-panel: 0 20px 42px oklch(0 0 0 / 0.34);
 
   /* ---- Accent ----------------------------------------------------------
@@ -63,6 +62,14 @@
    */
   --color-accent: #8792ab;
   --color-accent-ink: oklch(0.44 0.045 265);
+  /*
+   * The label on an accent fill. NOT --color-ground: the accent is the same
+   * value in both themes, so a label that follows the ground turns cream on
+   * light and lands at 2.7:1 - the primary button's own text, unreadable, on
+   * every screen that has one. This stays dark in both themes and is the one
+   * colour token the light block deliberately does not redefine.
+   */
+  --color-on-accent: #131218;
 
   /* Ambient colour, not a spotlight: a wide ellipse with its origin near or
    * past an edge, so only the falloff is ever on screen. Kept low, because
@@ -70,7 +77,6 @@
    * Reference: ellipse 940px 760px at 50% 34%, transparent by 78%.
    */
   --color-glow: color-mix(in srgb, var(--color-accent) 20%, transparent);
-  --color-glow-soft: color-mix(in srgb, var(--color-accent) 12%, transparent);
 
   /* ---- Attention -------------------------------------------------------
    * "This needs you", and nothing else. Waiting on you, the verdict-ready
@@ -92,13 +98,12 @@
   --color-miss: #cf6049;
   --color-partial: #d29a43;
   --color-ambiguous: #8a8078;
-  --color-voided: #5d5650;
+  --color-voided: #7f8590;
   --color-late: #c9a227;
   --color-draft: #7a8fb8;
 
   /* ---- Radii ----------------------------------------------------------- */
   --radius-chip: 3px;
-  --radius-card: 6px;
   --radius-panel: 14px;
 }
 
@@ -114,7 +119,7 @@
     --color-surface-raised: #fbf6ea;
     --color-ink: #1c1917;
     --color-ink-dim: #5f574c;
-    --color-ink-faint: #8b8175;
+    --color-ink-faint: #736a60;
     --color-rule: #ddd5c4;
 
     /* Translucency needs darkness to read, so on paper the panel stops being
@@ -122,7 +127,6 @@
        shadow. The glow still does the colouring. */
     --color-glass-fill: #fffcf4;
     --color-glass-edge: oklch(0.85 0.05 80);
-    --color-glass-rule: oklch(0.89 0.03 82);
     --shadow-panel: 0 16px 36px color-mix(in srgb, #4e5f8c 24%, transparent);
 
     /*
@@ -139,7 +143,6 @@
      * tie the two themes together without tinting the page.
      */
     --color-glow: oklch(0.99 0.012 265 / 0.8);
-    --color-glow-soft: oklch(0.99 0.01 265 / 0.5);
 
     /* NOT YET DESIGNED. Alpha runs the other way on paper: dark ink at
        reduced alpha washes out, where on dark it got dimmer and warmer.
@@ -148,13 +151,13 @@
     --color-prose-dim: var(--color-ink-dim);
     --color-prose-faint: var(--color-ink-faint);
 
-    --color-attention: #8a6d10;
+    --color-attention: #84680f;
 
     --color-hit: #2f7a4f;
     --color-miss: #a8341c;
-    --color-partial: #9a6b14;
+    --color-partial: #8f6313;
     --color-ambiguous: #6b625a;
-    --color-voided: #857c73;
+    --color-voided: #61676f;
     --color-late: #8a6d10;
     --color-draft: #3b5688;
   }
@@ -289,6 +292,13 @@
     box-shadow: var(--shadow-panel);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
+  }
+
+  /* On light the fill is opaque, so the blur samples nothing and buys nothing
+     while still forcing a compositing layer for every panel on screen. */
+  :root[data-theme='light'] .glass {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   /*
