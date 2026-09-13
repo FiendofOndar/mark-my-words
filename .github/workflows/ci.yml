@@ -113,18 +113,46 @@ jobs:
 
       # A rolling release, so the download link never changes and the APK is a
       # direct tap on a phone rather than a zip that needs unpacking.
+      #
+      # Updated in place rather than deleted and recreated. The old shape
+      # failed twice in one morning: the delete hit a GitHub 502 mid-outage,
+      # the release survived, and the create then refused because the tag
+      # already existed. Every call below is retried, and none of them
+      # depends on the previous one having succeeded: a missing release is
+      # created, an existing one is edited, and old assets are cleared before
+      # the new one is uploaded.
       - name: Publish to the latest release
         if: github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
+          APK: ${{ steps.apk.outputs.path }}
+          SHORT: ${{ steps.apk.outputs.short }}
         run: |
-          gh release delete latest --yes --cleanup-tag || true
-          gh release create latest "${{ steps.apk.outputs.path }}" \
-            --title "Latest build (${{ steps.apk.outputs.short }})" \
-            --notes "Debug build of \`${{ steps.apk.outputs.short }}\`.
+          retry() {
+            local n=0
+            until "$@"; do
+              n=$((n + 1))
+              if [ "$n" -ge 5 ]; then return 1; fi
+              echo "attempt $n failed; retrying in $((n * 10))s"
+              sleep $((n * 10))
+            done
+          }
+
+          NOTES="Debug build of \`${SHORT}\`.
 
           Tap the .apk below to install. Android will ask permission to install
           from an unknown source; that is expected for a sideloaded app.
 
           Each build is signed with a throwaway key, so Android will refuse to
           install this over a previous build. Uninstall the old one first."
+
+          if retry gh release view latest --json tagName >/dev/null 2>&1; then
+            retry gh release edit latest --title "Latest build (${SHORT})" --notes "$NOTES" --target "$GITHUB_SHA"
+            # Clear old assets so the release carries exactly one APK.
+            for asset in $(gh release view latest --json assets --jq '.assets[].name'); do
+              retry gh release delete-asset latest "$asset" --yes || true
+            done
+          else
+            retry gh release create latest --title "Latest build (${SHORT})" --notes "$NOTES" --target "$GITHUB_SHA"
+          fi
+          retry gh release upload latest "$APK" --clobber
