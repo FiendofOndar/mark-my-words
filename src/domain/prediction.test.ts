@@ -87,6 +87,8 @@ describe('resolving', () => {
   it('confirming a draft starts the clock', () => {
     const p = makePrediction({ status: 'draft', trend: null });
     expect(confirmDraft(p, NOW).status).toBe('open');
+    // Confirming is the freeze; the first check no longer has to be.
+    expect(confirmDraft(p, NOW).criteriaFrozenAt).toBe(NOW.toISOString());
   });
 });
 

@@ -419,8 +419,10 @@ Confirm sets `status: open` and starts the clock. Drafts persist indefinitely an
 
 ### 5.5 Criteria freezing and amendments
 
-Criteria are freely editable until the first verification check runs. At that moment
-`criteria_frozen_at` is stamped.
+Criteria are freely editable while the prediction is a draft. Confirming it stamps
+`criteria_frozen_at`. (The first check stamps it too, as a backstop for rows that opened another
+way.) It used to freeze on the first check; that left a claim due months out quietly editable for
+the whole wait.
 
 After freezing, edits still work but write an `amendments` row capturing the old value, new value,
 timestamp, and a **required** user-entered reason. Any prediction with one or more amendments displays
