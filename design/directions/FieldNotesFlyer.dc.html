@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Caveat:wght@600&family=IBM+Plex+Mono:wght@600&display=swap">
+  <style>
+    body { margin: 0; }
+    .flyer {
+      width: 1200px; height: 630px; box-sizing: border-box; position: relative; overflow: hidden;
+      background: oklch(0.95 0.018 90); color: oklch(0.22 0.02 260);
+      font-family: 'Zilla Slab', serif; padding: 76px;
+      background-image: linear-gradient(oklch(0.88 0.01 90) 1px, transparent 1px), linear-gradient(90deg, oklch(0.88 0.01 90) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+    .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 14px; letter-spacing: 3px; color: oklch(0.5 0.15 55); margin-bottom: 20px; font-weight: 600; }
+    h1 { font-size: 66px; line-height: 1.05; margin: 0 0 22px 0; max-width: 700px; font-weight: 700; }
+    p.sub { font-size: 24px; max-width: 560px; line-height: 1.4; color: oklch(0.4 0.02 260); margin: 0 0 44px 0; }
+    .annot { position: absolute; right: 100px; top: 130px; font-family: 'Caveat', cursive; font-size: 30px; color: oklch(0.55 0.15 30);
+      transform: rotate(-6deg); max-width: 220px; line-height: 1.15; }
+    .annot::before { content: ''; position: absolute; left: -14px; top: -8px; right: -10px; bottom: -6px; border: 3px solid oklch(0.55 0.15 30); border-radius: 50% 50% 45% 55% / 55% 45% 55% 45%; }
+    .stats { display: flex; gap: 44px; border-top: 2px solid oklch(0.22 0.02 260); padding-top: 20px; width: fit-content; }
+    .stat b { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 26px; }
+    .stat span { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: oklch(0.5 0.02 260); }
+  </style>
+</helmet>
+<div class="flyer">
+  <div class="annot">called it,<br>19 months<br>late</div>
+  <div class="eyebrow">MARK MY WORDS</div>
+  <h1>Every claim, on the record.</h1>
+  <p class="sub">Capture the claim in one tap. Freeze what it actually said. Let the clock and the evidence do the rest.</p>
+  <div class="stats">
+    <div class="stat"><b>212</b><span>predictions logged</span></div>
+    <div class="stat"><b>66%</b><span>overall hit rate</span></div>
+    <div class="stat"><b>3</b><span>citations, minimum</span></div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

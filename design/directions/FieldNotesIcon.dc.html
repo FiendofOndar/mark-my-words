@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; }
+    .icon {
+      width: 480px; height: 480px; border-radius: 104px; box-sizing: border-box;
+      background: oklch(0.95 0.018 90);
+      display: flex; align-items: center; justify-content: center; position: relative;
+    }
+  </style>
+</helmet>
+<div class="icon">
+  <svg width="280" height="280" viewBox="0 0 280 280">
+    <circle cx="140" cy="140" r="118" fill="none" stroke="oklch(0.24 0.02 260)" stroke-width="6"/>
+    <circle cx="140" cy="140" r="80" fill="none" stroke="oklch(0.24 0.02 260)" stroke-width="6"/>
+    <line x1="140" y1="8" x2="140" y2="46" stroke="oklch(0.24 0.02 260)" stroke-width="6"/>
+    <line x1="140" y1="234" x2="140" y2="272" stroke="oklch(0.24 0.02 260)" stroke-width="6"/>
+    <line x1="8" y1="140" x2="46" y2="140" stroke="oklch(0.24 0.02 260)" stroke-width="6"/>
+    <line x1="234" y1="140" x2="272" y2="140" stroke="oklch(0.24 0.02 260)" stroke-width="6"/>
+    <path d="M92 148 L128 184 L196 104" fill="none" stroke="oklch(0.6 0.15 55)" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</div>
+</x-dc>
+</body>
+</html>
