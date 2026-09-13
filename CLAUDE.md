@@ -8,7 +8,7 @@ reasoning, including the ones that look arbitrary.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 323 tests, all of them fast
+npm test           # 324 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -138,6 +138,12 @@ is for.
   shareable card. Show the record until the rate means something.
 - **Retroactive entries never count toward a hit rate.** Backfilled predictions
   are cherry-picked by construction.
+- **Grounding bills per search query, not per prompt.** One check that searches
+  three things is three billable uses. Nothing in the API limits how many
+  searches the model runs, so the stopping rule and the twelve-search ceiling
+  live in the prompt and can be ignored. `MAX_SOURCES` is the part that does not
+  depend on the model agreeing. The month-to-date counter counts checks, not
+  searches, so it undercounts the billable unit.
 - **A place gets pinned as tightly as a number.** "A station serving Anacortes,
   WA" has no edge to it, and a Sea-Tac climate summary seventy miles south was
   cited as though it covered the town. The structuring prompt asks for a named

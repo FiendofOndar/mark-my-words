@@ -10,6 +10,15 @@ export type CheckParseResult =
   | { ok: true; value: Omit<CheckResult, 'provider' | 'model' | 'tokensUsed'>; warnings: string[] }
   | { ok: false; problems: string[] };
 
+/**
+ * Everything past this is stored, fetched and rendered for nothing. Three
+ * independent sources is already full marks, so eight leaves room for
+ * duplicates and near-misses without letting a runaway response turn into
+ * dozens of page fetches. The prompt asks for restraint; this is the part that
+ * does not depend on the model agreeing.
+ */
+const MAX_SOURCES = 8;
+
 const VERDICTS: CheckVerdict[] = ['hit', 'miss', 'partial', 'ambiguous', 'no_change'];
 const TRENDS: Trend[] = ['toward_yes', 'toward_no', 'flat', 'unknown'];
 const TIERS: SourceTier[] = ['primary', 'major_outlet', 'secondary', 'social'];
@@ -72,7 +81,12 @@ export function parseCheckResponse(raw: unknown, criteriaCount: number): CheckPa
 
   const sources: CitedSource[] = [];
   const rawSources = Array.isArray(input.sources) ? input.sources : [];
-  for (const entry of rawSources) {
+  if (rawSources.length > MAX_SOURCES) {
+    warnings.push(
+      `${rawSources.length} sources came back; only the first ${MAX_SOURCES} were kept.`,
+    );
+  }
+  for (const entry of rawSources.slice(0, MAX_SOURCES)) {
     if (typeof entry !== 'object' || entry === null) continue;
     const s = entry as Record<string, unknown>;
 
