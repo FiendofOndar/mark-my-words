@@ -15,20 +15,17 @@
     android:viewportHeight="108">
 
     <!--
-      Centred on the dial, not on the bounding box. The tail at the lower
-      left made the box wider than the bubble, so centring the box pushed the
-      bubble up and to the right of the icon's middle and it read as shoved
-      over. The clock centre now sits at the canvas centre and the tail is
-      what reaches out; scaled to 0.94 about the dial so the tail's tip still
-      lands inside the 66dp safe circle a round mask keeps.
+      Centred to the eye, at full size. The tail at the lower left made the
+      bounding box wider than the bubble, so centring the box pushed the
+      bubble up and to the right and it read as shoved over. A first fix put
+      the dial dead centre and scaled the mark to 0.94 to keep the tail in
+      the safe zone; the owner found it read small. This is the nudge two
+      thirds of the way instead: the bubble reads centred, the geometry is
+      untouched, and the tail's tip sits just inside a circle mask.
     -->
     <group
-        android:pivotX="57.72"
-        android:pivotY="52.4"
-        android:scaleX="0.94"
-        android:scaleY="0.94"
-        android:translateX="-3.72"
-        android:translateY="1.6">
+        android:translateX="-2.5"
+        android:translateY="1.0">
 
     <path
         android:fillColor="#00000000"
