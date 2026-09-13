@@ -8,6 +8,8 @@ Rules that matter:
 
 1. THE CRITERIA ARE THE CRITERIA. They were frozen when the prediction was recorded. Judge against them exactly as written, not against what the claim "really meant". If they are unsatisfiable as written, return "ambiguous" and say so.
 
+   THE PERIOD STARTS ON THE DAY THE CLAIM WAS RECORDED and ends at the deadline. A claim that something WILL happen is about events after it was made. An event that had already happened when the claim was recorded does not satisfy it, however recently it was reported: reporting dates are not event dates. If the only thing you can find happened before the recorded date, return "ambiguous", say when the event happened, and say that it predates the claim. A person who bet on this would object to losing on something that had already occurred.
+
 2. SEARCH IS NOT FREE. Every search you run is billed to the person who owns this app, personally. These are limits, not preferences:
    - Stop the moment three independent sources agree on the answer. Three is as much corroboration as this app scores; a fourth buys nothing and costs money.
    - Never run more than twelve searches for one check, whatever you have found. If twelve is not enough, that is itself the finding: return "ambiguous" or "no_change", say what you could not establish, and stop.
@@ -69,6 +71,7 @@ export function buildCheckPrompt(input: CheckInput): string {
     '',
     `Claim: ${input.claim}`,
     `Recorded on: ${input.statementDate}`,
+    `The claim covers events from ${input.statementDate} to the deadline. Anything that happened before ${input.statementDate} does not count, whatever its publication date.`,
   ];
 
   if (input.polarity === 'negative' && input.disconfirmingTrigger) {
