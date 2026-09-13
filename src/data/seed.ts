@@ -53,8 +53,17 @@ export function seedDemoData(db: Db): void {
       authorId: liz.id,
       rawStatement:
         'Mark my words, we will see the first rogue AI drone strikes in the next 6 months.',
+      /*
+       * "Rogue" is the load-bearing word and the first version of this seed
+       * dropped it, testing "autonomous" instead. A drone striking without a
+       * human in the loop is doing what it was built to do; a rogue one acts
+       * against its orders or its programming. The easier reading settled as
+       * a hit on a July strike the model found in August reporting, which was
+       * the app's first wrong verdict on a real claim. The owner caught the
+       * dropped word; the criteria now carry it.
+       */
       normalizedClaim:
-        'A drone strike carried out autonomously by an AI system without human authorization is publicly reported.',
+        'An AI-controlled drone carries out a strike against its orders or its programming, and the incident is publicly reported.',
       statementDate: daysFromNow(-20),
       sourceUrl: 'https://www.instagram.com/p/example-rogue-drone',
       sourceContext: 'Instagram story',
@@ -63,11 +72,11 @@ export function seedDemoData(db: Db): void {
       verificationMode: 'searchable',
       category: 'Tech/AI',
       criteria: [
-        'A drone strike occurs that was authorized by an autonomous system, not a human operator',
+        'An AI-controlled drone carries out a strike against its orders or its programming (rogue), not merely without a human in the loop',
         'The incident is reported by at least two established news outlets',
-        'It occurs on or before the deadline',
+        'The strike happens after the claim was made and on or before the deadline',
       ],
-      searchQueries: ['autonomous drone strike no human authorization', 'rogue AI drone attack reported'],
+      searchQueries: ['rogue AI drone strike against orders', 'AI drone attacked wrong target against programming reported'],
     });
 
     /*

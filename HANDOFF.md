@@ -248,7 +248,11 @@ the model's and it was never told the period had a start. The check prompt now
 states the period explicitly (rule 1 and a line in every check's input) and
 tells the model that reporting dates are not event dates. Predicted outcome on
 a re-check of that claim: ambiguous, queued, with the summary naming July.
-The owner was asked to reopen it.
+The owner was asked to reopen it, and then pointed out the second
+thing wrong with it: the claim said "rogue" and the criteria tested
+"autonomous". The intake prompt now has a carry-the-qualifiers rule and the
+seed's criteria say what rogue means; on that reading the claim should read
+"nothing yet".
 
 Also confirmed on this build: the Custom Tab (a source link opened in a sheet
 with its own close control, no download prompt), the tokens line in Settings,
