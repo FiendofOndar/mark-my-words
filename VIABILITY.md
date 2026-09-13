@@ -197,6 +197,19 @@ whether Google's API terms permit a third-party app to run on a user's key.
    the row. If fewer than half of the people who start it finish it, the
    flow is the problem to fix before anything else on this list.
 
+   Wording matters here for App Review, not only for users. The one
+   documented App Store rejection of a bring-your-own-key app (a paid app,
+   September 2024, Apple forum thread fetched) quoted guideline 3.1.1: "the
+   app uses API keys to unlock or enable functionality." Several free BYOK
+   clients are live with in-app purchases beside them (Pal Chat, OwnKey,
+   Prodigy; store pages snippet-only). The pattern: 3.1.1 bites when the
+   key is the paywall. So the key screen says "Connect your Google Gemini
+   key", a credential like a mail password, never "unlock", "enable" or
+   "Pro"; the link reads "Create a free Gemini API key at Google AI
+   Studio" and the app never mentions Google's prices or billing (3.1.3(f)
+   forbids "calls to action for purchase outside of the app"); and no
+   feature the developer sells is ever conditioned on a key.
+
 3. **A community pool.** A small HTTPS service holding one key and exposing
    the two `Verifier` routes, `structure` and `check`. The device sends what
    it sends Gemini today minus the key; the service adds it, forwards, and
@@ -224,6 +237,10 @@ whether Google's API terms permit a third-party app to run on a user's key.
      real request.
    - **A reviewer allowance**, so store review does not need a live key in
      the notes.
+     The pool being on by default, with no key, is also what lets a
+     reviewer exercise the check path in the first ten minutes (guideline
+     2.1(a), fetched: a reviewer who cannot test a feature rejects), and
+     what separates this design from the 3.1.1 rejection above.
    - **Long requests.** A grounded check has run past 45 seconds on the live
      fixtures (`GeminiVerifier` comment). The host has to hold a request
      open for 90 seconds; 3.4 has what each one allows.
@@ -362,6 +379,30 @@ user recording a claim by a named private person ("my neighbor said") is
 sending that person's name and claim to a third-party model. The consent
 screen covers the rule; the intake prompt does not need to change.
 
+The rejection text Apple sent to Gemini-using apps in February 2026 (forum
+threads fetched): "The app appears to share the user's personal data with a
+third-party AI service but the app does not clearly explain what data is
+sent, identify who the data is sent to, and ask the user's permission before
+sharing the data." What got those apps approved: a consent screen before
+the first API call that names the provider and what is sent, a privacy
+policy that names the processor and its training use, and the same
+paragraph in the store description and the review notes. A user-supplied
+key is not exempt; nothing in Apple's text says so. The consent screen
+therefore has one version per path: "your key" and "our server, which
+forwards it and keeps no copy".
+
+Three more items that go with it, each with a documented fix (4.1a):
+the privacy label declares "Other User Content" and "Device ID" under App
+Functionality, never "Data Not Collected", because Google's free tier
+states it may use content to improve its products with human review
+(snippet; the terms page is blocked) and that is retention beyond the
+request; an app-level `PrivacyInfo.xcprivacy`, because Capacitor is on
+Apple's list of SDKs that require a signed privacy manifest (fetched);
+and `ITSAppUsesNonExemptEncryption = NO`, because HTTPS through the
+system libraries is exempt (fetched). The Play data-safety form reads the
+same facts: text transmitted off device to a third party that retains it
+is "shared", not merely "collected".
+
 Both stores also need working credentials for the reviewer. With BYOK only,
 that is a live key in the review notes, spending the owner's money on the
 reviewer's checks. With the proxy, it is a reviewer allowance on a device
@@ -464,6 +505,10 @@ or frequent, which rates 4+ or 13+, and "Simulated Gambling: none".
   is the only thing on screen a reviewer could point to. Keeping it is
   defensible; renaming the label ("What's riding on it") changes nothing
   in substance. Owner's call; recorded as open in section 8.
+- Never model money. No currency field, no totals, no "you owe" math, no
+  odds. The second report's reading is that a free-text "$20" rendered
+  with currency formatting is what turns a ledger into "sports betting" in
+  a reviewer's eyes; a sentence ("loser buys lunch") does not.
 - The seeded gutters statement ("I bet the neighbors...") is fine as a
   user's own words but is the first thing a reviewer sees on a fresh
   install. Reword the seed or make sure the review build's first screen is
@@ -831,6 +876,18 @@ and must be read on `support.google.com` before it decides anything.
 | 5.1.1, 5.1.2(i) Privacy | Privacy policy link in App Store Connect and in the app. "You must clearly disclose where personal data will be shared with third parties, including with third-party AI, and obtain explicit permission before doing so." Added 2025-11-13. Forum reports of rejections when the AI call can fire before the consent screen | fetched (guidelines, Apple news); forum snippets |
 | Privacy nutrition labels | Required. "Collect" means transmitted off device beyond real-time servicing; the optional-disclosure exemption needs the data to be outside the app's primary function, and checks are the primary function, so the prediction text is declared | fetched |
 | AI-generated content labelling | No Apple rule found beyond the 5.1.2(i) consent sentence. Blogs claiming one did not cite Apple text | fetched |
+| BYOK precedent | One documented rejection (September 2024, a paid app): "the app uses API keys to unlock or enable functionality" under 3.1.1; App Review said it was investigating and no outcome was posted. Free BYOK clients with IAP beside them are live (Pal Chat, OwnKey, Prodigy, others). The key must never be the paywall; see 2.1 | forum thread fetched; store pages snippet |
+| Link to Google AI Studio | No Apple text on linking to a third party's free signup. 3.1.3(f) allows free companions to web tools "provided there is no purchasing inside the app, or calls to action for purchase outside of the app"; on the US storefront external calls to action are allowed outright (3.1.1(a)). Name a free credential, never a price | fetched (guidelines); inference |
+| 2.5.6, 4.2, 4.2.2 "web wrapper" | Capacitor is WKWebView, so 2.5.6 is met. Documented 4.2 rejections hit apps loading or aggregating remote web content; this app bundles its UI, works offline, stores locally, uses the share sheet and notifications. Grep the built app for UIWebView symbols from plugins (historic ITMS-90809) | fetched (guidelines, forum threads) |
+| 4.3(b) duplicates, June 2026 | "We will not accept new submissions unless they offer a meaningfully different or improved experience." Prediction trackers exist (ClaimCheck, Foresee, Called It). Screenshots and description lead with what none of them do: checked verdicts with citations, the evidence and amendment logs, receipts | fetched |
+| 5.1.2(i) rejection text and fix | "does not clearly explain what data is sent, identify who the data is sent to, and ask the user's permission before sharing"; fixed by a consent screen before the first call naming the provider, a policy naming the processor and training use, mirrored in description and review notes. A user-supplied key is not exempt | forum threads fetched |
+| Non-consumable IAP | "Make sure you have a restore mechanism for any restorable in-app purchases" (3.1.1); rejections for a missing or broken Restore Purchases button are documented. 2.1(b): purchases must be complete, visible and functional for the reviewer. Tipping the developer through IAP is explicitly permitted. Do not list unshipped benefits (sync) on the purchase sheet (2.3.1(a), undocumented or dormant features) | fetched (guidelines); forum snippets |
+| No accounts | 5.1.1(v): "let people use it without a login" when there are no significant account features. A device id sent to the pool is "Device ID" on the privacy label; use a random app-generated id, not the advertising identifier, so no ATT prompt | fetched |
+| Export compliance | HTTPS through system libraries is exempt; set `ITSAppUsesNonExemptEncryption` to NO. Apple notes a possible year-end self-classification report to the US government for exempt encryption | fetched |
+| Privacy manifest | Required-reason APIs must be declared since 2024-05-01; Capacitor and Cordova are on Apple's list of SDKs needing a signed manifest; Capacitor core ships one, plugins (filesystem, preferences) may need reasons in the app's own manifest. Run Xcode's privacy report on the archive | fetched (Apple list, Capacitor repo and docs) |
+| Privacy label | "Collect" means retained beyond servicing the request; Google's free tier retains and may review content (snippet), so declare Other User Content and Device ID under App Functionality. Never "Data Not Collected" | fetched (Apple definitions); Gemini terms snippet |
+| Developer agreement AI terms | DPLA 3.3.11 covers Apple's own Foundation Models, SiriKit and App Intents; nothing constrains calling a third-party model and nothing requires labelling AI output. The June 2026 guideline update did not add AI rules | DPLA PDF downloaded and read; Apple news fetched |
+| Reviewer access to AI features | 2.1(a): a reviewer who cannot exercise a feature rejects. Pool on by default, a reviewer key in the notes, and a short demo video (one thread reports approval only after adding one) | fetched |
 | Small Business Program | 15 percent for developers under $1M in the prior year; new developers qualify | fetched |
 
 **Apple, the developer side, for a US individual** (researched 2026-09-13;
@@ -1136,6 +1193,15 @@ way `CLAUDE.md` asks for partial work to be reported.
 - No key, token or credential in the built APK (grep the bundle).
 - Store copy, screenshots and keywords carry no gambling vocabulary (2.10);
   the age rating still answers Contests, not Simulated Gambling.
+- The consent screen still fires before the first model call on every
+  path, and its text still matches the privacy policy and the privacy
+  label (Other User Content, Device ID).
+- Restore Purchases works in the sandbox; the purchase sheet lists only
+  shipped benefits.
+- The key screen still says "connect", never "unlock", "enable" or "Pro";
+  no Google price or billing mention anywhere in the app.
+- `ITSAppUsesNonExemptEncryption` is NO and the privacy manifest passes
+  Xcode's report; no UIWebView symbols in the archive.
 - Crash reporting reports nothing that identifies a person or quotes a
   prediction.
 - Section 7 updated with the month's numbers.
@@ -1239,6 +1305,16 @@ Ordered by how much of the plan rests on them.
 0e. **EU availability.** Declare trader status (publishing a P.O. box, a
    phone and an email) or exclude the EU storefronts. Owner's call; either
    is allowed.
+0f. **The outcome of the one documented BYOK rejection under 3.1.1.** Apple
+   said it was investigating; nothing further was posted. No case was found
+   of a BYOK app rejected under 3.1.1 and then approved after a specific
+   change, so the mitigation in 2.1 is inference from the guideline text
+   and from which BYOK apps are live.
+0g. **Google's Gemini API terms on free-tier content.** The statement that
+   free-tier prompts may be used to improve Google's products and reviewed
+   by humans is from search snippets; the terms page is blocked here. It
+   decides the wording of the consent screen and whether the Play form says
+   "shared". Read the page.
 
 1. **Which model family `gemini-flash-latest` resolves to today.** The
    billing schemes themselves are now sourced (3.1, fetched): the 3.x

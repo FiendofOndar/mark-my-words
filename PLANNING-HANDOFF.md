@@ -36,30 +36,14 @@ merging your own PRs is for the main line of work, not this branch.
 layer; a community pool capped at Google's free allowance; no subscription,
 no ads, no paid download; one one-time supporter unlock around $4.99.
 
-## In flight when the switch happened
+## State at the switch
 
-1. **A research agent on Apple App Review risks for this design** was still
-   running. Its result arrives in this conversation as a task notification.
-   It covers: BYOK precedent and 3.1.3(f), Capacitor "web wrapper" risk
-   under 4.2 and 2.5.6, 5.1.2(i) consent, 5.3 and the word "bet", IAP rules
-   for a non-consumable, export compliance and privacy manifests, DPLA
-   3.3.11. When it lands: fold sourced rows into `VIABILITY.md` 4.1a (Apple
-   table), adjust 2.10 if it contradicts anything there, add unverifiable
-   items to section 8, commit, push.
-2. **The owner's question** ("is anything about the way we're doing this a
-   hard blocker for the App Store?") has been answered only from the
-   developer-side report so far, in `VIABILITY.md` 2.10 and 4.1a. Give the
-   owner the complete answer once the second report is in. The shape of
-   the answer so far:
-   - No hard blocker in the design itself was found on the developer side.
-   - The one thing that could stop the listing: being classified as
-     "simulated gambling" on an individual account (2.10). Mitigation is
-     vocabulary, honest age rating as Contests, and review notes.
-   - Hoops with a privacy cost: legal name as public seller; EU trader
-     status publishes an address, phone and email, or exclude the EU.
-   - Hoops in time and paperwork: enrollment stalls reported in 2026 (start
-     early), Paid Apps Agreement with W-9 and SSN before the unlock can
-     ship, a Mac or a macOS CI runner.
+Both Apple research reports (developer side, App Review risks) landed and
+are folded into `VIABILITY.md`: section 2.10 (the gambling-classification
+risk), 2.1 and 2.6 (BYOK wording, consent, labels, manifest), 4.1a (two
+Apple tables), section 6 (pre-release checks), section 8 (items 0c to 0g).
+No research agent is in flight. The owner has the complete Apple answer in
+the chat; the durable version is `VIABILITY.md`.
 
 ## Open questions the owner has to answer (collect, do not decide)
 
