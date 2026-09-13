@@ -8,7 +8,7 @@ reasoning, including the ones that look arbitrary.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 297 tests, all of them fast
+npm test           # 300 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -99,6 +99,18 @@ is for.
   so a miss stays a miss and earns a badge instead.
 - **Model confidence can only lower the score, never raise it.** The score is
   computed by the app from evidence the app verified itself.
+- **The confidence cap governs automation, not whether the user is told.** The
+  band is twenty points, so a model reporting 43 caps everything at 63 and
+  nothing under 80 reaches the queue. That let a model's own humility bury a
+  finding the app had verified: four sources, two quotes confirmed, an observed
+  value nowhere near the claim, filed as "no change". `canQueue` reads the
+  uncapped `evidenceTotal` as well. An unsure model still cannot auto-resolve.
+- **The seed writes checks that look exactly like real ones.** `provider:
+  'demo'`, example.com URLs under real wire-service names, `fetchStatus: 'ok'`
+  hardcoded so the app says "quote verified" for a page it never fetched, and a
+  World Series winner for a season that has not been played. Anything rendering
+  a check must badge `provider === 'demo'`, and evidence rows must show the
+  host, not only the publisher the model typed.
 - **Every cited URL is fetched and searched for the quoted passage.** A verdict
   resting on an unreachable citation never auto-resolves.
 - **`blocked` is not `unreachable`.** A bot wall or a CORS refusal means the app
