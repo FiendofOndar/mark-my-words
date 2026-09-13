@@ -5,7 +5,16 @@
  * baseline the device's font happens to use and never matched each other.
  * Stroked paths at one width, inheriting colour, so they behave like type.
  */
-export type IconName = 'refresh' | 'standings' | 'settings' | 'back' | 'chevron' | 'plus' | 'share' | 'edit';
+export type IconName =
+  | 'refresh'
+  | 'standings'
+  | 'settings'
+  | 'back'
+  | 'chevron'
+  | 'plus'
+  | 'share'
+  | 'edit'
+  | 'filter';
 
 const PATHS: Record<IconName, React.ReactNode> = {
   // A circular arrow, open at the top right where the head sits.
@@ -40,6 +49,8 @@ const PATHS: Record<IconName, React.ReactNode> = {
       <path d="M14 6l4 4" />
     </>
   ),
+  // A funnel: the feed's order and filter live behind it.
+  filter: <path d="M4 5h16l-6 8v5l-4 2v-7L4 5z" />,
   plus: (
     <>
       <path d="M12 5v14" />

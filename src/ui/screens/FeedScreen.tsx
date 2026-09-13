@@ -6,6 +6,9 @@ import { FilterChips, type ChipDef } from '../components/FilterChips';
 import { CATEGORIES, type Category } from '../../domain/types';
 import { PredictionRow } from '../components/PredictionRow';
 import { PullToRefresh } from '../components/PullToRefresh';
+import { FeedOptionsSheet } from '../components/FeedOptionsSheet';
+import { readFeedSort, writeFeedSort } from '../../lib/feedSortPref';
+import type { FeedSort } from '../../domain/feedSort';
 import {
   awaitsUser,
   describePull,
@@ -28,8 +31,14 @@ const CHIP_DEFS: ChipDef[] = [
 
 export function FeedScreen() {
   const [filter, setFilter] = useState<FeedFilter>({ kind: 'all' });
+  const [sort, setSort] = useState<FeedSort>(readFeedSort);
+  const [options, setOptions] = useState(false);
+  const chooseSort = (next: FeedSort) => {
+    writeFeedSort(next);
+    setSort(next);
+  };
   const all = useFeed({ kind: 'all' });
-  const current = useFeed(filter);
+  const current = useFeed(filter, sort);
   const pull = usePull();
   const quota = useQuotaUsed();
   const { data: cooldown } = useCooldown();
@@ -105,6 +114,17 @@ export function FeedScreen() {
               className={pull.isPending ? 'animate-spin [animation-duration:1.4s]' : undefined}
             />
           </button>
+          <button
+            type="button"
+            onClick={() => setOptions(true)}
+            aria-label="Order and filter"
+            title="Order and filter"
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full active:bg-surface-raised ${
+              sort !== 'heat' || filter.kind !== 'all' ? 'text-accent' : 'text-ink-dim'
+            }`}
+          >
+            <Icon name="filter" />
+          </button>
           <HeaderLink to="/standings" label="Standings" icon="standings" />
           <HeaderLink to="/settings" label="Settings" icon="settings" />
         </>
@@ -164,6 +184,16 @@ export function FeedScreen() {
           </ul>
         )}
       </PullToRefresh>
+
+      <FeedOptionsSheet
+        open={options}
+        onClose={() => setOptions(false)}
+        sort={sort}
+        onSort={chooseSort}
+        chips={chips}
+        filter={filter}
+        onFilter={setFilter}
+      />
 
       <Link
         to="/new"

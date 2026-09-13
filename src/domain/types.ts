@@ -128,6 +128,8 @@ export interface Prediction {
    * the "it happened anyway" control read it.
    */
   canHappenLate: boolean;
+  /** Held above the feed's order, in the order pinned. A display choice, but a shared one, so it lives in the row. */
+  pinnedAt: Iso | null;
 
   // state
   status: PredictionStatus;
