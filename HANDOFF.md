@@ -8,7 +8,8 @@ behavior.
 everything else: how the owner works, what the app is for, where we actually
 are, and the four open bugs with their diagnosis already done.
 
-State at the time of writing: `f258ad5`, pushed, CI green, 354 tests, schema v7.
+State at the time of writing: branch `claude/architecture-review-bugs-9ua5gc`, 320 tests,
+schema v8. Not yet merged to `main`; see section 4.
 
 ---
 
@@ -88,22 +89,27 @@ driver port.
 The design decisions that took the longest to reach, and should not be quietly
 reversed:
 
-**The verdict decides. The score describes.** Gemini makes the determination.
+**The verdict decides. There is no score.** Gemini makes the determination.
 The app's job is to notice when the citations do not hold up, not to
-second-guess the answer. This was the single biggest change of the session: for
-weeks the app was getting correct answers from the model and refusing to act on
-them because a composite evidence score had not cleared 95. The score is now
-information on the check log. Two things still stand between a verdict and the
-record: a gate (something the app actively noticed was wrong) and the model
-saying it is unsure (confidence under 70).
+second-guess the answer. For weeks the app was getting correct answers from the
+model and refusing to act on them because a composite evidence score had not
+cleared 95. It was demoted to information on the check log, and then, in the
+review that opened this session, removed: it was computed from the same inputs
+the gates read, decided nothing, and printed two structurally wrong numbers on
+correct checks. Two things stand between a verdict and the record: a gate
+(something the app actively noticed was wrong with the citations) and the model
+saying it is unsure (confidence under 70). Both queue the verdict for the owner.
 
-**Source verification is a fabrication guardrail, not a verdict input.** The
-owner challenged this directly: "can you explain exactly why we think the app
-needs to verify the sources at all? As far as I can tell, it seems like it's
-just verifying did the source say what Gemini says the source said." The answer
-that survived: a model that invents a plausible URL is the failure mode worth
-catching, and nothing else in the pipeline can catch it. Anything beyond that is
-the model's job.
+**Source verification is a link check.** The owner challenged the layer
+directly: "can you explain exactly why we think the app needs to verify the
+sources at all?" The answer that survived a session: a model that invents a
+plausible URL is the failure mode worth catching, and nothing else in the
+pipeline can catch it. The answer that survived the review: an invented URL is
+caught by the fetch, not by matching the page text, and the matcher could not
+tell a rewritten page from an invented one by its own admission. The app now
+opens each link and records whether it answered. It does not read the page.
+The owner's words for the display: a green check if you can tap it and land
+somewhere, a yellow mark if you cannot.
 
 **A gate fires on "nothing here works," never on "one thing does not."** This
 shape has been wrong three separate times: one dead link gated the check, one
@@ -132,152 +138,105 @@ are unenforceable by prompt alone, which is why recording the real count matters
 
 ## 4. Where we actually are
 
-As of this morning the pipeline works end to end for the first time. Three
-manual checks on the two live fixtures plus the sample:
+The review the owner asked for at the start of this session is in the session
+transcript; its conclusions are in section 9 below. The owner made five
+decisions on it and every one is built, on the branch named at the top.
+Nothing has been run against a real key since. **The next step is a build, and
+the owner's screenshots.**
 
-| | verdict | correct? | outcome |
-|---|---|---|---|
-| Anacortes weather | miss | yes | settled by the app |
-| Super Bowl LIX | hit | yes | settled by the app |
-| Dodgers 2025 WS | hit | yes | held, correctly |
+What the branch contains, one commit each, all with tests:
 
-The Dodgers hold is the publisher-mismatch gate earning its keep for the first
-time: the model cited `m.youtube.com` and labeled it ESPN, and the app noticed
-the name does not match the host. Two real confirmations on `mlb.com` and
-`en.wikipedia.org` carried the finding; the third citation was not what it said
-it was.
+1. A crash fix. A late-watch re-check that returned "miss" threw on the
+   miss-to-miss transition and ended the whole pull. Every miss got a
+   three-year watch by default, so every miss became this thirty days after it
+   settled. The pull loop also now files anything that escapes `runCheck` as a
+   failed check row instead of dying.
+2. Bug 1, the criterion index. The wire format is 1-based to match the prompt;
+   a 0-based reply is still accepted.
+3. The evidence score removed. `src/domain/rubric.ts` is `gates.ts`; checks
+   store their gates as a JSON array in the renamed column; `basis` is gone
+   from the criteria status. Bug 3 went with it.
+4. The page matcher removed. `validateSources` opens the link and records
+   `ok`, `blocked` or `unreachable`; old `facts_found` and `quote_not_found`
+   rows migrate to `ok`. Bug 2 went with it.
+5. Late watch defaults to `never` for dated claims, `3y` for event-shaped.
+6. The publisher-mismatch gate fires only when nothing clean and reachable is
+   left; otherwise the mismatch is printed on the row.
+7. Negative claims: past the deadline, a check that finds nothing queues a hit
+   for approval. The prompt tells the model never to return hit on one.
+8. Bug 4 diagnostic: a grounded check with no `webSearchQueries` prints the
+   response's keys and the raw `groundingMetadata` under "What the provider
+   said" on the check log.
+9. Cleanup: the unused `dailyQuota` on the verifier interface and its stale
+   200-per-day constant; the intake rule steering local weather to manual;
+   "Settled automatically" is now "Settled by the app".
 
-**The page-fetching layer finally does something.** This run: three verbatim
-confirmations (`nfl.com`, `mlb.com`, `en.wikipedia.org`) and one figures match
-(`forecast.weather.gov`). The four runs before it confirmed 1, 2, 0 and 0. The
-change that did it was matching on the quote's figures, dates and names rather
-than on its wording, because a model writing from a search snippet reproduces
-the substance of a line reliably and its exact phrasing almost never.
+Last real run, before any of this (three manual checks on the two live fixtures
+plus the sample): Anacortes miss, settled; Super Bowl hit, settled; Dodgers hit,
+held on the mismatch gate. All three verdicts were correct.
 
-Everything still on the list is bookkeeping accuracy, not verdict correctness.
-That is a much better class of problem than what we started with.
+**What to look at on the next build.** Uninstall the previous APK first (each is
+signed with a throwaway key), and wipe data in Settings so the seed rewrites.
+Then one pull on the feed:
+
+- The Super Bowl detail screen: both criteria ticked on the HIT.
+- Any check log entry: no score rows, a "N sources, links work" chip, green
+  checks on the links, the gate list if any, the model's confidence line.
+- The Anacortes entry: "Settled by the app", and no "Still watching until"
+  line (dated claim, no late watch).
+- Expand a check's chip and look for "What the provider said". If it is there,
+  it holds the raw grounding metadata. Send that screenshot; it settles bug 4.
+- The Dodgers sample is unchanged and still badged Sample.
 
 ---
 
 ## 5. The open bugs
 
-### Bug 1: the criterion index is off by one. Confirmed, highest priority.
+Of the four diagnosed last session: **bug 1 is fixed** (commit 2 above). **Bugs 2
+and 3 are moot**, since the matcher and the score they lived in are gone.
+**Bug 4 is instrumented but not fixed**: the `webSearchQueries` field name
+matches the published API docs, so "the capture is wrong" may itself have been
+the wrong diagnosis. Two other explanations: the `gemini-flash-latest` alias
+returns thinner grounding metadata than the pinned models (a developer forum
+thread reports `groundingChunks` missing on that alias), or the model did not
+search at all. The second would matter more than the budget: an unsearched
+answer to a question about a February 2025 game is the model recalling, and a
+recalled answer is where invented URLs come from. The diagnostic on the next
+build says which.
 
-`src/verification/prompts/check.ts:86` renders the criteria list as `1. `, `2. `
-and so on. The response schema asks for a field called `index` and nothing tells
-the model it is zero-based. `src/verification/checkSchema.ts:122` treats it as
-zero-based and drops anything `>= criteriaCount`.
-`src/verification/runCheck.ts:125` then indexes `ctx.criteria[status.index]`.
+Still open, smaller:
 
-Consequences, all observed in screenshots:
-
-- On a one-criterion prediction the model returns `index: 1`, it is out of
-  range, it is dropped, `criteriaStatus` is empty, and `coverageFrom` returns
-  `'none'`. Both the Anacortes and Dodgers panels read **Criteria covered
-  0/15** on checks that were otherwise correct and well sourced.
-- On the two-criterion Super Bowl prediction the model's `1` marked the
-  **second** criterion and its `2` was silently discarded. The detail screen
-  showed the headline criterion unticked on a HIT.
-
-This has been wrong since the feature existed. It also feeds the criteria
-coverage line of the rubric, so that number has been computed from a partly or
-wholly empty list the entire time.
-
-Recommended fix: make the wire format 1-based so it matches what the prompt
-actually shows the model, convert to 0-based in `parseCheckResponse`, and keep a
-tolerant fallback that still accepts a 0-based response (if any returned index
-is `0`, treat the set as 0-based; otherwise subtract one). Say so explicitly in
-the prompt too. Add a test that a two-criterion response numbered 1 and 2 marks
-both criteria, and one that a response numbered 0 and 1 still works.
-
-### Bug 2: a figures match can confirm a quote with no figures in it.
-
-`pageSupportsQuote` in `src/verification/validateSources.ts:232` requires at
-least `MIN_DISTINCTIVE_TOKENS` (2) distinctive tokens and does not care whether
-any of them is a number.
-
-The Anacortes check was carried by a `forecast.weather.gov` row whose quote was
-"Weather observations for the past three days for. Burlington/Mount Vernon,
-Skagit Regional Airport." Seven proper nouns, zero numbers. The page genuinely
-says it, so the match is not false, but it establishes nothing about whether
-anywhere hit 85. The check log said "1 of 2 match on the figures," which
-overstates what the app stood up.
-
-The prompt already asks for the line carrying the numbers
-(`src/verification/prompts/check.ts` rule 5) and the model quoted a page header
-instead.
-
-This one needs a decision, not just a patch. A blanket "must contain a number"
-rule is wrong, because the Super Bowl criterion "the team they defeat is the
-Kansas City Chiefs" has no number in it. The principled version is to pass the
-criterion text into the matcher and require a numeric token in the quote only
-when the criterion itself contains one. That means plumbing criterion context
-into `validateSources`, which currently knows nothing about criteria. **Propose
-this to the owner before building it.**
-
-### Bug 3: an undated source zeroes the whole temporal line.
-
-`src/domain/rubric.ts:194`: `if (!source.publishedAt) return 0;`
-
-The Anacortes panel read **Dates make sense 0/10**. The NWS observations page
-carries no publication date, because a government data table does not have a
-byline. Scoring that as "the dates do not add up" is the same mistake as the
-deadline rule removed in `a020bdd`, which punished a recap for being published
-the morning after a night game.
-
-Recommended fix: treat a missing date as unknown rather than as failure. Pay the
-points when nothing predates the prediction, and consider partial credit when
-some sources are undated. Keep the rule that a source published before the
-prediction was made cannot report how it turned out.
-
-### Bug 4: the search-count instrumentation does not work.
-
-`src/verification/GeminiVerifier.ts:177` reads
-`response.candidates?.[0]?.groundingMetadata?.webSearchQueries`. Neither
-expanded check panel showed a "searches run" line, which means the field came
-back null or empty on every real call. The owner is on the build that contains
-the feature, so this is the capture being wrong, not the build.
-
-Honest note: that response shape was written from memory rather than checked
-against a real response. Fix it by capturing whatever `groundingMetadata`
-actually arrives (store it, or surface it once) and looking at the real shape
-before guessing again.
-
-This matters more than its size suggests. It is the only way to find out whether
-the twelve-search ceiling in the prompt is holding, and the owner's budget
-question depends on it.
-
-### Smaller things, noted and not yet fixed
-
-- **"Settled automatically" is a misleading label.** Every check comes from a
-  deliberate tap, so nothing is automatic from where the owner sits. What it
-  means is "the app decided this without asking you." Say that instead.
-- **Three years of late watch on a settled past-date observation.**
-  `DEFAULT_LATE_WATCH` is `'3y'` (`src/domain/prediction.ts:144`). A daily high
-  for a specific past date cannot become a hit later. Late watch is for "X will
-  happen by Y" claims that land after the deadline. It keeps a settled
-  prediction eligible for checks that cost money.
-- **`wunderground.com` will probably never confirm.** It is a
-  JavaScript-rendered app, so a plain fetch gets a shell with no readings in it.
-  Both Weather Underground rows failed on a page whose quote was genuinely
-  fact-dense. Consider telling the model to prefer server-rendered records.
-- **The model cited `m.youtube.com` as ESPN.** Prompt rules 4 and 5 are not
-  landing on video pages.
-- **Stale comment** at `src/verification/runCheck.ts:117` still refers to the
-  claim-period upper bound removed in `a020bdd`.
+- **Pricing unit is unverified.** From secondary pages (the official docs are
+  blocked from the build container): the 2.5 family bills grounding per prompt,
+  the 3.x family per search query, with a free allowance on both that this
+  app's volume sits inside. Which one `gemini-flash-latest` resolves to decides
+  what the searches-this-month number in Settings means. Check the billing page.
+- **`priorFindings` feeds the last two summaries back to the model.** A wrong
+  summary anchors the next check. Nothing tests what happens when the memory
+  is wrong.
+- **The "Held:" label** in the check log now mostly means "a late-watch
+  re-check confirmed the miss". Rows from before this session that read Held
+  meant "held for thin evidence". The label is true of both, so it stayed.
+- **Freeze at confirm rather than at first check** was recommended in the
+  review and not decided. The window between confirm and first check is
+  unaudited, and for a far-out claim that is a month at the earliest.
 
 ---
 
 ## 6. Proposed and deliberately not built
 
 **The observation path.** Give criteria a structured `observable` (threshold,
-unit, comparator) so the app does the numeric comparison itself instead of
-asking a model to do it and then grading the homework. The architectural
-diagnosis behind it: the app elicits a machine-checkable assertion, flattens it
-into a sentence, then spends the rest of the pipeline recovering it with fuzzy
-string matching. The owner raised the underlying complaint ("there has to be a
-more efficient way for the system to check basic verifiable data like weather
-statistics") but has **not approved building it.** Do not start it unprompted.
+unit, comparator) so the app does the numeric comparison itself. The review
+evaluated it and recommended against, and the owner agreed. The reasons: the
+spec's own example claims (the Cardinals, the AI bubble, Thor's arm, the
+gutters, Bitcoin, the Eagles) are almost none of them structured-data claims;
+weather is the flagship fixture because it is cheap to test, not because it is
+representative. The path would need a per-domain adapter, a geocoder (the
+place problem moves into the new layer rather than leaving), and a step that
+turns "85F within 25 miles of Anacortes" into a source-field-comparator tuple,
+which is itself a model call. The instrument it would replace has been right on
+every real verdict. What would reopen the question: a wrong verdict on a
+numeric claim. None has happened.
 
 ---
 
@@ -290,14 +249,15 @@ Prompt changes, with results, so nobody re-runs a failed experiment:
   sources only lowers confidence if it could change the verdict, took a check
   from 35 to 98. Confidence has been 98 on every check since.
 - **"Cite pages that will still say this tomorrow" did nothing measurable.** The
-  model still cites live pages.
-- **Explaining what `basis` means fixed a real failure.** The model was
-  returning `none` on a correct miss because it read `basis` as "is the answer
-  yes," which zeroed coverage.
+  model still cites live pages. The rule is kept, softened, for the reader's
+  sake rather than the app's.
+- **Explaining what `basis` means fixed a real failure**, and `basis` has since
+  been removed along with the coverage line it fed. If criteria-level evidence
+  matters again, `why` is still returned per criterion.
 - **Telling the model search costs the owner money, personally, is still
   untested**, because bug 4 means nothing is measuring it.
 
-Errors made this session, recorded so they are not repeated:
+Errors made across sessions, recorded so they are not repeated:
 
 - I blamed the drafting model for a date that my own seed code had written, and
   said so publicly before catching it. Check your own code before attributing a
@@ -308,6 +268,9 @@ Errors made this session, recorded so they are not repeated:
 - I misread "limit how many sources Gemini would **check**" as "cite" and pushed
   back on the wrong thing.
 - I guessed the `groundingMetadata` response shape from memory. It did not work.
+- The late-watch crash was sitting behind a comment that described exactly that
+  failure and guarded only the other branch. When a guard exists, test the
+  case it names on every path that reaches it.
 
 ---
 
@@ -315,8 +278,9 @@ Errors made this session, recorded so they are not repeated:
 
 - **Build loop.** Push to `main`, GitHub Actions runs types, tests, then builds a
   debug APK and replaces the rolling `latest` release. There is no `gh` CLI in
-  the container; use `curl` against the API with `$GH_TOKEN`. Poll with an
-  until-loop in a background Bash call rather than chained sleeps.
+  the container; use `curl` against the API with `$GH_TOKEN`, or the GitHub
+  MCP tools where the session has them. Poll with an until-loop in a
+  background Bash call rather than chained sleeps.
 - **Each APK is signed with a throwaway key**, so Android refuses to install over
   the previous build. The owner has to uninstall first. Say so every time.
 - **The seed only writes to an empty database.** New fixtures require wiping data
@@ -327,56 +291,51 @@ Errors made this session, recorded so they are not repeated:
 - **For a one-off screenshot,** write the script into the repo root and delete it
   after. Playwright will not resolve from the scratchpad directory.
 - **Outbound `curl` to news and weather hosts is blocked** by the container's
-  egress policy. `WebSearch` and `WebFetch` work. This is why real page behavior
-  can only be observed through the owner's phone.
+  egress policy, and so is `ai.google.dev`. `WebSearch` works; `WebFetch` works
+  on some hosts. Real page behavior can only be observed through the owner's
+  phone.
+- **`npm ci` first.** The container starts without `node_modules`, and vitest
+  fails with a config error that looks like a Tailwind problem until it is
+  installed.
 - **The two live test fixtures** are documented in `CLAUDE.md`. They are chosen
-  to be opposites: a numeric threshold pinned to a locality against a forecast
-  page that rewrites hourly, versus two discrete facts with no geography against
-  static recaps. Running one pull settles both.
+  to be opposites: a numeric threshold pinned to a locality against a .gov
+  page, versus two discrete facts with no geography against static recaps.
+  Running one pull settles both.
 
 ---
 
-## 9. Assumptions worth attacking
+## 9. The load-bearing assumptions, and what the review made of them
 
-Stated plainly so a reviewer can go at them. Each of these is load-bearing, each
-was arrived at under time pressure inside a single long session, and none has
-been stress-tested by anyone who was not also the person who built it.
+Each of these was stated last session as something to attack. The review did,
+the owner decided, and the branch reflects the decisions. Recorded here so the
+next session does not re-litigate them without new evidence.
 
-1. **That a language model with web search is the right instrument for settling
-   a factual claim at all.** The whole app rests on it. The alternative shape is
-   an app that reads structured data directly for the claims that have it
-   (weather, scores, prices, election results) and only falls back to a model
-   for claims that do not. That alternative was sketched as "the observation
-   path" and never built.
+1. **A language model with web search is the right instrument.** Holds, for the
+   claims this app is for. See section 6 for why the alternative was declined
+   and what would reopen it. One weakness nobody had named: the app cannot
+   tell a grounded verdict from a recalled one, and the only signal that would
+   (the search count) is the one that does not work yet. That is what bug 4 is
+   for.
 
-2. **That the app should verify citations rather than verify the claim.** The
-   current pipeline elicits a machine-checkable assertion from the user, flattens
-   it into a sentence, hands it to a model, and then spends the rest of its
-   effort recovering the assertion with fuzzy string matching against pages the
-   model cited. The owner already asked whether this earns its keep. The answer
-   given was "it is a fabrication guardrail." That answer may be too generous to
-   the layer.
+2. **The app should verify citations rather than the claim.** Reduced to what
+   earns its keep. The fetch stays: reachability feeds a gate, and the redirect
+   it follows feeds the tier and independence gates. The text matching went.
 
-3. **That the rubric should exist.** Five weighted dimensions produce a 0-100
-   score that the code itself says does not decide anything. It survives as
-   information on the check log. A number nobody acts on may be worse than no
-   number, since it invites the reader to act on it anyway, which is exactly the
-   failure it took a whole session to unwind.
+3. **The rubric should exist.** No. Removed.
 
-4. **That gates and the score are separate mechanisms worth having both of.**
-   Gates now carry all the decisions. The score carries none. That asymmetry
-   arrived by subtraction rather than by design.
+4. **Gates and the score as separate mechanisms.** The asymmetry was the right
+   end state; the dead half is gone. One gate was wrong by the codebase's own
+   rule and was narrowed (publisher mismatch).
 
-5. **That cost control belongs in the prompt.** The ceiling on searches is an
-   instruction the model may ignore, with no app-side enforcement and (today) no
-   working measurement. A per-check hard stop would have to live in the provider
-   layer, and does not exist.
+5. **Cost control belongs in the prompt.** The prompt ceiling is unenforceable
+   and stays as a hint. What actually bounds spend: the tap gate, the budget of
+   six per pull, the daily cap in Settings (default 20), and Google's $25 hard
+   stop. At this app's volume grounding is inside the free allowance on either
+   billing model. Stop spending sessions on the prompt for cost; spend one on
+   verifying the billing unit.
 
-6. **That criteria frozen at first check, amendable with an audit trail, is the
-   right integrity model.** It is the mechanism that makes the ledger mean
-   anything, and it has been bent twice already for usability reasons.
+6. **Criteria frozen at first check, amendable with an audit trail.** Holds.
+   Freeze-at-confirm was recommended and is undecided (section 5).
 
-7. **That quoted-text matching should survive in any form.** It confirmed 1, 2,
-   0 and 0 citations across four real runs, then 3 verbatim and 1 on figures in
-   the fifth. That fifth run is the only evidence the layer works, and one of its
-   four confirmations matched on a page header containing no figures at all.
+7. **Quoted-text matching in any form.** No. Removed. The quote is still
+   requested and shown, as the citation, for a person to read.
