@@ -69,11 +69,22 @@ function outcomeLabel(check: Check): string {
  */
 export function describeSources(evidence: Evidence[]): string {
   if (evidence.length === 0) return 'no sources';
-  const domains = new Set(evidence.map((e) => registrableDomain(e.url) ?? e.url));
+
+  // Counted the way the scoring counts, or the two disagree on screen: this
+  // read "2 sources" beside a gate saying only one had been cited, because it
+  // was counting a dead link and a duplicate domain that the rubric was not.
+  const domains = new Set(
+    evidence
+      .filter((e) => e.fetchStatus !== 'unreachable')
+      .map((e) => registrableDomain(e.url) ?? e.url),
+  );
+  if (domains.size === 0) return 'no source reachable';
+
   const confirmed = new Set(
     evidence.filter((e) => e.fetchStatus === 'ok').map((e) => registrableDomain(e.url) ?? e.url),
   );
   const plural = domains.size === 1 ? 'source' : 'sources';
+  if (confirmed.size === 0) return `${domains.size} ${plural}, none quoted back`;
   if (confirmed.size === domains.size) {
     return domains.size === 1 ? '1 source, confirmed' : `${domains.size} sources, all confirmed`;
   }

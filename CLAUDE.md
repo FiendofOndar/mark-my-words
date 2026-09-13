@@ -8,7 +8,7 @@ reasoning, including the ones that look arbitrary.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 325 tests, all of them fast
+npm test           # 327 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -111,6 +111,12 @@ is for.
   information on the check log now. Only two things stand between a verdict and
   the record: a gate, and the model reporting confidence under `CONFIDENT_AT`.
   Both ask the user; neither buries the finding.
+- **One source is enough when it is the body that keeps the record.** The NWS
+  does not report a temperature, it measures it, and requiring a second
+  independent outlet before believing it blocked a correct verdict four times
+  running. A lone `primary` source (a .gov host, or a governing body the table
+  knows) clears the corroboration gate; anything else still needs two. Only
+  safe because the tier comes from the domain now rather than from the model.
 - **Fabrication looks like nothing resolving, not like something failing.** Any
   single dead link used to gate the check, and it twice stopped a correct
   verdict backed by two pages that did resolve. A model that found real pages is

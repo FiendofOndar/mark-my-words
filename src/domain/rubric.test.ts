@@ -368,6 +368,36 @@ describe('hard gates', () => {
     expect(result.gates.join(' ')).toMatch(/yourself/i);
   });
 
+  it('lets the body that keeps the record stand on its own', () => {
+    // The real one: two forecast.weather.gov pages are one domain, and the
+    // third citation 404'd, leaving a single independent source. The NWS does
+    // not report the temperature, it measures it, and demanding a second outlet
+    // before believing it blocked a correct verdict for the fourth time.
+    const result = scoreCheck(
+      input({
+        sources: [
+          primarySource({ url: 'https://forecast.weather.gov/a' }),
+          primarySource({ url: 'https://forecast.weather.gov/b' }),
+          source({
+            url: 'https://timeanddate.com/x',
+            publisher: 'Time and Date',
+            fetchStatus: 'unreachable',
+          }),
+        ],
+      }),
+    );
+    expect(result.gates).toEqual([]);
+    expect(result.decision).toBe('auto_resolve');
+  });
+
+  it('still wants corroboration when the lone source is not primary', () => {
+    const result = scoreCheck(
+      input({ sources: [source({ url: 'https://wunderground.com/a', publisher: 'Weather Underground' })] }),
+    );
+    expect(result.gates.join(' ')).toMatch(/one independent source/i);
+    expect(result.decision).toBe('queue');
+  });
+
   it('asks rather than burying a gated result that also scored badly', () => {
     // `hold` used to swallow this entirely. A verdict the app cannot act on is
     // still a verdict somebody should see.

@@ -246,10 +246,25 @@ function collectGates(input: RubricInput, independent: number): string[] {
   if (input.proposedVerdict === 'partial' || input.proposedVerdict === 'ambiguous') {
     gates.push('A partial or ambiguous result is always yours to judge.');
   }
-  if (independent < 2) {
-    gates.push(
-      independent === 0 ? 'No sources were cited.' : 'Only one independent source was cited.',
-    );
+  /*
+   * One source is enough when it is the body that keeps the record.
+   *
+   * The National Weather Service is not a source reporting on the temperature,
+   * it is who measures it, and demanding a second independent outlet before
+   * believing an NWS observation is the kind of proceduralism that kept
+   * blocking correct answers. Corroboration is for claims where the sources are
+   * all reporting on something they did not themselves record.
+   *
+   * The tier comes from the domain now, so "primary" means a .gov host or a
+   * governing body the table recognises, not the model's opinion of itself.
+   */
+  const resolved = input.sources.filter((s) => s.fetchStatus !== 'unreachable');
+  const hasPrimary = resolved.some((s) => tierForUrl(s.url) === 'primary');
+
+  if (independent === 0) {
+    gates.push('No sources were cited.');
+  } else if (independent === 1 && !hasPrimary) {
+    gates.push('Only one independent source was cited, and it is not the body that would know.');
   }
   /*
    * Gating on "nothing resolved", not on "something did not".
