@@ -234,6 +234,21 @@ export function DetailScreen() {
                       ? `Settled by the app${settledBy ? ` · ${describeSources(settledBy.evidence)}` : ''}`
                       : 'Settled'}
               </p>
+              {/* The app decided this one without asking. The way to disagree
+                  is Reopen, which sat at the bottom of the screen among six
+                  other buttons, so nothing near the stamp said the verdict
+                  could be challenged at all. Reopening puts it back to open,
+                  on the record as overridden, and the next check or a manual
+                  resolve settles it again. */}
+              {p.resolvedBy === 'auto' && (
+                <button
+                  type="button"
+                  onClick={() => update.mutate({ id: p.id, patch: reopen(p) })}
+                  className="mt-2 text-[13px] text-partial underline-offset-2 hover:underline"
+                >
+                  Not right? Reopen it
+                </button>
+              )}
 
             </>
           ) : (
