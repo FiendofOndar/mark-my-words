@@ -57,7 +57,22 @@ jobs:
 
       # Builds the web app, then copies it into the native project. The web
       # assets are not committed, so this has to run before Gradle sees them.
+      # A label a person can read, in place of a hash nobody wants to
+      # remember. GitHub's merge commit carries the pull request title in its
+      # body, so that is the label; a direct push falls back to the subject.
+      # The same label goes into the app (Settings) and the release notes, so
+      # "is the phone on the latest build" is answered by reading two lines.
+      - name: Label the build
+        run: |
+          LABEL=$(git log -1 --pretty=%b | sed -n '1p')
+          if [ -z "$LABEL" ]; then LABEL=$(git log -1 --pretty=%s); fi
+          echo "BUILD_LABEL=$LABEL" >> "$GITHUB_ENV"
+          echo "BUILD_TIME=$(date -u +'%Y-%m-%d %H:%M UTC')" >> "$GITHUB_ENV"
+
       - run: npm run build
+        env:
+          VITE_BUILD_LABEL: ${{ env.BUILD_LABEL }}
+          VITE_BUILD_TIME: ${{ env.BUILD_TIME }}
       - run: npx cap sync android
 
       - name: Assemble
@@ -138,7 +153,9 @@ jobs:
             done
           }
 
-          NOTES="Debug build of \`${SHORT}\`.
+          NOTES="**${BUILD_LABEL}**
+
+          Built ${BUILD_TIME} from \`${SHORT}\`. Settings in the app shows the same line for the installed copy; if the two match, you have this build.
 
           Tap the .apk below to install. Android will ask permission to install
           from an unknown source; that is expected for a sideloaded app.
@@ -147,12 +164,12 @@ jobs:
           install this over a previous build. Uninstall the old one first."
 
           if retry gh release view latest --json tagName >/dev/null 2>&1; then
-            retry gh release edit latest --title "Latest build (${SHORT})" --notes "$NOTES" --target "$GITHUB_SHA"
+            retry gh release edit latest --title "Latest build, ${BUILD_TIME}: ${BUILD_LABEL}" --notes "$NOTES" --target "$GITHUB_SHA"
             # Clear old assets so the release carries exactly one APK.
             for asset in $(gh release view latest --json assets --jq '.assets[].name'); do
               retry gh release delete-asset latest "$asset" --yes || true
             done
           else
-            retry gh release create latest --title "Latest build (${SHORT})" --notes "$NOTES" --target "$GITHUB_SHA"
+            retry gh release create latest --title "Latest build, ${BUILD_TIME}: ${BUILD_LABEL}" --notes "$NOTES" --target "$GITHUB_SHA"
           fi
           retry gh release upload latest "$APK" --clobber
