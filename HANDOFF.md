@@ -333,3 +333,50 @@ Errors made this session, recorded so they are not repeated:
   to be opposites: a numeric threshold pinned to a locality against a forecast
   page that rewrites hourly, versus two discrete facts with no geography against
   static recaps. Running one pull settles both.
+
+---
+
+## 9. Assumptions worth attacking
+
+Stated plainly so a reviewer can go at them. Each of these is load-bearing, each
+was arrived at under time pressure inside a single long session, and none has
+been stress-tested by anyone who was not also the person who built it.
+
+1. **That a language model with web search is the right instrument for settling
+   a factual claim at all.** The whole app rests on it. The alternative shape is
+   an app that reads structured data directly for the claims that have it
+   (weather, scores, prices, election results) and only falls back to a model
+   for claims that do not. That alternative was sketched as "the observation
+   path" and never built.
+
+2. **That the app should verify citations rather than verify the claim.** The
+   current pipeline elicits a machine-checkable assertion from the user, flattens
+   it into a sentence, hands it to a model, and then spends the rest of its
+   effort recovering the assertion with fuzzy string matching against pages the
+   model cited. The owner already asked whether this earns its keep. The answer
+   given was "it is a fabrication guardrail." That answer may be too generous to
+   the layer.
+
+3. **That the rubric should exist.** Five weighted dimensions produce a 0-100
+   score that the code itself says does not decide anything. It survives as
+   information on the check log. A number nobody acts on may be worse than no
+   number, since it invites the reader to act on it anyway, which is exactly the
+   failure it took a whole session to unwind.
+
+4. **That gates and the score are separate mechanisms worth having both of.**
+   Gates now carry all the decisions. The score carries none. That asymmetry
+   arrived by subtraction rather than by design.
+
+5. **That cost control belongs in the prompt.** The ceiling on searches is an
+   instruction the model may ignore, with no app-side enforcement and (today) no
+   working measurement. A per-check hard stop would have to live in the provider
+   layer, and does not exist.
+
+6. **That criteria frozen at first check, amendable with an audit trail, is the
+   right integrity model.** It is the mechanism that makes the ledger mean
+   anything, and it has been bent twice already for usability reasons.
+
+7. **That quoted-text matching should survive in any form.** It confirmed 1, 2,
+   0 and 0 citations across four real runs, then 3 verbatim and 1 on figures in
+   the fifth. That fifth run is the only evidence the layer works, and one of its
+   four confirmations matched on a page header containing no figures at all.
