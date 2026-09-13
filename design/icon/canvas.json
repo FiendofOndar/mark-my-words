@@ -167,6 +167,62 @@
       "w": 480,
       "h": 480,
       "page": "page-bub"
+    },
+    {
+      "file": "StySizes.dc.html",
+      "x": 0,
+      "y": -1120,
+      "w": 1200,
+      "h": 1000,
+      "page": "page-sty"
+    },
+    {
+      "file": "StyEmber.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-sty"
+    },
+    {
+      "file": "StyDusk.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-sty"
+    },
+    {
+      "file": "StyViolet.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-sty"
+    },
+    {
+      "file": "StyGlow.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-sty"
+    },
+    {
+      "file": "StyGlass.dc.html",
+      "x": 2240,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-sty"
+    },
+    {
+      "file": "StyLight.dc.html",
+      "x": 2800,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-sty"
     }
   ],
   "annotations": [
@@ -305,13 +361,65 @@
       "w": 440,
       "text": "E \u2014 Filled, amber hands",
       "page": "page-bub"
+    },
+    {
+      "id": "s-1",
+      "x": 0,
+      "y": -56,
+      "w": 440,
+      "text": "Ember \u2014 warm analogous pair",
+      "page": "page-sty"
+    },
+    {
+      "id": "s-2",
+      "x": 560,
+      "y": -56,
+      "w": 440,
+      "text": "Dusk \u2014 blue into violet",
+      "page": "page-sty"
+    },
+    {
+      "id": "s-3",
+      "x": 1120,
+      "y": -56,
+      "w": 440,
+      "text": "Violet to blue \u2014 the most-cited pairing",
+      "page": "page-sty"
+    },
+    {
+      "id": "s-4",
+      "x": 1680,
+      "y": -56,
+      "w": 440,
+      "text": "Glow on deep \u2014 the app's own signature",
+      "page": "page-sty"
+    },
+    {
+      "id": "s-5",
+      "x": 2240,
+      "y": -56,
+      "w": 440,
+      "text": "Liquid glass \u2014 highlight sweep and lit rim",
+      "page": "page-sty"
+    },
+    {
+      "id": "s-6",
+      "x": 2800,
+      "y": -56,
+      "w": 440,
+      "text": "Light ground \u2014 inverted",
+      "page": "page-sty"
     }
   ],
   "launch": {
     "view": "canvas",
-    "page": "page-bub"
+    "page": "page-sty"
   },
   "pages": [
+    {
+      "id": "page-sty",
+      "name": "Icon styling"
+    },
     {
       "id": "page-bub",
       "name": "Bubble-clock finishes"
