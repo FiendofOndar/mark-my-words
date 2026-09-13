@@ -193,6 +193,8 @@ is for.
   further out scores identically, so `sortByHeat` must keep breaking the tie
   itself: deadline first, then `updatedAt`, then the id. Without the last two
   the same eight predictions came back in a different order on every load.
+  `sortFeed` wraps it: pinned rows first, then the per-device order from the
+  funnel sheet, heat by default. No drag-to-reorder; see SPEC 9.1 for why.
 - **A late hit never changes the verdict.** The timeframe was part of the claim,
   so a miss stays a miss and earns a badge instead.
 - **Tier and independence come from the domain, never from the model.** Both

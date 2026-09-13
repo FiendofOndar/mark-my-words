@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { FeedItem } from '../queries';
-import { awaitsUser, useDeletePrediction } from '../queries';
+import { awaitsUser, useDeletePrediction, useTogglePin } from '../queries';
 import { useLongPress } from '../useLongPress';
 import { ActionSheet, ConfirmDialog } from './Modal';
 import { Stamp, LateBadge, Pill } from './Stamp';
@@ -48,12 +48,19 @@ export function PredictionRow({ item }: { item: FeedItem }) {
 
   const navigate = useNavigate();
   const remove = useDeletePrediction();
+  const togglePin = useTogglePin();
+  const pinned = p.pinnedAt !== null;
   const [menu, setMenu] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const hold = useLongPress(() => setMenu(true));
   const href = p.status === 'draft' ? `/draft/${p.id}` : `/p/${p.id}`;
 
   const marks = [
+    pinned && (
+      <Pill key="pinned" tone="muted" title="Held at the top of the feed">
+        Pinned
+      </Pill>
+    ),
     item.hasQueuedVerdict && (
       <Pill key="queued" tone="warn">
         Verdict ready
@@ -133,6 +140,10 @@ export function PredictionRow({ item }: { item: FeedItem }) {
       title={p.rawStatement}
       actions={[
         { label: p.status === 'draft' ? 'Finish it' : 'Open', onSelect: () => navigate(href) },
+        {
+          label: pinned ? 'Unpin' : 'Pin to top',
+          onSelect: () => togglePin.mutate({ id: p.id, pinned: !pinned }),
+        },
         ...(p.status === 'draft'
           ? []
           : [{ label: 'Amend the claim', onSelect: () => navigate(`${href}?amend=1`) }]),

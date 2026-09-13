@@ -3,6 +3,7 @@ import type { Db } from '../data/db';
 import { useDb } from './DbProvider';
 import type { Author, Category, Prediction, PredictionStatus } from '../domain/types';
 import { sortByHeat, type HeatInput } from '../domain/heat';
+import { sortFeed, type FeedSort } from '../domain/feedSort';
 import { checkedButUnsettled, isPastDeadline, criteriaMarksFor } from '../domain/prediction';
 import type { PredictionPatch } from '../domain/prediction';
 import type { NewPrediction } from '../data/repositories/predictionRepo';
@@ -73,7 +74,7 @@ function matches(
   }
 }
 
-function buildFeed(db: Db, filter: FeedFilter): FeedItem[] {
+function buildFeed(db: Db, filter: FeedFilter, sort: FeedSort): FeedItem[] {
   const now = new Date();
   const authors = new Map(db.authors.list().map((a) => [a.id, a]));
   const amendmentCounts = db.predictions.amendmentCounts();
@@ -96,11 +97,11 @@ function buildFeed(db: Db, filter: FeedFilter): FeedItem[] {
       ];
     });
 
-  return sortByHeat(items, now) as FeedItem[];
+  return sortFeed(items, sort, now);
 }
 
 export const keys = {
-  feed: (filter: FeedFilter) => ['feed', filter] as const,
+  feed: (filter: FeedFilter, sort: FeedSort) => ['feed', filter, sort] as const,
   prediction: (id: string) => ['prediction', id] as const,
   authors: () => ['authors'] as const,
   standings: () => ['standings'] as const,
@@ -109,12 +110,22 @@ export const keys = {
   quota: () => ['quota'] as const,
 };
 
-export function useFeed(filter: FeedFilter) {
+export function useFeed(filter: FeedFilter, sort: FeedSort = 'heat') {
   const db = useDb();
   return useQuery({
-    queryKey: keys.feed(filter),
-    queryFn: () => buildFeed(db, filter),
+    queryKey: keys.feed(filter, sort),
+    queryFn: () => buildFeed(db, filter, sort),
   });
+}
+
+/** Lift a row above the feed's order, or drop it back in. */
+export function useTogglePin() {
+  return useDbMutation((db, args: { id: string; pinned: boolean }) =>
+    db.predictions.update(args.id, {
+      pinnedAt: args.pinned ? new Date().toISOString() : null,
+      updatedAt: new Date().toISOString(),
+    }),
+  );
 }
 
 export function usePrediction(id: string | undefined) {
