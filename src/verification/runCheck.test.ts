@@ -190,6 +190,35 @@ describe('source validation feeds the decision', () => {
     expect(plan.rubric!.breakdown.urlValidation).toBe(4);
   });
 
+  it('stands the check up on the figures when the wording has moved', async () => {
+    /*
+     * The realistic version of the case above, end to end. The pages are the
+     * record the model actually read; they have been reworded since, and they
+     * still carry the date and the detail the verdict turns on. This used to
+     * report that nothing had been confirmed.
+     */
+    const quoted = 'The Eagles beat the Chiefs 40-22 on February 9, 2025.';
+    const plan = await runCheck(
+      deps(
+        result({
+          sources: [
+            citedSource({ quotedText: quoted }),
+            citedSource({ url: 'https://reuters.com/a', publisher: 'Reuters', quotedText: quoted }),
+            citedSource({ url: 'https://bbc.co.uk/a', publisher: 'BBC', quotedText: quoted }),
+          ],
+        }),
+        new StubFetcher(() => ({
+          kind: 'ok',
+          text: 'Final, Feb 9 2025: Philadelphia 40, Kansas City 22. Eagles over Chiefs, 40-22.',
+        })),
+      ),
+      ctx(makePrediction()),
+    );
+    expect(plan.sources.every((s) => s.fetchStatus === 'facts_found')).toBe(true);
+    expect(plan.outcome).toBe('resolved');
+    expect(plan.rubric!.breakdown.urlValidation).toBe(16);
+  });
+
   it('treats an unreachable citation as a reason to stop', async () => {
     const plan = await runCheck(
       deps(result(), new StubFetcher(() => ({ kind: 'unreachable' }))),
