@@ -1,6 +1,62 @@
 {
   "artboards": [
     {
+      "file": "IterSizes.dc.html",
+      "x": 0,
+      "y": -1740,
+      "w": 1320,
+      "h": 1620,
+      "page": "page-iter"
+    },
+    {
+      "file": "IterFull.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-iter"
+    },
+    {
+      "file": "IterLift.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-iter"
+    },
+    {
+      "file": "IterLong.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-iter"
+    },
+    {
+      "file": "IterShort.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-iter"
+    },
+    {
+      "file": "IterGround.dc.html",
+      "x": 2240,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-iter"
+    },
+    {
+      "file": "IterRim.dc.html",
+      "x": 2800,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-iter"
+    },
+    {
       "file": "InkSizes.dc.html",
       "x": 0,
       "y": -1520,
@@ -379,6 +435,54 @@
   ],
   "annotations": [
     {
+      "id": "it-0",
+      "x": 0,
+      "y": -56,
+      "w": 460,
+      "text": "Full range \u2014 the fix: axis retargeted to the mark",
+      "page": "page-iter"
+    },
+    {
+      "id": "it-1",
+      "x": 560,
+      "y": -56,
+      "w": 460,
+      "text": "Lifted \u2014 every stop raised for contrast on dark",
+      "page": "page-iter"
+    },
+    {
+      "id": "it-2",
+      "x": 1120,
+      "y": -56,
+      "w": 460,
+      "text": "Longer \u2014 a cyan stop ahead of the violet",
+      "page": "page-iter"
+    },
+    {
+      "id": "it-3",
+      "x": 1680,
+      "y": -56,
+      "w": 460,
+      "text": "Shorter \u2014 violet into orchid, no warm end",
+      "page": "page-iter"
+    },
+    {
+      "id": "it-4",
+      "x": 2240,
+      "y": -56,
+      "w": 460,
+      "text": "Grounded \u2014 faint indigo wash behind the cool end",
+      "page": "page-iter"
+    },
+    {
+      "id": "it-5",
+      "x": 2800,
+      "y": -56,
+      "w": 460,
+      "text": "Rimmed \u2014 one hairline of light on the tile edge",
+      "page": "page-iter"
+    },
+    {
       "id": "ik-0",
       "x": 0,
       "y": -56,
@@ -693,9 +797,13 @@
   ],
   "launch": {
     "view": "canvas",
-    "page": "page-ink"
+    "page": "page-iter"
   },
   "pages": [
+    {
+      "id": "page-iter",
+      "name": "Sweep iterations"
+    },
     {
       "id": "page-ink",
       "name": "Ink repaired + red"

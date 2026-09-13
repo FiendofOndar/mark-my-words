@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; }
+
+    .tile { width: 480px; height: 480px; border-radius: 104px; position: relative;
+      overflow: hidden; display: flex; align-items: center; justify-content: center;
+      flex: none; background: oklch(0.16 0.012 270); }
+    .tile.ground { background:
+        radial-gradient(ellipse 116% 94% at 22% 14%, oklch(0.25 0.062 284), transparent 68%),
+        oklch(0.145 0.012 270); }
+    .tile .rim { position: absolute; inset: 0; border-radius: 104px; pointer-events: none;
+      box-shadow: inset 0 3px 0 rgba(255,255,255,0.13),
+                  inset 0 0 0 1.5px rgba(255,255,255,0.055),
+                  inset 0 -26px 46px rgba(0,0,0,0.34); }
+
+  </style>
+</helmet>
+<div class="tile"><svg width="360" height="360" viewBox="0 0 240 240"><defs><linearGradient id="gshortmain" gradientUnits="userSpaceOnUse" x1="61" y1="70" x2="175" y2="181"><stop offset="0%" stop-color="#9aa0e8"/><stop offset="100%" stop-color="#cf8fae"/></linearGradient></defs><g transform="translate(9 6)" fill="none" stroke="url(#gshortmain)" stroke-linejoin="round" stroke-linecap="round"><path d="M 40.6 143.9 A 86 86 0 1 1 71 180.6 L 10 212 Z" stroke-width="13"/><line x1="120" y1="106" x2="120" y2="50" stroke-width="12"/><line x1="120" y1="106" x2="155" y2="126" stroke-width="12"/><circle cx="120" cy="106" r="7" fill="url(#gshortmain)" stroke="none"/></g></svg></div>
+</x-dc>
+</body>
+</html>
