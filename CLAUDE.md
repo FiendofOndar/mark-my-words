@@ -98,7 +98,7 @@ summarized context, read this before acting.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 329 tests, all of them fast
+npm test           # 332 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks

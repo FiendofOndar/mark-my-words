@@ -2,7 +2,7 @@
  * Prediction state machine and deadline math. Pure functions over plain objects.
  * Nothing here touches the database, the network, or React.
  */
-import type { Iso, Prediction, PredictionStatus, ResolvedBy, Trend } from './types';
+import type { CriteriaElement, Iso, Prediction, PredictionStatus, ResolvedBy, Trend } from './types';
 
 export const RESOLVED_STATUSES: readonly PredictionStatus[] = [
   'hit',
@@ -220,6 +220,29 @@ export function resolve(
   }
 
   return patch;
+}
+
+/**
+ * What a verdict called by hand says about each criterion.
+ *
+ * A check writes the marks itself. A person resolving by hand did not, so the
+ * stamp said HIT while every criterion still showed a question mark. A hit
+ * means every criterion was met. A miss means at least one was not; the ones
+ * already found met keep their tick and the rest are crossed. Partial,
+ * ambiguous and void say nothing about individual criteria, so they are left
+ * as they were.
+ */
+export function criteriaMarksFor(
+  verdict: PredictionStatus,
+  criteria: Pick<CriteriaElement, 'id' | 'satisfied'>[],
+): { id: string; satisfied: boolean }[] {
+  if (verdict === 'hit') return criteria.map((c) => ({ id: c.id, satisfied: true }));
+  if (verdict === 'miss') {
+    return criteria
+      .filter((c) => c.satisfied !== true)
+      .map((c) => ({ id: c.id, satisfied: false }));
+  }
+  return [];
 }
 
 /** Reopen a resolved prediction. Always recorded as a user override. */
