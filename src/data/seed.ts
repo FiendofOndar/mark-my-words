@@ -241,13 +241,17 @@ export function seedDemoData(db: Db): void {
       verificationMode: 'searchable',
       category: 'Weather/Climate',
       criteria: [
-        'The daily high temperature recorded at a National Weather Service station or official weather reporting site serving Anacortes, WA is 85 degrees Fahrenheit or higher on ' +
+        // "serving Anacortes" had no edge to it: the nearest airport with a
+        // climate record is Sea-Tac, seventy miles south, and it was cited as
+        // though it covered the town. A place needs pinning as tightly as a
+        // number does.
+        'The daily high temperature recorded at an official weather station within 25 miles of Anacortes, WA is 85 degrees Fahrenheit or higher on ' +
           dayOf(daysFromNow(-1)),
       ],
       searchQueries: [
         'Anacortes WA high temperature ' + dayOf(daysFromNow(-1)),
         'Anacortes Washington weather history daily high ' + dayOf(daysFromNow(-1)),
-        'NWS Seattle observed highs Skagit County ' + dayOf(daysFromNow(-1)),
+        'Skagit Regional Airport KBVS observed high ' + dayOf(daysFromNow(-1)),
       ],
     });
     db.predictions.update(weather.id, { trend: 'unknown', updatedAt: nowIso() });

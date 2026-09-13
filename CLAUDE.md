@@ -8,7 +8,7 @@ reasoning, including the ones that look arbitrary.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 321 tests, all of them fast
+npm test           # 323 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -138,6 +138,17 @@ is for.
   shareable card. Show the record until the rate means something.
 - **Retroactive entries never count toward a hit rate.** Backfilled predictions
   are cherry-picked by construction.
+- **A place gets pinned as tightly as a number.** "A station serving Anacortes,
+  WA" has no edge to it, and a Sea-Tac climate summary seventy miles south was
+  cited as though it covered the town. The structuring prompt asks for a named
+  station, municipality or distance; the check prompt refuses a reading from
+  somewhere else. The app cannot check geography itself without a geocoder, so
+  both of these are prompt-level and worth re-testing when they drift.
+- **Grounding returns redirect URLs.** Gemini cites
+  vertexaisearch.cloud.google.com links, so anything judged from a domain was
+  being judged about Google: two outlets collapsed to one source and a .gov
+  record scored as an unknown site. `PageFetchOutcome` carries the final URL and
+  a source is recorded against where the fetch landed, not where it pointed.
 - **A criterion dated after the deadline is refused at review.** A criterion is
   judged at the deadline, so a later date inside it can never be met in time.
   The seed produced exactly this (deadline the 11th, criteria the 12th) and
