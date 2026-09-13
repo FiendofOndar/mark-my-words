@@ -69,6 +69,13 @@ How the work actually goes:
   and running small checks on what you can" and "I'm gonna leave it up to you to
   prioritize." Take that seriously. Work in small verified steps, commit each
   one with a real explanation, keep the tests green.
+- **Merge your own pull requests.** Standing rule from the owner, given on
+  2026-09-13: open the pull request, verify (tests, typecheck, build), merge
+  it yourself, and tell the owner the APK is on its way with the list of what
+  to look at. The owner does not want to be the click between a green branch
+  and a build. Still write the "after installing" list; that is the part
+  they use. Pushing straight to `main` is not the rule; the pull request is
+  the record.
 - **Before anything substantial, give a short brief proposal and wait.** The
   owner has asked for this by name more than once. A paragraph or two on what
   you would change and why, not a plan document.
@@ -320,8 +327,9 @@ Errors made across sessions, recorded so they are not repeated:
 
 ## 8. Operating notes
 
-- **Build loop.** Push to `main`, GitHub Actions runs types, tests, then builds a
-  debug APK and replaces the rolling `latest` release. There is no `gh` CLI in
+- **Build loop.** Merge to `main` (your own pull request; see section 2),
+  GitHub Actions runs types, tests, then builds a debug APK and replaces the
+  rolling `latest` release. There is no `gh` CLI in
   the container; use `curl` against the API with `$GH_TOKEN`, or the GitHub
   MCP tools where the session has them. Poll with an until-loop in a
   background Bash call rather than chained sleeps.
