@@ -82,7 +82,7 @@ export function ReceiptCard({
       <p style={{ ...meta, marginTop: 8 }}>{describeDeadline(prediction)}</p>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 28, marginTop: 44 }}>
-        <span style={{ ...stamp, background: tone }}>
+        <span style={{ ...stamp, color: tone, borderColor: tone }}>
           {STATUS_LABEL[prediction.status]}
         </span>
         {prediction.resolvedAt && (
@@ -285,16 +285,21 @@ const quote: React.CSSProperties = {
   overflow: 'hidden',
 };
 
+/**
+ * Outlined and slanted, like the detail screen's stamp: the owner asked for
+ * the tilt back after the restyle flattened it into a filled chip.
+ */
 const stamp: React.CSSProperties = {
   display: 'inline-block',
-  padding: '18px 40px 16px',
+  padding: '14px 40px',
+  border: '6px solid',
   borderRadius: 10,
   fontFamily: DISPLAY,
   fontSize: 58,
   fontWeight: 600,
   letterSpacing: '0.1em',
   textTransform: 'uppercase',
-  color: '#141320',
+  transform: 'rotate(-5deg)',
 };
 
 const citation: React.CSSProperties = {

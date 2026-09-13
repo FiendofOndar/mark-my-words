@@ -28,7 +28,7 @@
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
 
   /* ---- Surfaces and ink ------------------------------------------------- */
-  --color-ground: #131218;
+  --color-ground: #111014;
   --color-surface: #1a181e;
   --color-surface-raised: #221f28;
   --color-ink: #f2ede3;
@@ -75,8 +75,10 @@
    * past an edge, so only the falloff is ever on screen. Kept low, because
    * every unit of glow is contrast taken off the ink sitting on top of it.
    * Reference: ellipse 940px 760px at 50% 34%, transparent by 78%.
+   * Was 20%; the owner found the screens too light next to the receipt and
+   * asked for the room darkened while keeping the gradient.
    */
-  --color-glow: color-mix(in srgb, var(--color-accent) 20%, transparent);
+  --color-glow: color-mix(in srgb, var(--color-accent) 10%, transparent);
 
   /* ---- Attention -------------------------------------------------------
    * "This needs you", and nothing else. Waiting on you, the verdict-ready
@@ -260,9 +262,11 @@
   }
 
   /*
-   * The verdict. Never rotated: a tilted outline reads as a novelty sticker at
-   * the size these are actually seen, and the rotation was the last piece of
-   * the case-file aesthetic this design replaced.
+   * The verdict. The restyle took the tilt and the heavy border off and the
+   * owner asked for them back the same day: on the detail screen and the
+   * receipt the slanted, heavier stamp is the emphasis, and the flat chip
+   * read as a label. Feed rows stay level (`tilt={false}`), because a column
+   * of slanted tags is noise.
    *
    * min-width is sized to the longest word, UNCLEAR. A verdict column that
    * shrinks to fit each word gives the feed a ragged right edge and undoes the
@@ -272,12 +276,18 @@
     font-family: var(--font-display);
     font-weight: 600;
     letter-spacing: 0.08em;
-    border-width: 1.5px;
+    border-width: 2.5px;
     border-style: solid;
     border-radius: var(--radius-chip);
     text-transform: uppercase;
     text-align: center;
     box-sizing: border-box;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .stamp-tilt {
+      transform: rotate(-5deg);
+    }
   }
 
   /*
