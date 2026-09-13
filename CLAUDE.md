@@ -98,7 +98,7 @@ summarized context, read this before acting.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 320 tests, all of them fast
+npm test           # 323 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -308,8 +308,17 @@ is for.
   check that finds nothing queues a hit for approval. The prompt tells the
   model never to return hit on a negative claim.
 - **Late watch is for claims that can still happen.** Every miss used to get
-  three years of monthly paid checks, including a day's high temperature.
-  `defaultLateWatch` gives it to event-shaped claims only; dated ones opt in.
+  three years of monthly paid checks, including a day's high temperature. The
+  deadline type cannot tell "Bitcoin by the end of 2024" from "85F on
+  September 12", so the intake model answers `can_happen_late`, the review
+  card shows it as a checkbox on dated claims, and `defaultLateWatch` and the
+  "it happened anyway" control both read it.
+- **A cost figure the app cannot see is a cost figure it does not show.**
+  Settings reports tokens (the provider reports a total per check) and says
+  in the same sentence that it is not a bill: input and output are priced
+  differently and only the sum arrives, and search queries are billed
+  separately and not reported at all. Do not add a dollar estimate from a
+  price table in memory.
 - **`groundingMetadata.webSearchQueries` has never arrived on a real check.**
   The field name is from the published docs (verified by search this session,
   not fetched), and the first real diagnostic showed the whole
