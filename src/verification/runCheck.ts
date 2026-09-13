@@ -171,7 +171,12 @@ export async function runCheck(deps: CheckDeps, ctx: CheckContext): Promise<Chec
     isPastDeadline(p, now) &&
     result.verdict === 'no_change'
   ) {
-    const trigger = p.disconfirmingTrigger ?? 'the event that would have disproved it';
+    // The trigger is a sentence of its own, so it is quoted rather than
+    // spliced into one: "nothing showed that A spacecraft lands ... happened"
+    // is what splicing read like on the first real run.
+    const trigger = p.disconfirmingTrigger
+      ? `"${p.disconfirmingTrigger.replace(/\.$/, '')}"`
+      : 'the event that would have disproved it';
     return {
       ...base,
       outcome: 'queued',
@@ -180,7 +185,7 @@ export async function runCheck(deps: CheckDeps, ctx: CheckContext): Promise<Chec
         ...checkRow('queued'),
         proposedVerdict: 'hit',
         gates: ['The deadline passed and the search found nothing; only you can say nothing happened.'],
-        summary: `${result.summary} The deadline has passed and nothing showed that ${trigger} happened, which reads as a hit.`,
+        summary: `${result.summary} The deadline has passed with no sign of ${trigger}. That reads as a hit.`,
       },
       predictionPatch: {
         lastCheckedAt: now.toISOString(),

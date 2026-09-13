@@ -72,7 +72,12 @@ export class GeminiVerifier implements Verifier {
     this.apiKey = opts.apiKey.trim();
     this.modelId = opts.model?.trim() || DEFAULT_GEMINI_MODEL;
     this.fetchImpl = opts.fetchImpl ?? globalThis.fetch.bind(globalThis);
-    this.timeoutMs = opts.timeoutMs ?? 45_000;
+    // Ninety seconds, up from forty-five. A grounded check on gemini-3.8-flash
+    // searches, thinks and writes, and the first six-check pull on the live
+    // fixtures had one run past forty-five and get filed as failed. A call
+    // that times out is still a call the provider ran, so the wait is cheaper
+    // than the retry.
+    this.timeoutMs = opts.timeoutMs ?? 90_000;
   }
 
   async structure(input: StructureInput): Promise<StructureResult> {

@@ -216,6 +216,19 @@ absence) and GTA VI before the end of 2026 (open, no_change). Thor's arm is
 gone; the film has not come out. All four facts were verified by web search
 before seeding. One pull now spends six grounded calls.
 
+**Six-fixture run, verified on device (PR #4 build).** Return of the King:
+hit, settled, both criteria ticked, one dead link marked and not blocking.
+Oppenheimer: partial, queued, ticks correct. Moon landing: the negative path
+ran for the first time and queued a hit with the right gate line. One check
+(Return of the King) timed out at 45s on the pull and was correctly filed as
+failed without consuming the slot; "Check now" then settled it. The timeout
+is now 90s. Every provider panel again showed `groundingMetadata: absent` on
+`gemini-3.8-flash`; the Oppenheimer candidate also carried a
+`citationMetadata` key, which is the first time any citation structure has
+appeared. The prose-answer experiment in the desktop script remains the
+cheapest way to find out whether grounding metadata depends on the output
+format.
+
 Three more things PR #3 adds to look for: Anacortes settling itself as a miss
 with no approval card; a "Not right? Reopen it" link under "Settled by the
 app"; source links opening in a browser sheet that closes back to the app.
