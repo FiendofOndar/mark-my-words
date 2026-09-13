@@ -8,8 +8,9 @@ behavior.
 everything else: how the owner works, what the app is for, where we actually
 are, and the four open bugs with their diagnosis already done.
 
-State at the time of writing: branch `claude/architecture-review-bugs-9ua5gc`, 320 tests,
-schema v8. Not yet merged to `main`; see section 4.
+State at the time of writing: `main` at PR #17, 332 tests, schema v10. Every
+change this session is merged and built; section 4 says what has been seen
+on a phone and what has not.
 
 ---
 
@@ -149,154 +150,56 @@ are unenforceable by prompt alone, which is why recording the real count matters
 
 ## 4. Where we actually are
 
-The review the owner asked for at the start of this session is in the session
-transcript; its conclusions are in section 9 below. The owner made five
-decisions on it and every one is built, on the branch named at the top.
-Nothing has been run against a real key since. **The next step is a build, and
-the owner's screenshots.**
+Seventeen pull requests landed on 2026-09-13, all on `main`, all built and
+most verified on the owner's phone. The pipeline is correct on every seeded
+fixture and on the first hand-typed claims. What follows is the state, not the
+history; the history is in `git log`, one explanation per commit.
 
-What the branch contains, one commit each, all with tests:
+**The pipeline, as it runs today.** Intake asks the model for criteria that
+carry every narrowing word, a deadline shape, a disconfirming trigger for
+negative claims, `can_happen_late`, and questions for the person where it
+could not decide. The review card shows the questions as a list and redrafts
+everything below the statement when the wording is changed and the box is
+left. A check asks the model for a verdict against the frozen criteria, with
+the period stated explicitly from the recorded date to the deadline. The app
+opens every cited link (`ok`, `blocked`, `missing`, `unreachable`), judges
+tier and independence from the domain, and applies the verdict unless a gate
+fires or the model reports confidence under 70; either queues it for the
+owner. No score. A negative claim past its deadline with nothing found queues
+a hit. A late-watch re-check that confirms the miss records and changes
+nothing. Criterion marks follow the verdict, whether a check or a person
+called it; nothing on screen sets them by hand.
 
-1. A crash fix. A late-watch re-check that returned "miss" threw on the
-   miss-to-miss transition and ended the whole pull. Every miss got a
-   three-year watch by default, so every miss became this thirty days after it
-   settled. The pull loop also now files anything that escapes `runCheck` as a
-   failed check row instead of dying.
-2. Bug 1, the criterion index. The wire format is 1-based to match the prompt;
-   a 0-based reply is still accepted.
-3. The evidence score removed. `src/domain/rubric.ts` is `gates.ts`; checks
-   store their gates as a JSON array in the renamed column; `basis` is gone
-   from the criteria status. Bug 3 went with it.
-4. The page matcher removed. `validateSources` opens the link and records
-   `ok`, `blocked` or `unreachable`; old `facts_found` and `quote_not_found`
-   rows migrate to `ok`. Bug 2 went with it.
-5. Late watch defaults to `never` for dated claims, `3y` for event-shaped.
-6. The publisher-mismatch gate fires only when nothing clean and reachable is
-   left; otherwise the mismatch is printed on the row.
-7. Negative claims: past the deadline, a check that finds nothing queues a hit
-   for approval. The prompt tells the model never to return hit on one.
-8. Bug 4 diagnostic: a grounded check with no `webSearchQueries` prints the
-   response's keys and the raw `groundingMetadata` under "What the provider
-   said" on the check log.
-9. Cleanup: the unused `dailyQuota` on the verifier interface and its stale
-   200-per-day constant; the intake rule steering local weather to manual;
-   "Settled automatically" is now "Settled by the app".
+**Verified on device, in order:** the criterion index fix (both Super Bowl
+criteria ticked); the score gone; the link check (green check, "page not
+found", "site not found"); Anacortes settling itself after the day-versus-
+instant fix; the Custom Tab (no more download prompt); "Not right? Reopen
+it"; six live fixtures on one pull (hit, hit, hit, partial queued, negative
+hit queued, no_change); the negative path; the Dodgers sample replaced by a
+real hit; the tokens line and no sample spend in Settings; "It happened
+anyway" gone from dated claims; the build label in Settings matching the
+release title; the corrected drone seed reading no_change; a hand-typed
+intake keeping "release" as a question; Settle it on a you-decide bet with
+the mark following the verdict; the redraft affordance.
 
-Last real run, before any of this (three manual checks on the two live fixtures
-plus the sample): Anacortes miss, settled; Super Bowl hit, settled; Dodgers hit,
-held on the mismatch gate. All three verdicts were correct.
+**The one wrong verdict, and what it taught.** The rogue-drone seed settled as
+a hit on a July strike reported in August, on criteria that had softened
+"rogue" to "autonomous". Two rules came out of it and are in CLAUDE.md: the
+period starts on the recorded date and only the model can check event dates;
+and qualifiers must survive into the criteria. The owner caught both from the
+screenshots. Nothing in the pipeline can check when an event happened; the
+review card is the only place a person can catch a dropped word.
 
-**First run on the merged branch (PR #2), from the owner's screenshots.** Both
-Super Bowl criteria ticked (bug 1 fixed on a real run); one of its three links
-dead and correctly not blocking. Anacortes: correct miss, model at 98, but
-queued on "Every source predates the prediction". Diagnosis, confirmed in a
-test: a bare "2026-09-12" parses as midnight UTC, the claim is stored as a
-local end-of-day instant, so in Pacific a next-day source read as seven hours
-before the claim. Fixed by comparing calendar days (PR #3). The "What the
-provider said" panel showed `groundingMetadata: absent` with response keys
-`candidates, usageMetadata, modelVersion, responseId`; see bug 4 below. The
-owner also reported that tapping a source link made Chrome re-prompt the APK
-download: a target=_blank anchor hands the URL to the user's own Chrome, which
-restores its last tab, which was the release download. Links now open in a
-Custom Tab (PR #3, unverified on device).
+**Not yet verified on device:** the auto-redraft on leaving the statement
+(PR #17, built after the last screenshots); the criterion mark being
+read-only on a you-decide bet (PR #14, owner confirmed the Settle flow but
+not the tap); the Standings screen and the receipt share, which nobody has
+looked at this session.
 
-PR #3 was verified on device: Anacortes settled itself as a miss, the Reopen
-link is there, and the provider panel names the model as `gemini-3.8-flash`
-with `Parts: text+thoughtSignature` and `groundingMetadata: absent`. After it,
-on the same branch: the criterion mark made read-only on searchable
-predictions (it was a silent edit nothing read); `can_happen_late` asked at
-intake and stored, replacing the deadline-type proxy for late watch and
-gating the "it happened anyway" control; tokens spent shown in Settings,
-labelled as not a bill.
-
-The seed now carries six live fixtures instead of two (CLAUDE.md has the
-table): Return of the King (hit), Oppenheimer at the 2024 Oscars (partial),
-no crewed Moon landing before the end of 2025 (a negative claim, queued hit by
-absence) and GTA VI before the end of 2026 (open, no_change). Thor's arm is
-gone; the film has not come out. All four facts were verified by web search
-before seeding. One pull now spends six grounded calls.
-
-**Six-fixture run, verified on device (PR #4 build).** Return of the King:
-hit, settled, both criteria ticked, one dead link marked and not blocking.
-Oppenheimer: partial, queued, ticks correct. Moon landing: the negative path
-ran for the first time and queued a hit with the right gate line. One check
-(Return of the King) timed out at 45s on the pull and was correctly filed as
-failed without consuming the slot; "Check now" then settled it. The timeout
-is now 90s. Every provider panel again showed `groundingMetadata: absent` on
-`gemini-3.8-flash`; the Oppenheimer candidate also carried a
-`citationMetadata` key, which is the first time any citation structure has
-appeared. The prose-answer experiment in the desktop script remains the
-cheapest way to find out whether grounding metadata depends on the output
-format.
-
-**Owner-observed, PR #4 build:** re-running Return of the King with two of
-three deep links returning 404 queued the verdict instead of settling it,
-because a 404 counted the same as a non-existent host and left one non-primary
-publisher. `missing` (host answered, page gone) now splits from `unreachable`
-(no such host); only the second stops counting as a publisher, and the
-fabrication gate fires when no page opened at all. Also fixed: seeded sample
-checks (`provider: 'demo'`) counted toward the searches and tokens lines in
-Settings. And note that the Dodgers sample is an open, overdue prediction, so
-it takes a slot on the first pull and pushes GTA VI to the second.
-
-**First wrong verdict on a real claim (build c1e7dee).** The rogue-drone seed
-("first rogue AI drone strikes in the next 6 months", recorded twenty days
-before install, so August 24) settled as a hit on two working links, NYT and
-LA Times, both published August 24 and 27. The strike they describe happened
-in July. The publication gate is the app's and it passed; the event date is
-the model's and it was never told the period had a start. The check prompt now
-states the period explicitly (rule 1 and a line in every check's input) and
-tells the model that reporting dates are not event dates. Predicted outcome on
-a re-check of that claim: ambiguous, queued, with the summary naming July.
-The owner was asked to reopen it, and then pointed out the second
-thing wrong with it: the claim said "rogue" and the criteria tested
-"autonomous". The intake prompt now has a carry-the-qualifiers rule and the
-seed's criteria say what rogue means; on that reading the claim should read
-"nothing yet".
-
-Also confirmed on this build: the Custom Tab (a source link opened in a sheet
-with its own close control, no download prompt), the tokens line in Settings,
-the absent searches line, no "It happened anyway" on Anacortes, and the Dodgers
-sample replaced by a real hit.
-
-**Build "Say which build this is" (10:10 UTC), verified on device:** the
-corrected drone seed checks as no_change with a correct summary; the Settings
-build label reads as intended; a hand-typed "Apple will release a foldable
-iPhone by June" produced a review card that kept "release" as a question
-rather than softening it (carry-the-qualifiers working on a real intake) but
-wrote a hedge into a criterion ("on or before June 30, 2027 (or June 1, 2027
-depending on interpretation)"). The intake prompt now forbids hedges inside
-criteria. A no_change check no longer marks criteria unmet, since "not yet"
-was drawing red crosses on open claims. The "Settle these first" copy now
-says what the checkboxes are: an acknowledgement gate on confirming, storing
-nothing.
-
-**Review card, at the owner's request:** the "Settle these first" checkboxes
-are gone (they gated the confirm button and stored nothing). The questions
-stay as a list, and the card gained "Redraft from this": sharpen the wording
-of what was said, tap it, and the model draws the testable version, questions
-and criteria again from it. One cheap ungrounded call; the row keeps its id,
-author and provenance. The criterion marks are now read-only on every
-prediction, manual ones included, since a verdict called by hand writes them.
-
-Three more things PR #3 adds to look for: Anacortes settling itself as a miss
-with no approval card; a "Not right? Reopen it" link under "Settled by the
-app"; source links opening in a browser sheet that closes back to the app.
-
-**What to look at on the next build.** Uninstall the previous APK first (each is
-signed with a throwaway key), and wipe data in Settings so the seed rewrites.
-Then one pull on the feed:
-
-- The Super Bowl detail screen: both criteria ticked on the HIT.
-- Any check log entry: no score rows, a "N sources, links work" chip, green
-  checks on the links, the gate list if any, the model's confidence line.
-- The Anacortes entry: "Settled by the app", and no "Still watching until"
-  line (dated claim, no late watch).
-- Expand a check's chip and look for "What the provider said". If it is there,
-  it holds the raw grounding metadata. Send that screenshot; it settles bug 4.
-- The Dodgers sample is unchanged and still badged Sample.
-
----
+**Install drill.** Uninstall the previous APK first (each is signed with a
+throwaway key), install, wipe data in Settings so the seed rewrites, one pull.
+Settings ends with an "Installed build:" line; the release page title carries
+the same words and time. If they match, the phone is on the latest build.
 
 ## 5. The open bugs
 
