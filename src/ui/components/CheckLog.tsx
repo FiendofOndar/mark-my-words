@@ -218,10 +218,41 @@ function ScoreChip({ check, evidence }: { check: Check; evidence: Evidence[] }) 
           {check.modelConfidence !== null ? `, model confidence ${check.modelConfidence}/100` : ''}.
           The verdict does not depend on it.
         </p>
+        <SearchesRun queries={check.searchQueries} />
         {gates.length > 0 && (
           <Bullets items={gates} className="mt-2 text-partial" />
         )}
       </div>
+    </details>
+  );
+}
+
+/**
+ * What this check cost, in the unit it is billed in.
+ *
+ * Grounded checks are charged per search query. The prompt asks the model to
+ * stop at three agreeing sources and never exceed twelve searches, and a
+ * prompt cannot make it. This is the only place anyone finds out whether it
+ * listened, and the queries themselves are the fastest way to see why a check
+ * went to the wrong sources.
+ */
+function SearchesRun({ queries }: { queries: string[] | null }) {
+  if (!queries || queries.length === 0) return null;
+  const over = queries.length > 12;
+
+  return (
+    <details className="mt-2">
+      <summary className={`cursor-pointer ${over ? 'text-partial' : 'text-ink-faint'}`}>
+        {queries.length} {queries.length === 1 ? 'search' : 'searches'} run
+        {over ? ', over the twelve it was asked to stay under' : ''}
+      </summary>
+      <ul className="mt-1 space-y-0.5 text-ink-faint">
+        {queries.map((q, i) => (
+          <li key={`${i}-${q}`} className="truncate">
+            {q}
+          </li>
+        ))}
+      </ul>
     </details>
   );
 }

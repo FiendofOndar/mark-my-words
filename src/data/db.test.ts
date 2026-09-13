@@ -347,6 +347,81 @@ describe('prediction repository', () => {
   });
 });
 
+describe('what a check cost', () => {
+  function predictionFor(): string {
+    const author = db.authors.create({ displayName: 'X' });
+    return db.predictions.create({
+      authorId: author.id,
+      rawStatement: 'A thing.',
+      statementDate: '2026-01-01T00:00:00.000Z',
+      deadlineType: 'fixed_date',
+      resolutionDate: '2027-01-01T00:00:00.000Z',
+      verificationMode: 'searchable',
+      category: 'Other',
+      criteria: ['A thing happens'],
+    }).id;
+  }
+
+  function write(searchQueries: string[] | null | undefined): string[] | null {
+    const check = db.checks.create({
+      predictionId: predictionFor(),
+      trigger: 'pull',
+      provider: 'gemini',
+      model: 'g',
+      proposedVerdict: 'no_change',
+      proposedTrend: null,
+      rubricScore: null,
+      rubricBreakdown: null,
+      modelConfidence: null,
+      summary: 's',
+      outcome: 'no_change',
+      searchQueries,
+    });
+    return db.checks.listFor(check.predictionId)[0]!.searchQueries;
+  }
+
+  it('keeps the searches a grounded check ran', () => {
+    expect(write(['a query', 'another query'])).toEqual(['a query', 'another query']);
+  });
+
+  it('totals the month by instant, not by a local date prefix', () => {
+    const id = predictionFor();
+    const write = (ranAt: string, queries: string[]) => {
+      const c = db.checks.create({
+        predictionId: id,
+        trigger: 'pull',
+        provider: 'gemini',
+        model: 'g',
+        proposedVerdict: 'no_change',
+        proposedTrend: null,
+        rubricScore: null,
+        rubricBreakdown: null,
+        modelConfidence: null,
+        summary: 's',
+        outcome: 'no_change',
+        searchQueries: queries,
+      });
+      db.driver.run('UPDATE checks SET ran_at = ? WHERE id = ?', [ranAt, c.id]);
+    };
+
+    const at = new Date(2026, 8, 15, 12, 0, 0);
+    const inside = new Date(2026, 8, 2, 9, 0, 0).toISOString();
+    const before = new Date(2026, 7, 20, 9, 0, 0).toISOString();
+    write(inside, ['a', 'b', 'c']);
+    write(before, ['d', 'e']);
+
+    expect(db.quota.searchesThisMonth(at)).toBe(3);
+  });
+
+  it('separates not being told from being told none', () => {
+    // A provider that does not report searches, and a check written before the
+    // column existed, both read as null. Neither is a claim that none ran.
+    expect(write(null)).toBeNull();
+    expect(write(undefined)).toBeNull();
+    expect(write([])).toBeNull();
+  });
+});
+
 describe('checks written in the same millisecond', () => {
   function withCheck(predictionId: string, summary: string, outcome: 'queued' | 'no_change') {
     db.checks.create({

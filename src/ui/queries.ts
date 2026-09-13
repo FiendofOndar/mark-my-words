@@ -179,6 +179,7 @@ export function useQuotaUsed() {
     queryFn: () => ({
       used: db.quota.usedToday(config.provider),
       thisMonth: db.quota.usedThisMonth(config.provider),
+      searchesThisMonth: db.quota.searchesThisMonth(),
       limit: config.dailyQuota,
       provider: config.provider,
     }),

@@ -186,6 +186,8 @@ export interface Check {
   outcome: CheckOutcome;
   errorMessage: string | null;
   tokensUsed: number | null;
+  /** The searches the provider ran, when it reported them. */
+  searchQueries: string[] | null;
   createdAt: Iso;
   updatedAt: Iso;
   deletedAt: Iso | null;

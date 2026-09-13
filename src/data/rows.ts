@@ -176,6 +176,7 @@ export function toCheck(r: Row): Check {
     outcome: str(r.outcome) as CheckOutcome,
     errorMessage: nstr(r.error_message),
     tokensUsed: nnum(r.tokens_used),
+    searchQueries: parseStringList(nstr(r.search_queries)),
     createdAt: str(r.created_at),
     updatedAt: str(r.updated_at),
     deletedAt: nstr(r.deleted_at),
@@ -255,4 +256,20 @@ export function toSqlValue(key: keyof Prediction, value: unknown): SqlValue {
   if (typeof value === 'boolean') return bit(value);
   if (typeof value === 'number') return value;
   return String(value);
+}
+
+/**
+ * A JSON array of strings, or nothing. A column written before this existed,
+ * or by a provider that does not report searches, reads as null rather than as
+ * an empty list: "we were not told" and "it ran none" are different facts.
+ */
+function parseStringList(raw: string | null): string[] | null {
+  if (!raw) return null;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return null;
+    return parsed.filter((x): x is string => typeof x === 'string');
+  } catch {
+    return null;
+  }
 }

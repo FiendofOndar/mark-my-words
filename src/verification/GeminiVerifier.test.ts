@@ -187,6 +187,85 @@ describe('structure', () => {
   });
 });
 
+const CHECK_INPUT = {
+  claim: 'The Eagles win Super Bowl LIX.',
+  statementDate: '2025-01-20',
+  today: '2025-02-10',
+  polarity: 'positive' as const,
+  disconfirmingTrigger: null,
+  deadlineDescription: 'By February 9, 2025',
+  criteriaElements: ['The Eagles win Super Bowl LIX'],
+  raceEventB: null,
+  suggestedQueries: ['super bowl lix result'],
+  priorFindings: null,
+};
+
+const CHECK_JSON = JSON.stringify({
+  verdict: 'hit',
+  trend: 'toward_yes',
+  summary: 'The Eagles beat the Chiefs 40-22.',
+  criteria_status: [{ index: 0, satisfied: true, basis: 'quoted', why: 'Final score.' }],
+  sources: [
+    {
+      url: 'https://apnews.com/a',
+      publisher: 'AP',
+      published_at: '2025-02-10',
+      quoted_text: 'Eagles 40, Chiefs 22',
+      tier: 'major_outlet',
+    },
+  ],
+  model_confidence: 96,
+});
+
+describe('check', () => {
+  it('runs with search grounding and no response schema', async () => {
+    // Gemini rejects a declared responseSchema alongside a tool, which is why
+    // the JSON shape is asked for in the prompt instead.
+    const fetchImpl = respondWith(CHECK_JSON);
+    await verifier(fetchImpl as never).check(CHECK_INPUT);
+
+    const body = JSON.parse(fetchImpl.mock.calls[0]![1]!.body as string);
+    expect(body.tools).toEqual([{ google_search: {} }]);
+    expect(body.generationConfig.responseSchema).toBeUndefined();
+  });
+
+  /*
+   * The billing line item. Grounded checks are charged per search query, and
+   * the prompt's own ceiling of twelve is unenforceable, so the only way to
+   * find out what a check cost is to record what the model says it ran.
+   */
+  it('records the searches the model actually ran', async () => {
+    const fetchImpl = vi.fn(async (..._args: FetchArgs) =>
+      new Response(
+        JSON.stringify({
+          candidates: [
+            {
+              content: { parts: [{ text: CHECK_JSON }] },
+              groundingMetadata: {
+                webSearchQueries: ['super bowl lix final score', 'eagles chiefs 2025'],
+              },
+            },
+          ],
+          usageMetadata: { totalTokenCount: 812 },
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      ),
+    );
+
+    const result = await verifier(fetchImpl as never).check(CHECK_INPUT);
+    expect(result.searchQueries).toEqual([
+      'super bowl lix final score',
+      'eagles chiefs 2025',
+    ]);
+  });
+
+  it('reports nothing rather than none when the provider does not say', async () => {
+    // "We were not told" and "it ran no searches" are different facts.
+    const result = await verifier(respondWith(CHECK_JSON) as never).check(CHECK_INPUT);
+    expect(result.searchQueries).toBeNull();
+  });
+});
+
 describe('testConnection', () => {
   it('makes a small request and does not ask for the big schema', async () => {
     const fetchImpl = respondWith('ready');

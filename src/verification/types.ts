@@ -111,6 +111,17 @@ export interface CheckResult {
   provider: string;
   model: string;
   tokensUsed: number | null;
+  /**
+   * The searches the provider actually ran, when it says.
+   *
+   * Grounded checks are billed per search query, not per prompt, so this is
+   * the line item. The prompt asks the model to stop at three agreeing sources
+   * and never exceed twelve searches, and a prompt cannot enforce either: this
+   * is how anyone finds out whether it listened. It is also the clearest record
+   * of why a check went wrong, since a verdict built on the wrong sources
+   * usually started with the wrong query.
+   */
+  searchQueries?: string[] | null;
 }
 
 export class VerifierError extends Error {

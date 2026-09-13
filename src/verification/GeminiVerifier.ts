@@ -55,6 +55,7 @@ interface GeminiResponse {
   candidates?: {
     content?: { parts?: { text?: string }[] };
     finishReason?: string;
+    groundingMetadata?: { webSearchQueries?: string[] };
   }[];
   usageMetadata?: { totalTokenCount?: number };
   promptFeedback?: { blockReason?: string };
@@ -173,6 +174,7 @@ export class GeminiVerifier implements Verifier {
       provider: this.providerId,
       model: this.modelId,
       tokensUsed: response.usageMetadata?.totalTokenCount ?? null,
+      searchQueries: response.candidates?.[0]?.groundingMetadata?.webSearchQueries ?? null,
     };
   }
 

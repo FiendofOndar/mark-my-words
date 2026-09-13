@@ -230,6 +230,19 @@ ALTER TABLE evidence_new RENAME TO evidence;
 CREATE INDEX idx_evidence_check ON evidence(check_id);
 `,
   },
+  /*
+   * Grounded checks are billed per search query, so this is the line item the
+   * owner of the key actually pays. Stored as the queries themselves rather
+   * than a count: a verdict built on the wrong sources almost always started
+   * with the wrong query, and the count alone cannot show that.
+   */
+  {
+    version: 6,
+    name: 'recorded search queries',
+    sql: `
+ALTER TABLE checks ADD COLUMN search_queries TEXT;
+`,
+  },
 ];
 
 export function currentVersion(driver: SqlDriver): number {

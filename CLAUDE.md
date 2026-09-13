@@ -200,6 +200,13 @@ is for.
   earns a little credit and `facts_found` earns most of a hit. `blocked` still
   earns nothing: the page was never read.
   The check prompt tells the model to cite the record, not the forecast.
+- **The billed unit is the search, not the check.** Gemini charges per search
+  query on a grounded call, so twenty checks can cost twenty searches or two
+  hundred depending on whether the model respected a ceiling the prompt cannot
+  enforce. `groundingMetadata.webSearchQueries` is recorded per check, shown on
+  the check log with the queries themselves, and totalled for the month in
+  Settings. The queries are also the fastest way to see why a check went to the
+  wrong sources, since a bad verdict usually started with a bad query.
 - **Checks are only ever spent by a deliberate tap.** `runPull` has one caller,
   reached from the feed refresh gesture or a detail screen's "Check now". No
   timer, no launch effect, no background service. Keep it that way: the cadence

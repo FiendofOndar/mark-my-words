@@ -29,6 +29,7 @@ export interface NewCheck {
   outcome: CheckOutcome;
   errorMessage?: string | null;
   tokensUsed?: number | null;
+  searchQueries?: string[] | null;
   evidence?: NewEvidence[];
 }
 
@@ -104,8 +105,8 @@ export class CheckRepo {
            id, prediction_id, ran_at, trigger, provider, model,
            proposed_verdict, proposed_trend, rubric_score, rubric_breakdown,
            model_confidence, summary, outcome, error_message, tokens_used,
-           created_at, updated_at, deleted_at
-         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)`,
+           search_queries, created_at, updated_at, deleted_at
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)`,
         [
           id,
           input.predictionId,
@@ -124,6 +125,7 @@ export class CheckRepo {
           input.outcome,
           input.errorMessage ?? null,
           input.tokensUsed ?? null,
+          input.searchQueries?.length ? JSON.stringify(input.searchQueries) : null,
           now,
           now,
         ],
@@ -223,6 +225,40 @@ export class QuotaRepo {
       [provider, `${prefix}%`],
     );
     return Number(rows[0]?.calls ?? 0);
+  }
+
+  /**
+   * Searches run this calendar month, which is what a grounded check is
+   * actually billed in: Gemini charges per search query, not per prompt, so a
+   * month of twenty checks can cost anywhere from twenty to two hundred and
+   * forty searches depending on whether the model respected the prompt's
+   * ceiling. The call count cannot show that and this can.
+   *
+   * Bounded by instants rather than by a date-string prefix. `day` in
+   * quota_log is written locally and `ran_at` is a UTC instant, and comparing
+   * a local month prefix against an instant is the bug that has already
+   * shipped twice in this codebase.
+   */
+  searchesThisMonth(at = new Date()): number {
+    const start = new Date(at.getFullYear(), at.getMonth(), 1).toISOString();
+    const end = new Date(at.getFullYear(), at.getMonth() + 1, 1).toISOString();
+    const rows = this.db.select<{ search_queries: string }>(
+      `SELECT search_queries FROM checks
+        WHERE deleted_at IS NULL AND search_queries IS NOT NULL
+          AND ran_at >= ? AND ran_at < ?`,
+      [start, end],
+    );
+
+    let total = 0;
+    for (const row of rows) {
+      try {
+        const parsed: unknown = JSON.parse(String(row.search_queries));
+        if (Array.isArray(parsed)) total += parsed.length;
+      } catch {
+        // A malformed row is not worth failing a settings screen over.
+      }
+    }
+    return total;
   }
 
   record(provider: string, calls = 1, at = new Date()): void {

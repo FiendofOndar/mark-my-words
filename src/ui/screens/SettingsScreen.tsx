@@ -291,6 +291,17 @@ export function SettingsScreen() {
                     </span>
                   )}
                 </p>
+                {/* The billed unit. A grounded check is charged per search
+                    query, so the same twenty checks can cost twenty searches
+                    or two hundred depending on whether the model stayed under
+                    the ceiling the prompt asks for, and nothing else in the
+                    app can show which. */}
+                {!!quotaUsed.data?.searchesThisMonth && (
+                  <p className="text-[12px] text-ink-faint">
+                    {quotaUsed.data.searchesThisMonth} searches run this month, which is what
+                    grounded checks are billed for.
+                  </p>
+                )}
 
                 <div className="flex flex-wrap gap-2">
                   <button

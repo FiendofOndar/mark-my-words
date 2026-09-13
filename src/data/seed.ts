@@ -146,6 +146,9 @@ export function seedDemoData(db: Db): void {
       summary:
         'St. Louis took the series in six games, closing it out at home on Sunday night.',
       outcome: 'queued',
+      // Sample data, like the rest of this check. It is here so the cost line
+      // on the log has something to show before the first real check runs.
+      searchQueries: ['2026 world series result', 'cardinals world series game 6'],
       evidence: [
         {
           url: 'https://apnews.com/article/cardinals-win-2026-world-series',

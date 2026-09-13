@@ -150,6 +150,7 @@ export async function runCheck(deps: CheckDeps, ctx: CheckContext): Promise<Chec
     summary: result.summary,
     outcome,
     tokensUsed: result.tokensUsed,
+    searchQueries: result.searchQueries ?? null,
     evidence: sources.map((s) => ({
       url: s.url,
       title: s.title,
