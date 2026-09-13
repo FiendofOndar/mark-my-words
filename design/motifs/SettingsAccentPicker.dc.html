@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .phone {
+      width: 375px; height: 812px; box-sizing: border-box; overflow: hidden;
+      background: oklch(0.145 0.012 270); color: oklch(0.96 0.01 90);
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex; flex-direction: column;
+    }
+    .top { padding: 48px 24px 0 24px; }
+    .eyebrow { font-size: 11px; letter-spacing: 2px; color: oklch(0.5 0.01 270); margin-bottom: 10px; }
+    h1 { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 24px; margin: 0 0 8px 0; }
+    .caption { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; line-height: 1.4; color: oklch(0.62 0.01 90); margin: 0 0 26px 0; max-width: 300px; }
+    .preview { margin: 0 24px 30px 24px; border-radius: 14px; padding: 20px 22px; position: relative; overflow: hidden;
+      background: oklch(0.18 0.012 270); }
+    .preview .ptag { font-size: 10.5px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
+    .preview .pverdict { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 24px; }
+    .grid { padding: 0 24px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .tile { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
+    .chip { width: 100%; aspect-ratio: 1; border-radius: 14px; border: 2px solid transparent; box-sizing: border-box; position: relative; }
+    .tile-selected .chip { border-color: oklch(0.96 0.01 90); }
+    .check { position: absolute; top: 6px; right: 6px; width: 18px; height: 18px; border-radius: 50%;
+      background: oklch(0.145 0.012 270 / 0.65); display: flex; align-items: center; justify-content: center; }
+    .tilelabel { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 13px; color: oklch(0.78 0.01 90); }
+  </style>
+</helmet>
+<div class="phone">
+  <div class="top">
+    <div class="eyebrow">SETTINGS</div>
+    <h1>Appearance</h1>
+    <p class="caption">Sets the accent used for highlights and glows. Verdict colors (HIT / MISS / PARTIAL) never change.</p>
+  </div>
+  <div class="preview" style="background: {{previewGlow}}">
+    <div class="ptag" style="color: {{previewAccent}}">AI VERDICT</div>
+    <div class="pverdict">HIT</div>
+  </div>
+  <div class="grid">
+    <sc-for list="{{items}}" as="item" hint-placeholder-count="6">
+      <div class="tile {{item.ringClass}}" onClick="{{item.pick}}">
+        <div class="chip" style="background: {{item.css}}">
+          <sc-if value="{{item.isSelected}}" hint-placeholder-val="{{true}}">
+            <span class="check">
+              <svg width="10" height="10" viewBox="0 0 20 20"><path d="M3 10 L8 15 L17 4" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </sc-if>
+        </div>
+        <div class="tilelabel">{{item.label}}</div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script>
+const PRESETS = [
+  { id: 'amber', label: 'Amber', css: '#dba456', glow: 'color-mix(in srgb, #dba456 42%, transparent)', accent: '#dba456' },
+  { id: 'ember', label: 'Ember', css: 'linear-gradient(135deg, #e2a24a, #c9703f)', glow: 'color-mix(in srgb, #d98a45 42%, transparent)', accent: '#e0a04a' },
+  { id: 'dusk', label: 'Dusk', css: 'linear-gradient(135deg, #6f8fd6, #9a5fae)', glow: 'color-mix(in srgb, #8570c0 42%, transparent)', accent: '#8a8cd8' },
+  { id: 'reef', label: 'Reef', css: '#4fae9e', glow: 'color-mix(in srgb, #4fae9e 42%, transparent)', accent: '#4fae9e' },
+  { id: 'orchid', label: 'Orchid', css: '#b968a0', glow: 'color-mix(in srgb, #b968a0 42%, transparent)', accent: '#c078ac' },
+  { id: 'steel', label: 'Steel', css: '#8792ab', glow: 'color-mix(in srgb, #8792ab 38%, transparent)', accent: '#9aa4bd' },
+];
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { selected: 'amber' };
+  }
+  renderVals() {
+    const selected = PRESETS.find((p) => p.id === this.state.selected) ?? PRESETS[0];
+    const items = PRESETS.map((p) => ({
+      ...p,
+      isSelected: p.id === this.state.selected,
+      ringClass: p.id === this.state.selected ? 'tile-selected' : '',
+      pick: () => this.setState({ selected: p.id }),
+    }));
+    return {
+      items,
+      previewGlow: selected.glow,
+      previewAccent: selected.accent,
+    };
+  }
+}
+</script>
+</body>
+</html>

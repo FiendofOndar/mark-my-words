@@ -8,12 +8,14 @@
     { "file": "MeshDepth.dc.html", "x": 1440, "y": 0, "w": 400, "h": 460 },
 
     { "file": "AdoptedTheme.dc.html", "x": 0, "y": 0, "w": 360, "h": 680, "page": "page-2" },
+    { "file": "SettingsAccentPicker.dc.html", "x": 460, "y": 0, "w": 375, "h": 812, "page": "page-2" },
 
     { "file": "CombinedFullWash.dc.html", "x": 0, "y": 0, "w": 360, "h": 680, "page": "page-3" },
     { "file": "CombinedFramed.dc.html", "x": 440, "y": 0, "w": 360, "h": 680, "page": "page-3" }
   ],
   "annotations": [
     { "id": "label-adopted", "x": 0, "y": -60, "w": 420, "text": "Adopted theme — try the accent color chip above the card", "page": "page-2" },
+    { "id": "label-settings", "x": 460, "y": -60, "w": 380, "text": "Settings picker — click a swatch, watch the preview above it update", "page": "page-2" },
     { "id": "label-fullwash", "x": 0, "y": -50, "w": 340, "text": "Archived — Full Wash (not picked)", "page": "page-3" },
     { "id": "label-framed", "x": 440, "y": -50, "w": 340, "text": "Archived — Framed (not picked)", "page": "page-3" }
   ],
