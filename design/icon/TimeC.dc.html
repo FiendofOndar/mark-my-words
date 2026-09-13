@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; }
+    .icon { width: 480px; height: 480px; border-radius: 104px; box-sizing: border-box;
+      background: oklch(0.16 0.012 270);
+      display: flex; align-items: center; justify-content: center; }
+  </style>
+</helmet>
+<div class="icon">
+  <!-- The commas ARE the hands. Tails meet at the centre, balls out at the tips,
+       set to an hour. No ring at all: the arrangement carries the clock. -->
+  <svg width="340" height="340" viewBox="0 0 240 240" fill="oklch(0.95 0.014 88)">
+    <g>
+      <circle cx="120" cy="56" r="31"/>
+      <path d="M 92 68 L 148 68 L 131 122 L 109 122 Z"/>
+    </g>
+    <g transform="rotate(115 120 120)">
+      <circle cx="120" cy="56" r="31"/>
+      <path d="M 92 68 L 148 68 L 131 122 L 109 122 Z"/>
+    </g>
+    <g fill="oklch(0.52 0.03 272)">
+      <rect x="114" y="4" width="12" height="22" rx="6"/>
+      <rect x="214" y="114" width="22" height="12" rx="6"/>
+      <rect x="114" y="214" width="12" height="22" rx="6"/>
+      <rect x="4" y="114" width="22" height="12" rx="6"/>
+    </g>
+  </svg>
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; }
+    .icon { width: 480px; height: 480px; border-radius: 104px; box-sizing: border-box;
+      background: oklch(0.16 0.012 270);
+      display: flex; align-items: center; justify-content: center; }
+  </style>
+</helmet>
+<div class="icon">
+  <!-- The quote breaks the ring. Overlap is what binds two shapes into one mark,
+       so the ring is knocked out behind the commas rather than passing under them. -->
+  <svg width="340" height="340" viewBox="0 0 240 240">
+    <circle cx="120" cy="120" r="88" fill="none" stroke="oklch(0.42 0.03 272)" stroke-width="22"/>
+    <path d="M 120 32 A 88 88 0 0 1 191.2 172.1" fill="none"
+          stroke="oklch(0.95 0.014 88)" stroke-width="22" stroke-linecap="round"/>
+    <g transform="translate(50 74) scale(0.95)"
+       stroke="oklch(0.16 0.012 270)" stroke-width="20" stroke-linejoin="round">
+      <circle cx="44" cy="42" r="34"/>
+      <path d="M 20 60 L 76 60 C 76 100 58 126 30 140 L 16 116 C 36 106 22 82 20 60 Z"/>
+      <g transform="translate(84 0)">
+        <circle cx="44" cy="42" r="34"/>
+        <path d="M 20 60 L 76 60 C 76 100 58 126 30 140 L 16 116 C 36 106 22 82 20 60 Z"/>
+      </g>
+    </g>
+    <g transform="translate(50 74) scale(0.95)" fill="oklch(0.95 0.014 88)">
+      <circle cx="44" cy="42" r="34"/>
+      <path d="M 20 60 L 76 60 C 76 100 58 126 30 140 L 16 116 C 36 106 22 82 20 60 Z"/>
+      <g transform="translate(84 0)">
+        <circle cx="44" cy="42" r="34"/>
+        <path d="M 20 60 L 76 60 C 76 100 58 126 30 140 L 16 116 C 36 106 22 82 20 60 Z"/>
+      </g>
+    </g>
+  </svg>
+</div>
+</x-dc>
+</body>
+</html>

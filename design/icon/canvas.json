@@ -1,16 +1,155 @@
 {
   "artboards": [
-    { "file": "Main.dc.html", "x": 0, "y": -980, "w": 1100, "h": 900 },
-    { "file": "IconQuote.dc.html", "x": 0, "y": 0, "w": 480, "h": 480 },
-    { "file": "IconQuoteRing.dc.html", "x": 560, "y": 0, "w": 480, "h": 480 },
-    { "file": "IconTally.dc.html", "x": 1120, "y": 0, "w": 480, "h": 480 },
-    { "file": "IconMonogram.dc.html", "x": 1680, "y": 0, "w": 480, "h": 480 }
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": -980,
+      "w": 1100,
+      "h": 900
+    },
+    {
+      "file": "IconQuote.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480
+    },
+    {
+      "file": "IconQuoteRing.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480
+    },
+    {
+      "file": "IconTally.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480
+    },
+    {
+      "file": "IconMonogram.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480
+    },
+    {
+      "file": "TimeSizes.dc.html",
+      "x": 0,
+      "y": -860,
+      "w": 1100,
+      "h": 760,
+      "page": "page-time"
+    },
+    {
+      "file": "TimeA.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-time"
+    },
+    {
+      "file": "TimeB.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-time"
+    },
+    {
+      "file": "TimeC.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-time"
+    },
+    {
+      "file": "TimeD.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-time"
+    }
   ],
   "annotations": [
-    { "id": "lbl-a", "x": 0, "y": -56, "w": 380, "text": "A — Quote: the app is about what people said" },
-    { "id": "lbl-b", "x": 560, "y": -56, "w": 380, "text": "B — Quote + clock: the claim, and the deadline running on it" },
-    { "id": "lbl-c", "x": 1120, "y": -56, "w": 380, "text": "C — Tally: the ledger, keeping count" },
-    { "id": "lbl-d", "x": 1680, "y": -56, "w": 380, "text": "D — Monogram: the conventional option, for comparison" }
+    {
+      "id": "lbl-a",
+      "x": 0,
+      "y": -56,
+      "w": 380,
+      "text": "A \u2014 Quote: the app is about what people said"
+    },
+    {
+      "id": "lbl-b",
+      "x": 560,
+      "y": -56,
+      "w": 380,
+      "text": "B \u2014 Quote + clock: the claim, and the deadline running on it"
+    },
+    {
+      "id": "lbl-c",
+      "x": 1120,
+      "y": -56,
+      "w": 380,
+      "text": "C \u2014 Tally: the ledger, keeping count"
+    },
+    {
+      "id": "lbl-d",
+      "x": 1680,
+      "y": -56,
+      "w": 380,
+      "text": "D \u2014 Monogram: the conventional option, for comparison"
+    },
+    {
+      "id": "t-a",
+      "x": 0,
+      "y": -56,
+      "w": 420,
+      "text": "A \u2014 Curled pair: two commas sharing a centre",
+      "page": "page-time"
+    },
+    {
+      "id": "t-b",
+      "x": 560,
+      "y": -56,
+      "w": 420,
+      "text": "B \u2014 Quote breaking the ring",
+      "page": "page-time"
+    },
+    {
+      "id": "t-c",
+      "x": 1120,
+      "y": -56,
+      "w": 420,
+      "text": "C \u2014 The commas are the hands",
+      "page": "page-time"
+    },
+    {
+      "id": "t-d",
+      "x": 1680,
+      "y": -56,
+      "w": 420,
+      "text": "D \u2014 One giant comma, tail curled all the way round",
+      "page": "page-time"
+    }
   ],
-  "launch": { "view": "canvas" }
+  "launch": {
+    "view": "canvas",
+    "page": "page-time"
+  },
+  "pages": [
+    {
+      "id": "page-1",
+      "name": "Four directions"
+    },
+    {
+      "id": "page-time",
+      "name": "Quote + clock studies"
+    }
+  ]
 }
