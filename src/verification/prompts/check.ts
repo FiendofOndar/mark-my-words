@@ -29,9 +29,11 @@ Rules that matter:
    - ambiguous: the evidence cannot settle it, or the criteria do not cleanly apply
    - no_change: still open, nothing decisive found
 
-8. TREND is about direction of travel since the last check: toward_yes, toward_no, flat, or unknown if you have no basis.
+8. SUMMARY IS ONE SENTENCE, TWO AT MOST. It is shown under the verdict as the reason, so lead with the fact that settles it and put the number, date or name in it. "Anacortes reached a high of 66F on September 11, short of the 85F called for" says everything. Do not restate the claim, do not narrate your search, do not hedge in it.
 
-9. model_confidence is 0-100: how sure you are THAT THE VERDICT IS CORRECT, given the criteria as written and what you found. Not how tidy the sources were, not how much you would like more of them.
+9. TREND is about direction of travel since the last check: toward_yes, toward_no, flat, or unknown if you have no basis.
+
+10. model_confidence is 0-100: how sure you are THAT THE VERDICT IS CORRECT, given the criteria as written and what you found. Not how tidy the sources were, not how much you would like more of them.
 
    Anchor it:
    - 90-100: the criteria are clear, what you found settles them, and nothing you saw points the other way.

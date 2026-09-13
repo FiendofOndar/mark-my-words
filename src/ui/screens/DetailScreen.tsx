@@ -39,7 +39,7 @@ import {
   markLateHit,
   reopen,
 } from '../../domain/prediction';
-import type { PredictionStatus } from '../../domain/types';
+import type { Evidence, PredictionStatus } from '../../domain/types';
 
 const VERDICTS: PredictionStatus[] = ['hit', 'miss', 'partial', 'ambiguous', 'void'];
 
@@ -107,6 +107,18 @@ export function DetailScreen() {
         : overdueDays !== null && overdueDays <= 7
           ? 'text-partial'
           : 'text-ink';
+
+  /**
+   * The check that settled this, and the single source worth linking from it.
+   *
+   * Preferring a source the app actually confirmed: linking someone to a page
+   * that has since been rewritten, from a verdict that says it was checked, is
+   * the worst version of this. Highest tier wins among equals.
+   */
+  const settledBy = isResolved(p.status)
+    ? log.find((entry) => entry.check.outcome === 'auto_resolved') ?? null
+    : null;
+  const settledSource = settledBy ? bestSource(settledBy.evidence) : null;
 
   // Either nothing can search it, or something did and could not settle it.
   // Both end in the same place: the answer has to come from the person.
@@ -194,7 +206,8 @@ export function DetailScreen() {
 
       {/* Where it stands. The single most useful thing on the screen, so it
           gets the size rather than sharing a grey band with everything else. */}
-      <section className="flex items-center justify-between gap-4 border-b border-rule px-5 py-6">
+      <section className="border-b border-rule px-5 py-6">
+        <div className="flex items-center justify-between gap-4">
         <div className="min-w-0">
           {isResolved(p.status) ? (
             <>
@@ -212,6 +225,7 @@ export function DetailScreen() {
                       ? `Settled automatically, scored ${p.confidenceScore ?? '--'}/100`
                       : 'Settled'}
               </p>
+
             </>
           ) : (
             <>
@@ -240,6 +254,28 @@ export function DetailScreen() {
           )}
         </div>
         {isResolved(p.status) && <Stamp status={p.status} size="lg" />}
+        </div>
+
+        {/* The reason, at full width under the verdict rather than squeezed
+            beside the stamp. It was only ever in the check log, so a settled
+            prediction showed a stamp, a date and a score, and nothing at all
+            about why. */}
+        {settledBy && (
+          <div className="mt-4">
+            <p className="text-[15px] leading-snug text-ink-dim">{settledBy.check.summary}</p>
+            {settledSource && (
+              <a
+                href={settledSource.url}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="mt-2 inline-flex items-center gap-1 text-[13px] text-ink-dim underline-offset-2 hover:underline"
+              >
+                {settledSource.publisher ?? hostOf(settledSource.url) ?? 'Source'}
+                <Icon name="chevron" size={14} className="text-ink-faint" />
+              </a>
+            )}
+          </div>
+        )}
       </section>
 
       {late && (
@@ -626,6 +662,31 @@ function ActionButton({
       {children}
     </button>
   );
+}
+
+const TIER_RANK: Record<string, number> = {
+  primary: 0,
+  major_outlet: 1,
+  secondary: 2,
+  social: 3,
+};
+
+/** The one citation to put a verdict's name on: confirmed first, then tier. */
+function bestSource(evidence: Evidence[]): Evidence | null {
+  const ranked = [...evidence].sort((a, b) => {
+    const confirmed = Number(b.fetchStatus === 'ok') - Number(a.fetchStatus === 'ok');
+    if (confirmed !== 0) return confirmed;
+    return (TIER_RANK[a.tier ?? 'social'] ?? 3) - (TIER_RANK[b.tier ?? 'social'] ?? 3);
+  });
+  return ranked[0] ?? null;
+}
+
+function hostOf(url: string): string | null {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return null;
+  }
 }
 
 function AmendForm({

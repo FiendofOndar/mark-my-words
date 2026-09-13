@@ -144,7 +144,7 @@ export function seedDemoData(db: Db): void {
       },
       modelConfidence: 68,
       summary:
-        'Two outlets report the Cardinals took the series in six games. One cited page could not be read, so this is not being resolved automatically.',
+        'St. Louis took the series in six games, closing it out at home on Sunday night.',
       outcome: 'queued',
       evidence: [
         {
