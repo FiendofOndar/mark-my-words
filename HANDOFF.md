@@ -196,8 +196,9 @@ read-only on a you-decide bet (PR #14, owner confirmed the Settle flow but
 not the tap); the Standings screen and the receipt share, which nobody has
 looked at this session.
 
-**Install drill.** Uninstall the previous APK first (each is signed with a
-throwaway key), install, wipe data in Settings so the seed rewrites, one pull.
+**Install drill.** Install over the previous APK (every build since 2026-09-13
+is signed with the checked-in debug key, so data and the API key survive), wipe
+data in Settings if the seed changed, one pull.
 Settings ends with an "Installed build:" line; the release page title carries
 the same words and time. If they match, the phone is on the latest build.
 
@@ -299,8 +300,14 @@ Errors made across sessions, recorded so they are not repeated:
   the container; use `curl` against the API with `$GH_TOKEN`, or the GitHub
   MCP tools where the session has them. Poll with an until-loop in a
   background Bash call rather than chained sleeps.
-- **Each APK is signed with a throwaway key**, so Android refuses to install over
-  the previous build. The owner has to uninstall first. Say so every time.
+- **Every APK is signed with `android/debug.keystore`**, checked in, so a new
+  build installs over the old one and keeps the database and the saved key.
+  Before 2026-09-13 each build had a throwaway key and every install was an
+  uninstall first, which is why the key had to be pasted every time. The
+  owner asked for a "use test key" checkbox with the key hardcoded instead;
+  the repo is public, so that was declined and this is the fix. The one
+  remaining uninstall is the move from the last throwaway build to the first
+  stable one.
 - **The seed only writes to an empty database.** New fixtures require wiping data
   in Settings. Say this every time too.
 - **Screen sweep:** `CHROMIUM=/opt/pw-browsers/chromium-1194/chrome-linux/chrome

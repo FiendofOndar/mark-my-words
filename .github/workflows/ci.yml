@@ -160,8 +160,10 @@ jobs:
           Tap the .apk below to install. Android will ask permission to install
           from an unknown source; that is expected for a sideloaded app.
 
-          Each build is signed with a throwaway key, so Android will refuse to
-          install this over a previous build. Uninstall the old one first."
+          Every build is signed with the same checked-in debug key, so this
+          installs over the previous build and keeps your bets and your saved
+          API key. Builds before 2026-09-13 used a throwaway key: coming from
+          one of those, uninstall it first, one last time."
 
           if retry gh release view latest --json tagName >/dev/null 2>&1; then
             retry gh release edit latest --title "Latest build, ${BUILD_TIME}: ${BUILD_LABEL}" --notes "$NOTES" --target "$GITHUB_SHA"
