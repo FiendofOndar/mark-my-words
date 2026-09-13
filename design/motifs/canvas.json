@@ -106,6 +106,14 @@
       "w": 430,
       "h": 1120,
       "page": "page-checks"
+    },
+    {
+      "file": "AccentTextOptions.dc.html",
+      "x": 990,
+      "y": 0,
+      "w": 430,
+      "h": 1240,
+      "page": "page-checks"
     }
   ],
   "annotations": [
@@ -179,6 +187,14 @@
       "y": -60,
       "w": 400,
       "text": "Every check-log state, in the app's own wording",
+      "page": "page-checks"
+    },
+    {
+      "id": "label-accenttext",
+      "x": 990,
+      "y": -60,
+      "w": 400,
+      "text": "Accent text \u2014 four treatments of the same panel",
       "page": "page-checks"
     }
   ],

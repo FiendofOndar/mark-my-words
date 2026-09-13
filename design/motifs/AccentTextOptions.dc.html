@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .sheet {
+      --ground: oklch(0.145 0.012 270);
+      --rule: oklch(0.26 0.01 270);
+      --ink: oklch(0.96 0.01 90);
+      --ink-faint: oklch(0.52 0.01 270);
+      --accent: #dba456;
+      --hit: #5aa87a;
+
+      width: 430px; height: 1240px; box-sizing: border-box; overflow: hidden;
+      background:
+        radial-gradient(ellipse 520px 620px at 50% 52%, color-mix(in srgb, #dba456 30%, transparent), transparent 66%),
+        var(--ground);
+      color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      padding: 30px 24px;
+    }
+    h1 { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 19px; margin: 0 0 4px 0; }
+    .sub { font-family: 'Barlow Condensed', sans-serif; font-size: 13.5px; color: oklch(0.62 0.012 80); margin: 0 0 20px 0; line-height: 1.4; }
+
+    .opt { margin-bottom: 18px; }
+    .opt > .name { font-size: 9.5px; letter-spacing: 1.6px; text-transform: uppercase; color: oklch(0.6 0.012 80); margin-bottom: 7px; }
+    .opt > .name b { color: var(--hit); font-weight: 600; }
+
+    .glass { padding: 16px 18px; border-radius: 13px;
+      background: oklch(0.94 0.01 90 / 0.07);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid oklch(0.9 0.01 90 / 0.13); }
+    .tag { font-size: 9.5px; letter-spacing: 1.6px; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
+    .verdict { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 22px; margin: 0 0 10px 0; color: var(--hit); letter-spacing: 0.5px; }
+    .lab { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+    ul { margin: 0; padding-left: 15px; }
+    li { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; line-height: 1.38; margin-bottom: 4px; }
+    .strip { margin-top: 11px; padding-top: 9px; border-top: 1px solid oklch(0.9 0.01 90 / 0.1);
+      font-size: 9px; letter-spacing: 1.1px; }
+    .note { font-family: 'Barlow Condensed', sans-serif; font-size: 12.5px; color: oklch(0.58 0.012 80); margin: 6px 0 0 0; line-height: 1.35; }
+
+    /* 1 — neutral ink. Accent survives in the glow and in fills, never in text. */
+    .o1 .tag, .o1 .lab, .o1 .strip { color: oklch(0.6 0.012 80); }
+    .o1 li { color: oklch(0.9 0.012 85); }
+    .o1 li::marker { color: oklch(0.45 0.012 80); }
+
+    /* 2 — neutral ink at reduced alpha, so the glow behind tints it. */
+    .o2 .tag, .o2 .lab, .o2 .strip { color: oklch(0.97 0.01 90 / 0.42); }
+    .o2 li { color: oklch(0.97 0.01 90 / 0.82); }
+    .o2 li::marker { color: oklch(0.97 0.01 90 / 0.35); }
+
+    /* 3 — the accent hue kept, chroma cut to roughly a quarter. */
+    .o3 .tag, .o3 .lab, .o3 .strip { color: oklch(0.62 0.03 72); }
+    .o3 li { color: oklch(0.86 0.042 76); }
+    .o3 li::marker { color: oklch(0.6 0.03 72); }
+
+    /* 4 — text neutral, colour carried only by the markers and the rule. */
+    .o4 .tag, .o4 .lab, .o4 .strip { color: oklch(0.6 0.012 80); }
+    .o4 li { color: oklch(0.9 0.012 85); }
+    .o4 li::marker { color: var(--accent); }
+    .o4 .tag::before { content: ''; display: inline-block; width: 5px; height: 5px; border-radius: 50%;
+      background: var(--accent); margin-right: 7px; vertical-align: middle; }
+  </style>
+</helmet>
+<div class="sheet">
+  <h1>Accent text, four ways</h1>
+  <p class="sub">Same panel, same glow behind it. Only the accent-coloured text changes. The verdict word stays green in all four &mdash; it is the one colour that should not move.</p>
+
+  <div class="opt o1">
+    <div class="name">1 &middot; Neutral ink <b>&mdash; recommended</b></div>
+    <div class="glass">
+      <div class="tag">AI Verdict &middot; waiting on you</div>
+      <p class="verdict">PROVEN?</p>
+      <div class="lab">What stopped the app acting on its own</div>
+      <ul>
+        <li>Only one independent source was cited, and it is not the body that would know.</li>
+        <li>Every source predates the prediction.</li>
+      </ul>
+      <div class="strip">1 SOURCE, LINK WORKS &middot; MODEL CONFIDENCE 88/100</div>
+    </div>
+    <p class="note">No text takes the accent. It lives in the glow, the button fills and the active chip. Green and red become the only coloured text on the screen.</p>
+  </div>
+
+  <div class="opt o2">
+    <div class="name">2 &middot; Neutral at reduced alpha</div>
+    <div class="glass">
+      <div class="tag">AI Verdict &middot; waiting on you</div>
+      <p class="verdict">PROVEN?</p>
+      <div class="lab">What stopped the app acting on its own</div>
+      <ul>
+        <li>Only one independent source was cited, and it is not the body that would know.</li>
+        <li>Every source predates the prediction.</li>
+      </ul>
+      <div class="strip">1 SOURCE, LINK WORKS &middot; MODEL CONFIDENCE 88/100</div>
+    </div>
+    <p class="note">Warm white at 42&ndash;82% opacity, so whatever gradient is behind tints the text instead of competing with it. Coordinates with any accent automatically, and never needs a per-hue legibility check.</p>
+  </div>
+
+  <div class="opt o3">
+    <div class="name">3 &middot; Accent hue, chroma cut</div>
+    <div class="glass">
+      <div class="tag">AI Verdict &middot; waiting on you</div>
+      <p class="verdict">PROVEN?</p>
+      <div class="lab">What stopped the app acting on its own</div>
+      <ul>
+        <li>Only one independent source was cited, and it is not the body that would know.</li>
+        <li>Every source predates the prediction.</li>
+      </ul>
+      <div class="strip">1 SOURCE, LINK WORKS &middot; MODEL CONFIDENCE 88/100</div>
+    </div>
+    <p class="note">Keeps the accent family at about a quarter of the chroma &mdash; tinted grey rather than yellow. Still needs checking per hue: a blue accent at this chroma reads colder than this amber does.</p>
+  </div>
+
+  <div class="opt o4">
+    <div class="name">4 &middot; Neutral text, accent on the marks</div>
+    <div class="glass">
+      <div class="tag">AI Verdict &middot; waiting on you</div>
+      <p class="verdict">PROVEN?</p>
+      <div class="lab">What stopped the app acting on its own</div>
+      <ul>
+        <li>Only one independent source was cited, and it is not the body that would know.</li>
+        <li>Every source predates the prediction.</li>
+      </ul>
+      <div class="strip">1 SOURCE, LINK WORKS &middot; MODEL CONFIDENCE 88/100</div>
+    </div>
+    <p class="note">Reading text stays neutral; the accent appears only where the eye is not reading &mdash; list markers and a dot on the label. Colour without anything to read through it.</p>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
