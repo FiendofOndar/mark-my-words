@@ -81,6 +81,11 @@
   /* ---- Verdicts --------------------------------------------------------
    * Fixed, semantic, never user-themeable. Every one of these is also always
    * paired with a text label in the UI, never carried by color alone.
+   *
+   * Token names follow the stored status values, which are also the model's
+   * JSON contract. The words shown to a person live in STATUS_LABEL
+   * (src/domain/format.ts): hit reads "Checks out", miss "Busted", partial
+   * "Split", ambiguous "Unclear", void "Moot".
    */
   --color-hit: #5aa87a;
   --color-miss: #cf6049;
