@@ -4,11 +4,33 @@ import { formatDate } from '../../domain/format';
 import { Pill } from './Stamp';
 import { Bullets } from './Bullets';
 
-const FETCH_LABEL: Record<FetchStatus, { glyph: string; label: string; tone: string }> = {
-  ok: { glyph: '✓', label: 'Quote found on the page', tone: 'text-hit' },
-  quote_not_found: { glyph: '!', label: 'Page loaded, quote not found', tone: 'text-partial' },
-  blocked: { glyph: '–', label: 'Could not read the page', tone: 'text-ink-faint' },
-  unreachable: { glyph: '✕', label: 'Link did not resolve', tone: 'text-miss' },
+/**
+ * What the app found when it opened the cited page itself.
+ *
+ * `short` is printed on the row. The glyph alone was read as "does this source
+ * agree with the claim", which is not what it means at all, and there is no
+ * hover on a phone to correct it.
+ */
+const FETCH_LABEL: Record<FetchStatus, { glyph: string; short: string; label: string; tone: string }> = {
+  ok: { glyph: '✓', short: 'quote verified', label: 'Quote found on the page', tone: 'text-hit' },
+  quote_not_found: {
+    glyph: '!',
+    short: 'quote not found on page',
+    label: 'Page loaded, quote not found',
+    tone: 'text-partial',
+  },
+  blocked: {
+    glyph: '–',
+    short: 'page would not open',
+    label: 'Could not read the page',
+    tone: 'text-ink-faint',
+  },
+  unreachable: {
+    glyph: '✕',
+    short: 'link did not resolve',
+    label: 'Link did not resolve',
+    tone: 'text-miss',
+  },
 };
 
 const OUTCOME_LABEL: Record<Check['outcome'], string> = {
@@ -71,11 +93,23 @@ export function CheckLog({
           )}
 
           {evidence.length > 0 && (
-            <ul className="mt-2 space-y-1.5">
-              {evidence.map((source) => (
-                <EvidenceRow key={source.id} source={source} />
-              ))}
-            </ul>
+            <>
+              {/* Says what the marks are about. Someone reading three sources
+                  that all agree, marked ✓ ! !, reasonably concludes the marks
+                  are about agreement. They are about whether the app could
+                  open the page and find the quote on it. */}
+              <p className="mt-3 text-[11px] font-semibold tracking-wide text-ink-faint uppercase">
+                Sources the model cited
+              </p>
+              <p className="mt-0.5 text-[12px] text-ink-faint">
+                Marks are the app&rsquo;s own check of each link, not whether the source agrees.
+              </p>
+              <ul className="mt-2 space-y-1.5">
+                {evidence.map((source) => (
+                  <EvidenceRow key={source.id} source={source} />
+                ))}
+              </ul>
+            </>
           )}
         </li>
       ))}
@@ -147,14 +181,17 @@ function EvidenceRow({ source }: { source: Evidence }) {
         {status.glyph}
       </span>
       <div className="min-w-0">
-        <a
-          href={source.url}
-          target="_blank"
-          rel="noreferrer noopener"
-          className="block truncate text-[13px] text-ink-dim underline-offset-2 hover:underline"
-        >
-          {source.publisher ?? source.title ?? source.url}
-        </a>
+        <p className="flex flex-wrap items-baseline gap-x-2 text-[13px]">
+          <a
+            href={source.url}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="min-w-0 truncate text-ink-dim underline-offset-2 hover:underline"
+          >
+            {source.publisher ?? source.title ?? source.url}
+          </a>
+          <span className={`shrink-0 text-[11px] ${status.tone}`}>{status.short}</span>
+        </p>
         {source.quotedText && (
           <p className="mt-0.5 line-clamp-2 font-display text-[13px] text-ink-faint italic">
             &ldquo;{source.quotedText}&rdquo;
