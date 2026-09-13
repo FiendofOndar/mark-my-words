@@ -88,8 +88,7 @@
    *
    * The accent carries fills, active states and selection. It never carries
    * reading text: keeping it off prose leaves the verdict colours as the only
-   * coloured text in the app, which is what makes a verdict land. The glow is
-   * a separate token now, for the reason given below it.
+   * coloured text in the app, which is what makes a verdict land.
    *
    * --color-accent-ink is the same hue darkened enough to hold as small text
    * on a light ground; use it instead of --color-accent under
@@ -104,15 +103,18 @@
    * glass and the whole thing reads as a stage light.
    * Reference: ellipse 940px 760px at 50% 34%, transparent by 78%.
    *
-   * The glow is NOT a tint of the accent, and this is the one place the two
-   * deliberately come apart. The glow is light, and light with no chroma is
-   * not atmosphere, it is a grey smudge. The accent went near-neutral so it
-   * could never be confused with a verdict; the glow keeps a chroma floor so
-   * the theme still has air in it. Same family, bluer and stronger.
+   * Kept low on purpose. Every unit of glow is a unit of contrast taken off
+   * the ink sitting on top of it, and the ink is what people are here to
+   * read. A brighter wash was tried side by side against this one and the
+   * text lost more than the atmosphere gained.
+   *
+   * At this alpha the glow is a plain tint of the accent again. A separate,
+   * bluer glow source existed briefly, to stop a near-neutral accent reading
+   * as grey haze; over a near-black ground at 20% the two are
+   * indistinguishable, so it was a token earning nothing.
    */
-  --color-glow-source: #7d90c2;                                     /* NEW */
-  --color-glow: color-mix(in srgb, var(--color-glow-source) 30%, transparent); /* NEW */
-  --color-glow-soft: color-mix(in srgb, var(--color-glow-source) 18%, transparent); /* NEW */
+  --color-glow: color-mix(in srgb, var(--color-accent) 20%, transparent); /* NEW */
+  --color-glow-soft: color-mix(in srgb, var(--color-accent) 12%, transparent); /* NEW */
 
   /* ---- Attention -------------------------------------------------------
    * "THIS NEEDS YOU". It marks the places the app is asking for something:
@@ -202,12 +204,13 @@
     --shadow-panel: 0 16px 36px color-mix(in srgb, #4e5f8c 24%, transparent);
 
     /* ---- Accent (light) -------------------------------------------------
-     * The glow has to be more saturated here than on dark to register against
-     * a bright ground, and accent text has to darken to stay legible. Same
-     * hue as the dark theme; only the lightness and alpha move.
+     * The glow needs more saturation here than on dark to register against a
+     * bright ground, but the same restraint applies: contrast on the ink wins
+     * over atmosphere. Same hue as the dark theme; only lightness and alpha
+     * move.
      */
-    --color-glow: oklch(0.84 0.065 264 / 0.6);
-    --color-glow-soft: oklch(0.88 0.045 264 / 0.44);
+    --color-glow: oklch(0.84 0.06 264 / 0.42);
+    --color-glow-soft: oklch(0.88 0.04 264 / 0.3);
 
     /* ---- Prose ink (light) ----------------------------------------------
      * NOT YET DESIGNED. Transparency runs the other way on paper: dark ink
