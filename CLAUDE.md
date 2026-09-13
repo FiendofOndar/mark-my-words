@@ -4,11 +4,16 @@ A ledger for predictions and the people who make them. Read [SPEC.md](./SPEC.md)
 before changing behavior; every design decision is recorded there with its
 reasoning, including the ones that look arbitrary.
 
+**Starting a fresh session: read [HANDOFF.md](./HANDOFF.md) first.** It carries
+the owner's working constraints, the reasoning behind the decisions that took
+longest to reach, where the last run actually landed, and the open bugs with
+their diagnosis already done.
+
 ## Commands
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 328 tests, all of them fast
+npm test           # 354 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -261,6 +266,9 @@ again.
   tested the typed key while every check used the last saved one, so a new key
   could pass its test and never be used. Anything that spends a request commits
   first, and the hint says which key is actually in force.
+- **The key is now on billing with a hard $25/month cap**, so the free-tier
+  ceiling below is no longer what binds. The cadence design still stands: every
+  check costs money now rather than costing an allowance.
 - **Grounded checks on a free Gemini key get 20 per day.** They are billed
   against `GenerateRequestsPerDayPerProjectPerModel-FreeTier` (quotaValue 20,
   5/min), not the 5,000/day grounding allowance, which needs billing. The whole
@@ -290,9 +298,15 @@ again.
   `-latest` alias, and Settings can list what a key actually has, which is the
   fix that survives the next rename. Never hardcode a pinned version as a
   default again.
-- **Grounded verification has still never run for real.** Reachability and
-  structured intake are confirmed against a live key; the Google Search
-  grounding path and whether cited quotes appear on cited pages are not.
-  `scripts/validate-gemini.mjs` checks all of it.
-- **No native adapter has been run on a device.** `src/platform/` is written to
-  the documented APIs and compiles, but the build container has no Android SDK.
+- **Grounded verification now works end to end, as of 2026-09-12.** Three
+  manual checks against a live key returned three correct verdicts: the
+  Anacortes miss and the Super Bowl hit both settled without asking, and the
+  Dodgers hit was held because the model cited a YouTube link and labelled it
+  ESPN. The page check confirmed three quotes verbatim and matched one on its
+  figures, against 1, 2, 0 and 0 on the four runs before it. What is still
+  unverified is the search-count instrumentation, which came back empty (see
+  HANDOFF.md, bug 4).
+- **The Android build runs on a real device.** Debug APKs from CI have been
+  installed and exercised on the owner's phone: notifications, the check
+  pipeline, Capacitor HTTP fetching of cited pages. The build container still
+  has no Android SDK, so `npm run android:apk` only works in CI.
