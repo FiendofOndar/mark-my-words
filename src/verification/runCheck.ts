@@ -11,7 +11,6 @@ import {
   describeDeadline,
 } from '../domain/format';
 import {
-  effectiveDeadline,
   isResolved,
   isUnderLateWatch,
   markLateHit,
@@ -117,7 +116,6 @@ export async function runCheck(deps: CheckDeps, ctx: CheckContext): Promise<Chec
     // A late-watch check is looking for evidence that by definition postdates
     // the deadline, so it gets no upper bound. Sources must still postdate the
     // prediction itself.
-    claimPeriodEnd: isUnderLateWatch(p, now) ? null : effectiveDeadline(p),
     proposedVerdict: result.verdict,
     forceManual: p.forceManual,
     isRetroactive: p.isRetroactive,

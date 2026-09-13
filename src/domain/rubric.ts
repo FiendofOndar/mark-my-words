@@ -27,8 +27,6 @@ export interface RubricInput {
   modelConfidence: number | null;
   /** ISO instant the prediction was made. */
   statementDate: string;
-  /** The end of the period the claim covers, for temporal sanity. */
-  claimPeriodEnd: string | null;
   proposedVerdict: PredictionStatus | 'no_change';
   forceManual: boolean;
   isRetroactive: boolean;
@@ -173,19 +171,30 @@ const COVERAGE_POINTS: Record<CriteriaCoverage, number> = {
   none: 0,
 };
 
-/** Sources predating the claim, or postdating the period it covered, prove nothing. */
+/**
+ * Every source is dated, and none of them predate the claim.
+ *
+ * There used to be a third condition: nothing published after the period the
+ * claim covered. That was wrong, and it was wrong in the direction this
+ * codebase keeps being wrong in. Reporting comes after the event. A Sunday
+ * night game is written up on Monday morning, so a recap of a game that had to
+ * happen by the ninth is published on the tenth, and a check run six months
+ * later cites a retrospective published six months later still. Both were
+ * scored as though the dates did not add up.
+ *
+ * A publication date cannot tell you an article is about the wrong event.
+ * Only its contents can, and judging that is the criteria's job.
+ */
 function temporalPoints(input: RubricInput): number {
   if (input.sources.length === 0) return 0;
 
   const statement = new Date(input.statementDate).getTime();
-  const periodEnd = input.claimPeriodEnd ? new Date(input.claimPeriodEnd).getTime() : Infinity;
 
   for (const source of input.sources) {
     if (!source.publishedAt) return 0;
     const published = new Date(source.publishedAt).getTime();
     if (Number.isNaN(published)) return 0;
     if (!input.isRetroactive && published < statement) return 0;
-    if (published > periodEnd) return 0;
   }
   return 10;
 }

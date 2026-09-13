@@ -124,6 +124,14 @@ is for.
   every cited source is unreachable. A dead link still costs its place in the
   independent-source count, because a page that does not exist corroborates
   nothing. `quote_not_found` and `blocked` cost points and gate nothing.
+- **Reporting comes after the event, so a late publication date is not a
+  problem.** The score used to require every source to be published before the
+  deadline the claim named. A Sunday night game is written up on Monday
+  morning; a check run six months later cites a retrospective from six months
+  later. Both scored as though the dates did not add up. A publication date
+  cannot tell you an article is about the wrong event - only its contents can,
+  and that is the criteria's job. What is still checked: every source carries a
+  date, and none of them predate the prediction.
 - **A gate fires on "nothing here works", never on "one thing does not".** This
   shape has now been wrong three times: any single dead link gated the check,
   any single stale quote gated it, and any single source older than the

@@ -41,7 +41,6 @@ function input(overrides: Partial<RubricInput> = {}): RubricInput {
     coverage: 'all_quoted',
     modelConfidence: 90,
     statementDate: STATEMENT,
-    claimPeriodEnd: '2026-12-31T23:59:59.999Z',
     proposedVerdict: 'hit',
     forceManual: false,
     isRetroactive: false,
@@ -392,7 +391,6 @@ describe('temporal sanity', () => {
           source({ url: 'https://reuters.com/a', publishedAt: '2024-06-02', publisher: 'Reuters' }),
           source({ url: 'https://bbc.co.uk/a', publishedAt: '2024-06-03', publisher: 'BBC' }),
         ],
-        claimPeriodEnd: '2026-12-31T00:00:00.000Z',
       }),
     );
     expect(result.breakdown.temporalSanity).toBe(10);
@@ -404,11 +402,22 @@ describe('temporal sanity', () => {
     expect(result.breakdown.temporalSanity).toBe(0);
   });
 
-  it('zeroes when a source postdates the period the claim covered', () => {
+  it('does not punish reporting that came after the deadline', () => {
+    /*
+     * Reporting follows the event. A Sunday night game is written up on Monday
+     * morning, so a recap of a game that had to happen by the ninth is dated
+     * the tenth, and a check run months later cites a retrospective dated
+     * months later. This used to score as though the dates did not add up.
+     */
     const result = scoreCheck(
-      input({ sources: [source({ publishedAt: '2027-06-01' }), source({ publisher: 'R' })] }),
+      input({
+        sources: [
+          source({ publishedAt: '2027-06-01' }),
+          source({ url: 'https://reuters.com/a', publisher: 'R', publishedAt: '2027-06-02' }),
+        ],
+      }),
     );
-    expect(result.breakdown.temporalSanity).toBe(0);
+    expect(result.breakdown.temporalSanity).toBe(10);
   });
 });
 
