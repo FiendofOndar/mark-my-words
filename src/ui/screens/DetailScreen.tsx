@@ -561,7 +561,11 @@ export function DetailScreen() {
               onClick={() => pull.mutate({ onlyPredictionId: p.id })}
               disabled={pull.isPending}
             >
-              {pull.isPending ? 'Checking...' : 'Check now'}
+              {pull.isPending
+                ? pull.progress && pull.progress.total > 1
+                  ? `Checking ${pull.progress.done} of ${pull.progress.total}...`
+                  : 'Checking...'
+                : 'Check now'}
             </ActionButton>
           )}
           {!isResolved(p.status) && (

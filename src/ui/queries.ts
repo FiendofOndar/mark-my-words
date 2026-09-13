@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Db } from '../data/db';
 import { useDb } from './DbProvider';
@@ -11,21 +10,11 @@ import { compareStandings, tallyRecord, type AuthorRecord } from '../domain/scor
 import { confirmDraft, markLateHit, resolve } from '../domain/prediction';
 import { snoozePrompt } from '../domain/notifications';
 import { createVerifier } from '../verification/registry';
+import { loadVerifierConfig } from '../lib/keyStore';
 import type { StructureInput, StructureResult } from '../verification/types';
 import type { Check, Evidence } from '../domain/types';
-import {
-  clearCooldown,
-  describePull,
-  readCooldown,
-  runPull,
-  type PullSummary,
-} from '../verification/runPull';
+import { clearCooldown, describePull, readCooldown } from '../verification/runPull';
 import { describeCooldown } from '../verification/cooldown';
-import { BrowserPageFetcher, type PageFetcher } from '../verification/validateSources';
-import { CapacitorPageFetcher } from '../platform/CapacitorPageFetcher';
-import { isNative } from '../platform';
-import { loadVerifierConfig } from '../lib/keyStore';
-import { DEFAULT_PULL_BUDGET } from '../domain/cadence';
 import { archiveSource } from '../capture/archive';
 import { archiveHttp } from '../capture/http';
 
@@ -364,47 +353,7 @@ export function useStructureStatement() {
   });
 }
 
-function pageFetcher(): PageFetcher {
-  // The browser fetcher cannot tell a dead URL from a cross-origin refusal, so
-  // nothing auto-resolves on the web build. The native one goes through native
-  // code, sees real status codes, and the gates start biting.
-  return isNative() ? new CapacitorPageFetcher() : new BrowserPageFetcher();
-}
-
-/** Run a pull. The only thing in the app that spends quota. */
-export function usePull() {
-  const db = useDb();
-  const client = useQueryClient();
-
-  // Checks are spaced to stay under a per-minute cap, so a full pull runs for
-  // most of a minute. This is what turns that into "3 of 6" instead of a word
-  // that could equally mean the thing has hung.
-  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
-
-  const mutation = useMutation<PullSummary, Error, { onlyPredictionId?: string } | void>({
-    mutationFn: async (args) => {
-      const config = loadVerifierConfig();
-      return runPull(
-        db,
-        { verifier: createVerifier(config), fetcher: pageFetcher() },
-        {
-          budget: DEFAULT_PULL_BUDGET,
-          dailyQuota: config.dailyQuota,
-          onProgress: setProgress,
-          ...(args?.onlyPredictionId
-            ? { onlyPredictionId: args.onlyPredictionId, trigger: 'force' as const }
-            : {}),
-        },
-      );
-    },
-    onSettled: () => {
-      setProgress(null);
-      void client.invalidateQueries();
-    },
-  });
-
-  return { ...mutation, progress };
-}
+export { usePull } from './PullProvider';
 
 export { describePull };
 

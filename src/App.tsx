@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { PullProvider } from './ui/PullProvider';
 import { useShareTarget } from './capture/useShareTarget';
 import { useArchiveQueue } from './capture/useArchiveQueue';
 import { useScheduledNotifications } from './ui/useNotifications';
@@ -17,15 +18,17 @@ export function App() {
   useScheduledNotifications();
 
   return (
-    <Routes>
-      <Route path="/" element={<FeedScreen />} />
-      <Route path="/new" element={<CaptureScreen />} />
-      <Route path="/draft/:id" element={<ReviewScreen />} />
-      <Route path="/p/:id" element={<DetailScreen />} />
-      <Route path="/standings" element={<StandingsScreen />} />
-      <Route path="/author/:id" element={<AuthorScreen />} />
-      <Route path="/settings" element={<SettingsScreen />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <PullProvider>
+      <Routes>
+        <Route path="/" element={<FeedScreen />} />
+        <Route path="/new" element={<CaptureScreen />} />
+        <Route path="/draft/:id" element={<ReviewScreen />} />
+        <Route path="/p/:id" element={<DetailScreen />} />
+        <Route path="/standings" element={<StandingsScreen />} />
+        <Route path="/author/:id" element={<AuthorScreen />} />
+        <Route path="/settings" element={<SettingsScreen />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </PullProvider>
   );
 }
