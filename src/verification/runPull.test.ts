@@ -104,6 +104,35 @@ function addPrediction(overrides: { daysToDeadline?: number; lastCheckedAt?: str
 }
 
 describe('a pull', () => {
+  it('survives a check that throws, and records it as a failed check', async () => {
+    const broken = addPrediction();
+    const fine = addPrediction();
+    const verifier = new ScriptedVerifier(() => hitResult());
+    // A fetcher is contractually never supposed to throw, which makes it the
+    // easiest way to simulate a bug escaping `runCheck`. The first
+    // prediction's three fetches blow up; the second's go through.
+    let calls = 0;
+    const flaky: PageFetcher = {
+      canProveUnreachable: true,
+      async fetchPage(url): Promise<PageFetchOutcome> {
+        calls += 1;
+        if (calls <= 3) throw new Error('the fetch layer blew up');
+        return echoFetcher.fetchPage(url);
+      },
+    };
+
+    const summary = await runPull(db, { verifier, fetcher: flaky }, { minGapMs: 0 });
+
+    expect(summary.errors).toBe(1);
+    expect(summary.resolved).toBe(1);
+    expect(summary.plans).toHaveLength(2);
+    const errorRows = [...db.checks.listFor(broken.id), ...db.checks.listFor(fine.id)].filter(
+      (c) => c.outcome === 'error',
+    );
+    expect(errorRows).toHaveLength(1);
+    expect(errorRows[0]!.summary).toMatch(/blew up/);
+  });
+
   it('resolves a well-evidenced prediction and records the evidence', async () => {
     const prediction = addPrediction();
     const verifier = new ScriptedVerifier(() => hitResult());

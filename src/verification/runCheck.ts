@@ -178,6 +178,25 @@ export async function runCheck(deps: CheckDeps, ctx: CheckContext): Promise<Chec
   }
 
   // A miss that came true later keeps its verdict and earns the badge instead.
+  //
+  // Anything else under late watch is the model confirming a verdict the
+  // prediction already carries, and there is nothing to apply. This used to
+  // fall through to `resolve`, which refuses a miss-to-miss transition and
+  // threw out of the whole pull. Every miss got a three-year watch by default,
+  // so every miss became that thirty days after it settled.
+  if (isUnderLateWatch(p, now) && result.verdict !== 'hit') {
+    return {
+      ...base,
+      outcome: 'no_change',
+      message: 'Still a miss',
+      check: checkRow('no_change'),
+      predictionPatch: {
+        lastCheckedAt: now.toISOString(),
+        checkCount: p.checkCount + 1,
+        updatedAt: now.toISOString(),
+      },
+    };
+  }
   if (isUnderLateWatch(p, now) && result.verdict === 'hit') {
     if (rubric.decision === 'auto_resolve') {
       return {
@@ -304,7 +323,7 @@ function staleOutPlan(p: Prediction, now: Date, trigger: CheckTriggerKind): Chec
   };
 }
 
-function errorPlan(
+export function errorPlan(
   p: Prediction,
   trigger: CheckTriggerKind,
   verifier: Verifier,

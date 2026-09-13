@@ -288,6 +288,28 @@ describe('late hits', () => {
     const plan = await runCheck(deps(result({ modelConfidence: 50 })), ctx(lateWatched()));
     expect(plan.outcome).toBe('queued');
   });
+
+  it('records a re-check that confirms the miss without touching the verdict', async () => {
+    // The likeliest answer on a settled miss is "still a miss", and it used to
+    // throw on the miss-to-miss transition and take the whole pull down.
+    const plan = await runCheck(
+      deps(result({ verdict: 'miss', summary: 'Still has not happened.' })),
+      ctx(lateWatched()),
+    );
+    expect(plan.outcome).toBe('no_change');
+    expect(plan.check!.outcome).toBe('no_change');
+    expect(plan.check!.proposedVerdict).toBe('miss');
+    expect(plan.predictionPatch!.status).toBeUndefined();
+    expect(plan.predictionPatch!.lateHitAt).toBeUndefined();
+    expect(plan.predictionPatch!.lastCheckedAt).toBeTruthy();
+    expect(plan.countsAsChecked).toBe(true);
+  });
+
+  it('holds a late-watch partial or ambiguous answer the same way', async () => {
+    const plan = await runCheck(deps(result({ verdict: 'ambiguous' })), ctx(lateWatched()));
+    expect(plan.outcome).toBe('no_change');
+    expect(plan.predictionPatch!.status).toBeUndefined();
+  });
 });
 
 describe('stale-out', () => {
