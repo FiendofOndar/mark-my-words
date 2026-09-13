@@ -32,7 +32,8 @@
       box-shadow: 0 20px 40px var(--glow);
     }
     .glass .tag { font-size: 10.5px; letter-spacing: 1.5px; color: var(--accent); text-transform: uppercase; font-weight: 600; margin-bottom: 10px; }
-    .glass .verdict { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 28px; margin: 0 0 8px 0; }
+    /* fixed verdict color: deliberately does not follow the accent tweak */
+    .glass .verdict { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 28px; margin: 0 0 8px 0; color: #5aa87a; }
     .glass .detail { font-size: 12px; color: oklch(0.68 0.01 90); line-height: 1.5; }
   </style>
 </helmet>
@@ -47,7 +48,7 @@
   </div>
 </div>
 </x-dc>
-<script data-dc-script data-props='{"accent":{"editor":"color","default":"#dba456","options":["#dba456","#5b8fd0","#4fae86","#b968a0"]}}'>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#dba456","options":["#dba456","#5b8fd0","#3f9cb8","#b968a0"]}}'>
 class Component extends DCLogic {
   renderVals() {
     const accent = this.props.accent ?? '#dba456';
