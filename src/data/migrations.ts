@@ -199,6 +199,37 @@ ALTER TABLE predictions ADD COLUMN prompt_next_at TEXT;
 ALTER TABLE predictions ADD COLUMN archive_attempts INTEGER NOT NULL DEFAULT 0;
 `,
   },
+  /*
+   * SQLite cannot widen a CHECK constraint in place, so the table is rebuilt.
+   * Rows carry over untouched: `facts_found` is a new outcome the matcher can
+   * now reach, not a reinterpretation of anything already recorded.
+   */
+  {
+    version: 5,
+    name: 'facts_found fetch status',
+    sql: `
+CREATE TABLE evidence_new (
+  id             TEXT PRIMARY KEY,
+  check_id       TEXT NOT NULL REFERENCES checks(id) ON DELETE CASCADE,
+  url            TEXT NOT NULL,
+  title          TEXT,
+  publisher      TEXT,
+  published_at   TEXT,
+  quoted_text    TEXT,
+  tier           TEXT CHECK (tier IN ('primary','major_outlet','secondary','social')),
+  fetch_status   TEXT NOT NULL
+                   CHECK (fetch_status IN ('ok','facts_found','unreachable','quote_not_found','blocked')),
+  fetched_at     TEXT,
+  created_at     TEXT NOT NULL,
+  updated_at     TEXT NOT NULL,
+  deleted_at     TEXT
+);
+INSERT INTO evidence_new SELECT * FROM evidence;
+DROP TABLE evidence;
+ALTER TABLE evidence_new RENAME TO evidence;
+CREATE INDEX idx_evidence_check ON evidence(check_id);
+`,
+  },
 ];
 
 export function currentVersion(driver: SqlDriver): number {

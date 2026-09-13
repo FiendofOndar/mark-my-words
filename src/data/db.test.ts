@@ -82,6 +82,72 @@ describe('migrations', () => {
     expect(after.map((c) => String(c.name))).toContain('intake_notes');
   });
 
+  /*
+   * The evidence table was rebuilt in v5 to widen a CHECK constraint, and a
+   * rebuild is the one migration shape that can silently drop rows.
+   */
+  it('carries evidence rows through the v5 table rebuild', async () => {
+    const driver = await createSqlJsDriver({
+      locateFile: (file) => path.join(wasmDir, file),
+      persistence: new MemoryPersistence(),
+      persistDebounceMs: 0,
+    });
+
+    const run = (sql: string) => {
+      driver.transaction(() => {
+        for (const statement of sql
+          .replace(/^\s*--.*$/gm, '')
+          .split(';')
+          .map((x) => x.trim())
+          .filter(Boolean)) {
+          driver.run(statement);
+        }
+      });
+    };
+
+    for (const m of MIGRATIONS.filter((m) => m.version <= 4)) {
+      run(m.sql);
+      driver.run(`PRAGMA user_version = ${m.version}`);
+    }
+
+    driver.run(
+      `INSERT INTO authors (id, display_name, kind, created_at, updated_at)
+       VALUES ('a1', 'Pop-pops', 'person', '2026-01-01', '2026-01-01')`,
+    );
+    driver.run(
+      `INSERT INTO predictions (id, author_id, raw_statement, normalized_claim, polarity,
+                                statement_date, deadline_type, verification_mode, status,
+                                category, created_at, updated_at)
+       VALUES ('p1', 'a1', 'raw', 'claim', 'positive', '2026-01-01', 'fixed_date',
+               'searchable', 'open', 'Weather', '2026-01-01', '2026-01-01')`,
+    );
+    driver.run(
+      `INSERT INTO checks (id, prediction_id, ran_at, trigger, provider, summary, outcome,
+                           created_at, updated_at)
+       VALUES ('c1', 'p1', '2026-01-01', 'pull', 'demo', 's', 'no_change', '2026-01-01', '2026-01-01')`,
+    );
+    driver.run(
+      `INSERT INTO evidence (id, check_id, url, fetch_status, created_at, updated_at)
+       VALUES ('e1', 'c1', 'https://weather.gov/x', 'quote_not_found', '2026-01-01', '2026-01-01')`,
+    );
+
+    expect(migrate(driver)).toBe(MIGRATIONS[MIGRATIONS.length - 1]!.version);
+
+    const rows = driver.select<{ id: string; url: string; fetch_status: string }>(
+      'SELECT id, url, fetch_status FROM evidence',
+    );
+    expect(rows).toHaveLength(1);
+    expect(String(rows[0]!.url)).toBe('https://weather.gov/x');
+    expect(String(rows[0]!.fetch_status)).toBe('quote_not_found');
+
+    // And the widened constraint now accepts the new outcome.
+    driver.run(
+      `INSERT INTO evidence (id, check_id, url, fetch_status, created_at, updated_at)
+       VALUES ('e2', 'c1', 'https://weather.gov/y', 'facts_found', '2026-01-01', '2026-01-01')`,
+    );
+    expect(driver.select('SELECT id FROM evidence')).toHaveLength(2);
+  });
+
   it('is idempotent', async () => {
     const persistence = new MemoryPersistence();
     const locateFile = (file: string) => path.join(wasmDir, file);

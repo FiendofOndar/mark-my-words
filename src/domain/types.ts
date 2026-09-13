@@ -192,7 +192,19 @@ export interface Check {
 }
 
 export type SourceTier = 'primary' | 'major_outlet' | 'secondary' | 'social';
-export type FetchStatus = 'ok' | 'unreachable' | 'quote_not_found' | 'blocked';
+/**
+ * What the app learned by opening a cited page itself.
+ *
+ * `facts_found` sits between a verbatim hit and nothing: the page loaded and
+ * every number, date and proper noun in the quoted line is on it, but the
+ * sentence is not. Four real checks in a row confirmed almost nothing, because
+ * a model working from search snippets reproduces the substance of a line
+ * reliably and its exact wording almost never, and the matcher only recognised
+ * the wording. A page carrying "71" and "Anacortes" and "September 5" is not
+ * proof of a fabricated citation, which is the one thing this layer exists to
+ * catch.
+ */
+export type FetchStatus = 'ok' | 'facts_found' | 'unreachable' | 'quote_not_found' | 'blocked';
 
 export interface Evidence {
   id: Uuid;

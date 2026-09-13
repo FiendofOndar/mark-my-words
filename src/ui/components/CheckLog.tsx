@@ -14,6 +14,12 @@ import { Bullets } from './Bullets';
  */
 const FETCH_LABEL: Record<FetchStatus, { glyph: string; short: string; label: string; tone: string }> = {
   ok: { glyph: '✓', short: 'quote verified', label: 'Quote found on the page', tone: 'text-hit' },
+  facts_found: {
+    glyph: '≈',
+    short: 'figures match the page',
+    label: 'Page loaded; its figures and names match the quote, its wording does not',
+    tone: 'text-hit',
+  },
   quote_not_found: {
     glyph: '!',
     short: 'quote not found on page',
@@ -84,11 +90,23 @@ export function describeSources(evidence: Evidence[]): string {
     evidence.filter((e) => e.fetchStatus === 'ok').map((e) => registrableDomain(e.url) ?? e.url),
   );
   const plural = domains.size === 1 ? 'source' : 'sources';
-  if (confirmed.size === 0) return `${domains.size} ${plural}, none quoted back`;
   if (confirmed.size === domains.size) {
     return domains.size === 1 ? '1 source, confirmed' : `${domains.size} sources, all confirmed`;
   }
-  return `${confirmed.size} confirmed of ${domains.size} ${plural}`;
+  if (confirmed.size > 0) return `${confirmed.size} confirmed of ${domains.size} ${plural}`;
+
+  /*
+   * A page that still carries the quote's figures is not a source that failed
+   * to check out, and reading "none quoted back" over an evidence list that
+   * matched on every number was the panel calling a correct verdict unsupported.
+   */
+  const supported = new Set(
+    evidence
+      .filter((e) => e.fetchStatus === 'facts_found')
+      .map((e) => registrableDomain(e.url) ?? e.url),
+  );
+  if (supported.size > 0) return `${supported.size} of ${domains.size} match on the figures`;
+  return `${domains.size} ${plural}, none quoted back`;
 }
 
 export function CheckLog({

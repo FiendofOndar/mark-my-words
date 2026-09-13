@@ -142,7 +142,19 @@ function validationPoints(sources: SourceAssessment[]): number {
   if (confirmed === 1) return 12;
 
   /*
-   * Nothing confirmed, but every page was read. Weak evidence, not no evidence:
+   * The page carries the figures but not the sentence.
+   *
+   * Worth most of a verbatim hit, because what a fabricated citation cannot do
+   * is serve a real page containing the specific numbers, dates and names the
+   * verdict rests on. What it does not settle is whether the page frames them
+   * the way the model said, so it is not worth all of one.
+   */
+  const supported = countIndependentSources(sources.filter((s) => s.fetchStatus === 'facts_found'));
+  if (supported >= 2) return 16;
+  if (supported === 1) return 9;
+
+  /*
+   * Nothing matched, but every page was read. Weak evidence, not no evidence:
    * these all served content. Live pages rewrite themselves between the model
    * reading them and the app fetching them minutes later, so a forecast page
    * that has rolled over should not score the same as a fabrication.

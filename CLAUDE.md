@@ -138,11 +138,22 @@ is for.
   could not read the page; a dead URL means there may be no page. Neither is
   proof of a fake on its own. Calling a real citation invented is the one
   mistake this layer exists to prevent.
-- **Quote matching has never once succeeded on a real check.** Four runs against
-  a live key confirmed 1, 2, 0 and 0 citations, failing on live forecast pages,
-  JS-rendered tables and one bad deep link. It is informational and costs a page
-  fetch per source. If it still never fires after more real use, delete it and
-  keep reachability.
+- **The page check matches on facts, not on wording.** Verbatim matching
+  confirmed 1, 2, 0 and 0 citations across four real runs, because a model
+  writing from a search snippet reproduces the substance of a line reliably and
+  its exact phrasing almost never. `pageSupportsQuote` asks the narrower
+  question the layer actually exists to answer: does this page carry the
+  figures, dates and names the verdict rests on? All of them, or it is a miss -
+  a partial hit is what the wrong year and the wrong town look like, and both
+  have really happened here. A page passing that but not the verbatim match is
+  `facts_found`, worth 16 of 20 against a verbatim 20.
+- **Dates and units are where this breaks, so both are normalised.** A weather
+  service climate report writes "SEPT 5 2026." and "71F" where the model wrote
+  "September 5, 2026" and "71 degrees". Months collapse to three letters against
+  an explicit table (never a prefix match: "may" is a prefix of "mayor"), digit
+  runs are pulled out of alphanumeric tokens, an ISO date expands to year,
+  month and day, and trailing periods are trimmed off page tokens - `words`
+  keeps them, because it also has to keep the one in "71.4".
 - **A hit rate is never shown for an author who is not ranked.** `formatHeadline`
   is the one place that decides. A 1-0 record printed as "100%" is the
   cherry-pick the five-call threshold exists to refuse, and it had reached the
@@ -179,7 +190,8 @@ is for.
   moved quote and an invented one are different things. Live pages (forecasts,
   scoreboards, "today" pages) rewrite themselves between the model reading them
   and the app fetching them, so `quote_not_found` on a page that served content
-  earns a little credit. `blocked` still earns nothing: the page was never read.
+  earns a little credit and `facts_found` earns most of a hit. `blocked` still
+  earns nothing: the page was never read.
   The check prompt tells the model to cite the record, not the forecast.
 - **Checks are only ever spent by a deliberate tap.** `runPull` has one caller,
   reached from the feed refresh gesture or a detail screen's "Check now". No
@@ -203,10 +215,10 @@ and produces two independent data points per attempt.
 | sources | a .gov page that rewrites hourly | static recaps from Feb 2025 |
 | tier | primary | major outlet, plus nfl.com |
 
-The Super Bowl one is the only fair test of quote matching in the app: those
-recap pages have not changed since the night they were published. If a quote
-cannot be confirmed there, the page-fetching layer is not earning its keep and
-should be reduced to a reachability check.
+The Super Bowl one is the only fair test of the page check in the app: those
+recap pages have not changed since the night they were published. If nothing can
+be confirmed there - not even on the figures - the page-fetching layer is not
+earning its keep and should be reduced to a reachability check.
 
 Its result was verified against live sources before seeding. A fabricated demo
 verdict about a real team has already misled someone once here; do not do it

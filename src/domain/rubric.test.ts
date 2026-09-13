@@ -276,6 +276,52 @@ describe('url validation', () => {
     expect(result.breakdown.urlValidation).toBe(4);
   });
 
+  it('pays most of a verbatim hit when the pages carry the figures', () => {
+    /*
+     * The common real outcome, and the one the app used to score as a failure:
+     * the model wrote its line from a search snippet, the pages say the same
+     * thing in their own words. What a fabricated citation cannot do is serve a
+     * live page carrying the exact numbers the verdict turns on.
+     */
+    const result = scoreCheck(
+      input({
+        sources: [
+          source({ url: 'https://apnews.com/a', publisher: 'AP', fetchStatus: 'facts_found' }),
+          source({ url: 'https://reuters.com/a', publisher: 'Reuters', fetchStatus: 'facts_found' }),
+        ],
+      }),
+    );
+    expect(result.breakdown.urlValidation).toBe(16);
+  });
+
+  it('ranks a figure match below a quote match and above nothing', () => {
+    const at = (fetchStatus: 'ok' | 'facts_found' | 'quote_not_found') =>
+      scoreCheck(
+        input({
+          sources: [
+            source({ url: 'https://apnews.com/a', publisher: 'AP', fetchStatus }),
+            source({ url: 'https://reuters.com/a', publisher: 'Reuters', fetchStatus }),
+          ],
+        }),
+      ).breakdown.urlValidation;
+
+    expect(at('ok')).toBeGreaterThan(at('facts_found'));
+    expect(at('facts_found')).toBeGreaterThan(at('quote_not_found'));
+  });
+
+  it('counts a figure match as a source that stood up', () => {
+    // It resolved and it carried the facts, so it is not the lone-source case.
+    const result = scoreCheck(
+      input({
+        sources: [
+          source({ url: 'https://apnews.com/a', publisher: 'AP', fetchStatus: 'facts_found' }),
+          source({ url: 'https://reuters.com/a', publisher: 'Reuters', fetchStatus: 'facts_found' }),
+        ],
+      }),
+    );
+    expect(result.gates).toEqual([]);
+  });
+
   it('gives nothing when a page could not be read at all', () => {
     // Mixed: one page read and unquoted, one never opened. Not every page was
     // read, so the benefit of the doubt does not apply.
