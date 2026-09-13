@@ -1,6 +1,22 @@
 {
   "artboards": [
     {
+      "file": "FinalSheet.dc.html",
+      "x": 0,
+      "y": -1840,
+      "w": 1300,
+      "h": 1720,
+      "page": "page-final"
+    },
+    {
+      "file": "IconFinal.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-final"
+    },
+    {
       "file": "RampSizes.dc.html",
       "x": 0,
       "y": -1920,
@@ -547,6 +563,14 @@
   ],
   "annotations": [
     {
+      "id": "fn-0",
+      "x": 0,
+      "y": -56,
+      "w": 520,
+      "text": "The icon \u2014 heavier strokes plus the brighter hand",
+      "page": "page-final"
+    },
+    {
       "id": "rp-0",
       "x": 0,
       "y": -56,
@@ -1005,9 +1029,13 @@
   ],
   "launch": {
     "view": "canvas",
-    "page": "page-ramp"
+    "page": "page-final"
   },
   "pages": [
+    {
+      "id": "page-final",
+      "name": "The icon"
+    },
     {
       "id": "page-ramp",
       "name": "Ramp refinements"
