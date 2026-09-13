@@ -1,6 +1,62 @@
 {
   "artboards": [
     {
+      "file": "FusSizes.dc.html",
+      "x": 0,
+      "y": -1580,
+      "w": 1300,
+      "h": 1460,
+      "page": "page-fus"
+    },
+    {
+      "file": "FusSweep.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-fus"
+    },
+    {
+      "file": "FusSnap.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-fus"
+    },
+    {
+      "file": "FusTip.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-fus"
+    },
+    {
+      "file": "FusFocus.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-fus"
+    },
+    {
+      "file": "FusQuiet.dc.html",
+      "x": 2240,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-fus"
+    },
+    {
+      "file": "FusBloom.dc.html",
+      "x": 2800,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-fus"
+    },
+    {
       "file": "StandSizes.dc.html",
       "x": 0,
       "y": -1500,
@@ -283,6 +339,54 @@
   ],
   "annotations": [
     {
+      "id": "fu-0",
+      "x": 0,
+      "y": -56,
+      "w": 460,
+      "text": "Sweep \u2014 one gradient, red where the minute hand is",
+      "page": "page-fus"
+    },
+    {
+      "id": "fu-1",
+      "x": 560,
+      "y": -56,
+      "w": 460,
+      "text": "Snap \u2014 cool bubble, flat red hand; soft meets hard",
+      "page": "page-fus"
+    },
+    {
+      "id": "fu-2",
+      "x": 1120,
+      "y": -56,
+      "w": 460,
+      "text": "Tip \u2014 the hand carries its own gradient into red",
+      "page": "page-fus"
+    },
+    {
+      "id": "fu-3",
+      "x": 1680,
+      "y": -56,
+      "w": 460,
+      "text": "Focus \u2014 radial; red at the pivot, violet at the rim",
+      "page": "page-fus"
+    },
+    {
+      "id": "fu-4",
+      "x": 2240,
+      "y": -56,
+      "w": 460,
+      "text": "Quiet \u2014 no gradient at all; the control",
+      "page": "page-fus"
+    },
+    {
+      "id": "fu-5",
+      "x": 2800,
+      "y": -56,
+      "w": 460,
+      "text": "Bloom \u2014 sweep, with a red bloom behind the hand",
+      "page": "page-fus"
+    },
+    {
       "id": "st-0",
       "x": 0,
       "y": -56,
@@ -517,9 +621,13 @@
   ],
   "launch": {
     "view": "canvas",
-    "page": "page-stand"
+    "page": "page-fus"
   },
   "pages": [
+    {
+      "id": "page-fus",
+      "name": "Ink + red hand"
+    },
     {
       "id": "page-stand",
       "name": "Standing out"
