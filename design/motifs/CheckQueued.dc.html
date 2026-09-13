@@ -20,6 +20,11 @@
       /* Fixed. "Needs you" is semantic, so it never follows the chosen accent. */
       --attention: #dba456;
       --glow: color-mix(in srgb, #8a8cd8 20%, transparent);
+      /* Prose is warm white made see-through, so the glow tints it. Chosen to land
+         at about the same brightness over bare ground as the solid values did. */
+      --prose: oklch(0.97 0.01 90 / 0.82);
+      --prose-dim: oklch(0.97 0.01 90 / 0.6);
+      --prose-faint: oklch(0.97 0.01 90 / 0.46);
       --hit: #5aa87a;
       --partial: #d29a43;
 
@@ -44,7 +49,7 @@
       box-shadow: 0 20px 42px oklch(0 0 0 / 0.34); }
     .glass .tag { font-size: 10px; letter-spacing: 1.6px; color: var(--attention); text-transform: uppercase; font-weight: 600; margin-bottom: 11px; }
     .glass .verdict { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 30px; margin: 0 0 9px 0; color: var(--hit); letter-spacing: 0.5px; }
-    .glass .detail { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; color: var(--ink-dim); line-height: 1.4; margin: 0 0 16px 0; }
+    .glass .detail { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; color: var(--prose-dim); line-height: 1.4; margin: 0 0 16px 0; }
 
     /* The gates. The answer to the only question this panel is opened to ask,
        so it is not behind a disclosure when there is something to say. */
@@ -52,7 +57,7 @@
     .gates .lab { font-size: 9.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 8px; }
     .gates ul { margin: 0; padding-left: 15px; }
     .gates li { font-family: 'Barlow Condensed', sans-serif; font-size: 14.5px; line-height: 1.4;
-      color: oklch(0.9 0.012 85); margin-bottom: 5px; }
+      color: var(--prose); margin-bottom: 5px; }
     .gates li::marker { color: oklch(0.46 0.012 80); }
 
     .actions { display: flex; gap: 8px; margin-top: 16px; }
@@ -74,7 +79,7 @@
     .pill { font-size: 9.5px; letter-spacing: 0.8px; padding: 2px 8px; border-radius: 999px;
       border: 1px solid var(--rule); color: var(--ink-dim); text-transform: uppercase; }
     .pill.need { border-color: color-mix(in srgb, var(--attention) 50%, transparent); color: var(--attention); }
-    .entry .summary { font-family: 'Barlow Condensed', sans-serif; font-size: 14.5px; color: var(--ink-dim); line-height: 1.35; margin: 0 0 8px 0; }
+    .entry .summary { font-family: 'Barlow Condensed', sans-serif; font-size: 14.5px; color: var(--prose-dim); line-height: 1.35; margin: 0 0 8px 0; }
     .srcs { display: flex; flex-direction: column; gap: 4px; }
     .src { display: flex; align-items: baseline; gap: 7px; font-size: 10.5px; }
     .src .mark { font-weight: 600; }

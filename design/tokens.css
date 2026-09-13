@@ -43,6 +43,23 @@
   --color-ink-faint: #736b61;
   --color-rule: #2e2a35;
 
+  /* ---- Prose ink -------------------------------------------------------
+   * Running prose is warm white made partly transparent, so the glow behind
+   * tints it and the text belongs to whatever accent the viewer chose,
+   * without anyone hand-tuning a colour per hue. Alphas are picked to land
+   * at roughly the brightness the solid ink values had over bare ground, so
+   * this adds a tint where there is glow and changes nothing where there is
+   * not.
+   *
+   * Prose only. Anything small or uppercase - metadata, timestamps, source
+   * hosts, the letterspaced labels - stays SOLID: transparency costs
+   * contrast, and small type has none to spare. Serif quotes stay solid too;
+   * they are the content and want maximum legibility.
+   */
+  --color-prose: oklch(0.97 0.01 90 / 0.82);        /* NEW  gate sentences */
+  --color-prose-dim: oklch(0.97 0.01 90 / 0.6);     /* NEW  summaries, detail */
+  --color-prose-faint: oklch(0.97 0.01 90 / 0.46);  /* NEW  asides */
+
   /* ---- The AI panel ----------------------------------------------------
    * The verdict panel is its own surface in both themes: frosted glass over
    * the glow on dark, a raised warm card on light. These are the only
@@ -182,6 +199,16 @@
      */
     --color-glow: oklch(0.88 0.075 78 / 0.62);
     --color-glow-soft: oklch(0.9 0.05 80 / 0.45);
+
+    /* ---- Prose ink (light) ----------------------------------------------
+     * NOT YET DESIGNED. Transparency runs the other way on paper: dark ink
+     * at reduced alpha gets lighter and washes out, where on the dark theme
+     * it got dimmer and warmer. Solid for now, and worth its own look rather
+     * than a guessed conversion.
+     */
+    --color-prose: var(--color-ink);
+    --color-prose-dim: var(--color-ink-dim);
+    --color-prose-faint: var(--color-ink-faint);
 
     /* ---- Verdicts (light) ----------------------------------------------- */
     --color-hit: #2f7a4f;
