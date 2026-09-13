@@ -458,6 +458,141 @@ export function seedDemoData(db: Db): void {
       updatedAt: nowIso(),
     });
 
+
+    /*
+     * Six adversarial fixtures, added 2026-09-13. Each aims at a rule that has
+     * already been wrong once. Every fact below was verified by web search on
+     * the day it was written (sources in the commit); a fixture whose fact
+     * could not be confirmed was dropped, not adjusted.
+     */
+
+    // 1. Period start. Recorded today, about a future Super Bowl. The Eagles
+    // won LIX on February 9, 2025, nineteen months before this was said, and a
+    // search will find that immediately. The right answer is no_change (or
+    // ambiguous with "predates the claim"); a hit means the model counted an
+    // event from before the recorded date.
+    db.predictions.create({
+      authorId: popops.id,
+      rawStatement: 'Mark my words, the Eagles win the Super Bowl this season.',
+      normalizedClaim: 'The Philadelphia Eagles win Super Bowl LXI, played on February 14, 2027.',
+      statementDate: new Date().toISOString(),
+      sourceContext: 'Week 1, from the couch',
+      deadlineType: 'fixed_date',
+      resolutionDate: endOfLocalDay('2027-02-14'),
+      verificationMode: 'searchable',
+      category: 'Sports',
+      criteria: ['The Philadelphia Eagles win Super Bowl LXI, played on February 14, 2027'],
+      searchQueries: ['Eagles Super Bowl win', 'Super Bowl LXI result February 14 2027'],
+    });
+
+    // 2. The qualifier. "Finishes above" is not "passes". Bitcoin crossed
+    // $100,000 on December 4, 2024 and closed December 31, 2024 at $93,429.20,
+    // so this is a miss while the sibling "passes $100k" fixture is a hit. If
+    // both come back hit, the criteria dropped "finishes".
+    db.predictions.create({
+      authorId: self.id,
+      rawStatement: 'Bitcoin finishes 2024 above $100k. Mark my words.',
+      normalizedClaim: "Bitcoin's price is above $100,000 USD at the close of December 31, 2024.",
+      statementDate: '2024-11-15T12:00:00.000Z',
+      sourceContext: 'Group chat, the week after the election',
+      deadlineType: 'fixed_date',
+      resolutionDate: endOfLocalDay('2024-12-31'),
+      verificationMode: 'searchable',
+      category: 'Economics',
+      canHappenLate: false,
+      criteria: ['Bitcoin trades above $100,000 USD at the close of trading on December 31, 2024'],
+      searchQueries: ['Bitcoin price December 31 2024 close', 'Bitcoin year end 2024 price'],
+    });
+
+    // 3. A negative claim that was disconfirmed. Cal Raleigh hit his 60th home
+    // run on September 24, 2025. The model may never return hit on a negative
+    // claim; here it should return miss, with sources. That path has never run.
+    db.predictions.create({
+      authorId: liz.id,
+      rawStatement: 'Nobody hits 60 home runs this season. Mark my words.',
+      normalizedClaim: 'No Major League Baseball player hits 60 or more home runs in the 2025 regular season.',
+      polarity: 'negative',
+      disconfirmingTrigger:
+        'A Major League Baseball player hits his 60th home run of the 2025 regular season',
+      statementDate: '2025-03-20T12:00:00.000Z',
+      sourceContext: 'Opening week, at the bar',
+      deadlineType: 'fixed_date',
+      resolutionDate: endOfLocalDay('2025-09-30'),
+      verificationMode: 'searchable',
+      category: 'Sports',
+      criteria: ['No Major League Baseball player reaches 60 home runs during the 2025 regular season'],
+      searchQueries: ['60 home runs 2025 season', 'MLB 2025 home run leader'],
+    });
+
+    // 4. Three criteria, two true. Eagles 40, Chiefs 22, Hurts MVP: the margin
+    // was 18. Expected partial, queued, with the third criterion unmet. The
+    // criterion index bug's home turf, with a longer list.
+    db.predictions.create({
+      authorId: popops.id,
+      rawStatement: "Eagles win it, Hurts gets MVP, and it won't even be close. Mark my words.",
+      normalizedClaim:
+        'The Philadelphia Eagles win Super Bowl LIX, Jalen Hurts is named its MVP, and the margin of victory is at least 20 points.',
+      statementDate: '2025-02-01T12:00:00.000Z',
+      sourceContext: 'The week before, over wings',
+      deadlineType: 'fixed_date',
+      resolutionDate: '2025-02-09T23:59:59.999Z',
+      verificationMode: 'searchable',
+      category: 'Sports',
+      stakes: 'Wings, next time',
+      criteria: [
+        'The Philadelphia Eagles win Super Bowl LIX on February 9, 2025',
+        'Jalen Hurts is named the Super Bowl LIX Most Valuable Player',
+        'The Eagles win Super Bowl LIX by 20 or more points',
+      ],
+      searchQueries: ['Super Bowl LIX final score', 'Super Bowl LIX MVP'],
+    });
+
+    // 5. A real late hit. Artemis II launched April 1, 2026 and splashed down
+    // April 10. Expected: miss at the deadline, then the late badge on the
+    // next check under late watch, with the verdict unchanged. A first check
+    // that returns hit has counted an event from after the deadline.
+    db.predictions.create({
+      authorId: liz.id,
+      rawStatement: 'Artemis II flies before the end of 2025. Mark my words.',
+      normalizedClaim: "NASA's Artemis II mission launches with its crew aboard on or before December 31, 2025.",
+      statementDate: '2025-01-10T12:00:00.000Z',
+      sourceContext: 'After the SLS stacking news',
+      deadlineType: 'fixed_date',
+      resolutionDate: endOfLocalDay('2025-12-31'),
+      verificationMode: 'searchable',
+      category: 'Tech/AI',
+      canHappenLate: true,
+      criteria: ["NASA's Artemis II mission launches with its four crew members aboard on or before December 31, 2025"],
+      searchQueries: ['Artemis II launch date', 'Artemis II launched'],
+    });
+
+    // 6. A race. New Glenn reached orbit on its first launch, January 16, 2025;
+    // every Starship flight before that was suborbital. Expected miss. The
+    // only event-shaped fixture with a race, and it cannot happen late: the
+    // other rocket has already flown.
+    db.predictions.create({
+      authorId: self.id,
+      rawStatement: 'Starship gets to orbit before New Glenn ever flies. Mark my words.',
+      normalizedClaim:
+        "A SpaceX Starship completes an orbit of Earth before Blue Origin's New Glenn makes its first launch.",
+      statementDate: '2024-06-01T12:00:00.000Z',
+      sourceContext: 'Launch-day thread',
+      deadlineType: 'event',
+      triggerEvent: "Blue Origin's New Glenn rocket makes its first launch",
+      triggerExpectedDate: endOfLocalDay('2025-01-16'),
+      // An event deadline needs a stale-out: if New Glenn had never flown,
+      // the claim would have gone void at the end of 2026.
+      staleOutDate: endOfLocalDay('2026-12-31'),
+      raceEventB: 'A SpaceX Starship completes at least one full orbit of Earth',
+      verificationMode: 'searchable',
+      category: 'Tech/AI',
+      canHappenLate: false,
+      criteria: [
+        "A SpaceX Starship completes at least one full orbit of Earth before the first launch of Blue Origin's New Glenn",
+      ],
+      searchQueries: ['New Glenn first launch date', 'Starship first orbital flight'],
+    });
+
     db.settings.set(SETTING_KEYS.seeded, 'true');
   });
 }

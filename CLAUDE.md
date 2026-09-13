@@ -364,11 +364,12 @@ is for.
 - **The API key never touches the database**, because Settings exports the whole
   database file.
 
-## The six live test fixtures
+## The live test fixtures
 
-The seed carries six predictions that exist to be checked against a real key,
-each testing a different shape of check. One pull covers all six, which is why
-the per-pull budget is six and why there are not more.
+The seed carries twelve predictions that exist to be checked against a real
+key, each testing a different shape of check. The per-pull budget is six, so a
+full run is two pulls. The first six are the basic shapes; the second six,
+added 2026-09-13, each aim at a rule that has already been wrong once.
 
 | fixture | expected | what it tests |
 |---|---|---|
@@ -378,6 +379,12 @@ the per-pull budget is six and why there are not more.
 | Oppenheimer Oscars | partial, queued | one criterion holds and one fails; the mixed ticks and the approval card |
 | Moon landing (negative) | hit, queued | an absence: the model finds nothing, the app queues the hit past the deadline |
 | GTA VI | no_change, open | an unresolved claim: trend, countdown, and `canHappenLate` |
+| Eagles this season | no_change, open | period start: recorded today, and they won a Super Bowl nineteen months earlier; a hit counted an event from before the claim |
+| Bitcoin finishes 2024 above $100k | miss, settled | the qualifier: closed the year at $93,429; the sibling "passes $100k" is a hit, and both hit means "finishes" was dropped |
+| 60 home runs (negative) | miss, settled | a negative claim that was disconfirmed (Raleigh, September 24, 2025); the model must return miss with sources, never hit |
+| Eagles, Hurts, by 20 | partial, queued | three criteria, two true (40-22 is 18); the criterion index with a longer list |
+| Artemis II by end of 2025 | miss, then late hit | launched April 1, 2026; a first check returning hit counted an event after the deadline |
+| Starship before New Glenn | miss, settled | the race deadline type: New Glenn orbited January 16, 2025, every Starship flight before that was suborbital |
 
 Every fact in them was verified against live sources before seeding, and the
 commit that added each says so. A fabricated demo verdict about a real team has
