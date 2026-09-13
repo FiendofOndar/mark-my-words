@@ -119,6 +119,54 @@
       "w": 480,
       "h": 480,
       "page": "page-lit"
+    },
+    {
+      "file": "BubSizes.dc.html",
+      "x": 0,
+      "y": -1000,
+      "w": 1180,
+      "h": 900,
+      "page": "page-bub"
+    },
+    {
+      "file": "BubA.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-bub"
+    },
+    {
+      "file": "BubB.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-bub"
+    },
+    {
+      "file": "BubC.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-bub"
+    },
+    {
+      "file": "BubD.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-bub"
+    },
+    {
+      "file": "BubE.dc.html",
+      "x": 2240,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-bub"
     }
   ],
   "annotations": [
@@ -217,24 +265,68 @@
       "w": 440,
       "text": "D \u2014 Half quote, half clock",
       "page": "page-lit"
+    },
+    {
+      "id": "b-a",
+      "x": 0,
+      "y": -56,
+      "w": 440,
+      "text": "A \u2014 Outline, bold",
+      "page": "page-bub"
+    },
+    {
+      "id": "b-b",
+      "x": 560,
+      "y": -56,
+      "w": 440,
+      "text": "B \u2014 Filled, dial and hands cut out",
+      "page": "page-bub"
+    },
+    {
+      "id": "b-c",
+      "x": 1120,
+      "y": -56,
+      "w": 440,
+      "text": "C \u2014 Filled, hands only: the bubble edge is the dial",
+      "page": "page-bub"
+    },
+    {
+      "id": "b-d",
+      "x": 1680,
+      "y": -56,
+      "w": 440,
+      "text": "D \u2014 Outline, light and tapered",
+      "page": "page-bub"
+    },
+    {
+      "id": "b-e",
+      "x": 2240,
+      "y": -56,
+      "w": 440,
+      "text": "E \u2014 Filled, amber hands",
+      "page": "page-bub"
     }
   ],
   "launch": {
     "view": "canvas",
-    "page": "page-lit"
+    "page": "page-bub"
   },
   "pages": [
     {
+      "id": "page-bub",
+      "name": "Bubble-clock finishes"
+    },
+    {
       "id": "page-lit",
-      "name": "Literal, not clever"
+      "name": "Literal forms"
     },
     {
       "id": "page-time",
-      "name": "Quote + clock studies (failed)"
+      "name": "Fused forms (failed)"
     },
     {
       "id": "page-1",
-      "name": "Four directions"
+      "name": "First four directions"
     }
   ]
 }

@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; }
+    .icon { width: 480px; height: 480px; border-radius: 104px; box-sizing: border-box;
+      background: oklch(0.16 0.012 270);
+      display: flex; align-items: center; justify-content: center; }
+  </style>
+</helmet>
+<div class="icon">
+  <!-- Outline, bold. The tail is part of the same closed path as the circle, so
+       it grows out of the bubble instead of being stuck to it. Hands at 12 and 4:
+       one vertical, one diagonal, which is what makes a circle read as a dial. -->
+  <svg width="360" height="360" viewBox="0 0 240 240">
+    <g transform="translate(7 11)" stroke="oklch(0.95 0.014 88)" fill="none"
+       stroke-linejoin="round" stroke-linecap="round">
+      <path d="M 37.3 136.1 A 88 88 0 1 1 76 182.2 L 18 200 Z" stroke-width="20"/>
+      <g stroke-width="18">
+        <line x1="120" y1="106" x2="120" y2="48"/>
+        <line x1="120" y1="106" x2="154.6" y2="126"/>
+      </g>
+      <circle cx="120" cy="106" r="9" fill="oklch(0.95 0.014 88)" stroke="none"/>
+    </g>
+  </svg>
+</div>
+</x-dc>
+</body>
+</html>
