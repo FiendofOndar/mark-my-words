@@ -47,12 +47,14 @@ interface GeminiModel {
 
 interface GeminiResponse {
   candidates?: {
-    content?: { parts?: { text?: string }[] };
+    content?: { parts?: ({ text?: string } & Record<string, unknown>)[] };
     finishReason?: string;
     groundingMetadata?: { webSearchQueries?: string[] } & Record<string, unknown>;
   }[];
   usageMetadata?: { totalTokenCount?: number };
   promptFeedback?: { blockReason?: string };
+  /** Which model an alias like gemini-flash-latest actually resolved to. */
+  modelVersion?: string;
 }
 
 export class GeminiVerifier implements Verifier {
@@ -327,10 +329,23 @@ function describeMissingGrounding(response: GeminiResponse): string {
     const text = JSON.stringify(value) ?? 'undefined';
     return text.length > max ? `${text.slice(0, max)}… (${text.length} chars)` : text;
   };
+  // The first real look showed groundingMetadata absent outright, on a check
+  // whose citations carried readings the model could only have searched for.
+  // So the next questions are which model the alias resolved to, and what the
+  // answer's parts look like: whether the search happened as a tool call the
+  // response records somewhere other than the metadata.
+  const parts = candidate?.content?.parts ?? [];
+  const partShapes = parts.map((part) => {
+    const keys = Object.keys(part).filter((k) => k !== 'text');
+    const text = typeof part.text === 'string' ? `text(${part.text.length})` : null;
+    return [text, ...keys].filter(Boolean).join('+') || 'empty';
+  });
   return [
     'No webSearchQueries in the grounding metadata, so this check is not counted against the search budget.',
+    `Model version: ${response.modelVersion ?? 'not reported'}.`,
     `Response keys: ${Object.keys(response).join(', ') || 'none'}.`,
     `Candidate keys: ${candidate ? Object.keys(candidate).join(', ') : 'no candidate'}.`,
+    `Parts: ${partShapes.join(', ') || 'none'}.`,
     `groundingMetadata: ${metadata === undefined ? 'absent' : trimmed(metadata)}`,
   ].join('\n');
 }

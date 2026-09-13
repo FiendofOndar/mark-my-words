@@ -179,6 +179,24 @@ Last real run, before any of this (three manual checks on the two live fixtures
 plus the sample): Anacortes miss, settled; Super Bowl hit, settled; Dodgers hit,
 held on the mismatch gate. All three verdicts were correct.
 
+**First run on the merged branch (PR #2), from the owner's screenshots.** Both
+Super Bowl criteria ticked (bug 1 fixed on a real run); one of its three links
+dead and correctly not blocking. Anacortes: correct miss, model at 98, but
+queued on "Every source predates the prediction". Diagnosis, confirmed in a
+test: a bare "2026-09-12" parses as midnight UTC, the claim is stored as a
+local end-of-day instant, so in Pacific a next-day source read as seven hours
+before the claim. Fixed by comparing calendar days (PR #3). The "What the
+provider said" panel showed `groundingMetadata: absent` with response keys
+`candidates, usageMetadata, modelVersion, responseId`; see bug 4 below. The
+owner also reported that tapping a source link made Chrome re-prompt the APK
+download: a target=_blank anchor hands the URL to the user's own Chrome, which
+restores its last tab, which was the release download. Links now open in a
+Custom Tab (PR #3, unverified on device).
+
+Three more things PR #3 adds to look for: Anacortes settling itself as a miss
+with no approval card; a "Not right? Reopen it" link under "Settled by the
+app"; source links opening in a browser sheet that closes back to the app.
+
 **What to look at on the next build.** Uninstall the previous APK first (each is
 signed with a throwaway key), and wipe data in Settings so the seed rewrites.
 Then one pull on the feed:
@@ -198,15 +216,21 @@ Then one pull on the feed:
 
 Of the four diagnosed last session: **bug 1 is fixed** (commit 2 above). **Bugs 2
 and 3 are moot**, since the matcher and the score they lived in are gone.
-**Bug 4 is instrumented but not fixed**: the `webSearchQueries` field name
-matches the published API docs, so "the capture is wrong" may itself have been
-the wrong diagnosis. Two other explanations: the `gemini-flash-latest` alias
-returns thinner grounding metadata than the pinned models (a developer forum
-thread reports `groundingChunks` missing on that alias), or the model did not
-search at all. The second would matter more than the budget: an unsearched
-answer to a question about a February 2025 game is the model recalling, and a
-recalled answer is where invented URLs come from. The diagnostic on the next
-build says which.
+**Bug 4 is instrumented and half-diagnosed.** The first real diagnostic showed
+`groundingMetadata` absent from the candidate outright, on a check whose
+citations carried a Weather Underground reading for the previous day, which the
+model could only have searched for. So the search happens and the API reports
+nothing about it. Two candidate causes, not yet told apart: the
+`gemini-flash-latest` alias resolves to a model generation whose API reports
+grounding differently (the diagnostic now prints `modelVersion`), or Google
+attaches grounding metadata only when it can tie citations to sentences in the
+answer, and a JSON-blob answer gives it nothing to tie to. If it is the second,
+the pricing page's "billed only when a grounding support is returned" would
+mean these checks are not billed for search at all; that is a hypothesis from
+a secondary page, not a verified fact. Fastest way to settle it:
+`GEMINI_API_KEY=... node scripts/validate-gemini.mjs` on the owner's desktop
+prints the model version and shape and saves the raw response beside itself.
+The build container cannot reach Google.
 
 Still open, smaller:
 

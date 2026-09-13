@@ -4,6 +4,7 @@ import { STATUS_LABEL, formatDate } from '../../domain/format';
 import { publisherMismatch, registrableDomain } from '../../domain/sources';
 import { Pill } from './Stamp';
 import { Bullets } from './Bullets';
+import { ExternalLink } from './ExternalLink';
 
 /**
  * Whether the cited link goes anywhere, which is the one thing about a citation
@@ -243,14 +244,12 @@ function EvidenceRow({ source }: { source: Evidence }) {
       </span>
       <div className="min-w-0">
         <p className="flex flex-wrap items-baseline gap-x-2 text-[13px]">
-          <a
+          <ExternalLink
             href={source.url}
-            target="_blank"
-            rel="noreferrer noopener"
             className="min-w-0 truncate text-ink-dim underline-offset-2 hover:underline"
           >
             {source.publisher ?? source.title ?? source.url}
-          </a>
+          </ExternalLink>
           <span className={`shrink-0 text-[11px] ${status.tone}`}>{status.short}</span>
         </p>
         {/* The publisher is whatever the model typed. The host is where the

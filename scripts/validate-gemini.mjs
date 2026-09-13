@@ -2,14 +2,17 @@
  * Prove the Gemini path works before trusting anything built on it.
  *
  * Everything in src/verification is covered by tests against injected fakes.
- * This is the only thing that makes a real call, and it checks the three
- * assumptions that tests cannot: that the model id exists, that the grounding
- * tool is named what we think, and that the model returns citations whose
- * quoted passages actually appear on the pages it cites.
+ * This is the only thing that makes a real call, and it checks the assumptions
+ * that tests cannot: that the model id exists, that the grounding tool is named
+ * what we think, what the grounded response actually carries (model version,
+ * grounding metadata, search queries), and that the cited links go somewhere.
+ * It saves the full raw grounded response beside itself as
+ * gemini-raw-response.json, which is the fastest way to see the API's real
+ * shape without an APK build.
  *
  *   GEMINI_API_KEY=... node scripts/validate-gemini.mjs [model]
  */
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 
 const key = process.env.GEMINI_API_KEY;
 if (!key) {
@@ -182,31 +185,53 @@ console.log('\n3. Verification (Google Search grounding)');
   } else {
     ok('grounded call accepted (tool name `google_search` is right)');
     const { text: body, tokens } = firstText(text);
+
+    // 3a. What the response actually carries. On the phone, every real check
+    // has come back with no groundingMetadata at all, on answers whose
+    // citations carried readings the model could only have searched for.
+    // This prints the shape and saves the whole response next to the script,
+    // because the billing unit (per prompt or per search query) depends on
+    // the model version, and the search count depends on where the API puts
+    // it, and neither can be seen from a phone screenshot.
+    const raw = JSON.parse(text);
+    const candidate = raw.candidates?.[0] ?? {};
+    console.log(`  info  modelVersion: ${raw.modelVersion ?? 'not reported'}`);
+    console.log(`  info  response keys: ${Object.keys(raw).join(', ')}`);
+    console.log(`  info  candidate keys: ${Object.keys(candidate).join(', ')}`);
+    const parts = candidate.content?.parts ?? [];
+    console.log(
+      `  info  parts: ${parts
+        .map((p) => Object.keys(p).map((k) => (k === 'text' ? `text(${p.text.length})` : k)).join('+'))
+        .join(', ')}`,
+    );
+    if (candidate.groundingMetadata) {
+      const gm = candidate.groundingMetadata;
+      ok(`groundingMetadata present: keys ${Object.keys(gm).join(', ')}`);
+      if (Array.isArray(gm.webSearchQueries)) ok(`${gm.webSearchQueries.length} webSearchQueries: ${gm.webSearchQueries.join(' | ')}`);
+      else bad('groundingMetadata has no webSearchQueries; the app cannot count searches from it');
+    } else {
+      bad('groundingMetadata absent from the candidate; the app has nothing to count searches from');
+    }
+    const out = new URL('./gemini-raw-response.json', import.meta.url);
+    writeFileSync(out, JSON.stringify(raw, null, 2));
+    console.log(`  info  full response saved to ${out.pathname}`);
+
     try {
       const parsed = extractJson(body);
       ok(`returned JSON alongside the tool (${tokens} tokens)`);
       const sources = parsed.sources ?? [];
       if (sources.length >= 2) ok(`${sources.length} sources cited`);
-      else bad(`only ${sources.length} source(s) cited; the rubric needs two to auto-resolve`);
+      else bad(`only ${sources.length} source(s) cited; two are needed unless one is primary`);
 
-      // The whole guardrail rests on this being true.
-      console.log('\n4. Citation validation (do the quotes exist on the pages?)');
+      // The app checks that each link goes somewhere. It no longer reads the
+      // page, so neither does this.
+      console.log('\n4. Citation links (does each one go somewhere?)');
       for (const source of sources.slice(0, 3)) {
         try {
           const page = await fetch(source.url, { redirect: 'follow' });
-          if (!page.ok) {
-            console.log(`  note  ${source.url} -> HTTP ${page.status} (would count as blocked)`);
-            continue;
-          }
-          const html = await page.text();
-          const plain = html
-            .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
-            .replace(/<[^>]+>/g, ' ')
-            .replace(/\s+/g, ' ')
-            .toLowerCase();
-          const needle = (source.quoted_text ?? '').replace(/\s+/g, ' ').toLowerCase().trim();
-          if (needle && plain.includes(needle)) ok(`quote found on ${source.publisher ?? source.url}`);
-          else bad(`quote NOT found on ${source.url}`);
+          if (page.status === 404 || page.status === 410) bad(`${source.url} -> HTTP ${page.status} (unreachable)`);
+          else if (!page.ok) console.log(`  note  ${source.url} -> HTTP ${page.status} (would count as blocked)`);
+          else ok(`${source.publisher ?? source.url} answered${page.url !== source.url ? ` (landed on ${page.url})` : ''}`);
         } catch (err) {
           console.log(`  note  ${source.url} unreachable from here: ${err.message}`);
         }

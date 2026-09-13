@@ -268,11 +268,12 @@ describe('check', () => {
         JSON.stringify({
           candidates: [
             {
-              content: { parts: [{ text: CHECK_JSON }] },
+              content: { parts: [{ text: CHECK_JSON }, { thought: true, text: 'hm' }] },
               finishReason: 'STOP',
               groundingMetadata: { groundingChunks: [{ web: { uri: 'https://x' } }] },
             },
           ],
+          modelVersion: 'gemini-3.5-flash-001',
         }),
         { status: 200, headers: { 'content-type': 'application/json' } },
       ),
@@ -282,6 +283,8 @@ describe('check', () => {
     expect(result.searchQueries).toBeNull();
     expect(result.providerNote).toMatch(/No webSearchQueries/);
     expect(result.providerNote).toMatch(/Candidate keys: content, finishReason, groundingMetadata/);
+    expect(result.providerNote).toMatch(/Model version: gemini-3.5-flash-001/);
+    expect(result.providerNote).toMatch(/Parts: text\(\d+\), text\(2\)\+thought/);
     expect(result.providerNote).toMatch(/groundingChunks/);
   });
 
