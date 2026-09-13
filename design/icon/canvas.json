@@ -1,6 +1,46 @@
 {
   "artboards": [
     {
+      "file": "InkSizes.dc.html",
+      "x": 0,
+      "y": -1520,
+      "w": 1180,
+      "h": 1400,
+      "page": "page-ink"
+    },
+    {
+      "file": "InkFixed.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ink"
+    },
+    {
+      "file": "InkRed.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ink"
+    },
+    {
+      "file": "InkRedCool.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ink"
+    },
+    {
+      "file": "InkRedCream.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ink"
+    },
+    {
       "file": "FusSizes.dc.html",
       "x": 0,
       "y": -1580,
@@ -339,6 +379,38 @@
   ],
   "annotations": [
     {
+      "id": "ik-0",
+      "x": 0,
+      "y": -56,
+      "w": 460,
+      "text": "Ink, repaired \u2014 hour hand restored, no red",
+      "page": "page-ink"
+    },
+    {
+      "id": "ik-1",
+      "x": 560,
+      "y": -56,
+      "w": 460,
+      "text": "Ink + red \u2014 sweep ends in amber where the hand points",
+      "page": "page-ink"
+    },
+    {
+      "id": "ik-2",
+      "x": 1120,
+      "y": -56,
+      "w": 460,
+      "text": "Cool ink + red \u2014 nothing warm but the hand",
+      "page": "page-ink"
+    },
+    {
+      "id": "ik-3",
+      "x": 1680,
+      "y": -56,
+      "w": 460,
+      "text": "Ink, cream hour hand, red minute hand",
+      "page": "page-ink"
+    },
+    {
       "id": "fu-0",
       "x": 0,
       "y": -56,
@@ -621,9 +693,13 @@
   ],
   "launch": {
     "view": "canvas",
-    "page": "page-fus"
+    "page": "page-ink"
   },
   "pages": [
+    {
+      "id": "page-ink",
+      "name": "Ink repaired + red"
+    },
     {
       "id": "page-fus",
       "name": "Ink + red hand"
