@@ -18,15 +18,13 @@
       --ink-dim: oklch(0.45 0.02 70);
       --ink-faint: oklch(0.6 0.015 70);
       --accent-ink: oklch(0.52 0.12 68);
-      --glow: oklch(0.86 0.1 74 / 0.85);
+      --glow: oklch(0.86 0.11 76 / 0.9);
       --miss: oklch(0.48 0.17 27);
 
-      /* panel tokens stay put in both themes */
-      --panel: oklch(0.19 0.012 270);
-      --panel-ink: oklch(0.96 0.01 90);
-      --panel-ink-dim: oklch(0.72 0.01 90);
-      --panel-accent: #dba456;
-      --panel-miss: oklch(0.66 0.15 27);
+      /* the AI panel is a raised warm surface, lifted off the page by a warm shadow */
+      --panel: oklch(0.99 0.012 95);
+      --panel-edge: oklch(0.85 0.05 80);
+      --panel-rule: oklch(0.89 0.03 82);
 
       width: 375px; height: 980px; box-sizing: border-box; overflow: hidden;
       background:
@@ -42,14 +40,15 @@
     .byline { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 15px; color: var(--ink-dim); }
     .byline span { color: var(--ink-faint); font-weight: 500; }
 
-    /* the machine's output is a dark surface in both themes */
+    /* the machine's output is its own raised surface, distinct from the page */
     .panel { margin: 26px 22px 0 22px; padding: 20px 22px; border-radius: 14px;
-      background: var(--panel); color: var(--panel-ink);
-      box-shadow: 0 18px 40px color-mix(in srgb, #b8822f 38%, transparent); }
-    .panel .tag { font-size: 10px; letter-spacing: 1.6px; color: var(--panel-accent); text-transform: uppercase; font-weight: 600; margin-bottom: 11px; }
-    .panel .verdict { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 30px; margin: 0 0 9px 0; color: var(--panel-miss); letter-spacing: 0.5px; }
-    .panel .detail { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; color: var(--panel-ink-dim); line-height: 1.4; margin: 0 0 14px 0; }
-    .panel .strip { font-size: 10px; letter-spacing: 1.1px; color: oklch(0.6 0.01 90); border-top: 1px solid oklch(0.9 0.01 90 / 0.12); padding-top: 11px; }
+      background: var(--panel); color: var(--ink);
+      border: 1px solid var(--panel-edge);
+      box-shadow: 0 16px 36px color-mix(in srgb, #b8822f 26%, transparent); }
+    .panel .tag { font-size: 10px; letter-spacing: 1.6px; color: var(--accent-ink); text-transform: uppercase; font-weight: 600; margin-bottom: 11px; }
+    .panel .verdict { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 30px; margin: 0 0 9px 0; color: var(--miss); letter-spacing: 0.5px; }
+    .panel .detail { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; color: var(--ink-dim); line-height: 1.4; margin: 0 0 14px 0; }
+    .panel .strip { font-size: 10px; letter-spacing: 1.1px; color: var(--ink-faint); border-top: 1px solid var(--panel-rule); padding-top: 11px; }
 
     .log { margin-top: 32px; }
     .log h2 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 2px;

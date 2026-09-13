@@ -1,0 +1,158 @@
+/*
+ * Mark My Words design tokens.
+ *
+ * The single list of every design value the app uses. Nothing else should
+ * hardcode a color, a radius, or a type size: everything refers to a name
+ * here. Changing a theme, or letting someone pick their own accent, is then
+ * a matter of swapping values rather than hunting through components.
+ *
+ * This is written to drop into src/styles.css. It follows that file's
+ * existing structure: Tailwind v4 reads `@theme` and generates utilities from
+ * it (`--color-ground` becomes `bg-ground`, `text-ground`, and so on), and the
+ * light theme redefines the same names under `:root[data-theme='light']`
+ * inside `@layer base`. Keep that layering; unlayered CSS outranks every
+ * layered Tailwind utility.
+ *
+ * Values marked NEW do not exist in styles.css yet.
+ */
+
+@theme {
+  /* ---- Type ------------------------------------------------------------
+   * Four families, one job each:
+   *   quote   the human's own words, and only ever those
+   *   display headlines, verdict words, section labels
+   *   sans    UI chrome, chips, supporting copy
+   *   mono    metadata, timestamps, scores, source hosts
+   *
+   * SELF-HOST THESE. Do not add a Google Fonts <link>. Receipt cards are
+   * rasterized through an SVG foreignObject, which cannot reach an external
+   * font, so remote faces come out silently in a fallback. The existing faces
+   * already live in public/fonts; the new ones have to join them there.
+   */
+  --font-quote: 'Cormorant', ui-serif, Georgia, serif;              /* NEW, replaces Newsreader */
+  --font-display: 'Oswald', ui-sans-serif, system-ui, sans-serif;   /* NEW, replaces Newsreader as display */
+  --font-sans: 'Barlow Condensed', ui-sans-serif, system-ui, sans-serif; /* NEW, replaces Inter */
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;  /* NEW */
+
+  /* ---- Surfaces and ink (dark, the default) ---------------------------- */
+  --color-ground: #131218;
+  --color-surface: #1a181e;
+  --color-surface-raised: #221f28;
+  --color-ink: #f2ede3;
+  --color-ink-dim: #a9a196;
+  --color-ink-faint: #736b61;
+  --color-rule: #2e2a35;
+
+  /* ---- The AI panel ----------------------------------------------------
+   * The verdict panel is its own surface in both themes: frosted glass over
+   * the glow on dark, a raised warm card on light. These are the only
+   * translucent tokens in the system; everything else is opaque.
+   */
+  --color-glass-fill: oklch(0.94 0.01 90 / 0.07);   /* NEW */
+  --color-glass-edge: oklch(0.9 0.01 90 / 0.13);    /* NEW */
+  --color-glass-rule: oklch(0.9 0.01 90 / 0.1);     /* NEW */
+  --shadow-panel: 0 20px 42px oklch(0 0 0 / 0.34);  /* NEW */
+
+  /* ---- Accent ----------------------------------------------------------
+   * The one token a user can change. It carries brand highlights, the glow,
+   * and active states. It is NOT a verdict color: the values below stay put
+   * no matter what accent someone picks, or a user who chooses red ends up
+   * unable to tell their own theme from a failed prediction.
+   *
+   * --color-accent-ink is the same accent darkened enough to hold as small
+   * text on a light ground; use it instead of --color-accent under
+   * data-theme='light' wherever the accent is text rather than fill.
+   */
+  --color-accent: #dba456;                                          /* NEW */
+  --color-accent-ink: oklch(0.52 0.12 68);                          /* NEW */
+  --color-glow: color-mix(in srgb, var(--color-accent) 40%, transparent); /* NEW */
+  --color-glow-soft: color-mix(in srgb, var(--color-accent) 26%, transparent); /* NEW */
+
+  /* Curated accent presets for the Settings picker. Deliberately no reds and
+   * no greens: those hues are reserved for verdicts, so no choice a user
+   * makes can be mistaken for one. Ember and Dusk are the two gradients. */
+  --preset-amber: #dba456;                                          /* NEW */
+  --preset-ember: linear-gradient(135deg, #e2a24a, #c9703f);        /* NEW */
+  --preset-dusk: linear-gradient(135deg, #6f8fd6, #9a5fae);         /* NEW */
+  --preset-reef: #4fae9e;                                           /* NEW */
+  --preset-orchid: #b968a0;                                         /* NEW */
+  --preset-steel: #8792ab;                                          /* NEW */
+
+  /* ---- Verdicts --------------------------------------------------------
+   * Fixed, semantic, never user-themeable. Every one of these is also always
+   * paired with a text label in the UI, never carried by color alone.
+   */
+  --color-hit: #5aa87a;
+  --color-miss: #cf6049;
+  --color-partial: #d29a43;
+  --color-ambiguous: #8a8078;
+  --color-voided: #5d5650;
+  --color-late: #c9a227;
+  --color-draft: #7a8fb8;
+
+  /* ---- Radii ----------------------------------------------------------- */
+  --radius-chip: 3px;      /* NEW  filter chips, verdict tags */
+  --radius-card: 6px;      /* NEW  feed rows, list surfaces */
+  --radius-panel: 14px;    /* NEW  the AI verdict panel */
+  --radius-icon: 104px;    /* NEW  app icon squircle, at 480px artboard scale */
+
+  /* ---- Type scale ------------------------------------------------------
+   * Only the sizes actually in use. Quote sizes stay above 18px per the
+   * accessibility floor in SPEC.md section 12.
+   */
+  --text-quote-lg: 33px;   /* NEW  detail screen, the claim */
+  --text-quote-md: 23px;   /* NEW  featured feed row */
+  --text-quote-sm: 18px;   /* NEW  standard feed row */
+  --text-verdict: 30px;    /* NEW  the verdict word in the panel */
+  --text-title: 22px;      /* NEW  screen titles */
+  --text-body: 15px;       /* NEW  supporting copy */
+  --text-meta: 10.5px;     /* NEW  mono metadata lines */
+  --text-label: 10px;      /* NEW  uppercase tags, letterspaced */
+
+  /* ---- Spacing ---------------------------------------------------------
+   * Screen gutters and the vertical rhythm between blocks.
+   */
+  --space-gutter: 22px;    /* NEW  screen edge padding */
+  --space-row: 14px;       /* NEW  feed row vertical padding */
+  --space-block: 26px;     /* NEW  between major blocks on a screen */
+}
+
+@layer base {
+  :root[data-theme='light'] {
+    /* ---- Surfaces and ink (light) -------------------------------------- */
+    --color-ground: #f3efe4;
+    --color-surface: #fffcf4;
+    --color-surface-raised: #fbf6ea;
+    --color-ink: #1c1917;
+    --color-ink-dim: #5f574c;
+    --color-ink-faint: #8b8175;
+    --color-rule: #ddd5c4;
+
+    /* ---- The AI panel (light) ------------------------------------------
+     * Translucency needs darkness to read, so on paper the panel stops being
+     * glass and becomes a raised card instead: near-white, a warm hairline,
+     * and a warm shadow. The glow still does the coloring; the panel is the
+     * clean sheet laid over it.
+     */
+    --color-glass-fill: #fffcf4;
+    --color-glass-edge: oklch(0.85 0.05 80);
+    --color-glass-rule: oklch(0.89 0.03 82);
+    --shadow-panel: 0 16px 36px color-mix(in srgb, #b8822f 26%, transparent);
+
+    /* ---- Accent (light) -------------------------------------------------
+     * The glow has to be more saturated here than on dark to register against
+     * a bright ground, and accent text has to darken to stay legible.
+     */
+    --color-glow: oklch(0.86 0.11 76 / 0.9);
+    --color-glow-soft: oklch(0.88 0.07 78 / 0.7);
+
+    /* ---- Verdicts (light) ----------------------------------------------- */
+    --color-hit: #2f7a4f;
+    --color-miss: #a8341c;
+    --color-partial: #9a6b14;
+    --color-ambiguous: #6b625a;
+    --color-voided: #857c73;
+    --color-late: #8a6d10;
+    --color-draft: #3b5688;
+  }
+}

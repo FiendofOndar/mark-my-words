@@ -22,7 +22,7 @@
     { "id": "label-settings", "x": 460, "y": -60, "w": 380, "text": "Settings picker — click a swatch, watch the preview above it update", "page": "page-2" },
     { "id": "label-mfeed", "x": 0, "y": -60, "w": 380, "text": "Feed — Box Score density, serif claims, glow only on the row that needs you", "page": "page-merged" },
     { "id": "label-mdetail", "x": 460, "y": -60, "w": 380, "text": "Detail — Spotlight up top, dense mono check log below. Glow stays amber on a MISS", "page": "page-merged" },
-    { "id": "label-mlight", "x": 920, "y": -60, "w": 380, "text": "Same screen, light mode — page flips to paper, the AI panel stays dark", "page": "page-merged" },
+    { "id": "label-mlight", "x": 920, "y": -60, "w": 380, "text": "Same screen, light mode — warm page, glow wash, AI panel raised on a warm shadow", "page": "page-merged" },
     { "id": "label-fullwash", "x": 0, "y": -50, "w": 340, "text": "Archived — Full Wash (not picked)", "page": "page-3" },
     { "id": "label-framed", "x": 440, "y": -50, "w": 340, "text": "Archived — Framed (not picked)", "page": "page-3" }
   ],
