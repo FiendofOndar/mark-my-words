@@ -96,3 +96,26 @@ export function formatRate(r: AuthorRecord): string {
 export function formatHeadline(r: AuthorRecord): string {
   return r.ranked ? formatRate(r) : formatRecord(r);
 }
+
+/**
+ * The order of the standings table.
+ *
+ * Ranked authors sort by rate, then by how many calls the rate rests on.
+ * Unranked ones sort by progress toward a rank, then by how many calls are
+ * still running, never by rate: ordering 1-0 above 1-1-1 is the same quiet
+ * cherry-pick the five-call threshold exists to refuse, only without printing
+ * the number. Names break the last tie so the list is stable between loads.
+ */
+export function compareStandings(
+  a: { name: string; record: AuthorRecord },
+  b: { name: string; record: AuthorRecord },
+): number {
+  if (a.record.ranked !== b.record.ranked) return a.record.ranked ? -1 : 1;
+  if (a.record.ranked) {
+    const byRate = (b.record.rate ?? 0) - (a.record.rate ?? 0);
+    if (byRate !== 0) return byRate;
+  }
+  if (a.record.scored !== b.record.scored) return b.record.scored - a.record.scored;
+  if (a.record.open !== b.record.open) return b.record.open - a.record.open;
+  return a.name.localeCompare(b.name);
+}

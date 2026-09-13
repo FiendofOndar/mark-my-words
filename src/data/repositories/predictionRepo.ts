@@ -196,7 +196,8 @@ export class PredictionRepo {
       category: input.category,
       isRetroactive: input.isRetroactive ?? false,
       stakes: input.stakes ?? null,
-      criteriaFrozenAt: null,
+      // Anything that opens is frozen. Only a draft is still editable.
+      criteriaFrozenAt: (input.status ?? 'open') === 'open' ? now : null,
       intakeNotes: input.intakeNotes ?? null,
       promptSnoozes: 0,
       promptNextAt: null,

@@ -406,7 +406,7 @@ export function DetailScreen() {
               Frozen
             </Pill>
           ) : (
-            <Pill tone="muted">Editable until first check</Pill>
+            <Pill tone="muted">Not yet frozen</Pill>
           )}
         </div>
 

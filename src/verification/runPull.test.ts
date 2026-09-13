@@ -219,7 +219,8 @@ describe('a pull', () => {
     expect(summary).toMatchObject({ checked: 0, errors: 1 });
     const after = db.predictions.getById(prediction.id)!;
     expect(after.lastCheckedAt).toBeNull();
-    expect(after.criteriaFrozenAt).toBeNull();
+    // The freeze stamp came from opening the prediction, not from this check.
+    expect(after.criteriaFrozenAt).toBe(prediction.criteriaFrozenAt);
     expect(db.checks.listFor(prediction.id)[0]!.outcome).toBe('error');
 
     // Still due on the next pull.

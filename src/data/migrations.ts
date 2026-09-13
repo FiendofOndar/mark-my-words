@@ -353,6 +353,19 @@ ALTER TABLE evidence_v10 RENAME TO evidence;
 CREATE INDEX idx_evidence_check ON evidence(check_id);
 `,
   },
+  /*
+   * Criteria now freeze on confirm rather than on the first check. Rows that
+   * were already open without a freeze stamp get one, dated to their last
+   * update, so nothing that is on the record stays quietly editable.
+   */
+  {
+    version: 11,
+    name: 'freeze on confirm',
+    sql: `
+UPDATE predictions SET criteria_frozen_at = updated_at
+ WHERE criteria_frozen_at IS NULL AND status <> 'draft';
+`,
+  },
 ];
 
 export function currentVersion(driver: SqlDriver): number {

@@ -98,7 +98,7 @@ summarized context, read this before acting.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 332 tests, all of them fast
+npm test           # 334 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -174,9 +174,11 @@ capability by adding a port, not a branch.
 These are not implementation details. Changing any of them changes what the app
 is for.
 
-- **Criteria freeze on the first check.** After that, editing goes through the
-  amendment log with a required reason. Editing is allowed; hiding the edit is
-  not. This is the whole anti-slippage mechanism. `amendCriterion` is the route:
+- **Criteria freeze when the prediction is confirmed.** After that, editing
+  goes through the amendment log with a required reason. Editing is allowed;
+  hiding the edit is not. This is the whole anti-slippage mechanism. They used
+  to freeze on the first check instead, which for a claim due months out left
+  a long window of quiet edits; the owner chose confirm-time on 2026-09-13. `amendCriterion` is the route:
   criteria live in their own table, so `amend` (which takes a `keyof
   Prediction`) cannot reach them, and for a while the rule above was documented
   but not implemented. A frozen criterion nobody can correct is a prediction

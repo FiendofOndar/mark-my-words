@@ -302,8 +302,21 @@ describe('prediction repository', () => {
     expect(db.predictions.criteriaFor(created.id)[0]!.text).toBe(element.text);
   });
 
-  it('lets criteria be rewritten before the freeze', () => {
-    const created = samplePrediction();
+  it('lets criteria be rewritten while still a draft', () => {
+    // Confirming is the freeze now, so only a draft is still rewritable.
+    const author = db.authors.findOrCreate({ displayName: 'Popops' });
+    const created = db.predictions.create({
+      authorId: author.id,
+      rawStatement: 'The Cardinals will win the World Series this year.',
+      statementDate: '2026-01-01T00:00:00.000Z',
+      deadlineType: 'fixed_date',
+      resolutionDate: '2026-11-30T23:59:59.999Z',
+      verificationMode: 'searchable',
+      category: 'Sports',
+      criteria: ['Something loose'],
+      status: 'draft',
+    });
+    expect(created.criteriaFrozenAt).toBeNull();
     db.predictions.replaceCriteria(created.id, ['Something sharper', 'And a second element']);
     expect(db.predictions.criteriaFor(created.id).map((c) => c.text)).toEqual([
       'Something sharper',
@@ -311,8 +324,9 @@ describe('prediction repository', () => {
     ]);
   });
 
-  it('seals criteria once the first check has run', () => {
+  it('seals criteria the moment a prediction is open', () => {
     const created = samplePrediction();
+    expect(created.criteriaFrozenAt).toBeTruthy();
     db.predictions.freeze(created.id);
 
     expect(db.predictions.getById(created.id)!.criteriaFrozenAt).toBeTruthy();
