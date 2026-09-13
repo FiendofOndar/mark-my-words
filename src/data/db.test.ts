@@ -196,6 +196,35 @@ describe('prediction repository', () => {
     expect(() => db.predictions.amend(created.id, 'normalizedClaim', 'x', '   ')).toThrow();
   });
 
+  it('corrects a frozen criterion through the amendment log', () => {
+    // The one that made this necessary: a claim about the 11th came back from
+    // the drafting model with criteria about the 12th, froze on the first
+    // check, and then could only ever answer "the day is not over".
+    const created = samplePrediction();
+    db.predictions.freeze(created.id);
+    const before = db.predictions.criteriaFor(created.id)[0]!;
+
+    db.predictions.amendCriterion(before.id, 'The Cardinals win on 2026-10-27', 'Wrong date drafted');
+
+    expect(db.predictions.criteriaFor(created.id)[0]!.text).toBe(
+      'The Cardinals win on 2026-10-27',
+    );
+    const amendments = db.predictions.amendmentsFor(created.id);
+    expect(amendments).toHaveLength(1);
+    expect(amendments[0]!.field).toBe('criterion 1');
+    expect(amendments[0]!.oldValue).toBe(before.text);
+    expect(amendments[0]!.reason).toBe('Wrong date drafted');
+  });
+
+  it('refuses to correct a criterion without a reason, or into nothing', () => {
+    const created = samplePrediction();
+    const element = db.predictions.criteriaFor(created.id)[0]!;
+    expect(() => db.predictions.amendCriterion(element.id, 'Something else', '  ')).toThrow();
+    expect(() => db.predictions.amendCriterion(element.id, '   ', 'A reason')).toThrow();
+    expect(db.predictions.amendmentsFor(created.id)).toHaveLength(0);
+    expect(db.predictions.criteriaFor(created.id)[0]!.text).toBe(element.text);
+  });
+
   it('lets criteria be rewritten before the freeze', () => {
     const created = samplePrediction();
     db.predictions.replaceCriteria(created.id, ['Something sharper', 'And a second element']);

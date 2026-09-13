@@ -8,7 +8,7 @@ reasoning, including the ones that look arbitrary.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 292 tests, all of them fast
+npm test           # 294 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -86,7 +86,11 @@ is for.
 
 - **Criteria freeze on the first check.** After that, editing goes through the
   amendment log with a required reason. Editing is allowed; hiding the edit is
-  not. This is the whole anti-slippage mechanism.
+  not. This is the whole anti-slippage mechanism. `amendCriterion` is the route:
+  criteria live in their own table, so `amend` (which takes a `keyof
+  Prediction`) cannot reach them, and for a while the rule above was documented
+  but not implemented. A frozen criterion nobody can correct is a prediction
+  that can never be settled, which is a worse failure than an edit on record.
 - **The feed sorts by heat, and heat flattens past sixty days.** Everything
   further out scores identically, so `sortByHeat` must keep breaking the tie
   itself: deadline first, then `updatedAt`, then the id. Without the last two

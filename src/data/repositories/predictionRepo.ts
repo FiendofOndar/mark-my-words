@@ -292,6 +292,73 @@ export class PredictionRepo {
    * Change a frozen field and leave a visible record of it. Editing is allowed;
    * hiding the edit is not.
    */
+  /**
+   * Correct one frozen criterion, on the record.
+   *
+   * Criteria live in their own table, so `amend` could not reach them and the
+   * only route out of a bad criterion was deleting the prediction. That made
+   * the frozen state absolute rather than accountable, which is the opposite of
+   * the rule: editing is allowed, hiding the edit is not. The drafting model
+   * gets dates wrong, and a criterion nobody can correct is a prediction that
+   * can never be settled.
+   */
+  amendCriterion(criterionId: string, newText: string, reason: string): Amendment {
+    const text = newText.trim();
+    if (!text) throw new Error('A criterion cannot be emptied');
+    if (!reason.trim()) throw new Error('An amendment needs a reason');
+
+    const rows = this.db.select(
+      'SELECT * FROM criteria_elements WHERE id = ? AND deleted_at IS NULL',
+      [criterionId],
+    );
+    const current = rows[0] ? toCriteriaElement(rows[0]) : null;
+    if (!current) throw new Error(`No criterion ${criterionId}`);
+    if (current.text === text) throw new Error('That is the same text');
+
+    const now = nowIso();
+    const amendment: Amendment = {
+      id: uuid(),
+      predictionId: current.predictionId,
+      // Numbered from one, because that is how the criterion is labelled.
+      field: `criterion ${current.position + 1}`,
+      oldValue: current.text,
+      newValue: text,
+      reason: reason.trim(),
+      amendedAt: now,
+      createdAt: now,
+      updatedAt: now,
+      deletedAt: null,
+    };
+
+    return this.db.transaction(() => {
+      this.db.run(
+        `INSERT INTO amendments (id, prediction_id, field, old_value, new_value, reason, amended_at, created_at, updated_at, deleted_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)`,
+        [
+          amendment.id,
+          amendment.predictionId,
+          amendment.field,
+          amendment.oldValue,
+          amendment.newValue,
+          amendment.reason,
+          now,
+          now,
+          now,
+        ],
+      );
+      this.db.run('UPDATE criteria_elements SET text = ?, updated_at = ? WHERE id = ?', [
+        text,
+        now,
+        criterionId,
+      ]);
+      this.db.run('UPDATE predictions SET updated_at = ? WHERE id = ?', [
+        now,
+        amendment.predictionId,
+      ]);
+      return amendment;
+    });
+  }
+
   amend(
     predictionId: string,
     field: keyof Prediction,

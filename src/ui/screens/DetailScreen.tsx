@@ -5,6 +5,7 @@ import { Icon } from '../components/Icon';
 import { Stamp, LateBadge, Pill, STATUS_TONE } from '../components/Stamp';
 import { TrendMark } from '../components/TrendMark';
 import {
+  useAmendCriterion,
   useAmendPrediction,
   useApproveVerdict,
   useCheckLog,
@@ -56,11 +57,13 @@ export function DetailScreen() {
   const snooze = useSnoozePrompt();
   const receipt = useReceipt();
   const amend = useAmendPrediction();
+  const amendCriterion = useAmendCriterion();
   const remove = useDeletePrediction();
   const setSatisfied = useSetCriterionSatisfied();
 
   const [showResolve, setShowResolve] = useState(false);
   const [amending, setAmending] = useState(false);
+  const [amendingCriterion, setAmendingCriterion] = useState<string | null>(null);
 
   /**
    * Both of these panels open underneath the action buttons, which sit at the
@@ -362,7 +365,29 @@ export function DetailScreen() {
                   {c.satisfied === true ? '✓' : c.satisfied === false ? '✕' : '?'}
                 </span>
               </button>
-              <span className="text-[15px] leading-snug text-ink-dim">{c.text}</span>
+              {amendingCriterion === c.id ? (
+                <AmendForm
+                  className="min-w-0 flex-1"
+                  initial={c.text}
+                  onCancel={() => setAmendingCriterion(null)}
+                  onSubmit={(value, reason) => {
+                    amendCriterion.mutate({ criterionId: c.id, text: value, reason });
+                    setAmendingCriterion(null);
+                  }}
+                />
+              ) : (
+                // Frozen is accountable, not absolute. The drafting model gets
+                // dates wrong, and a criterion nobody can correct is a
+                // prediction that can never be settled. The edit is logged with
+                // its reason like every other amendment.
+                <button
+                  type="button"
+                  onClick={() => setAmendingCriterion(c.id)}
+                  className="-my-1 flex-1 py-1 text-left text-[15px] leading-snug text-ink-dim active:opacity-60"
+                >
+                  {c.text}
+                </button>
+              )}
             </li>
           ))}
           {criteria.length === 0 && (
@@ -584,18 +609,24 @@ function AmendForm({
   onSubmit,
   onCancel,
   hostRef,
+  className = 'mt-4',
 }: {
   initial: string;
   onSubmit: (value: string, reason: string) => void;
   onCancel: () => void;
   hostRef?: React.Ref<HTMLDivElement>;
+  /** Inline inside a criterion row it needs no top margin and must not overflow. */
+  className?: string;
 }) {
   const [value, setValue] = useState(initial);
   const [reason, setReason] = useState('');
   const valid = value.trim().length > 0 && reason.trim().length > 0 && value !== initial;
 
   return (
-    <div ref={hostRef} className="mt-4 rounded border border-partial/40 bg-surface p-3">
+    <div
+      ref={hostRef}
+      className={`rounded border border-partial/40 bg-surface p-3 ${className}`}
+    >
       <p className="text-[13px] text-ink-dim">
         Editing is allowed. Hiding the edit is not, so the reason goes on the record.
       </p>

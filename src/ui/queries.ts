@@ -318,6 +318,12 @@ export function useAmendPrediction() {
   );
 }
 
+export function useAmendCriterion() {
+  return useDbMutation((db, args: { criterionId: string; text: string; reason: string }) =>
+    db.predictions.amendCriterion(args.criterionId, args.text, args.reason),
+  );
+}
+
 export function useFindOrCreateAuthor() {
   return useDbMutation((db, args: { displayName: string; handle?: string | null }) =>
     db.authors.findOrCreate(args),
