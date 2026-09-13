@@ -8,7 +8,7 @@ reasoning, including the ones that look arbitrary.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 287 tests, all of them fast
+npm test           # 292 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -72,6 +72,10 @@ capability by adding a port, not a branch.
 - **A disabled cream fill becomes a muddy grey block**, whether by `opacity-40`
   or `bg-ink/20`, and reads as pressed. `primaryButton` swaps to a surface
   token instead. Use `primaryButton` / `secondaryButton`, not a fourth copy.
+- **The suite runs in `America/Los_Angeles`, not UTC.** Nearly every date rule
+  here is local, and under UTC a correct implementation and a `toISOString()`
+  one are indistinguishable. One shipped that way: checks after 5pm Pacific told
+  the model it was already tomorrow. Do not "simplify" the TZ out of the config.
 - **Never type "·" in front of list items.** `Bullets` renders one item as a
   sentence, because a bullet in front of a single line is just a dot.
 
@@ -103,6 +107,17 @@ is for.
   shareable card. Show the record until the rate means something.
 - **Retroactive entries never count toward a hit rate.** Backfilled predictions
   are cherry-picked by construction.
+- **A criterion dated after the deadline is refused at review.** A criterion is
+  judged at the deadline, so a later date inside it can never be met in time.
+  The drafting model produced exactly this (claim about the 11th, criteria about
+  the 12th) and every check then answered "not yet" forever while the feed
+  showed the claim overdue. Earlier dates pass; criteria often measure against
+  one.
+- **Checks are only ever spent by a deliberate tap.** `runPull` has one caller,
+  reached from the feed refresh gesture or a detail screen's "Check now". No
+  timer, no launch effect, no background service. Keep it that way: the cadence
+  gate, the per-pull budget of 6 and the daily ceiling are all downstream of
+  that, and every check costs the user money now.
 - **The API key never touches the database**, because Settings exports the whole
   database file.
 
