@@ -239,6 +239,22 @@ checks (`provider: 'demo'`) counted toward the searches and tokens lines in
 Settings. And note that the Dodgers sample is an open, overdue prediction, so
 it takes a slot on the first pull and pushes GTA VI to the second.
 
+**First wrong verdict on a real claim (build c1e7dee).** The rogue-drone seed
+("first rogue AI drone strikes in the next 6 months", recorded twenty days
+before install, so August 24) settled as a hit on two working links, NYT and
+LA Times, both published August 24 and 27. The strike they describe happened
+in July. The publication gate is the app's and it passed; the event date is
+the model's and it was never told the period had a start. The check prompt now
+states the period explicitly (rule 1 and a line in every check's input) and
+tells the model that reporting dates are not event dates. Predicted outcome on
+a re-check of that claim: ambiguous, queued, with the summary naming July.
+The owner was asked to reopen it.
+
+Also confirmed on this build: the Custom Tab (a source link opened in a sheet
+with its own close control, no download prompt), the tokens line in Settings,
+the absent searches line, no "It happened anyway" on Anacortes, and the Dodgers
+sample replaced by a real hit.
+
 Three more things PR #3 adds to look for: Anacortes settling itself as a miss
 with no approval card; a "Not right? Reopen it" link under "Settled by the
 app"; source links opening in a browser sheet that closes back to the app.

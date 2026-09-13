@@ -98,7 +98,7 @@ summarized context, read this before acting.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 326 tests, all of them fast
+npm test           # 328 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -218,6 +218,15 @@ is for.
   does not exist is what an invented citation looks like. Only the second
   costs its place in the independent-source count. Two rotted deep links on
   Return of the King once held a verdict that three agreeing sources carried.
+- **The period starts on the recorded date, and only the model can check
+  the event date.** The app gates on publication dates; it cannot know when
+  an event happened. The first wrong verdict on a real claim was a July drone
+  strike, reported August 24 and 27, applied as a hit on a claim recorded
+  August 24: every source postdated the claim, the event did not, and the
+  summary led with the reporting dates. The check prompt now states the
+  period's start explicitly and tells the model that reporting dates are not
+  event dates. The intake criteria for a "will happen" claim should carry the
+  start too; that is prompt-level and worth re-testing when it drifts.
 - **Reporting comes after the event, so a late publication date is not a
   problem.** A rule once required every source to be published before the
   deadline the claim named. A Sunday night game is written up on Monday
@@ -354,9 +363,13 @@ the per-pull budget is six and why there are not more.
 
 Every fact in them was verified against live sources before seeding, and the
 commit that added each says so. A fabricated demo verdict about a real team has
-already misled someone once here; do not do it again. Two other open seeds (the
-rogue-drone claim and the CNN winter forecast) are also searchable and will be
-checked when the budget allows; neither can resolve yet.
+already misled someone once here; do not do it again. Two other open seeds are also
+searchable: the CNN winter forecast (cannot resolve before winter) and the
+rogue-drone claim, dated twenty days before install, which resolved on its
+second real check and produced the first wrong verdict (see the period-start
+rule above). It is a real prediction with a moving statement date, not a
+controlled fixture; treat its outcome as a test of the prompt, not of the
+world.
 
 ## Unverified
 
