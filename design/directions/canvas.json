@@ -1,23 +1,26 @@
 {
   "artboards": [
-    { "file": "Main.dc.html", "x": 0, "y": -500, "w": 1500, "h": 300 },
+    { "file": "Main.dc.html", "x": 0, "y": -340, "w": 1400, "h": 200 },
 
-    { "file": "BoxScoreIcon.dc.html", "x": 0, "y": 0, "w": 480, "h": 480 },
-    { "file": "BoxScoreScreen.dc.html", "x": 560, "y": 0, "w": 375, "h": 812 },
-    { "file": "BoxScoreFlyer.dc.html", "x": 1020, "y": 0, "w": 1200, "h": 630 },
+    { "file": "Icon.dc.html", "x": 0, "y": 0, "w": 480, "h": 480 },
+    { "file": "FeedScreen.dc.html", "x": 560, "y": 0, "w": 375, "h": 812 },
+    { "file": "Flyer.dc.html", "x": 1020, "y": 0, "w": 1200, "h": 630 },
 
-    { "file": "FieldNotesIcon.dc.html", "x": 0, "y": 962, "w": 480, "h": 480 },
-    { "file": "FieldNotesScreen.dc.html", "x": 560, "y": 962, "w": 375, "h": 812 },
-    { "file": "FieldNotesFlyer.dc.html", "x": 1020, "y": 962, "w": 1200, "h": 630 },
+    { "file": "FieldNotesIcon.dc.html", "x": 0, "y": 0, "w": 480, "h": 480, "page": "page-2" },
+    { "file": "FieldNotesScreen.dc.html", "x": 560, "y": 0, "w": 375, "h": 812, "page": "page-2" },
+    { "file": "FieldNotesFlyer.dc.html", "x": 1020, "y": 0, "w": 1200, "h": 630, "page": "page-2" },
 
-    { "file": "LoudVerdictIcon.dc.html", "x": 0, "y": 1924, "w": 480, "h": 480 },
-    { "file": "LoudVerdictScreen.dc.html", "x": 560, "y": 1924, "w": 375, "h": 812 },
-    { "file": "LoudVerdictFlyer.dc.html", "x": 1020, "y": 1924, "w": 1200, "h": 630 }
+    { "file": "LoudVerdictIcon.dc.html", "x": 0, "y": 962, "w": 480, "h": 480, "page": "page-2" },
+    { "file": "LoudVerdictScreen.dc.html", "x": 560, "y": 962, "w": 375, "h": 812, "page": "page-2" },
+    { "file": "LoudVerdictFlyer.dc.html", "x": 1020, "y": 962, "w": 1200, "h": 630, "page": "page-2" }
   ],
   "annotations": [
-    { "id": "label-boxscore", "x": 0, "y": -50, "w": 400, "text": "Direction 1 — Box Score: sports-ticker energy" },
-    { "id": "label-fieldnotes", "x": 0, "y": 912, "w": 400, "text": "Direction 2 — Field Notes: forecaster's notebook" },
-    { "id": "label-loudverdict", "x": 0, "y": 1874, "w": 400, "text": "Direction 3 — Loud Verdict: bold poster authority" }
+    { "id": "label-fieldnotes", "x": 0, "y": -50, "w": 420, "text": "Archived — Field Notes (not selected)", "page": "page-2" },
+    { "id": "label-loudverdict", "x": 0, "y": 912, "w": 420, "text": "Archived — Loud Verdict (not selected)", "page": "page-2" }
   ],
-  "launch": { "view": "canvas" }
+  "pages": [
+    { "id": "page-1", "name": "Box Score" },
+    { "id": "page-2", "name": "Archived sketches" }
+  ],
+  "launch": { "view": "canvas", "page": "page-1" }
 }

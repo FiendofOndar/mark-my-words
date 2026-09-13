@@ -7,43 +7,29 @@
 <body>
 <x-dc>
 <helmet>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow+Condensed:wght@500;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
   <style>
     body { margin: 0; }
     .wrap {
-      width: 1500px; height: 320px; box-sizing: border-box;
-      background: oklch(0.19 0.01 270);
+      width: 1400px; height: 200px; box-sizing: border-box;
+      background: oklch(0.17 0.012 270);
       color: oklch(0.96 0.01 90);
       font-family: 'Barlow Condensed', sans-serif;
-      display: flex; align-items: center; padding: 0 64px; gap: 56px;
+      display: flex; align-items: center; padding: 0 60px; gap: 48px;
     }
-    h1 { font-family: 'Archivo Black', sans-serif; font-size: 44px; margin: 0 0 6px 0; letter-spacing: 0.5px; }
-    p.lede { font-size: 20px; line-height: 1.4; margin: 0; max-width: 560px; color: oklch(0.8 0.01 90); font-weight: 500; }
-    .cols { display: flex; gap: 40px; flex: 1; }
-    .col { flex: 1; border-left: 1px solid oklch(0.32 0.01 270); padding-left: 28px; }
-    .col h2 { font-size: 15px; text-transform: uppercase; letter-spacing: 1.5px; margin: 0 0 8px 0; color: oklch(0.75 0.15 150); font-weight: 700; }
-    .col p { font-size: 17px; margin: 0; line-height: 1.35; color: oklch(0.85 0.01 90); }
+    h1 { font-family: 'Anton', sans-serif; font-size: 38px; margin: 0 0 6px 0; letter-spacing: 0.5px; }
+    p.lede { font-size: 19px; line-height: 1.4; margin: 0; max-width: 480px; color: oklch(0.78 0.01 90); font-weight: 500; }
+    .tag { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 2px; color: oklch(0.74 0.19 150); font-weight: 600; margin-bottom: 8px; }
+    .note { border-left: 1px solid oklch(0.32 0.01 270); padding-left: 32px; font-size: 16px; line-height: 1.4; color: oklch(0.68 0.01 90); max-width: 380px; }
   </style>
 </helmet>
 <div class="wrap">
   <div>
+    <div class="tag">DIRECTION LOCKED — BOX SCORE</div>
     <h1>Mark My Words</h1>
-    <p class="lede">A ledger of predictions and the people who make them. Three direction sketches below &mdash; icon, feed screen, and promo flyer for each. Pick one, mix pieces, or send me somewhere else.</p>
+    <p class="lede">A ledger of predictions and the people who make them. Icon, feed screen, and promo flyer below, all one system now &mdash; scoreboard type, tally-mark iconography, verdicts as scoreboard chips.</p>
   </div>
-  <div class="cols">
-    <div class="col">
-      <h2>Box Score</h2>
-      <p>Sports-ticker energy. Scoreboard type, tally-mark iconography, stats up front.</p>
-    </div>
-    <div class="col">
-      <h2>Field Notes</h2>
-      <p>Forecaster's notebook. Warm paper, grid precision, confidence as data.</p>
-    </div>
-    <div class="col">
-      <h2>Loud Verdict</h2>
-      <p>Bold poster authority. One huge verdict word, stark contrast, no apology.</p>
-    </div>
-  </div>
+  <div class="note">The Field Notes and Loud Verdict sketches from the first round are archived on page 2, for reference.</div>
 </div>
 </x-dc>
 </body>
