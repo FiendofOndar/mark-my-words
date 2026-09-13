@@ -45,13 +45,12 @@ Apple tables), section 6 (pre-release checks), section 8 (items 0c to 0g).
 No research agent is in flight. The owner has the complete Apple answer in
 the chat; the durable version is `VIABILITY.md`.
 
-## Open questions the owner has to answer (collect, do not decide)
+## Open questions the owner has to answer
 
-- `stakes` field in the store build: the recommendation (keep, relabel to
-  "Riding on it", sentence placeholder) is in `VIABILITY.md` 8.0d and
-  awaits a yes. Decided on 2026-09-13: EU trader status yes; Apple
-  enrollment starts now (`VIABILITY.md` section 10; the ordered steps are
-  in 4.1a).
+None at the switch. The three from the Apple work are decided
+(`VIABILITY.md` section 10): stakes field relabelled (requested from the
+main line as a GitHub issue), EU trader status yes, Apple enrollment starts
+now.
 
 ## What is next on this branch after the Apple work
 

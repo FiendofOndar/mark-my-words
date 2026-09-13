@@ -1334,15 +1334,13 @@ Ordered by how much of the plan rests on them.
    accounts.** A 2018 notice, applied in 2020, says so; it is absent from
    the current guidelines. This app should never be classified that way
    (2.10), so the question only matters if a reviewer disagrees.
-0d. **Whether the `stakes` field stays in the store build, and under what
-   label.** Recommendation: keep it as free text, relabel the form field
-   from "Stakes" to "Riding on it" (the detail screen's own phrasing), use
-   the same words on the receipt, and give the field a placeholder that
-   steers to a sentence rather than an amount. The field is already free
-   text with no currency formatting, shown as a pill on the feed, a line
-   on the detail screen and a line on the receipt; dropping it would lose a
-   spec feature for little gain, and the label change is three lines on
-   the main branch. Awaiting the owner's yes.
+0d. **The `stakes` field.** Decided 2026-09-13: keep it as free text,
+   relabel the form field and the receipt line to "Riding on it" (the
+   detail screen's own phrasing), and give the field a placeholder that
+   steers to a sentence rather than an amount. Requested from the main
+   line of work as a GitHub issue titled "Relabel the stakes field to
+   'Riding on it' and steer its placeholder away from money". Never add
+   currency formatting, totals or arithmetic to it.
 0e. **EU availability.** Decided 2026-09-13: declare trader status and
    release to the EU storefronts from the start (section 10). The open
    part is which address to publish; see the enrollment steps in 4.1a.
@@ -1473,3 +1471,4 @@ new evidence; section 8 items 0 and 0a are the evidence that would.
 | Comfort with cost | Watch the pool monthly; act deliberately when it runs out early | Section 6, monthly |
 | Apple enrollment timing | Start now, before the iOS build exists | 2026 forum reports of individual enrollments stuck for weeks to months; the account, the agreements and the trader details are on the critical path and none of them need the app |
 | EU storefronts | Declare trader status and release to the EU from the start | Owner's call on 2026-09-13; the cost is a published P.O. box, phone and email |
+| The stakes field | Keep, as free text; relabel to "Riding on it" on the form and the receipt; sentence placeholder; never model money | The only on-screen element a reviewer could read as a wager (2.10); the label change is three lines and the feature stays |
