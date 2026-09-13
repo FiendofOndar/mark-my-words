@@ -634,9 +634,9 @@ One scrolling list. No tabs. Pull-to-refresh at the top triggers verification.
 **Heat sort.** Default ordering is by a computed heat score, not by date, so the most interesting
 thing is always on top. Two things sit beside the rule without replacing it: a row can be **pinned**
 from its press-and-hold menu (pinned rows hold the top, in the order pinned, and the rest of the feed
-keeps its order beneath them), and the header's funnel opens an **order and filter** sheet with the
-other orders a long ledger wants (deadline soonest, newest, oldest, by author) as a per-device
-preference. Drag-to-reorder was asked for and declined: a hand-sorted ledger lets a bad call be
+keeps its order beneath them), and the header's order button opens a sheet with the other orders a
+long ledger wants (deadline soonest, newest, oldest, by author) as a per-device preference; when one
+is in force a line under the chips names it, with a reset. Filters live only in the chip strip. Drag-to-reorder was asked for and declined: a hand-sorted ledger lets a bad call be
 buried under a good one, which is what the heat sort exists to prevent.
 
 ```

@@ -44,7 +44,10 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-xl border border-rule bg-surface p-4 shadow-lg"
+        onContextMenu={(e) => e.preventDefault()}
+        // A sheet arrives under a finger that may still be down; nothing in
+        // it is for selecting.
+        className="w-full max-w-sm rounded-xl border border-rule bg-surface p-4 shadow-lg select-none [-webkit-touch-callout:none]"
       >
         {children}
       </div>
