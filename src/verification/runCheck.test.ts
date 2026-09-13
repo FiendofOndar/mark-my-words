@@ -312,6 +312,37 @@ describe('what the model is told', () => {
     expect(seen!.disconfirmingTrigger).toBe('An index falls 30% from its peak');
     expect(seen!.today).toBe('2026-09-12');
   });
+
+  it('dates the prompt locally, not in UTC', async () => {
+    // Eight in the evening Pacific, which is already tomorrow in UTC. The
+    // deadline the model is asked to compare against is rendered in local time,
+    // so a UTC "today" put the two a day apart every evening, and on a claim
+    // about one particular day that is the whole answer. The suite runs in
+    // Pacific so this can fail.
+    const evening = new Date(2026, 8, 12, 20, 0, 0);
+    expect(evening.toISOString().slice(0, 10)).toBe('2026-09-13');
+
+    let seen: CheckInput | null = null;
+    const verifier = new StubVerifier(result({ verdict: 'no_change', sources: [] }));
+    const spy: Verifier = {
+      providerId: verifier.providerId,
+      modelId: verifier.modelId,
+      dailyQuota: verifier.dailyQuota,
+      structure: (input) => verifier.structure(input),
+      testConnection: () => verifier.testConnection(),
+      check: async (input) => {
+        seen = input;
+        return verifier.check(input);
+      },
+    };
+
+    await runCheck(
+      { verifier: spy, fetcher: quotesBack, now: () => evening },
+      ctx(makePrediction()),
+    );
+
+    expect(seen!.today).toBe('2026-09-12');
+  });
 });
 
 describe('things with nothing left to decide', () => {

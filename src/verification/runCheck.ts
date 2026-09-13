@@ -17,6 +17,7 @@ import {
   markLateHit,
   resolve,
   shouldStaleOut,
+  toLocalDateInput,
   type PredictionPatch,
 } from '../domain/prediction';
 import { scoreCheck, type RubricResult } from '../domain/rubric';
@@ -86,12 +87,17 @@ export async function runCheck(deps: CheckDeps, ctx: CheckContext): Promise<Chec
     polarity: p.polarity,
     disconfirmingTrigger: p.disconfirmingTrigger,
     criteriaElements: ctx.criteria.map((c) => c.text),
-    statementDate: p.statementDate.slice(0, 10),
+    statementDate: toLocalDateInput(p.statementDate),
     deadlineDescription: describeDeadline(p),
     raceEventB: p.raceEventB,
     suggestedQueries: p.searchQueries,
     priorFindings: ctx.priorFindings,
-    today: now.toISOString().slice(0, 10),
+    // Local, not UTC. `deadlineDescription` is formatted in local time, so a
+    // UTC "today" put the two a day apart for everyone west of Greenwich for
+    // the last hours of every day: in Pacific, any check after 5pm told the
+    // model it was already tomorrow. On a claim about one specific day that is
+    // the difference between "not yet" and a verdict.
+    today: toLocalDateInput(now.toISOString()),
   };
 
   let result;
