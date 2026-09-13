@@ -1,4 +1,5 @@
 import { useRef, useState, type ReactNode } from 'react';
+import { describeProgress, type PullProgress } from '../../verification/runPull';
 
 const TRIGGER_PX = 72;
 const MAX_PULL = 110;
@@ -16,7 +17,7 @@ export function PullToRefresh({
   onRefresh: () => void;
   busy: boolean;
   /** How far through the pull is, when there is more than one thing to check. */
-  progress?: { done: number; total: number } | null;
+  progress?: PullProgress | null;
   children: ReactNode;
 }) {
   const [pull, setPull] = useState(0);
@@ -66,9 +67,7 @@ export function PullToRefresh({
       >
         <span className="pb-3 font-sans text-[15px] tracking-wide text-ink-faint uppercase">
           {busy
-            ? progress && progress.total > 1
-              ? `Checking ${Math.min(progress.done + 1, progress.total)} of ${progress.total}...`
-              : 'Checking...'
+            ? describeProgress(progress ?? null)
             : armed
               ? 'Release to check'
               : 'Pull to check'}
