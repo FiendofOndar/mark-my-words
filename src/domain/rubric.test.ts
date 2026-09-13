@@ -174,18 +174,44 @@ describe('model confidence is a cap, not a bonus', () => {
 });
 
 describe('url validation', () => {
-  it('zeroes the dimension and gates the result when a source does not resolve', () => {
+  it('gates only when nothing resolved at all', () => {
+    // Every cited page missing is what fabrication looks like.
+    const allDead = scoreCheck(
+      input({
+        sources: [
+          source({ publisher: 'AP', fetchStatus: 'unreachable' }),
+          source({ url: 'https://reuters.com/a', fetchStatus: 'unreachable' }),
+        ],
+      }),
+    );
+    expect(allDead.breakdown.urlValidation).toBe(0);
+    expect(allDead.gates.join(' ')).toMatch(/invented citations/i);
+    expect(allDead.decision).not.toBe('auto_resolve');
+  });
+
+  it('lets one bad deep link stand among pages that did resolve', () => {
+    // The real one, twice over: a timeanddate.com URL 404'd while weather.gov
+    // and wunderground.com both served the page, and the whole verdict was
+    // blocked. A model that found real pages is not inventing citations, it got
+    // one link wrong, and that link no longer counts as corroboration either.
     const result = scoreCheck(
       input({
         sources: [
           source({ publisher: 'AP' }),
-          source({ publisher: 'Reuters', fetchStatus: 'unreachable' }),
+          source({ url: 'https://reuters.com/a', publisher: 'Reuters' }),
+          source({
+            url: 'https://timeanddate.com/x',
+            publisher: 'Time and Date',
+            fetchStatus: 'unreachable',
+          }),
         ],
       }),
     );
-    expect(result.breakdown.urlValidation).toBe(0);
-    expect(result.gates.join(' ')).toMatch(/invented citations/i);
-    expect(result.decision).not.toBe('auto_resolve');
+    expect(result.gates).toEqual([]);
+    expect(result.breakdown.urlValidation).toBe(20);
+    // Two resolved domains, not three cited ones.
+    expect(result.breakdown.independentSources).toBe(22);
+    expect(result.decision).toBe('auto_resolve');
   });
 
   it('pays for confirmed corroboration, not for the ratio', () => {
@@ -225,17 +251,17 @@ describe('url validation', () => {
     expect(countIndependentSources(result ? input().sources.slice(0, 1) : [])).toBe(1);
   });
 
-  it('still refuses everything when one citation did not resolve', () => {
+  it('does not count a page that does not exist as corroboration', () => {
     const result = scoreCheck(
       input({
         sources: [
           source({ publisher: 'AP' }),
-          source({ publisher: 'Reuters' }),
-          source({ publisher: 'Nowhere', fetchStatus: 'unreachable' }),
+          source({ url: 'https://nowhere.example/a', fetchStatus: 'unreachable' }),
         ],
       }),
     );
-    expect(result.breakdown.urlValidation).toBe(0);
+    expect(countIndependentSources(result ? [] : [])).toBe(0);
+    expect(result.breakdown.independentSources).toBe(10);
   });
 
   it('gives a little credit when every page was read but nothing was quoted back', () => {

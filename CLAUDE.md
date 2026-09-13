@@ -8,7 +8,7 @@ reasoning, including the ones that look arbitrary.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 324 tests, all of them fast
+npm test           # 325 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -111,11 +111,13 @@ is for.
   information on the check log now. Only two things stand between a verdict and
   the record: a gate, and the model reporting confidence under `CONFIDENT_AT`.
   Both ask the user; neither buries the finding.
-- **A dead citation is the one guard that still blocks.** A URL that does not
-  resolve is the signature of an invented source. `quote_not_found` and
-  `blocked` cost points and gate nothing, because a live page rewriting itself
-  between the model reading it and the app fetching it says nothing about
-  whether the verdict is right. Watched that happen three times out of three.
+- **Fabrication looks like nothing resolving, not like something failing.** Any
+  single dead link used to gate the check, and it twice stopped a correct
+  verdict backed by two pages that did resolve. A model that found real pages is
+  not inventing citations; it got one deep link wrong. The gate fires only when
+  every cited source is unreachable. A dead link still costs its place in the
+  independent-source count, because a page that does not exist corroborates
+  nothing. `quote_not_found` and `blocked` cost points and gate nothing.
 - **`hold` is only for a check that resolved nothing.** A verdict the app cannot
   act on is still a verdict somebody should see.
 - **Model confidence can only lower the score, never raise it.** The score is
@@ -126,12 +128,15 @@ is for.
   World Series winner for a season that has not been played. Anything rendering
   a check must badge `provider === 'demo'`, and evidence rows must show the
   host, not only the publisher the model typed.
-- **Every cited URL is fetched and searched for the quoted passage.** A verdict
-  resting on an unreachable citation never auto-resolves.
 - **`blocked` is not `unreachable`.** A bot wall or a CORS refusal means the app
-  could not check; a dead host means the citation is probably invented. Only the
-  second one is treated as evidence of a fake. Calling a real citation invented
-  is the one mistake this layer exists to prevent.
+  could not read the page; a dead URL means there may be no page. Neither is
+  proof of a fake on its own. Calling a real citation invented is the one
+  mistake this layer exists to prevent.
+- **Quote matching has never once succeeded on a real check.** Four runs against
+  a live key confirmed 1, 2, 0 and 0 citations, failing on live forecast pages,
+  JS-rendered tables and one bad deep link. It is informational and costs a page
+  fetch per source. If it still never fires after more real use, delete it and
+  keep reachability.
 - **A hit rate is never shown for an author who is not ranked.** `formatHeadline`
   is the one place that decides. A 1-0 record printed as "100%" is the
   cherry-pick the five-call threshold exists to refuse, and it had reached the

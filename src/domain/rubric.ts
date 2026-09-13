@@ -83,6 +83,9 @@ const TIER_POINTS: Record<SourceTier, number> = {
 export function countIndependentSources(sources: SourceAssessment[]): number {
   const seen = new Set<string>();
   for (const source of sources) {
+    // A page that does not exist corroborates nothing. It used to earn its
+    // domain a place in this count anyway.
+    if (source.fetchStatus === 'unreachable') continue;
     seen.add(registrableDomain(source.url) ?? source.url.toLowerCase());
   }
   return seen.size;
@@ -109,13 +112,11 @@ function tierPoints(sources: SourceAssessment[]): number {
 }
 
 /**
- * `blocked` is not `unreachable`. A bot wall or a CORS refusal means the app
- * could not check the source, which earns nothing but is not evidence that the
- * source is fake. `unreachable` means the URL did not resolve at all, which is
- * the signature of a model inventing a citation.
- */
-/**
  * How much confirmed corroboration the app found for itself.
+ *
+ * `blocked` is not `unreachable`: a bot wall means the app could not read the
+ * page, a dead URL means there may be no page. Neither is proof of a fake on
+ * its own.
  *
  * Counted, not averaged. This was a ratio, which punished a model for showing
  * its work: four citations with two confirmed scored 8, where the same two
@@ -130,9 +131,11 @@ function tierPoints(sources: SourceAssessment[]): number {
 function validationPoints(sources: SourceAssessment[]): number {
   if (sources.length === 0) return 0;
 
-  // A URL that does not resolve is the signature of an invented citation, and
-  // it poisons the set: nothing here is trustworthy if one of them is fiction.
-  if (sources.some((s) => s.fetchStatus === 'unreachable')) return 0;
+  // Nothing resolved at all is the signature of invented citations. One bad
+  // deep link among pages that did resolve is a citation error, and it already
+  // costs its place in the independent-source count.
+  const resolved = sources.filter((s) => s.fetchStatus !== 'unreachable');
+  if (resolved.length === 0) return 0;
 
   const confirmed = countIndependentSources(sources.filter((s) => s.fetchStatus === 'ok'));
   if (confirmed >= 2) return 20;
@@ -147,7 +150,7 @@ function validationPoints(sources: SourceAssessment[]): number {
    * `blocked` earns nothing even here, because the page was never read at all,
    * and in the browser it cannot be told apart from a dead host.
    */
-  if (sources.every((s) => s.fetchStatus === 'quote_not_found')) return 4;
+  if (resolved.every((s) => s.fetchStatus === 'quote_not_found')) return 4;
   return 0;
 }
 
@@ -248,8 +251,17 @@ function collectGates(input: RubricInput, independent: number): string[] {
       independent === 0 ? 'No sources were cited.' : 'Only one independent source was cited.',
     );
   }
-  if (input.sources.some((s) => s.fetchStatus === 'unreachable')) {
-    gates.push('A cited source did not resolve, which is how invented citations look.');
+  /*
+   * Gating on "nothing resolved", not on "something did not".
+   *
+   * Any single dead link used to block the whole check, and it twice stopped a
+   * correct verdict backed by two other sources that did resolve and did say
+   * what they were quoted as saying. A model that searched and found real pages
+   * is not fabricating; it got one deep link wrong, which the log already shows
+   * and which no longer counts toward corroboration either.
+   */
+  if (input.sources.length > 0 && input.sources.every((s) => s.fetchStatus === 'unreachable')) {
+    gates.push('No cited source resolved, which is how invented citations look.');
   }
 
   // A name the host cannot support. Dressing a blog up as a wire service is the
