@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Screen } from '../components/Screen';
 import { Icon } from '../components/Icon';
+import { primaryButton } from '../components/Field';
 import { Stamp, LateBadge, Pill, STATUS_TONE } from '../components/Stamp';
 import { TrendMark } from '../components/TrendMark';
 import { ExternalLink } from '../components/ExternalLink';
@@ -499,9 +500,28 @@ export function DetailScreen() {
           Check log
         </h2>
         {p.verificationMode === 'manual' ? (
-          <p className="mt-3 text-[14px] text-ink-faint italic">
-            This one is yours to settle. Nothing is searched.
-          </p>
+          p.status === 'open' && !awaitingAnswer ? (
+            /* A "you decide" bet has no check log, so this slot used to hold a
+               sentence and the way to settle it sat four buttons down in grey.
+               The sentence is now the button. Past the deadline the Yes / No
+               card above takes over, so this only shows while it is running. */
+            <div className="mt-3 rounded border border-rule bg-surface p-3">
+              <p className="text-[14px] text-ink-dim">
+                Nothing is searched for this one. When you know how it turned out, call it.
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowResolve(true)}
+                className={`${primaryButton} mt-3 min-h-11 w-full px-4 text-[15px]`}
+              >
+                Settle it
+              </button>
+            </div>
+          ) : (
+            <p className="mt-3 text-[14px] text-ink-faint italic">
+              This one was yours to settle. Nothing was searched.
+            </p>
+          )
         ) : (
           <CheckLog entries={log} summaryShownAbove={queuedVerdict?.id} />
         )}
@@ -545,7 +565,12 @@ export function DetailScreen() {
             </ActionButton>
           )}
           {!isResolved(p.status) && (
-            <ActionButton onClick={() => setShowResolve((v) => !v)}>Resolve manually</ActionButton>
+            <ActionButton
+              onClick={() => setShowResolve((v) => !v)}
+              tone={p.verificationMode === 'manual' ? 'primary' : 'normal'}
+            >
+              {p.verificationMode === 'manual' ? 'Settle it' : 'Resolve manually'}
+            </ActionButton>
           )}
           {isResolved(p.status) && (
             <ActionButton onClick={() => update.mutate({ id: p.id, patch: reopen(p) })}>
@@ -676,7 +701,7 @@ function ActionButton({
 }: {
   children: React.ReactNode;
   onClick: () => void;
-  tone?: 'normal' | 'danger';
+  tone?: 'normal' | 'danger' | 'primary';
   disabled?: boolean;
 }) {
   return (
@@ -684,9 +709,13 @@ function ActionButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`min-h-11 rounded border px-4 text-[13px] active:bg-surface-raised disabled:opacity-40 ${
-        tone === 'danger' ? 'border-miss/40 text-miss/90' : 'border-rule/70 text-ink-faint'
-      }`}
+      className={
+        tone === 'primary'
+          ? `${primaryButton} min-h-11 px-4 text-[13px]`
+          : `min-h-11 rounded border px-4 text-[13px] active:bg-surface-raised disabled:opacity-40 ${
+              tone === 'danger' ? 'border-miss/40 text-miss/90' : 'border-rule/70 text-ink-faint'
+            }`
+      }
     >
       {children}
     </button>
