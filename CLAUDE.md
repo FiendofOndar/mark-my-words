@@ -8,7 +8,7 @@ reasoning, including the ones that look arbitrary.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 312 tests, all of them fast
+npm test           # 321 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -97,6 +97,12 @@ is for.
   the same eight predictions came back in a different order on every load.
 - **A late hit never changes the verdict.** The timeframe was part of the claim,
   so a miss stays a miss and earns a badge instead.
+- **Tier and independence come from the domain, never from the model.** Both
+  arrived as fields in the model's own JSON and were taken at face value, so
+  fifty-five of the hundred points were the model grading itself: a blog could
+  be filed `primary`, and two pages on one site labelled "AP" and "Reuters"
+  counted as two independent sources. `src/domain/sources.ts` decides both from
+  the URL, and flags a publisher name the host cannot support.
 - **The verdict decides. The score describes.** The rubric measures whether the
   citations check out, and it was being read as though it measured whether the
   answer is right. Those are different questions, and requiring 95/100 of the

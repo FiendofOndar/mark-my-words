@@ -132,11 +132,11 @@ export function seedDemoData(db: Db): void {
       model: 'demo',
       proposedVerdict: 'hit',
       proposedTrend: 'toward_yes',
-      rubricScore: 88,
+      rubricScore: 98,
       rubricBreakdown: {
         independentSources: 30,
         sourceTier: 25,
-        urlValidation: 10,
+        urlValidation: 20,
         criteriaCoverage: 15,
         temporalSanity: 10,
         capApplied: true,
@@ -148,7 +148,7 @@ export function seedDemoData(db: Db): void {
       outcome: 'queued',
       evidence: [
         {
-          url: 'https://example.com/ap/cardinals-win',
+          url: 'https://apnews.com/article/cardinals-win-2026-world-series',
           title: 'Cardinals take the series',
           publisher: 'AP',
           publishedAt: dayOf(daysFromNow(-1)),
@@ -158,7 +158,7 @@ export function seedDemoData(db: Db): void {
           fetchedAt: nowIso(),
         },
         {
-          url: 'https://example.com/reuters/cardinals-win',
+          url: 'https://www.reuters.com/sports/baseball/cardinals-win-2026',
           title: 'St. Louis wins it all',
           publisher: 'Reuters',
           publishedAt: dayOf(daysFromNow(-1)),
@@ -168,7 +168,7 @@ export function seedDemoData(db: Db): void {
           fetchedAt: nowIso(),
         },
         {
-          url: 'https://example.com/blocked/recap',
+          url: 'https://www.mlb.com/news/2026-world-series-recap',
           title: 'Series recap',
           publisher: 'MLB.com',
           publishedAt: dayOf(daysFromNow(-1)),

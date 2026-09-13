@@ -19,7 +19,7 @@ import {
   useSnoozePrompt,
   useUpdatePrediction,
 } from '../queries';
-import { CheckLog } from '../components/CheckLog';
+import { CheckLog, describeSources } from '../components/CheckLog';
 import { ReceiptCard } from '../../receipts/ReceiptCard';
 import { useReceipt } from '../../receipts/useReceipt';
 import {
@@ -119,6 +119,8 @@ export function DetailScreen() {
     ? log.find((entry) => entry.check.outcome === 'auto_resolved') ?? null
     : null;
   const settledSource = settledBy ? bestSource(settledBy.evidence) : null;
+  const queuedEvidence =
+    log.find((entry) => entry.check.id === queuedVerdict?.id)?.evidence ?? [];
 
   // Either nothing can search it, or something did and could not settle it.
   // Both end in the same place: the answer has to come from the person.
@@ -222,7 +224,7 @@ export function DetailScreen() {
                   : p.resolvedBy === 'user'
                     ? 'You called it'
                     : p.resolvedBy === 'auto'
-                      ? `Settled automatically, scored ${p.confidenceScore ?? '--'}/100`
+                      ? `Settled automatically${settledBy ? ` · ${describeSources(settledBy.evidence)}` : ''}`
                       : 'Settled'}
               </p>
 
@@ -344,8 +346,8 @@ export function DetailScreen() {
           </div>
           <p className="mt-2 font-display text-[17px] leading-snug text-ink">
             {STATUS_LABEL[queuedVerdict.proposedVerdict as PredictionStatus]}
-            {queuedVerdict.rubricScore !== null && (
-              <span className="text-ink-faint"> · scored {queuedVerdict.rubricScore}/100</span>
+            {queuedEvidence.length > 0 && (
+              <span className="text-ink-faint"> · {describeSources(queuedEvidence)}</span>
             )}
           </p>
           <p className="mt-1 text-[14px] text-ink-dim">{queuedVerdict.summary}</p>

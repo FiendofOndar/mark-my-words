@@ -1,6 +1,7 @@
 import type { Check, Evidence, FetchStatus, PredictionStatus } from '../../domain/types';
 import type { CheckLogEntry } from '../queries';
 import { STATUS_LABEL, formatDate } from '../../domain/format';
+import { registrableDomain } from '../../domain/sources';
 import { Pill } from './Stamp';
 import { Bullets } from './Bullets';
 
@@ -57,6 +58,28 @@ function outcomeLabel(check: Check): string {
   return held ? `Held: ${STATUS_LABEL[check.proposedVerdict as PredictionStatus]}` : OUTCOME_LABEL[check.outcome];
 }
 
+/**
+ * What the app actually established, as a count.
+ *
+ * This slot used to read "88/100", which sounded like a probability that the
+ * verdict was right. It was a composite of five weighted dimensions describing
+ * the citation paperwork, and once the verdict stopped depending on it the
+ * number implied a precision it never had. Sources confirmed is the part the
+ * app knows first-hand: it fetched those pages and found the quoted line.
+ */
+export function describeSources(evidence: Evidence[]): string {
+  if (evidence.length === 0) return 'no sources';
+  const domains = new Set(evidence.map((e) => registrableDomain(e.url) ?? e.url));
+  const confirmed = new Set(
+    evidence.filter((e) => e.fetchStatus === 'ok').map((e) => registrableDomain(e.url) ?? e.url),
+  );
+  const plural = domains.size === 1 ? 'source' : 'sources';
+  if (confirmed.size === domains.size) {
+    return domains.size === 1 ? '1 source, confirmed' : `${domains.size} sources, all confirmed`;
+  }
+  return `${confirmed.size} confirmed of ${domains.size} ${plural}`;
+}
+
 export function CheckLog({
   entries,
   /**
@@ -92,7 +115,7 @@ export function CheckLog({
                 One of them asserts a World Series winner for a season that has
                 not been played. */}
             {check.provider === 'demo' && <Pill tone="warn">Sample</Pill>}
-            {check.rubricScore !== null && <ScoreChip check={check} />}
+            {check.rubricScore !== null && <ScoreChip check={check} evidence={evidence} />}
           </div>
 
           {check.id !== summaryShownAbove && (
@@ -137,7 +160,7 @@ export function CheckLog({
   );
 }
 
-function ScoreChip({ check }: { check: Check }) {
+function ScoreChip({ check, evidence }: { check: Check; evidence: Evidence[] }) {
   const breakdown = parseBreakdown(check.rubricBreakdown);
   const gates = breakdown?.gates ?? [];
 
@@ -147,7 +170,7 @@ function ScoreChip({ check }: { check: Check }) {
           flex row the pill stretched the full width and read as an empty input
           box rather than as a score. */}
       <summary className="inline-flex w-fit cursor-pointer list-none rounded-full border border-rule px-2 py-0.5 text-[11px] text-ink-dim">
-        {check.rubricScore}/100
+        {describeSources(evidence)}
       </summary>
       <div className="mt-2 rounded border border-rule bg-surface p-2.5 text-[12px]">
         {breakdown && (
@@ -159,12 +182,13 @@ function ScoreChip({ check }: { check: Check }) {
             <Row label="Dates make sense" value={breakdown.temporalSanity} max={10} />
           </dl>
         )}
-        {check.modelConfidence !== null && (
-          <p className="mt-2 text-ink-faint">
-            The model said {check.modelConfidence}/100
-            {breakdown?.capApplied ? ', which capped the score above.' : '.'}
-          </p>
-        )}
+        {/* Still here, one layer down, because it is useful when a check goes
+            wrong. It just is not the headline any more. */}
+        <p className="mt-2 text-ink-faint">
+          Evidence scored {check.rubricScore}/100
+          {check.modelConfidence !== null ? `, model confidence ${check.modelConfidence}/100` : ''}.
+          The verdict does not depend on it.
+        </p>
         {gates.length > 0 && (
           <Bullets items={gates} className="mt-2 text-partial" />
         )}
