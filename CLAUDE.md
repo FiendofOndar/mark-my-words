@@ -8,7 +8,7 @@ reasoning, including the ones that look arbitrary.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 327 tests, all of them fast
+npm test           # 328 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -188,6 +188,29 @@ is for.
   that, and every check costs the user money now.
 - **The API key never touches the database**, because Settings exports the whole
   database file.
+
+## The two live test fixtures
+
+The seed carries two predictions that exist to be checked against a real key,
+chosen to be opposites on every axis that matters. Running one pull settles both
+and produces two independent data points per attempt.
+
+| | Anacortes weather | Super Bowl LIX |
+|---|---|---|
+| verdict | miss | hit |
+| criteria | one numeric threshold | two discrete facts |
+| place | pinned to a locality | none |
+| sources | a .gov page that rewrites hourly | static recaps from Feb 2025 |
+| tier | primary | major outlet, plus nfl.com |
+
+The Super Bowl one is the only fair test of quote matching in the app: those
+recap pages have not changed since the night they were published. If a quote
+cannot be confirmed there, the page-fetching layer is not earning its keep and
+should be reduced to a reachability check.
+
+Its result was verified against live sources before seeding. A fabricated demo
+verdict about a real team has already misled someone once here; do not do it
+again.
 
 ## Unverified
 

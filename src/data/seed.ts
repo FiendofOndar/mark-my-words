@@ -256,6 +256,44 @@ export function seedDemoData(db: Db): void {
     });
     db.predictions.update(weather.id, { trend: 'unknown', updatedAt: nowIso() });
 
+    /*
+     * The second live test fixture, chosen to exercise what the weather one
+     * cannot. That claim is a miss on a numeric threshold, pinned to a place,
+     * settled by a .gov page that rewrites itself hourly. This one is a hit on
+     * two discrete facts, with no geography, settled by static recaps that have
+     * not changed since the night they were published.
+     *
+     * Which makes it the only fair test of quote matching in the whole app: if
+     * it cannot confirm a sentence in an ESPN recap from February 2025, it
+     * cannot confirm anything, and the page-fetching layer should go.
+     *
+     * The result is real and was checked against live sources before seeding.
+     * A fabricated demo verdict about a real team has already misled someone
+     * once in this app's short life; do not do it again.
+     */
+    const superBowl = db.predictions.create({
+      authorId: popops.id,
+      rawStatement: 'Mark my words, the Eagles are going to win it all this year.',
+      normalizedClaim: 'The Philadelphia Eagles win Super Bowl LIX.',
+      statementDate: '2025-01-20T12:00:00.000Z',
+      sourceContext: 'Said at dinner, loudly',
+      deadlineType: 'fixed_date',
+      resolutionDate: '2025-02-09T23:59:59.999Z',
+      verificationMode: 'searchable',
+      category: 'Sports',
+      stakes: 'A steak dinner',
+      criteria: [
+        'The Philadelphia Eagles win Super Bowl LIX, played on 2025-02-09',
+        'The team they defeat in that game is the Kansas City Chiefs',
+      ],
+      searchQueries: [
+        'Super Bowl LIX final score Eagles Chiefs',
+        'Super Bowl LIX February 9 2025 result recap',
+        'Eagles win Super Bowl LIX box score',
+      ],
+    });
+    db.predictions.update(superBowl.id, { trend: 'unknown', updatedAt: nowIso() });
+
     // A resolved miss that came true two years later. Demonstrates the badge.
     const late = db.predictions.create({
       authorId: economist.id,

@@ -394,8 +394,8 @@ describe('demo seed', () => {
     seedDemoData(db);
 
     const all = db.predictions.list();
-    expect(all.length).toBe(8);
-    expect(all.filter((p) => p.status === 'open').length).toBe(6);
+    expect(all.length).toBe(9);
+    expect(all.filter((p) => p.status === 'open').length).toBe(7);
     expect(all.filter((p) => p.lateHitAt).length).toBe(1);
     expect(all.filter((p) => p.status === 'hit').length).toBe(1);
     expect(all.filter((p) => p.verificationMode === 'manual').length).toBe(1);
@@ -425,6 +425,25 @@ describe('demo seed', () => {
     expect(new Date(weather.resolutionDate!).getTime()).toBeLessThan(Date.now());
     expect(isDueForCheck(weather).due).toBe(true);
     expect(weather.searchQueries.length).toBeGreaterThan(0);
+  });
+
+  it('seeds a second live fixture that tests what the weather one cannot', () => {
+    // Deliberately the opposite case on every axis that matters: a hit rather
+    // than a miss, two discrete criteria rather than one numeric threshold, no
+    // geography, and static recap pages rather than a forecast that rewrites
+    // itself. It is the only fair test of quote matching in the app.
+    seedDemoData(db);
+    const bowl = db.predictions.list().find((p) => p.normalizedClaim.includes('Super Bowl LIX'))!;
+
+    expect(bowl).toBeDefined();
+    expect(bowl.status).toBe('open');
+    expect(bowl.verificationMode).toBe('searchable');
+    expect(isDueForCheck(bowl).due).toBe(true);
+    expect(db.predictions.criteriaFor(bowl.id)).toHaveLength(2);
+    // Said before the game, so sources published after it are temporally sane.
+    expect(new Date(bowl.statementDate).getTime()).toBeLessThan(
+      new Date(bowl.resolutionDate!).getTime(),
+    );
   });
 
   it('writes the same day into the deadline, the claim and the criteria', () => {
