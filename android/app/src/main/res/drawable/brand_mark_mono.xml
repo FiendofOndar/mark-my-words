@@ -15,18 +15,15 @@
     android:viewportHeight="108">
 
     <!--
-      Centred on the dial, not on the bounding box. The tail at the lower
-      left made the box wider than the bubble, so centring the box pushed the
-      bubble up and to the right of the icon's middle and it read as shoved
-      over. The clock centre now sits at the canvas centre and the tail is
-      what reaches out; scaled to 0.94 about the dial so the tail's tip still
-      lands inside the 66dp safe circle a round mask keeps.
+      Dial dead centre, at full size. The tail at the lower left made the
+      bounding box wider than the bubble, so centring the box pushed the
+      bubble up and to the right and it read as shoved over. A first fix
+      centred the dial and scaled the mark to 0.94 to keep the tail in the
+      safe zone; the owner found it read small. So the mark stays full size
+      and the tail's tip is pulled in about 2dp instead (the L point of the
+      dial path), which lands it inside the 66dp safe circle every mask keeps.
     -->
     <group
-        android:pivotX="57.72"
-        android:pivotY="52.4"
-        android:scaleX="0.94"
-        android:scaleY="0.94"
         android:translateX="-3.72"
         android:translateY="1.6">
 
@@ -36,7 +33,7 @@
         android:strokeWidth="3.44"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M39.54,61.08 C35.62,52.08 38.92,41.57 47.27,36.43 C55.63,31.29 66.5,33.09 72.76,40.64 C79.02,48.2 78.76,59.21 72.15,66.47 C65.55,73.72 54.61,75.01 46.5,69.48 L32.53,76.67 Z">
+        android:pathData="M39.54,61.08 C35.62,52.08 38.92,41.57 47.27,36.43 C55.63,31.29 66.5,33.09 72.76,40.64 C79.02,48.2 78.76,59.21 72.15,66.47 C65.55,73.72 54.61,75.01 46.5,69.48 L34.32,74.95 Z">
     </path>
 
     <path

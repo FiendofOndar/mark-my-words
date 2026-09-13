@@ -14,7 +14,8 @@ export type IconName =
   | 'plus'
   | 'share'
   | 'edit'
-  | 'filter';
+  | 'filter'
+  | 'order';
 
 const PATHS: Record<IconName, React.ReactNode> = {
   // A circular arrow, open at the top right where the head sits.
@@ -49,8 +50,17 @@ const PATHS: Record<IconName, React.ReactNode> = {
       <path d="M14 6l4 4" />
     </>
   ),
-  // A funnel: the feed's order and filter live behind it.
+  // A funnel: a filter lives behind it.
   filter: <path d="M4 5h16l-6 8v5l-4 2v-7L4 5z" />,
+  // Two arrows, up and down: the feed's order lives behind it.
+  order: (
+    <>
+      <path d="M8 4v16" />
+      <path d="M4 8l4-4 4 4" />
+      <path d="M16 20V4" />
+      <path d="M12 16l4 4 4-4" />
+    </>
+  ),
   plus: (
     <>
       <path d="M12 5v14" />

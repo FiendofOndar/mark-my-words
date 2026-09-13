@@ -6,9 +6,9 @@ import { FilterChips, type ChipDef } from '../components/FilterChips';
 import { CATEGORIES, type Category } from '../../domain/types';
 import { PredictionRow } from '../components/PredictionRow';
 import { PullToRefresh } from '../components/PullToRefresh';
-import { FeedOptionsSheet } from '../components/FeedOptionsSheet';
+import { FeedOrderSheet } from '../components/FeedOrderSheet';
 import { readFeedSort, writeFeedSort } from '../../lib/feedSortPref';
-import type { FeedSort } from '../../domain/feedSort';
+import { FEED_SORTS, type FeedSort } from '../../domain/feedSort';
 import {
   awaitsUser,
   describePull,
@@ -117,13 +117,13 @@ export function FeedScreen() {
           <button
             type="button"
             onClick={() => setOptions(true)}
-            aria-label="Order and filter"
-            title="Order and filter"
+            aria-label="Order the feed"
+            title="Order the feed"
             className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full active:bg-surface-raised ${
-              sort !== 'heat' || filter.kind !== 'all' ? 'text-accent' : 'text-ink-dim'
+              sort !== 'heat' ? 'text-accent' : 'text-ink-dim'
             }`}
           >
-            <Icon name="filter" />
+            <Icon name="order" />
           </button>
           <HeaderLink to="/standings" label="Standings" icon="standings" />
           <HeaderLink to="/settings" label="Settings" icon="settings" />
@@ -134,6 +134,32 @@ export function FeedScreen() {
         <div className="border-b border-rule px-4 py-3">
           <FilterChips chips={chips} active={filter} onChange={setFilter} />
         </div>
+
+        {/* Says which order is in force, but only when it is not the default:
+            the default needs no announcement, and the line is one more thing
+            on a screen that is already a list. Tapping it opens the sheet;
+            Reset drops back to heat without opening anything. */}
+        {sort !== 'heat' && (
+          <div className="flex items-center justify-between gap-3 border-b border-rule bg-surface px-4 py-2">
+            <button
+              type="button"
+              onClick={() => setOptions(true)}
+              className="min-h-9 text-left text-[13px] text-ink-dim"
+            >
+              Ordered by{' '}
+              <span className="text-accent">
+                {FEED_SORTS.find((s) => s.value === sort)?.label.toLowerCase()}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => chooseSort('heat')}
+              className="min-h-9 shrink-0 text-[12px] text-ink-faint underline-offset-2 active:underline"
+            >
+              Reset
+            </button>
+          </div>
+        )}
 
         {cooldown && (
           <div className="border-b border-rule bg-attention/5 px-4 py-2.5">
@@ -185,14 +211,11 @@ export function FeedScreen() {
         )}
       </PullToRefresh>
 
-      <FeedOptionsSheet
+      <FeedOrderSheet
         open={options}
         onClose={() => setOptions(false)}
         sort={sort}
         onSort={chooseSort}
-        chips={chips}
-        filter={filter}
-        onFilter={setFilter}
       />
 
       <Link
