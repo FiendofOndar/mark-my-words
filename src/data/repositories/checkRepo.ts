@@ -257,6 +257,27 @@ export class QuotaRepo {
     return total;
   }
 
+  /**
+   * Tokens the provider reported, summed over checks. This is the one cost
+   * figure the app can state exactly: every check stores usageMetadata's
+   * total. It is not a bill. The provider prices input and output tokens
+   * differently and reports only the sum here, and it says nothing about
+   * search queries, which are billed separately. Intake calls are not
+   * counted either; their token count is not stored.
+   */
+  tokensUsed(at = new Date()): { allTime: number; thisMonth: number } {
+    const start = new Date(at.getFullYear(), at.getMonth(), 1).toISOString();
+    const end = new Date(at.getFullYear(), at.getMonth() + 1, 1).toISOString();
+    const rows = this.db.select<{ all_time: number; this_month: number }>(
+      `SELECT COALESCE(SUM(tokens_used), 0) AS all_time,
+              COALESCE(SUM(CASE WHEN ran_at >= ? AND ran_at < ? THEN tokens_used ELSE 0 END), 0) AS this_month
+         FROM checks
+        WHERE deleted_at IS NULL AND tokens_used IS NOT NULL`,
+      [start, end],
+    );
+    return { allTime: Number(rows[0]?.all_time ?? 0), thisMonth: Number(rows[0]?.this_month ?? 0) };
+  }
+
   record(provider: string, calls = 1, at = new Date()): void {
     this.db.run(
       `INSERT INTO quota_log (id, provider, day, calls) VALUES (?, ?, ?, ?)

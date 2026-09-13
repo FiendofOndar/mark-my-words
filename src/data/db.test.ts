@@ -416,6 +416,31 @@ describe('what a check cost', () => {
     expect(db.quota.searchesThisMonth(at)).toBe(3);
   });
 
+  it('totals the tokens the provider reported, by instant for the month', () => {
+    const id = predictionFor();
+    const write = (ranAt: string, tokens: number | null) => {
+      const c = db.checks.create({
+        predictionId: id,
+        trigger: 'pull',
+        provider: 'gemini',
+        model: 'g',
+        proposedVerdict: 'no_change',
+        proposedTrend: null,
+        modelConfidence: null,
+        summary: 's',
+        outcome: 'no_change',
+        tokensUsed: tokens,
+      });
+      db.driver.run('UPDATE checks SET ran_at = ? WHERE id = ?', [ranAt, c.id]);
+    };
+    const at = new Date(2026, 8, 15, 12, 0, 0);
+    write(new Date(2026, 8, 2, 9, 0, 0).toISOString(), 1200);
+    write(new Date(2026, 7, 20, 9, 0, 0).toISOString(), 800);
+    write(new Date(2026, 8, 3, 9, 0, 0).toISOString(), null);
+
+    expect(db.quota.tokensUsed(at)).toEqual({ allTime: 2000, thisMonth: 1200 });
+  });
+
   it('separates not being told from being told none', () => {
     // A provider that does not report searches, and a check written before the
     // column existed, both read as null. Neither is a claim that none ran.

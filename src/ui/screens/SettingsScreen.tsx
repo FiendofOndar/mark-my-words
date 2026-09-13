@@ -291,6 +291,19 @@ export function SettingsScreen() {
                     </span>
                   )}
                 </p>
+                {/* The one cost figure the app can state exactly. Not a bill:
+                    the provider prices input and output differently and only
+                    reports the sum, and search queries are billed separately
+                    and not reported at all. The billing page is the truth;
+                    this says how much of it this app accounts for. */}
+                {!!quotaUsed.data?.tokens.allTime && (
+                  <p className="text-[12px] text-ink-faint">
+                    {quotaUsed.data.tokens.thisMonth.toLocaleString()} tokens this month,{' '}
+                    {quotaUsed.data.tokens.allTime.toLocaleString()} since the first check. Checks
+                    only; not a dollar figure, since the provider does not tell the app what it
+                    charges for search.
+                  </p>
+                )}
                 {/* The billed unit, on the newer model families: a grounded
                     check is charged per search query there (older ones bill
                     per grounded prompt), so the same twenty checks can cost
