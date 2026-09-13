@@ -269,12 +269,14 @@ is for.
   shareable card. Show the record until the rate means something.
 - **Retroactive entries never count toward a hit rate.** Backfilled predictions
   are cherry-picked by construction.
-- **Grounding bills per search query, not per prompt.** One check that searches
-  three things is three billable uses. Nothing in the API limits how many
-  searches the model runs, so the stopping rule and the twelve-search ceiling
-  live in the prompt and can be ignored. `MAX_SOURCES` is the part that does not
-  depend on the model agreeing. The month-to-date counter counts checks, not
-  searches, so it undercounts the billable unit.
+- **The billing unit for grounding is unverified.** Secondary pricing pages
+  (official docs are blocked from the build container) say the 2.5 family
+  bills per grounded prompt and the 3.x family per search query; which one
+  `gemini-flash-latest` resolves to is what the `modelVersion` diagnostic is
+  for. Nothing in the API limits how many searches the model runs, so the
+  stopping rule and the twelve-search ceiling live in the prompt and can be
+  ignored. `MAX_SOURCES` is the part that does not depend on the model
+  agreeing. The month-to-date counter counts checks, not searches.
 - **A place gets pinned as tightly as a number.** "A station serving Anacortes,
   WA" has no edge to it, and a Sea-Tac climate summary seventy miles south was
   cited as though it covered the town. The structuring prompt asks for a named
@@ -308,13 +310,13 @@ is for.
 - **Late watch is for claims that can still happen.** Every miss used to get
   three years of monthly paid checks, including a day's high temperature.
   `defaultLateWatch` gives it to event-shaped claims only; dated ones opt in.
-- **The billed unit is the search, not the check.** Gemini charges per search
-  query on a grounded call, so twenty checks can cost twenty searches or two
-  hundred depending on whether the model respected a ceiling the prompt cannot
-  enforce. `groundingMetadata.webSearchQueries` is recorded per check, shown on
-  the check log with the queries themselves, and totalled for the month in
-  Settings. The queries are also the fastest way to see why a check went to the
-  wrong sources, since a bad verdict usually started with a bad query.
+- **`groundingMetadata.webSearchQueries` has never arrived on a real check.**
+  The field name is from the published docs (verified by search this session,
+  not fetched), and the first real diagnostic showed the whole
+  `groundingMetadata` object absent. When it does arrive it is recorded per
+  check, shown on the log with the queries, and totalled for the month in
+  Settings. Until then the check log prints the response's own shape under
+  "What the provider said" so the next guess is not from memory.
 - **Checks are only ever spent by a deliberate tap.** `runPull` has one caller,
   reached from the feed refresh gesture or a detail screen's "Check now". No
   timer, no launch effect, no background service. Keep it that way: the cadence
