@@ -204,13 +204,20 @@
     --shadow-panel: 0 16px 36px color-mix(in srgb, #4e5f8c 24%, transparent);
 
     /* ---- Accent (light) -------------------------------------------------
-     * The glow needs more saturation here than on dark to register against a
-     * bright ground, but the same restraint applies: contrast on the ink wins
-     * over atmosphere. Same hue as the dark theme; only lightness and alpha
-     * move.
+     * On light the glow is a lift toward white, not a wash of hue.
+     *
+     * This used to say the glow needs MORE saturation on a bright ground to
+     * register. That is backwards: a translucent tint has more light to work
+     * with on cream than on near-black, so it registers harder, and what
+     * registered was a cool blue-grey haze over warm paper - a dirty screen
+     * rather than atmosphere, and it cost the theme the one quality that makes
+     * it paper rather than white.
+     *
+     * A whisper of the accent's hue survives in the lift, which ties the two
+     * themes together without tinting the page.
      */
-    --color-glow: oklch(0.84 0.06 264 / 0.42);
-    --color-glow-soft: oklch(0.88 0.04 264 / 0.3);
+    --color-glow: oklch(0.99 0.012 265 / 0.8);
+    --color-glow-soft: oklch(0.99 0.01 265 / 0.5);
 
     /* ---- Prose ink (light) ----------------------------------------------
      * NOT YET DESIGNED. Transparency runs the other way on paper: dark ink

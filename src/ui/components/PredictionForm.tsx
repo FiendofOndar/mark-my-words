@@ -307,8 +307,8 @@ export function PredictionForm({
           The questions are the useful part; the way to answer one is to
           sharpen the fields, or the statement itself and redraft. */}
       {ambiguities.length > 0 && (
-        <section className="rounded border border-partial/40 bg-partial/5 p-3">
-          <h2 className="text-[11px] font-semibold tracking-wide text-partial uppercase">
+        <section className="rounded-lg border border-attention/40 bg-attention/5 p-3">
+          <h2 className="label text-attention">
             Worth settling first
           </h2>
           <p className="mt-1 text-[12px] text-ink-faint">
@@ -351,10 +351,10 @@ export function PredictionForm({
               e.currentTarget.blur();
             }
           }}
-          className={`${inputClass} font-display text-[17px] ${lockStatement ? 'text-ink-dim' : ''}`}
+          className={`${inputClass} font-quote text-[19px] font-semibold ${lockStatement ? 'text-ink-dim' : ''}`}
         />
         {canRedraft && (
-          <p className={`mt-2 text-[12px] ${redrafting ? 'text-partial' : 'text-ink-faint'}`}>
+          <p className={`mt-2 text-[12px] ${redrafting ? 'text-attention' : 'text-ink-faint'}`}>
             {redrafting
               ? 'Redrafting from the new wording...'
               : 'Not specific enough? Sharpen the wording above. When you leave the box, the fields below are drawn again from it. One model call, only if the wording changed.'}
@@ -650,7 +650,7 @@ export function PredictionForm({
       </div>
 
       {isRetroactive && (
-        <p className="rounded border border-partial/40 bg-partial/5 px-3 py-2.5 text-[13px] text-partial">
+        <p className="rounded-lg border border-attention/40 bg-attention/5 px-3 py-2.5 text-[13px] leading-relaxed text-attention">
           That deadline is already past. This will be filed as entered after the fact and kept out
           of hit-rate math.
         </p>
@@ -670,7 +670,7 @@ export function PredictionForm({
         }}
         onClick={() => onSubmit(v, isRetroactive)}
         disabled={problems.length > 0 || busy || redrafting}
-        className={`${primaryButton} w-full py-3 font-display text-[17px]`}
+        className={`${primaryButton} w-full py-3 text-[17px]`}
       >
         {busy ? 'Working...' : submitLabel}
       </button>

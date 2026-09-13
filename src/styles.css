@@ -13,19 +13,19 @@
    * an APK has no network on first launch, and a receipt card rasterized
    * through an SVG foreignObject cannot reach a remote face.
    *
-   * --font-display and --font-sans still carry the old faces. They are the
-   * two that cannot move without moving pixels: font-display is currently
-   * doing two jobs at once, quotes AND headlines, and those split to
-   * font-quote and font-display when the components are restyled. Swapping
-   * the values first would change every screen in the app without any of the
-   * size and spacing tuning that has to come with it.
+   *   quote    the human's own words, and only ever those
+   *   display  headlines, verdict words, the numbers that carry a screen
+   *   sans     labels, chips, buttons - anything letterspaced or uppercase
+   *   mono     body copy, metadata, timestamps, hosts. The default.
+   *
+   * font-display used to do two jobs at once, quotes AND headlines. Splitting
+   * it is most of this restyle: a quote is now font-quote and stays a serif,
+   * a headline is font-display and becomes a condensed sans.
    */
   --font-quote: 'Cormorant', ui-serif, Georgia, serif;
+  --font-display: 'Oswald', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Barlow Condensed', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
-  --font-ui: 'Barlow Condensed', ui-sans-serif, system-ui, sans-serif;
-
-  --font-display: 'Newsreader', ui-serif, Georgia, 'Times New Roman', serif;
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
 
   /* ---- Surfaces and ink ------------------------------------------------- */
   --color-ground: #131218;
@@ -125,9 +125,21 @@
     --color-glass-rule: oklch(0.89 0.03 82);
     --shadow-panel: 0 16px 36px color-mix(in srgb, #4e5f8c 24%, transparent);
 
-    /* Same hue as dark; only lightness and alpha move. */
-    --color-glow: oklch(0.84 0.06 264 / 0.42);
-    --color-glow-soft: oklch(0.88 0.04 264 / 0.3);
+    /*
+     * On light the glow is a lift toward white, not a wash of hue.
+     *
+     * The note this replaces said the glow needs MORE saturation on a bright
+     * ground "to register". That is backwards: a translucent tint has more
+     * light to work with on cream than on near-black, so it registers harder,
+     * and what registered was a cool blue-grey haze over warm paper. It read as
+     * a dirty screen rather than as atmosphere, and it cost the light theme the
+     * one thing that makes it paper rather than white.
+     *
+     * A whisper of the accent's hue survives in the lift, which is enough to
+     * tie the two themes together without tinting the page.
+     */
+    --color-glow: oklch(0.99 0.012 265 / 0.8);
+    --color-glow-soft: oklch(0.99 0.01 265 / 0.5);
 
     /* NOT YET DESIGNED. Alpha runs the other way on paper: dark ink at
        reduced alpha washes out, where on dark it got dimmer and warmer.
@@ -135,6 +147,8 @@
     --color-prose: var(--color-ink);
     --color-prose-dim: var(--color-ink-dim);
     --color-prose-faint: var(--color-ink-faint);
+
+    --color-attention: #8a6d10;
 
     --color-hit: #2f7a4f;
     --color-miss: #a8341c;
@@ -151,11 +165,24 @@
     height: 100%;
   }
 
+  /*
+   * The glow is painted on #root rather than body so it scrolls with nothing:
+   * it is the room the app sits in, not part of the page. Wide ellipse with
+   * its origin high and off-centre, so only the falloff is ever on screen. An
+   * origin inside the frame puts the hot centre under the glass and the whole
+   * thing reads as a stage light.
+   */
+  #root {
+    background:
+      radial-gradient(ellipse 940px 760px at 50% 34%, var(--color-glow), transparent 78%),
+      var(--color-ground);
+  }
+
   body {
     margin: 0;
     background: var(--color-ground);
     color: var(--color-ink);
-    font-family: var(--font-sans);
+    font-family: var(--font-mono);
     -webkit-font-smoothing: antialiased;
     overscroll-behavior-y: contain;
   }
@@ -184,16 +211,6 @@
 }
 
 @layer components {
-  /* Faint paper grain on card surfaces. Cheap, no image request. */
-  .paper {
-    background-image: radial-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px);
-    background-size: 3px 3px;
-  }
-
-  :root[data-theme='light'] .paper {
-    background-image: radial-gradient(rgba(0, 0, 0, 0.025) 1px, transparent 1px);
-  }
-
   /*
    * Chrome draws an unchecked checkbox as a solid white box, which on a dark
    * ground is the loudest thing on the screen: the review card's one blocker
@@ -226,11 +243,12 @@
     transform: translateY(-1px) rotate(-45deg);
   }
 
-  /* The review card's blockers are amber, not cream, so they read as the thing
-     still holding the clock rather than as another setting. */
+  /* The review card's blockers read as the thing still holding the clock rather
+     than as another setting. Attention, not --color-partial: partial is the
+     Split verdict, and a blocker is the app asking, not a half-true claim. */
   .checkbox-warn:checked {
-    border-color: var(--color-partial);
-    background: var(--color-partial);
+    border-color: var(--color-attention);
+    background: var(--color-attention);
   }
 
   .checkbox:focus-visible {
@@ -238,18 +256,51 @@
     outline-offset: 2px;
   }
 
+  /*
+   * The verdict. Never rotated: a tilted outline reads as a novelty sticker at
+   * the size these are actually seen, and the rotation was the last piece of
+   * the case-file aesthetic this design replaced.
+   *
+   * min-width is sized to the longest word, UNCLEAR. A verdict column that
+   * shrinks to fit each word gives the feed a ragged right edge and undoes the
+   * tabular rhythm the rows are built on.
+   */
   .stamp {
-    font-family: var(--font-sans);
-    letter-spacing: 0.14em;
-    border-width: 2.5px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    border-width: 1.5px;
     border-style: solid;
-    border-radius: 3px;
+    border-radius: var(--radius-chip);
     text-transform: uppercase;
+    text-align: center;
+    box-sizing: border-box;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .stamp-tilt {
-      transform: rotate(-5deg);
-    }
+  /*
+   * The model's own output, and the one translucent surface in the app. On
+   * light it stops being glass and becomes a raised card, because translucency
+   * needs darkness to read.
+   */
+  .glass {
+    background: var(--color-glass-fill);
+    border: 1px solid var(--color-glass-edge);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--shadow-panel);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  /*
+   * The letterspaced uppercase label. Solid ink, never a prose token: alpha
+   * costs contrast and type this small has none to spare.
+   */
+  .label {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
   }
 }

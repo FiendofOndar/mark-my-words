@@ -23,7 +23,7 @@ export function Screen({
 
   return (
     <div className="mx-auto flex h-full max-w-2xl flex-col">
-      <header className="sticky top-0 z-10 border-b border-rule bg-ground/95 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 backdrop-blur">
+      <header className="sticky top-0 z-10 border-b border-rule bg-ground/70 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 backdrop-blur">
         <div className="flex items-center gap-3">
           {back && (
             <button
@@ -36,8 +36,10 @@ export function Screen({
             </button>
           )}
           <div className="min-w-0 flex-1">
-            <h1 className="truncate font-display text-xl leading-tight">{title}</h1>
-            {subtitle && <p className="mt-0.5 text-[13px] text-ink-faint">{subtitle}</p>}
+            <h1 className="truncate font-display text-[21px] font-semibold tracking-wide">
+              {title}
+            </h1>
+            {subtitle && <p className="mt-0.5 text-[12px] text-ink-faint">{subtitle}</p>}
           </div>
           {actions}
         </div>

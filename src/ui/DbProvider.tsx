@@ -25,7 +25,7 @@ export function DbProvider({ children }: { children: ReactNode }) {
 
   if (error) {
     return (
-      <div className="p-6 font-display text-miss">
+      <div className="p-6 text-miss">
         <p className="text-lg">The database would not open.</p>
         <p className="mt-2 font-sans text-sm text-ink-dim">{error.message}</p>
       </div>
@@ -35,7 +35,7 @@ export function DbProvider({ children }: { children: ReactNode }) {
   if (!db) {
     return (
       <div className="flex h-full items-center justify-center text-ink-faint">
-        <span className="font-display text-lg italic">Opening the ledger...</span>
+        <span className="font-quote text-xl font-semibold italic">Opening the ledger...</span>
       </div>
     );
   }

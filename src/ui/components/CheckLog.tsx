@@ -27,13 +27,13 @@ const FETCH_LABEL: Record<FetchStatus, { glyph: string; short: string; label: st
     glyph: '!',
     short: 'page not found',
     label: 'The site exists, but there is no page at this address',
-    tone: 'text-partial',
+    tone: 'text-attention',
   },
   unreachable: {
     glyph: '!',
     short: 'site not found',
     label: 'There is no site at this address',
-    tone: 'text-partial',
+    tone: 'text-attention',
   },
   not_checked: {
     glyph: '·',
@@ -112,7 +112,7 @@ export function CheckLog({
 }) {
   if (entries.length === 0) {
     return (
-      <p className="mt-3 text-[14px] text-ink-faint italic">
+      <p className="mt-3 font-quote text-[17px] font-semibold text-ink-faint italic">
         {/* Not "pull down on the feed": there is a Check now button a few
             inches below this sentence. */}
         No checks run yet. Checks run on their own schedule, or when you ask.
@@ -136,7 +136,7 @@ export function CheckLog({
           </div>
 
           {check.id !== summaryShownAbove && (
-            <p className="mt-1.5 text-[15px] leading-snug text-ink-dim">{check.summary}</p>
+            <p className="mt-1.5 text-[13.5px] leading-relaxed text-prose-dim">{check.summary}</p>
           )}
 
           {/* The provider's own words, verbatim. A summarized failure is a
@@ -146,7 +146,7 @@ export function CheckLog({
               <summary className="cursor-pointer text-[12px] text-ink-faint">
                 What the provider said
               </summary>
-              <pre className="mt-1.5 max-h-64 overflow-auto rounded border border-rule bg-surface p-2 text-[11px] leading-relaxed whitespace-pre-wrap text-ink-faint">
+              <pre className="mt-1.5 max-h-64 overflow-auto rounded-lg border border-rule bg-ink/[0.03] p-2.5 text-[11px] leading-relaxed whitespace-pre-wrap text-ink-faint">
                 {check.errorMessage}
               </pre>
             </details>
@@ -158,10 +158,10 @@ export function CheckLog({
                   that all agree, marked ✓ ! !, reasonably concludes the marks
                   are about agreement. They are about whether the app could
                   open the page and find the quote on it. */}
-              <p className="mt-3 text-[11px] font-semibold tracking-wide text-ink-faint uppercase">
+              <p className="label mt-3">
                 Sources the model cited
               </p>
-              <p className="mt-0.5 text-[12px] text-ink-faint">
+              <p className="mt-1 text-[12px] leading-relaxed text-prose-faint">
                 Marks are the app&rsquo;s own check of each link, not whether the source agrees.
               </p>
               <ul className="mt-2 space-y-1.5">
@@ -183,14 +183,14 @@ function SourcesChip({ check, evidence }: { check: Check; evidence: Evidence[] }
       {/* A summary is display:list-item, so once the details opened inside a
           flex row the pill stretched the full width and read as an empty input
           box rather than as a score. */}
-      <summary className="inline-flex w-fit cursor-pointer list-none rounded-full border border-rule px-2 py-0.5 text-[11px] text-ink-dim">
+      <summary className="inline-flex w-fit cursor-pointer list-none rounded-full border border-attention/50 px-2.5 py-0.5 font-sans text-[12px] font-semibold tracking-wide text-attention uppercase">
         {describeSources(evidence)}
       </summary>
-      <div className="mt-2 rounded border border-rule bg-surface p-2.5 text-[12px] text-ink-faint">
+      <div className="glass mt-2 p-3 text-[12px] leading-relaxed text-prose-dim">
         {/* The reasons the app did not act on its own, if any. These are the
             answer to the only question this panel is opened to ask. */}
         {check.gates.length > 0 ? (
-          <Bullets items={check.gates} className="text-partial" />
+          <Bullets items={check.gates} className="text-prose" />
         ) : (
           <p>Nothing about the citations stopped the app acting on this.</p>
         )}
@@ -218,7 +218,7 @@ function SearchesRun({ queries }: { queries: string[] | null }) {
 
   return (
     <details className="mt-2">
-      <summary className={`cursor-pointer ${over ? 'text-partial' : 'text-ink-faint'}`}>
+      <summary className={`cursor-pointer ${over ? 'text-attention' : 'text-ink-faint'}`}>
         {queries.length} {queries.length === 1 ? 'search' : 'searches'} run
         {over ? ', over the twelve it was asked to stay under' : ''}
       </summary>
@@ -267,7 +267,7 @@ function EvidenceRow({ source }: { source: Evidence }) {
             {host(source.url)}
             {/* The one thing the label can still do is mislead the reader. */}
             {publisherMismatch(source.url, source.publisher) && (
-              <span className="text-partial">
+              <span className="text-attention">
                 {' '}
                 &middot; credited to {source.publisher}, which is not whose site this is
               </span>
@@ -275,7 +275,7 @@ function EvidenceRow({ source }: { source: Evidence }) {
           </p>
         )}
         {source.quotedText && (
-          <p className="mt-0.5 line-clamp-2 font-display text-[13px] text-ink-faint italic">
+          <p className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed text-prose-faint">
             &ldquo;{source.quotedText}&rdquo;
           </p>
         )}

@@ -114,7 +114,7 @@ export function CaptureScreen() {
             rows={4}
             autoFocus
             placeholder="Mark my words, ..."
-            className={`${inputClass} font-display text-[17px]`}
+            className={`${inputClass} font-quote text-[19px] font-semibold`}
           />
         </Field>
 
@@ -173,7 +173,7 @@ export function CaptureScreen() {
             type="button"
             onClick={draftWithAi}
             disabled={!ready || busy}
-            className={`${primaryButton} w-full py-3 font-display text-[17px]`}
+            className={`${primaryButton} w-full py-3 text-[17px]`}
           >
             {structure.isPending ? 'Reading it...' : 'Draft the criteria'}
           </button>
@@ -182,7 +182,7 @@ export function CaptureScreen() {
               someone for not having typed yet. */}
           <p
             className={`text-center text-[12px] ${
-              missing && started ? 'text-partial' : 'text-ink-faint'
+              missing && started ? 'text-attention' : 'text-prose-faint'
             }`}
           >
             {missing ??

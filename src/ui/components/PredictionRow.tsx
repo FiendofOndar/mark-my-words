@@ -30,8 +30,8 @@ function urgencyOf(p: Prediction, needsYou: boolean, queued: boolean): Urgency {
 
 const EDGE: Record<Urgency, string> = {
   overdue: 'border-l-miss',
-  soon: 'border-l-partial',
-  waiting: 'border-l-partial',
+  soon: 'border-l-attention',
+  waiting: 'border-l-attention',
   draft: 'border-l-draft',
   settled: 'border-l-transparent',
   calm: 'border-l-transparent',
@@ -39,8 +39,8 @@ const EDGE: Record<Urgency, string> = {
 
 const COUNTDOWN: Record<Urgency, string> = {
   overdue: 'text-miss font-medium',
-  soon: 'text-partial font-medium',
-  waiting: 'text-partial font-medium',
+  soon: 'text-attention font-medium',
+  waiting: 'text-attention font-medium',
   draft: 'text-draft',
   settled: 'text-ink-faint',
   calm: 'text-ink-dim',
@@ -78,20 +78,24 @@ export function PredictionRow({ item }: { item: FeedItem }) {
       // A draft has nothing to show on a detail screen yet; send it to the
       // review card so the next tap finishes the job.
       to={p.status === 'draft' ? `/draft/${p.id}` : `/p/${p.id}`}
-      className={`paper block border-b border-l-2 border-b-rule bg-surface py-4 pr-4 pl-3.5 transition-colors active:bg-surface-raised ${EDGE[urgency]}`}
+      className={`block border-b border-l-2 border-b-rule py-4 pr-4 pl-3.5 transition-colors active:bg-surface-raised ${EDGE[urgency]}`}
     >
       <div className="flex items-baseline justify-between gap-3">
         <span
-          className={`truncate text-[13px] font-medium ${settled ? 'text-ink-faint' : 'text-ink-dim'}`}
+          className={`truncate font-sans text-[14px] font-semibold tracking-wider uppercase ${
+            settled ? 'text-ink-faint' : 'text-ink-dim'
+          }`}
         >
           {item.author.displayName}
           {item.author.handle && <span className="text-ink-faint"> · {item.author.handle}</span>}
         </span>
 
         {settled ? (
-          <Stamp status={p.status} size="sm" tilt={false} />
+          <Stamp status={p.status} size="sm" />
         ) : (
-          <span className={`flex shrink-0 items-center gap-1.5 text-[14px] ${COUNTDOWN[urgency]}`}>
+          <span
+            className={`flex shrink-0 items-center gap-1.5 text-[12.5px] ${COUNTDOWN[urgency]}`}
+          >
             <TrendMark trend={p.trend} />
             {p.status === 'draft' ? 'Unfinished' : formatCountdown(p)}
           </span>
@@ -102,7 +106,7 @@ export function PredictionRow({ item }: { item: FeedItem }) {
           so sibling spans would each take their own line. A settled prediction
           steps back so live ones carry the scan. */}
       <p
-        className={`mt-2 line-clamp-3 font-display text-[17px] leading-snug ${
+        className={`mt-2 line-clamp-3 font-quote text-[19px] leading-snug font-semibold ${
           settled ? 'text-ink-dim' : 'text-ink'
         }`}
       >
