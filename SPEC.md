@@ -230,7 +230,7 @@ CREATE TABLE predictions (
   -- bookkeeping
   category              TEXT NOT NULL,    -- closed taxonomy, see 9.4
   is_retroactive        INTEGER NOT NULL DEFAULT 0,
-  stakes                TEXT,             -- freeform: "$20", "a beer", "bragging rights"
+  stakes                TEXT,             -- freeform: "a beer", "loser buys lunch", "bragging rights"
   criteria_frozen_at    TEXT,             -- null until first check runs
   last_checked_at       TEXT,
   check_count           INTEGER NOT NULL DEFAULT 0,
