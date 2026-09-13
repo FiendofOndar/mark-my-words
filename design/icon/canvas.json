@@ -1,6 +1,62 @@
 {
   "artboards": [
     {
+      "file": "VerSizes.dc.html",
+      "x": 0,
+      "y": -1900,
+      "w": 1320,
+      "h": 1780,
+      "page": "page-ver"
+    },
+    {
+      "file": "VerRed.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ver"
+    },
+    {
+      "file": "VerTips.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ver"
+    },
+    {
+      "file": "VerThrough.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ver"
+    },
+    {
+      "file": "VerRamp.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ver"
+    },
+    {
+      "file": "VerRing.dc.html",
+      "x": 2240,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ver"
+    },
+    {
+      "file": "VerSplit.dc.html",
+      "x": 2800,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ver"
+    },
+    {
       "file": "IterSizes.dc.html",
       "x": 0,
       "y": -1740,
@@ -435,6 +491,54 @@
   ],
   "annotations": [
     {
+      "id": "vr-0",
+      "x": 0,
+      "y": -56,
+      "w": 460,
+      "text": "Red hand \u2014 the baseline, ink sweep, no green",
+      "page": "page-ver"
+    },
+    {
+      "id": "vr-1",
+      "x": 560,
+      "y": -56,
+      "w": 460,
+      "text": "Both hands \u2014 green at 12, red at the deadline",
+      "page": "page-ver"
+    },
+    {
+      "id": "vr-2",
+      "x": 1120,
+      "y": -56,
+      "w": 460,
+      "text": "Through cream \u2014 light between the two hues",
+      "page": "page-ver"
+    },
+    {
+      "id": "vr-3",
+      "x": 1680,
+      "y": -56,
+      "w": 460,
+      "text": "Traffic ramp \u2014 green, gold, red; avoids olive",
+      "page": "page-ver"
+    },
+    {
+      "id": "vr-4",
+      "x": 2240,
+      "y": -56,
+      "w": 460,
+      "text": "Green ring \u2014 dominance instead of balance",
+      "page": "page-ver"
+    },
+    {
+      "id": "vr-5",
+      "x": 2800,
+      "y": -56,
+      "w": 460,
+      "text": "Hard split \u2014 cut on the 12-to-6 line",
+      "page": "page-ver"
+    },
+    {
       "id": "it-0",
       "x": 0,
       "y": -56,
@@ -797,9 +901,13 @@
   ],
   "launch": {
     "view": "canvas",
-    "page": "page-iter"
+    "page": "page-ver"
   },
   "pages": [
+    {
+      "id": "page-ver",
+      "name": "Red + green"
+    },
     {
       "id": "page-iter",
       "name": "Sweep iterations"
