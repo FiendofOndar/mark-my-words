@@ -11,7 +11,9 @@ review point in section 6. `CLAUDE.md` holds the engineering rules, `SPEC.md`
 the product, `HANDOFF.md` the state. This holds the business and the scale.
 
 It was written on 2026-09-13 against `main` at PR #21 (schema v11, 334 tests,
-all passing when run this session: 23 files, 334 tests). Every factual claim
+all passing when run this session: 23 files, 334 tests), and revised the same
+day after the owner decided the shape of the free and paid paths; section 10
+records those decisions and the reasons. Every factual claim
 below says where it came from: a file read in this repository, a page fetched
 or a search result seen this session, a measurement run this session, or
 memory. Memory is marked and is a hypothesis until someone checks it.
@@ -28,12 +30,16 @@ never invent a figure to fill a blank. A blank is more useful than a guess.
 pipeline is correct on every live fixture. Because of three structural facts,
 each of which is a rewrite of a layer rather than a fix:
 
-1. **Every check is billed to a Google API key the user pastes in.** Almost
-   nobody who installs from a store has one, and the app does nothing useful
-   without it (the offline drafter is regex). The spec saw this coming in
-   section 11.4. The answer is a thin server that holds one key and meters
-   users, and it is the first real piece of infrastructure this project will
-   run. Everything about cost, abuse and revenue routes through it.
+1. **Every check is billed to a Google API key the user pastes in, and the
+   app does nothing useful without one** (the offline drafter is regex). The
+   owner's decision (section 10) is that bring-your-own-key stays the
+   primary path, because a free Gemini key covers a regular user many times
+   over at no cost to anyone. What has to change is everything around it: a
+   keyless free layer that is a real product on its own, a guided flow that
+   gets a stranger from install to a working key in a few minutes, and a
+   small community pool of hosted checks, capped at Google's free allowance,
+   so a new user sees real verdicts before fetching a key. That pool is the
+   only server this plan needs for the model, and its cost is one dial.
 
 2. **The ledger lives on one phone with no way back.** The product's promise
    is the receipt years later. Today a lost or replaced phone loses every
@@ -47,34 +53,28 @@ each of which is a rewrite of a layer rather than a fix:
    most checks should return `no_change`, and the cadence gate schedules 22 to
    42 grounded checks over the life of a one- to two-year claim (modelled this
    session from `src/domain/cadence.ts`, section 3.2). Each is a full grounded
-   model call. The unit economics only work if the "has anything happened
-   yet?" question is answered by something cheaper most of the time.
+   model call. Under the working plan this is no longer a margin question,
+   because the user's own key pays, but it is still what decides whether a
+   free-tier key (about 20 grounded requests a day, observed) stays inside
+   its limit and how far the community pool stretches. The cheap pre-check
+   in 3.5 stays on the roadmap for both reasons.
 
 Beyond those three, the store list is long but ordinary: release signing,
-a privacy policy and data-safety disclosure for text that leaves the device,
-crash reporting so the first thousand users are not invisible, versioning,
-and the hosted receipt link that turns a shared image into an acquisition
-channel.
+a privacy policy and the consent screen Apple now requires before text goes
+to a third-party model, crash reporting so the first thousand users are not
+invisible, versioning, and the hosted receipt link that turns a shared image
+into an acquisition channel.
 
-**On money.** The recommendation is a one-time trial allowance of hosted
-checks, a subscription above it priced around the productivity-app median
-the research in section 4 found ($24.95 a year, with a monthly plan beside
-it), and bring-your-own-key kept as the free, unlimited escape hatch for the
-people who already have keys. Consumable check packs are the second lever
-if usage turns out to be lumpy. What is not recommended: a monthly free tier
-(at benchmark conversion it costs more than the payers bring in), a one-time
-purchase (the cost is recurring), ads (the audience is small and the surface
-is a ledger), or shipping the store build with the paid key bundled in the
-APK (it will be extracted within a week).
-
-The arithmetic in section 4.4 is the finding to sit with: on the current
-model family, past the free grounding pool, a regular user's checks cost
-about $1.28 a month against about $1.77 net from the annual price. With the
-two-stage check that drops to about $0.43, and the hosted tier roughly pays
-for itself. Without it, the hosted tier loses money at every scale. This is
-a small business at best, in a category where four apps in five never
-reach $1,000 a month; the thing that would make it more is the shareable
-receipt page, which costs nothing per user.
+**On money.** The working plan is a free download with everything a person
+needs to record, settle and share a bet free forever, bring-your-own-key
+free forever, a community pool of hosted checks capped at the free
+allowance, and one purchase: a one-time supporter unlock (around $4.99) for
+things that are nice but not core. No subscription, no ads, no paid
+download; section 4.2 has the arithmetic against each. The fixed cost of
+the whole operation is about $200 a year before Apple and about $300 with,
+which is 50 to 70 unlocks a year. This is a free tool with a tip jar shaped
+like a feature, and it is meant to be. Section 4.4 shows what a hosted paid
+tier would have looked like and why it was declined.
 
 **On being right without the owner watching.** Every wrong verdict so far
 was caught by the owner reading screenshots. A thousand users are not going
@@ -84,10 +84,11 @@ replaces the screenshots.
 
 **On scale.** Nothing in the app itself has a multi-user scaling problem,
 because there are no multi-user parts. The scaling risks are per device (the
-database engine and backup cap) and per dollar (the check cost). The server
-that has to exist for the store is small: it forwards one request per check,
-enforces a budget, and records a line. It is the abuse surface, not the
-compute, that needs design.
+database engine and backup cap) and per dollar (the pool). The server that
+has to exist is small: a pool proxy with one monthly counter and a static
+host for receipt pages. As users grow, the pool runs out earlier in the
+month; that is the signal to watch (section 7), and raising the cap has a
+known price.
 
 The rest of this document is the evidence, the arithmetic, the plan, and the
 checklist that keeps the plan honest.
@@ -158,66 +159,89 @@ main branch, not made here, because this branch is planning only.
 Ranked by how much of the app each one touches, most first. Items 2.1 to 2.3
 are architectural. The rest are work.
 
-### 2.1 The key: from bring-your-own to a metered proxy
+### 2.1 The key: bring-your-own stays, with a keyless layer, a guided path, and a capped pool
 
-**The problem.** A store user will not obtain a Gemini API key, enable
-billing on it, and paste it in. Requiring that caps the audience at people who
-already have keys, which is a hobbyist audience measured in hundreds, and it
-exposes the listing to review risk on both stores for "does not function
-without an external account" (see section 4.1a for what the store rules
-say; that phrase is the risk, not a quoted rule, and neither store
-was found to have ruled on it either way). Bundling the
-owner's key in the APK is not an option: a key in a shipped binary is
-extracted by anyone who wants it, and the $25 monthly cap becomes someone
-else's budget.
+**The problem.** A store user does not arrive with a Gemini API key, and
+today the app is a regex drafter without one. Requiring a key on first run
+caps the audience at people who already have keys and invites the review
+"I installed it and it wants a Google Cloud account". Bundling the owner's
+key in the APK is not an option: a key in a shipped binary is extracted by
+anyone who wants it, and the $25 monthly cap becomes someone else's budget.
+A hosted paid tier was costed in sections 3.3 to 4.4 and declined (section
+10): at benchmark conversion it roughly breaks even and no better.
 
-**The change.** A small HTTPS service that holds the key and exposes two
-routes mirroring the `Verifier` port: `structure` and `check`. The device
-sends what it sends Gemini today, minus the key; the service adds the key,
-forwards, and returns the response unchanged. The client change is a second
-`Verifier` implementation (`ProxyVerifier`) selected by `registry.ts`; the
-spec called this "a transport swap rather than a rewrite" and that is still
-true on the client side.
+**Why bring-your-own-key is the right primary path.** The project's own
+record (`CLAUDE.md`, from an observed 429 body) is that a free Gemini key
+gets about 20 grounded requests a day. That is 600 checks a month, thirty
+times the regular profile in 3.3, at no cost to the user and none to the
+owner. The whole cost of BYOK is friction, and friction is a design problem.
+Two risks ride with it and both are one afternoon of verification (section
+8): whether grounding is still available on the free tier at all, and
+whether Google's API terms permit a third-party app to run on a user's key.
 
-The server side is where the design lives, and every item on this list is
-about money rather than compute:
+**The change, in three parts.**
 
-- **Identity without accounts.** Each install gets an opaque device id at
-  first launch. The service keys budgets on it. Accounts come later (2.2) and
-  attach to the same id.
-- **Attestation.** A device id alone can be minted by a script. Play
-  Integrity (Android) and App Attest (iOS) let the service refuse requests
-  that did not come from the real app on a real device. No fee was found for
-  either, and Play Integrity has a default quota of 10,000 requests a day
-  (section 3.4). Without this, the hosted key is one curl loop away from
-  the monthly cap.
-- **Budgets in three rings.** Per device per day, per device per month, and
-  a global kill switch tied to the provider bill. All three enforced on the
-  server; the client's own daily ceiling and pull budget stay as the polite
-  layer.
-- **Entitlements.** Free tier allowance per device; a paid allowance when a
-  store purchase is verified (section 4.2). The service checks the receipt
-  with the store's API, not the client's word.
-- **A line per call.** Device id, timestamp, route, model version, tokens
-  in and out, grounding metadata as served, latency, outcome. This is the
-  instrument the whole cost model runs on, and the answer to the two open
-  questions in `HANDOFF.md` section 5 (what `gemini-flash-latest` resolves
-  to, and whether grounding metadata ever arrives). It will answer them on
-  the first real request through the proxy.
-- **Long requests.** A grounded check has run past 45 seconds on the live
-  fixtures (`GeminiVerifier` comment). The host has to hold a request open
-  for 90 seconds. That rules out some serverless tiers; section 4.1 has what
-  each one allows.
-- **Keep BYOK.** A user with their own key bypasses the proxy entirely,
-  costs nothing, and is unlimited. It is the power-user tier and the answer
-  to "what if the service is down".
+1. **A keyless layer that is a real product.** Recording a claim, drafting
+   criteria by hand with a good form, settling it yourself, the amendment
+   log, authors and standings, receipts, notifications, export and import.
+   Today the keyless path is the regex drafter labelled "not very good"; it
+   should become a deliberate manual-first flow, so the app is honest and
+   useful with no key and no server. This is also what both stores'
+   minimum-functionality rules look for (4.1a).
 
-**What it costs to run.** Small. Section 3.4 has sourced hosting numbers.
-The bill that matters is the provider's, which the proxy makes visible per
-user for the first time.
+2. **A guided key flow.** Five screens at most: why a key, what it costs
+   (nothing, on the free tier, with the daily limit stated), a deep link to
+   Google AI Studio's key page in the Custom Tab, paste detection when the
+   user returns, a test call that commits the key (the Settings screen
+   already does this last part right). Measure completion; section 7 has
+   the row. If fewer than half of the people who start it finish it, the
+   flow is the problem to fix before anything else on this list.
 
-**What reopens this.** Nothing. There is no store path that does not go
-through a server holding the key.
+3. **A community pool.** A small HTTPS service holding one key and exposing
+   the two `Verifier` routes, `structure` and `check`. The device sends what
+   it sends Gemini today minus the key; the service adds it, forwards, and
+   returns the response unchanged. On the client it is a second `Verifier`
+   (`PoolVerifier`) chosen by `registry.ts` when no key is set. The spec
+   called this a transport swap and it still is. The server is small and
+   every line of it is about money:
+
+   - **One monthly counter, capped at the free allowance.** 5,000 grounding
+     queries a month on the 3.x family (3.1, fetched). The pool stops when
+     the counter reaches the cap; the app says the month's pool is spent and
+     points at the key flow. Cost past the cap is therefore zero unless the
+     owner raises it, and raising it has a known price of $14 per 1,000
+     queries.
+   - **A per-device daily cap** so one install cannot drain the month for
+     everyone, and a small lifetime cap per device so the pool is a taste,
+     not a substitute for a key. Device id is an opaque value minted at
+     first launch; no accounts.
+   - **A kill switch** the owner can flip without a release.
+   - **A line per call.** Device id, timestamp, route, model version, tokens
+     in and out, grounding metadata as served, latency, outcome. This is
+     the instrument the cost model runs on, and it answers the two open
+     questions in `HANDOFF.md` section 5 (what `gemini-flash-latest`
+     resolves to, and whether grounding metadata ever arrives) on the first
+     real request.
+   - **A reviewer allowance**, so store review does not need a live key in
+     the notes.
+   - **Long requests.** A grounded check has run past 45 seconds on the live
+     fixtures (`GeminiVerifier` comment). The host has to hold a request
+     open for 90 seconds; 3.4 has what each one allows.
+   - **Not needed under this plan:** attestation, entitlements, receipt
+     verification, per-user metering beyond the counters above. The pool is
+     shared and capped, so abuse costs the pool a month, not the owner's
+     card. If abuse becomes a pattern, Play Integrity is free and can be
+     added then (3.4).
+
+**What it costs to run.** The pool's tokens at full use, about $9 a month
+(1,250 checks at $0.007), plus hosting at about $5 (3.4). Flat, by design.
+
+**What reopens this.** A wrong answer on either of the two verification
+items above. If free keys cannot ground, BYOK means a paid key, and the
+audience shrinks to people willing to put a card on file with Google; the
+pool becomes the main path and its cap becomes a real budget decision. If
+Google's terms forbid third-party apps on user keys, BYOK is off the table
+and the hosted tier in 4.4 comes back, with its arithmetic.
 
 ### 2.2 The ledger is trapped on one phone
 
@@ -254,8 +278,8 @@ that breaks the promise.
    client-only change and belongs before the closed test.
 2. **Sync later.** Every table already carries UUIDs, `created_at`,
    `updated_at` and `deleted_at` tombstones for this. Sync needs accounts,
-   which is the same identity the proxy needs (2.1), so it lands after the
-   proxy and reuses it. Of the sync options priced in section 3.4, PowerSync
+   attached to the device id the pool already mints (2.1), so it lands
+   after the pool and reuses it. Of the sync options priced in section 3.4, PowerSync
    and Turso's sync do offline-first SQLite on the device (fetched from
    their docs); ElectricSQL syncs reads and routes writes through your own
    API; Supabase Postgres and Cloudflare D1 are server databases with no
@@ -530,9 +554,10 @@ this session; every input is labelled there):
 
 (Intake calls priced at $0.005 each on 3.8 Flash and $0.003 on 2.5 Flash.)
 
-Read against section 4.3: the research found a median annual price for
-productivity apps of $24.95, which is $2.08 a month gross and about $1.77
-after a 15 percent store fee. A regular user on the current family, past
+These figures are what a hosted paid tier would have had to cover, and they
+are why it was declined (section 10). Read against section 4.3: the research
+found a median annual price for productivity apps of $24.95, which is $2.08
+a month gross and about $1.77 after a 15 percent store fee. A regular user on the current family, past
 the free pool, at four queries per check, costs $1.28. That is a margin of
 about fifty cents, and it is negative for the heavy profile at any price
 the market pays. At twelve queries a check, every profile loses money.
@@ -617,13 +642,13 @@ can last to the cadence interval, and the deadline-day check is unchanged.
 
 ### 3.6 Cost at scale
 
-Arithmetic this session from 3.1, 3.3 and 3.4. Two scenarios, because the
-first is the ceiling and the second is the plan.
+Two tables. The first is what a fully hosted app would cost, kept because it
+is the reason the hosted tier was declined. The second is the working plan.
 
-**Ceiling: every active user is the regular profile on hosted checks, no
-metering.** Twenty grounded checks and three intake calls a month each, on
-3.8 Flash at four queries a check, 5,000 free queries a month, then $14 per
-thousand, plus $5 hosting.
+**If every active user were hosted, regular profile, no metering.** Twenty
+grounded checks and three intake calls a month each, on 3.8 Flash at four
+queries a check, 5,000 free queries a month then $14 per thousand, plus $5
+hosting.
 
 | Active users | Checks a month | Billable queries | Grounding | Tokens and intake | Hosting | Total a month | Per user |
 |---|---|---|---|---|---|---|---|
@@ -631,26 +656,24 @@ thousand, plus $5 hosting.
 | 1,000 | 20,000 | 75,000 | $1,050 | $155 | $5 | about $1,210 | $1.21 |
 | 10,000 | 200,000 | 795,000 | $11,130 | $1,550 | $25 | about $12,700 | $1.27 |
 
-**Plan: a small one-time trial allowance for free users, metered; paying
-users on the regular profile; the pre-check in 3.5 catching four checks in
-five.** Conversion at the freemium benchmark of 2.1 percent (4.3). Free
-users cost a bounded one-time amount each rather than a monthly one, so the
-table is per month of steady state with the free cost spread over the
-cohort.
+**The working plan.** Users on their own keys cost the owner nothing. The
+pool is capped at the free allowance, so its cost is tokens only and does
+not grow with users; what grows is how early in the month it runs out.
 
-| Active users | Paying users | Grounded checks a month | Pre-checks a month | Model and search cost | Hosting | Total a month |
-|---|---|---|---|---|---|---|
-| 1,000 | 21 | about 1,100 | about 5,300 | about $55 | $5 | about $60 |
-| 10,000 | 210 | about 11,000 | about 53,000 | about $600 | $25 | about $625 |
+| Active users | Pool checks available a month (at 4 queries each) | Pool cost (tokens) | Hosting | Total a month | What changes |
+|---|---|---|---|---|---|
+| 100 | about 1,250 | about $9 | $5 | about $14 | pool lasts the month if most users have keys |
+| 1,000 | about 1,250 | about $9 | $5 | about $14 | pool spent in days unless the per-device caps are tight |
+| 10,000 | about 1,250 | about $9 | $5 to $25 | about $14 to $34 | pool is a first-day taste only; the key flow carries the app |
 
-(Free users modelled at five checks a month each during their trial, paying
-users at twenty; queries inside the 5,000 free pool at the smaller scale.)
+The pre-check in 3.5 stretches the pool three to five times at the same
+cost, and it does the same for a user's free-tier daily limit, which is why
+it stays on the roadmap under a plan where the owner's margin no longer
+depends on it.
 
-Section 4.4 sets these against revenue. The short version is that the
-ceiling scenario loses money at every price the market pays, and the plan
-scenario is close to break-even, not comfortably past it, which is why the
-recommendation in 4.2 is a trial allowance rather than a monthly free tier,
-and why the pre-check is in Stage 1 rather than later.
+If the owner chooses to raise the pool past the free allowance, the price is
+$14 per 1,000 queries: about $56 per thousand extra checks at four queries
+each. That is the dial section 7 watches.
 
 ---
 
@@ -749,7 +772,7 @@ and must be read on `support.google.com` before it decides anything.
 |---|---|---|
 | Developer program | $99 per membership year | fetched |
 | Build machine | Capacitor 8 needs Xcode 26 or later, which needs macOS Tahoe; a Mac, owned or rented, is required. Codemagic gives personal accounts 500 free minutes a month on M2 machines, then about $0.10 a minute. GitHub Actions macOS runners consume free minutes at ten times the rate (about 200 free macOS minutes a month) | fetched (Capacitor, Xcode, Codemagic); GitHub multiplier snippet |
-| 3.1.1 In-app purchase | "If you want to unlock features or functionality within your app (by way of example: subscriptions...) you must use in-app purchase." A subscription for hosted checks goes through IAP | fetched |
+| 3.1.1 In-app purchase | "If you want to unlock features or functionality within your app (by way of example: subscriptions...) you must use in-app purchase." The supporter unlock is a non-consumable IAP for exactly this reason | fetched |
 | 3.1.1(a) and 3.1.3, US storefront | Buttons and links to external purchase are allowed on the US storefront without an entitlement; Apple currently collects nothing on them, has proposed a fee, and litigation continues. A Stripe link-out is possible today for US users, with a fee of undetermined size probable | fetched (guidelines, Apple news); litigation snippets |
 | BYOK | No guideline addresses it. The nearest text, 3.1.3(f), allows free companions to paid web tools "provided there is no purchasing inside the app, or calls to action for purchase outside of the app". A reviewer could read "paste your key to enable checks" as a license-key unlock; no report of that happening was found. Also: apps using a third-party service must be "specifically permitted to do so under the service's terms of use"; the Gemini API terms for third-party apps on a user's key were not checked | fetched (guidelines); terms unchecked |
 | 2.1, 2.3.1 Review access | Submissions must be "fully functional" with demo credentials and specific notes. Expect to hand Apple a working key | fetched |
@@ -781,37 +804,50 @@ not a fee: Apple's 4.8 no longer mandates Sign in with Apple outright, but if
 any third-party login is offered, an equivalent private option must be too
 (fetched). Email-only accounts, or no accounts, avoid it.
 
-### 4.2 Models considered
+### 4.2 Models considered, and the one chosen
 
-**Recommended: a one-time trial allowance of hosted checks, a subscription
-above it, and bring-your-own-key kept free.** A new install gets enough
-hosted checks to see a few verdicts (on the order of fifteen, a judgment
-call in section 9), not a monthly refill. Past that, a subscription for
-hosted checks, and the existing key field for anyone who wants to pay
-Google directly. This matches the cost shape (recurring, per check), keeps
-the listing functional without a purchase (recording, settling by hand,
-receipts and standings all work with no key and no subscription, which is
-what both stores' minimum-functionality rules look for), and turns the
-hobbyist audience into a free support tier rather than a lost one.
+**Chosen (section 10): free download, one-time supporter unlock.** The app
+is free. The keyless layer, bring-your-own-key, and the community pool are
+free. There is one purchase, a non-consumable in-app purchase around $4.99
+(judgment call, section 9), that unlocks things that are nice and not core:
+receipt themes, the hosted receipt page with a custom handle (2.7), sync
+when it exists (2.2), and a supporter mark on the ledger. Nothing a person
+needs to record, check and settle a bet sits behind it. It goes through
+in-app purchase (Apple 3.1.1, fetched) at the 15 percent small-developer
+rate on both stores, and it is the shape the benchmarks in 4.3 treat most
+kindly: a paywall met after install converts at about 10.7 percent by day
+35 against 2.1 percent for a free tier with a subscription above it.
 
-Why a trial allowance and not a monthly free tier: section 4.4. At the
-freemium benchmark conversion, a monthly refill of hosted checks for free
-users costs more than the paying users bring in, at every scale, even with
-the pre-check. A one-time allowance bounds what a free user can ever cost.
+**Declined, with the reason on record.**
 
-**Second lever: check packs.** A consumable purchase of N checks for people
-whose use is lumpy (a friend group during a season). Aligns cost to revenue
-exactly. Adds a second SKU to explain; hold it until the subscription has
-data.
-
-**Not recommended.**
-- *One-time purchase.* The cost is recurring; a one-time price either
-  overcharges the light user or funds the heavy one forever.
-- *Ads.* The audience is small and the surface is a personal ledger.
-- *Bundled key.* Extracted from the APK within days; the cap becomes someone
-  else's budget.
-- *Free with no hosted checks.* Functional but useless to the store audience;
-  this is the status quo with a listing.
+- *Subscription for hosted checks.* Costed in 3.3, 3.6 and 4.4: about $1.28
+  a month of checks against about $1.77 net from the productivity median
+  annual price, break-even at best with the pre-check, and the owner's
+  judgment that people will not pay several dollars a month to track bets.
+  The benchmarks agree: median subscription app revenue is $492 a month and
+  four in five never reach $1,000.
+- *Monthly free tier of hosted checks.* At 2.1 percent conversion every
+  payer brings about fifty free users; five hosted checks a month each is
+  about $16 against $1.77. Loses money at every scale.
+- *Paid download.* Discovery collapses (a paid listing gets a small
+  fraction of a free one's installs, and the receipt page cannot bring
+  anyone in if they must pay to open it), the first review is "I paid and it
+  asked me for a Google API key", and paid apps carry refund and support
+  expectations. No sourced figure for indie paid-app sales; the expectation
+  from memory is tens to low hundreds a year.
+- *Ads.* Costed from 2026 eCPM benchmark posts (snippets, gaming apps): US
+  rewarded video $14 to $22 per thousand views, interstitial $9 to $14,
+  banner $0.30 to $0.80. A grounded check past the pool costs about $0.063,
+  so a banner needs 80 to 200 impressions per check and an interstitial
+  five to seven. Only a rewarded video tied to spending a pool check comes
+  close (one view covers two or three checks inside the free pool), and it
+  brings an advertising identifier onto the data-safety form, an ATT prompt
+  on iOS, a consent flow in the EU, a payout floor, and a video ad inside a
+  product whose pitch is a receipt you can trust. Declined.
+- *Bundled key.* Extracted from the APK within days.
+- *Check packs.* Not needed when the user's own key is free and the pool is
+  a taste. Kept as the answer if the pool ever needs to be sold rather than
+  given.
 
 **Later, if the network forms.** Public author pages (the pundit
 accountability ledger the spec deferred) are a different product with a
@@ -844,44 +880,54 @@ One snippet quoted a different cohort figure ("median $8,300 a month after
 18 months") from an earlier report that conflicts with the $492 median; it
 could not be reconciled without the PDF and is not used.
 
-**What this means for the price.** The productivity median of $24.95 a year
-is the anchor. A monthly plan around $2.99 to $3.99 should exist because
-that category earns most of its revenue monthly, and a free trial of two to
-four weeks converts far better than a short one. The store fee assumed in
-this document is 15 percent (the small-developer rate on both stores; the
-research in 4.1a is to confirm the current thresholds), which makes the net
-on the annual anchor about $1.77 a month and on a $3.49 monthly plan about
-$2.97.
+**What this means for the price.** The unlock is a one-time non-consumable,
+so the annual and monthly figures above do not apply to it directly. What
+does: the hard-paywall conversion figure (a purchase offered after install,
+10.7 percent by day 35) is the closer analogue to an unlock met inside a
+free app, and the productivity median annual price ($24.95) says what
+people in this category pay in a year, which bounds a one-time price from
+above. $4.99 sits under that with room; $2.99 is the floor below which the
+store fee and the friction of buying make the purchase not worth offering.
+Both are guesses to be replaced by two months of data (section 7).
 
-**What this means for free users.** At a 2 percent freemium conversion,
-every paying user is accompanied by roughly fifty free ones. If each free
-user were allowed the regular profile's twenty hosted checks a month, the
-free users would cost about $64 a month for every $1.77 of net revenue.
-Even five a month each is $16 against $1.77. So the free allowance is a
-one-time trial (4.2), sized to show a few verdicts, and its whole cost is
-paid once per install: about $0.95 for fifteen checks at the 3.8 Flash
-full price, about $0.30 with the pre-check. Two things soften it further:
-the 5,000 free grounding queries a month cover the first cohort entirely,
-and most installs never spend their allowance.
+**What this means for the pool.** Nothing the user pays changes what the
+pool costs, so the pool is sized to the free allowance and not to revenue.
 
 **The honest read of the benchmarks.** Four apps in five never reach $1,000
-a month. This one has a real and documented gap to fill, a cost per user
-that can be made small, and no acquisition channel yet. The hosted receipt
-(2.7) is the acquisition channel. Without it the numbers above describe an
-app that a few hundred people like.
+a month, and this one is not built to. It is built to cost about $30 a
+month at most, to be paid for by a few dozen unlocks a year, and to grow
+through receipts rather than spend. Without the hosted receipt page (2.7)
+the benchmarks above describe an app that a few hundred people like, which
+under this plan is an acceptable outcome rather than a failed one.
 
 ### 4.4 Break-even
 
-Arithmetic this session from 3.1 to 3.6 and 4.3. Every input is labelled
-where it first appears; the conclusions are only as good as the snippet
-benchmarks and the four-queries-a-check guess.
+Arithmetic this session from 3.4, 3.6 and 4.2.
 
-**Fixed costs are not the problem.** At $5 to $30 a month, three to
-seventeen subscribers on the net monthly price cover them.
+**Under the working plan.**
 
-**Margin per paying user, per month.**
+| Item | A year |
+|---|---|
+| Pool tokens at full use, $9 a month | $108 |
+| Hosting, $5 a month | $60 |
+| Domain | about $12 |
+| Google Play account, once | $25 |
+| Total before Apple | about $205 in year one, about $180 after |
+| Apple developer program, when iOS ships | $99 |
+| Total with Apple | about $300 in year one, about $280 after |
 
-| Situation | Net price | Model cost (regular profile) | Margin |
+An unlock at $4.99 nets about $4.24 after the 15 percent fee. Break-even is
+about 50 unlocks a year before Apple and about 70 with. At the 10.7 percent
+hard-paywall benchmark that is roughly 470 to 660 installs a year who reach
+the unlock offer; at a more cautious 5 percent, about a thousand to
+fourteen hundred. Neither number is a business. Both are reachable for a
+niche tool with a shareable receipt, and missing them costs about $25 a
+month, which is the owner's stated comfort.
+
+**What the declined hosted tier would have looked like**, kept so the
+decision can be re-examined with new numbers rather than re-argued.
+
+| Situation | Net price a month | Model cost, regular profile | Margin |
 |---|---|---|---|
 | Annual plan at the $24.95 anchor, current family past the pool, no pre-check | $1.77 | $1.28 | $0.49 |
 | Annual plan, with the pre-check | $1.77 | $0.43 | $1.34 |
@@ -890,36 +936,17 @@ seventeen subscribers on the net monthly price cover them.
 | Any plan, heavy profile, no pre-check | $1.77 to $2.97 | $3.82 | negative |
 | Any plan, twelve queries a check, no pre-check | $1.77 to $2.97 | $3.52 | negative |
 
-**What a paying user costs to find.** At 2.1 percent freemium conversion,
-each paying user arrives with about forty-seven free users who never pay.
-If each free user spends a fifteen-check trial allowance, that is about
-$45 of grounded checks per paying user without the pre-check, about $14
-with it. Set against year-one retention of 36 percent on annual plans and
-23 percent on monthly, a paying user is worth on the order of $10 to $15 of
-margin over their life with the pre-check, and less than the cost of
-finding them without it.
+At 2.1 percent conversion each payer arrives with about forty-seven free
+users; a fifteen-check trial each is about $45 of grounded checks per payer
+without the pre-check and about $14 with it, against a payer worth on the
+order of $10 to $15 of margin over their life. Roughly break-even with the
+pre-check, a loss without. That is why it was declined and what would have
+to be true to revisit it: a conversion rate among active users well above
+the download benchmark, or a per-query price cut from Google.
 
-So: **with the pre-check and a small one-time trial allowance, the hosted
-tier roughly pays for itself and no more. Without the pre-check it loses
-money at any scale.** That is the finding of this document on money, and it
-is the reason the roadmap gates the paid tier behind a month of real
-`no_change` data rather than launching it with the closed test.
-
-**What would change it.**
-- A conversion rate among *active* users well above the download-to-paid
-  benchmark. Plausible for a tool people open with a purpose, unsourced, and
-  measurable in Stage 0.
-- The hosted receipt page (2.7) bringing installs at zero marginal cost.
-- The 2.5 scheme's 1,500 free grounded prompts a day, if the alias resolves
-  there for the remaining weeks before its retirement; a windfall, not a
-  plan.
-- A per-query price cut or a larger free pool from Google; watch 3.1.
-- Check packs (4.2) for heavy users, so the heavy profile funds itself
-  instead of being subsidized by the annual plan.
-
-**What does not change it.** Cutting the cadence. It is already
-product-motivated, and the checks that cost the most (final week, late
-watch) are the ones users are waiting for.
+**What would change the working plan.** The two verification items in 2.1
+(free-tier grounding, Google's terms on user keys). If either fails, the
+table above is the fallback and its arithmetic applies.
 
 ---
 
@@ -929,78 +956,94 @@ Each stage has an entry condition and an exit condition. Nothing in a later
 stage starts before the earlier stage's exit condition is met, because every
 stage's design depends on a number the previous stage produces.
 
-### Stage 0: the closed test (now to the first outside users)
+### Stage 0: the two questions (before any other work)
 
 Entry: this document adopted on `main`.
 
-Build:
-- Release signing with a stable upload key in CI; `versionCode` from CI;
-  `versionName` from `package.json` (2.5).
-- Privacy policy page and first-run "where your text goes" screen (2.6).
-- JSON export and import through the share sheet (2.2 step 1).
-- Crash reporting, opt-in, no content (2.4).
-- The proxy, minimum version: device id, per-device daily and monthly
-  budget, global kill switch, a line per call, BYOK bypass (2.1). No
-  payments yet; every tester is on the free allowance.
-- Play Console account ($25), listing, data safety form; closed testing
-  track with at least 12 testers opted in for 14 continuous days, which is
-  what a personal account created after November 2023 needs before it can
-  apply for production (4.1a, snippet; read the help page first).
-- A reviewer allowance on the proxy, so review access does not mean a live
-  key in the notes.
-- Fix the stale README (section 8).
+- Confirm, against Google's own pages or a live free key, that Search
+  grounding works on the free tier and what the daily limit is today.
+- Read the Gemini API terms for what a third-party app may do with a key
+  the user supplies.
 
-Exit: the closed test has run for the required period, the proxy has logged
-at least a month of real checks, and section 7's blank cells for cost per
-check, checks per user, and `no_change` ratio have real values.
+Exit: both answered and recorded in section 8. A "no" on either sends the
+plan to the fallback in 4.4 before a line of store work is written.
 
-Predicted outcome, so the stage is testable: at the end of it the provider
-bill and the proxy's own totals agree to within a few percent, the observed
-queries per check is a number rather than a guess, and the `no_change`
-share is known. If any of those three is still blank, Stage 1 does not
-start.
-
-### Stage 1: economics (first hundred users)
+### Stage 1: the closed test (to the first outside users)
 
 Entry: Stage 0 exit.
 
 Build:
-- The two-stage check (3.5), sized from the real `no_change` ratio.
-- Store billing: one subscription SKU, receipt verification on the proxy,
-  entitlement to a larger allowance (4.2). Price from 4.3, revisited after
-  the first month of data.
-- The hosted receipt page (2.7).
-- Attestation on the proxy (2.1), before the paid tier goes live.
+- The keyless layer as a deliberate manual-first flow, replacing the regex
+  drafter's apologies with a good form (2.1 part 1).
+- The guided key flow (2.1 part 2), with completion counted.
+- The community pool: one monthly counter capped at the free allowance,
+  per-device daily and lifetime caps, kill switch, a line per call,
+  reviewer allowance, BYOK bypass (2.1 part 3).
+- Release signing with a stable upload key in CI; `versionCode` from CI;
+  `versionName` from `package.json` (2.5).
+- Privacy policy page and the consent screen before the first model call
+  (2.6).
+- JSON export and import through the share sheet (2.2 step 1).
+- Crash reporting, opt-in, no content (2.4).
+- Play Console account ($25), listing, data safety form; closed testing
+  track with at least 12 testers opted in for 14 continuous days, which is
+  what a personal account created after November 2023 needs before it can
+  apply for production (4.1a, snippet; read the help page first).
+- Fix the stale README (section 8).
 
-Exit: cost per paying user per month is known from the provider bill, not
-from a model; margin per subscriber is positive under the observed billing
-unit; the kill switch has been tested by tripping it.
+Exit: the closed test has run its period; the pool has logged a month of
+real checks; section 7 has values for queries per check, tokens per check,
+the `no_change` share, key-flow completion, and the day of the month the
+pool ran out.
 
-### Stage 2: durability (first thousand)
+Predicted outcome, so the stage is testable: at the end of it the provider
+bill and the pool's own totals agree to within a few percent, the observed
+queries per check is a number rather than a guess, and more than half of
+the testers who start the key flow finish it. If the last one fails, the
+key flow is the next piece of work, not the unlock.
 
-Entry: Stage 1 exit and either the median ledger size or the first jank
+### Stage 2: the unlock and the link (first hundred users)
+
+Entry: Stage 1 exit.
+
+Build:
+- The hosted receipt page (2.7): static, public, generated on share, with
+  the store link under it. The supporter unlock's custom handle rides on it.
+- The supporter unlock: one non-consumable in-app purchase through
+  RevenueCat's Capacitor SDK or the store directly (4.1a), gating only what
+  4.2 lists.
+- The pre-check (3.5), sized from the observed `no_change` share, to
+  stretch the pool and keep free-tier keys under their daily limit.
+- The standing fixture run and the wrong-verdict flag (2.9).
+
+Exit: the first receipts have been opened by people who were not the
+sharer; the first unlocks have been bought; the pool's exhaustion day has
+moved later, not earlier, after the pre-check.
+
+### Stage 3: durability (first thousand)
+
+Entry: Stage 2 exit and either the median ledger size or the first jank
 report crosses the threshold in section 7.
 
 Build:
 - Native SQLite driver behind `SqlDriver` (2.3).
-- Accounts attached to the device id; sync using one of the options in 3.4
-  (2.2 step 2).
-- The standing fixture run and the wrong-verdict flag (2.9), if not already
-  in Stage 1.
-- Check packs if usage is lumpy (4.2).
-- Second provider behind the `Verifier` port on the proxy, so a model
-  retirement or a price change is a config change, not an outage.
+- Accounts and sync, behind the unlock, using one of the options in 3.4
+  (2.2 step 2). Email-only or no third-party login, to stay clear of
+  Apple's 4.8.
+- A second provider behind the `Verifier` port on the pool, so a model
+  retirement or a price change is a config change, not an outage. BYOK
+  users choose their own.
 
 Exit: a user has moved phones and kept the ledger; a provider switch has
-been rehearsed.
+been rehearsed on the pool.
 
-### Stage 3: reach (beyond)
+### Stage 4: reach (beyond)
 
-Entry: Stage 2 exit and revenue covering fixed costs for three consecutive
+Entry: Stage 3 exit and unlocks covering fixed costs for three consecutive
 months.
 
 Build:
-- iOS (2.8), with the share extension verified first.
+- iOS (2.8), with the Share Extension verified first.
 - Public author pages only if there is demand from the hosted receipts.
 
 ---
@@ -1018,7 +1061,7 @@ way `CLAUDE.md` asks for partial work to be reported.
   host appears in `src/` (grep for `https://`), the policy changed.
 - The data safety form still matches the policy.
 - The kill switch works (trip it in staging, confirm the client's message).
-- The free allowance and the paid allowance in the proxy match the listing.
+- The pool caps in the proxy match what the listing and the key flow say.
 - No key, token or credential in the built APK (grep the bundle).
 - Crash reporting reports nothing that identifies a person or quotes a
   prediction.
@@ -1026,14 +1069,18 @@ way `CLAUDE.md` asks for partial work to be reported.
 
 ### Monthly, while there are users
 
-- Provider bill against the proxy's own per-call totals. They should agree;
+- Provider bill against the pool's own per-call totals. They should agree;
   if they do not, the billing unit assumption in 3.1 is wrong and this
   document is stale.
-- Cost per active user, cost per paying user, and the `no_change` ratio,
-  into section 7.
+- The day of the month the pool ran out, and how many devices it served,
+  into section 7. If it runs out earlier three months running, decide
+  deliberately: tighten the per-device caps, ship or improve the pre-check,
+  or raise the cap at $14 per 1,000 queries. Never let it drift.
+- Key-flow completion rate and the share of active devices with their own
+  key, into section 7.
+- Unlocks this month against the break-even in 4.4.
 - Median and 95th percentile ledger size, into section 7. Against the 2.3
   and 2.2 thresholds.
-- Conversion and churn against the 4.3 benchmarks.
 - Anything in section 8 that became verifiable.
 
 ### When adding anything that spends money per user
@@ -1074,20 +1121,20 @@ permission to guess. Each cell says when and how it was measured.
 | Lifetime checks per prediction, 1 year claim | 22 to 29 | cadence model, 2026-09-13 | change on any cadence edit |
 | Image size per prediction lifetime | about 94 KiB | sql.js measurement, 2026-09-13 | re-measure if evidence shape changes |
 | Predictions at which Auto Backup stops | about 250 | 25 MB cap (search result) over 94 KiB, 1.33x for base64 | at 100, ship JSON backup (2.2) |
-| Median ledger size, real users | | proxy or client counter, after Stage 0 | 5 MB: schedule 2.3 |
-| Cost per grounded check, observed | | provider bill over proxy count, monthly | any drift from 3.1 |
-| Tokens per check, observed | | proxy log | |
+| Median ledger size, real users | | client counter, after Stage 1 | 5 MB: schedule 2.3 |
+| Free-tier grounded requests a day | about 20 | observed 429 body (CLAUDE.md) | Stage 0 re-verifies; any change reshapes 2.1 |
+| Pool cap | 5,000 queries a month | Vertex pricing page, fetched 2026-09-13 | raise only by decision, at $14 per 1,000 |
+| Day of month the pool ran out | | pool log, monthly | earlier three months running: act (section 6) |
+| Devices served by the pool a month | | pool log | |
+| Key-flow completion rate | | client counter | under 50 percent: fix the flow before anything else |
+| Share of active devices with their own key | | client counter | the number the plan most depends on |
+| Cost per grounded check, observed | | provider bill over pool count, monthly | any drift from 3.1 |
+| Tokens per check, observed | | pool log; Settings tokens line for BYOK | |
 | Searches per check, observed | | grounding metadata, if it arrives | if it never arrives, billing unit is per prompt |
-| `no_change` share of checks | | proxy log or check table | sizes the two-stage check (3.5) |
-| Checks per active user per month | | proxy log | against the 3.3 profiles |
-| Cost per active user per month | | bill over active devices | against price after store cut |
-| Cost per paying user per month | | bill over subscribers | must sit under net price |
-| Free to paid conversion | | store console | against 4.3 |
-| Monthly churn | | store console | against 4.3 |
-| Receipts shared per user per month | | client counter | growth lever |
-| Model version the alias resolves to | | proxy log `modelVersion` | on change, re-verify 3.1 |
-| Trial allowance spent per install | | proxy log | sizes the allowance (4.2) |
-| Conversion among active users | | store console over proxy active devices | the number 4.4 most depends on |
+| `no_change` share of checks | | pool log or check table | sizes the pre-check (3.5) |
+| Unlocks a month | | store console | against about 50 to 70 a year (4.4) |
+| Receipts shared, and opened by someone else | | client counter; receipt page log | growth lever |
+| Model version the alias resolves to | | pool log `modelVersion` | on change, re-verify 3.1 |
 | Wrong verdicts | 2, both caught by the owner (HANDOFF.md) | wrong-verdict flag (2.9), fixture run | any fixture mismatch: stop and diagnose |
 | Fixture run agreement | 6 of 6 on the last live pull (HANDOFF.md, 2026-09-13) | scheduled run (2.9) | any mismatch |
 
@@ -1096,6 +1143,20 @@ permission to guess. Each cell says when and how it was measured.
 ## 8. Open questions and unverified claims
 
 Ordered by how much of the plan rests on them.
+
+0. **Whether Search grounding works on a free Gemini key today, and at what
+   daily limit.** The whole working plan rests on a free key being enough
+   for a regular user. The project observed about 20 grounded requests a
+   day (`CLAUDE.md`); the research found conflicting snippets on whether
+   grounding is available on the free tier at all and a report that Google
+   removed its free-tier table. Stage 0 exists to answer this with a live
+   key or Google's own page.
+0a. **Whether Google's Gemini API terms allow a third-party app to run on a
+   key the user supplies.** Not checked this session. If they do not, BYOK
+   is off the table and the hosted tier in 4.4 returns.
+0b. **Whether a non-consumable in-app purchase for cosmetic and convenience
+   features raises any review question on either store.** No rule found
+   against it; Apple 3.1.1 requires IAP for it, which the plan uses.
 
 1. **Which model family `gemini-flash-latest` resolves to today.** The
    billing schemes themselves are now sourced (3.1, fetched): the 3.x
@@ -1121,9 +1182,9 @@ Ordered by how much of the plan rests on them.
    material.
 6. **Whether either store has ever rejected an app for needing a
    user-supplied third-party key.** No rule and no case was found either
-   way. The trial allowance makes the question moot for the store build,
-   but the Gemini API's own terms on third-party apps using a user's key
-   were not checked and should be, for the BYOK path.
+   way. The keyless layer and the pool mean the app never needs the key to
+   function, which is the defence under both stores' minimum-functionality
+   rules; the key flow should be worded as an upgrade, not a requirement.
 6a. **The 90 second hold on Cloudflare Workers.** Documentation says no
    limit; community threads say external fetches die around 90 to 100
    seconds. One empirical test decides it, and the hosting choice with it.
@@ -1158,8 +1219,10 @@ Things picked without being specified, listed so they can be argued with.
 - Four checks in five returning `no_change`, for sizing the pre-check in
   3.5. From the prompt's own design ("most checks should return
   no_change"), not from data.
-- A fifteen-check trial allowance. Enough to see two or three verdicts on
-  short claims; the proxy log will say what installs spend.
+- A fifteen-check trial allowance, in the declined hosted tier's
+  arithmetic (4.4). Under the working plan the equivalent is the pool's
+  per-device lifetime cap, left unspecified until the closed test shows how
+  testers spend it.
 - A 15 percent store fee throughout. Apple's Small Business Program rate
   (fetched) and Play's effective rate on a Play-billed subscription
   (snippet).
@@ -1182,3 +1245,30 @@ Things picked without being specified, listed so they can be argued with.
 - Accounts deferred to Stage 2, with a device id doing identity work in
   Stages 0 and 1. This is the cheapest version that shows whether the proxy
   economics work, per `CLAUDE.md`'s "cheapest version first".
+- $4.99 for the supporter unlock, and the list of what it gates (4.2).
+  Under the productivity median annual price, above the floor where the
+  store fee and purchase friction make it pointless; two months of data
+  replace it.
+- The pool cap equal to Google's free allowance (5,000 queries a month).
+- "More than half finish the key flow" as the Stage 1 bar.
+- Manual-first as the shape of the keyless layer, rather than improving the
+  regex drafter.
+
+---
+
+## 10. Decisions on record
+
+Made by the owner on 2026-09-13 in the planning session that produced this
+document. Recorded so the next session does not re-litigate them without
+new evidence; section 8 items 0 and 0a are the evidence that would.
+
+| Question | Decision | Reason |
+|---|---|---|
+| Primary model path | Bring-your-own-key | A free Gemini key covers a regular user many times over at no cost to anyone; the friction is a design problem, not an economics problem |
+| Free layer | Everything that does not call a model is free forever, and made good rather than apologized for | Store minimum-functionality rules, and the product should be honest without a key |
+| Hosted checks | A community pool capped at Google's free allowance, with per-device caps and a kill switch | A taste before fetching a key; cost is one dial with a known price |
+| Recurring charge | None | The owner does not believe people will pay several dollars a month to track bets; the arithmetic in 4.4 agrees it would at best break even |
+| Ads | No | Only a rewarded video tied to a pool check comes close to covering one, and the SDK's privacy, consent and tonal costs are not worth it (4.2) |
+| Paid download | No | Kills discovery and the receipt loop; invites the "paid and it wants a Google key" review |
+| The one purchase | A one-time supporter unlock around $4.99 for non-core features | One-time, keeps the app free to try, converts better than a subscription paywall by benchmark, covers fixed costs at a few dozen a year |
+| Comfort with cost | Watch the pool monthly; act deliberately when it runs out early | Section 6, monthly |
