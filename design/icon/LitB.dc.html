@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; }
+    .icon { width: 480px; height: 480px; border-radius: 104px; box-sizing: border-box;
+      background: oklch(0.16 0.012 270);
+      display: flex; align-items: center; justify-content: center; }
+  </style>
+</helmet>
+<div class="icon">
+  <!-- A round speech bubble is a circle. A clock face is a circle. The one shape
+       does both jobs honestly: tail says somebody spoke, hands say time. -->
+  <svg width="330" height="330" viewBox="0 0 240 240">
+    <circle cx="120" cy="106" r="84" fill="none" stroke="oklch(0.95 0.014 88)" stroke-width="20"/>
+    <path d="M 74 176 L 104 190 L 58 218 Z" fill="oklch(0.95 0.014 88)"/>
+    <g stroke="oklch(0.95 0.014 88)" stroke-width="18" stroke-linecap="round">
+      <line x1="120" y1="106" x2="120" y2="56"/>
+      <line x1="120" y1="106" x2="158" y2="124"/>
+    </g>
+    <circle cx="120" cy="106" r="9" fill="oklch(0.95 0.014 88)"/>
+  </svg>
+</div>
+</x-dc>
+</body>
+</html>

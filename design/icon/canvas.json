@@ -5,35 +5,40 @@
       "x": 0,
       "y": -980,
       "w": 1100,
-      "h": 900
+      "h": 900,
+      "page": "page-1"
     },
     {
       "file": "IconQuote.dc.html",
       "x": 0,
       "y": 0,
       "w": 480,
-      "h": 480
+      "h": 480,
+      "page": "page-1"
     },
     {
       "file": "IconQuoteRing.dc.html",
       "x": 560,
       "y": 0,
       "w": 480,
-      "h": 480
+      "h": 480,
+      "page": "page-1"
     },
     {
       "file": "IconTally.dc.html",
       "x": 1120,
       "y": 0,
       "w": 480,
-      "h": 480
+      "h": 480,
+      "page": "page-1"
     },
     {
       "file": "IconMonogram.dc.html",
       "x": 1680,
       "y": 0,
       "w": 480,
-      "h": 480
+      "h": 480,
+      "page": "page-1"
     },
     {
       "file": "TimeSizes.dc.html",
@@ -74,6 +79,46 @@
       "w": 480,
       "h": 480,
       "page": "page-time"
+    },
+    {
+      "file": "LitSizes.dc.html",
+      "x": 0,
+      "y": -880,
+      "w": 1120,
+      "h": 780,
+      "page": "page-lit"
+    },
+    {
+      "file": "LitA.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-lit"
+    },
+    {
+      "file": "LitB.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-lit"
+    },
+    {
+      "file": "LitC.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-lit"
+    },
+    {
+      "file": "LitD.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-lit"
     }
   ],
   "annotations": [
@@ -82,28 +127,32 @@
       "x": 0,
       "y": -56,
       "w": 380,
-      "text": "A \u2014 Quote: the app is about what people said"
+      "text": "A \u2014 Quote: the app is about what people said",
+      "page": "page-1"
     },
     {
       "id": "lbl-b",
       "x": 560,
       "y": -56,
       "w": 380,
-      "text": "B \u2014 Quote + clock: the claim, and the deadline running on it"
+      "text": "B \u2014 Quote + clock: the claim, and the deadline running on it",
+      "page": "page-1"
     },
     {
       "id": "lbl-c",
       "x": 1120,
       "y": -56,
       "w": 380,
-      "text": "C \u2014 Tally: the ledger, keeping count"
+      "text": "C \u2014 Tally: the ledger, keeping count",
+      "page": "page-1"
     },
     {
       "id": "lbl-d",
       "x": 1680,
       "y": -56,
       "w": 380,
-      "text": "D \u2014 Monogram: the conventional option, for comparison"
+      "text": "D \u2014 Monogram: the conventional option, for comparison",
+      "page": "page-1"
     },
     {
       "id": "t-a",
@@ -136,20 +185,56 @@
       "w": 420,
       "text": "D \u2014 One giant comma, tail curled all the way round",
       "page": "page-time"
+    },
+    {
+      "id": "l-a",
+      "x": 0,
+      "y": -56,
+      "w": 440,
+      "text": "A \u2014 Quote + clock badge",
+      "page": "page-lit"
+    },
+    {
+      "id": "l-b",
+      "x": 560,
+      "y": -56,
+      "w": 440,
+      "text": "B \u2014 A round bubble and a dial are the same circle",
+      "page": "page-lit"
+    },
+    {
+      "id": "l-c",
+      "x": 1120,
+      "y": -56,
+      "w": 440,
+      "text": "C \u2014 Quote on the dial, where 12 would be",
+      "page": "page-lit"
+    },
+    {
+      "id": "l-d",
+      "x": 1680,
+      "y": -56,
+      "w": 440,
+      "text": "D \u2014 Half quote, half clock",
+      "page": "page-lit"
     }
   ],
   "launch": {
     "view": "canvas",
-    "page": "page-time"
+    "page": "page-lit"
   },
   "pages": [
     {
-      "id": "page-1",
-      "name": "Four directions"
+      "id": "page-lit",
+      "name": "Literal, not clever"
     },
     {
       "id": "page-time",
-      "name": "Quote + clock studies"
+      "name": "Quote + clock studies (failed)"
+    },
+    {
+      "id": "page-1",
+      "name": "Four directions"
     }
   ]
 }
