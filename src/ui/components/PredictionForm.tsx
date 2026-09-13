@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { Field, SegmentedControl, inputClass, primaryButton } from './Field';
+import { Busy } from './Spinner';
 import { Bullets } from './Bullets';
 import {
   CATEGORIES,
@@ -356,7 +357,7 @@ export function PredictionForm({
         {canRedraft && (
           <p className={`mt-2 text-[12px] ${redrafting ? 'text-attention' : 'text-ink-faint'}`}>
             {redrafting
-              ? 'Redrafting from the new wording...'
+              ? <Busy>Redrafting from the new wording...</Busy>
               : 'Not specific enough? Sharpen the wording above. When you leave the box, the fields below are drawn again from it. One model call, only if the wording changed.'}
           </p>
         )}
@@ -672,7 +673,7 @@ export function PredictionForm({
         disabled={problems.length > 0 || busy || redrafting}
         className={`${primaryButton} w-full py-3 text-[17px]`}
       >
-        {busy ? 'Working...' : submitLabel}
+        {busy ? <Busy>Working...</Busy> : submitLabel}
       </button>
     </div>
   );

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Screen } from '../components/Screen';
 import { Icon } from '../components/Icon';
 import { primaryButton } from '../components/Field';
@@ -24,6 +24,8 @@ import { CheckLog, describeSources } from '../components/CheckLog';
 import { ReceiptCard } from '../../receipts/ReceiptCard';
 import { useReceipt } from '../../receipts/useReceipt';
 import { describeProgress } from '../../verification/runPull';
+import { ConfirmDialog } from '../components/Modal';
+import { Busy } from '../components/Spinner';
 import {
   describeDeadline,
   formatCountdown,
@@ -48,6 +50,7 @@ const VERDICTS: PredictionStatus[] = ['hit', 'miss', 'partial', 'ambiguous', 'vo
 export function DetailScreen() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const { data, isLoading } = usePrediction(id);
 
   const { data: log = [] } = useCheckLog(id);
@@ -64,7 +67,8 @@ export function DetailScreen() {
   const remove = useDeletePrediction();
 
   const [showResolve, setShowResolve] = useState(false);
-  const [amending, setAmending] = useState(false);
+  // Reached with ?amend=1 from the feed's press-and-hold menu.
+  const [amending, setAmending] = useState(params.get('amend') === '1');
   const [amendingCriterion, setAmendingCriterion] = useState<string | null>(null);
 
   /**
@@ -553,7 +557,7 @@ export function DetailScreen() {
                 )
               }
             >
-              {receipt.state === 'rendering' ? 'Making the card...' : 'Share the receipt'}
+              {receipt.state === 'rendering' ? <Busy>Making the card...</Busy> : 'Share the receipt'}
             </ActionButton>
           )}
           {p.verificationMode === 'searchable' &&
@@ -562,7 +566,7 @@ export function DetailScreen() {
               onClick={() => pull.mutate({ onlyPredictionId: p.id })}
               disabled={pull.isPending}
             >
-              {pull.isPending ? describeProgress(pull.progress) : 'Check now'}
+              {pull.isPending ? <Busy>{describeProgress(pull.progress)}</Busy> : 'Check now'}
             </ActionButton>
           )}
           {!isResolved(p.status) && (
@@ -579,27 +583,28 @@ export function DetailScreen() {
             </ActionButton>
           )}
           <ActionButton onClick={() => setAmending((v) => !v)}>Amend claim</ActionButton>
-          {/* Two taps, in place. A record nobody can delete by accident is the
-              whole point, and a WebView confirm() dialog looks like a scam. */}
-          {confirmingDelete ? (
-            <>
-              <ActionButton
-                tone="danger"
-                onClick={() => {
-                  remove.mutate(p.id);
-                  navigate('/', { replace: true });
-                }}
-              >
-                Delete for good
-              </ActionButton>
-              <ActionButton onClick={() => setConfirmingDelete(false)}>Keep it</ActionButton>
-            </>
-          ) : (
-            <ActionButton tone="danger" onClick={() => setConfirmingDelete(true)}>
-              Delete
-            </ActionButton>
-          )}
+          {/* A record nobody can delete by accident is the whole point, so
+              the question is asked in a dialog of our own: the WebView's
+              confirm() carries the origin in its title and looks like a scam,
+              and the earlier in-place "Delete for good" swap read as a
+              glitch. */}
+          <ActionButton tone="danger" onClick={() => setConfirmingDelete(true)}>
+            Delete
+          </ActionButton>
         </div>
+        <ConfirmDialog
+          open={confirmingDelete}
+          title="Delete this prediction?"
+          body="It comes off the record, along with its checks and its place in the standings."
+          confirmLabel="Delete"
+          danger
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => {
+            setConfirmingDelete(false);
+            remove.mutate(p.id);
+            navigate('/', { replace: true });
+          }}
+        />
 
         {receipt.error && <p className="mt-2 text-[12px] text-miss">{receipt.error}</p>}
         {receipt.state === 'downloaded' && (
