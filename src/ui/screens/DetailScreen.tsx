@@ -23,6 +23,7 @@ import {
 import { CheckLog, describeSources } from '../components/CheckLog';
 import { ReceiptCard } from '../../receipts/ReceiptCard';
 import { useReceipt } from '../../receipts/useReceipt';
+import { describeProgress } from '../../verification/runPull';
 import {
   describeDeadline,
   formatCountdown,
@@ -561,11 +562,7 @@ export function DetailScreen() {
               onClick={() => pull.mutate({ onlyPredictionId: p.id })}
               disabled={pull.isPending}
             >
-              {pull.isPending
-                ? pull.progress && pull.progress.total > 1
-                  ? `Checking ${pull.progress.done} of ${pull.progress.total}...`
-                  : 'Checking...'
-                : 'Check now'}
+              {pull.isPending ? describeProgress(pull.progress) : 'Check now'}
             </ActionButton>
           )}
           {!isResolved(p.status) && (

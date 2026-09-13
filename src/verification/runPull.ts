@@ -59,7 +59,27 @@ export interface PullOptions {
    * of it is the word "Checking", and there is no way to tell a slow pull from
    * a stuck one.
    */
-  onProgress?: (progress: { done: number; total: number }) => void;
+  onProgress?: (progress: PullProgress) => void;
+}
+
+export interface PullProgress {
+  /** Checks finished so far. */
+  done: number;
+  total: number;
+}
+
+/**
+ * "Checking 2 of 6..." for whatever is showing while a pull runs.
+ *
+ * Counts the check in flight, not the ones finished: the pull reports
+ * `done: 0` before the first check, and a label reading "0 of 6" for the
+ * first minute of a real pull is exactly the "is it hung?" reading the count
+ * exists to remove. The feed and the detail screen once each wrote their own
+ * version and disagreed by one.
+ */
+export function describeProgress(progress: PullProgress | null): string {
+  if (!progress || progress.total <= 1) return 'Checking...';
+  return `Checking ${Math.min(progress.done + 1, progress.total)} of ${progress.total}...`;
 }
 
 /** Six seconds apart keeps a pull under a 10-per-minute ceiling. */

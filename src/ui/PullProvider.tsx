@@ -2,7 +2,7 @@ import { createContext, useContext, useState, type ReactNode } from 'react';
 import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
 import { useDb } from './DbProvider';
 import { createVerifier } from '../verification/registry';
-import { runPull, type PullSummary } from '../verification/runPull';
+import { runPull, type PullProgress, type PullSummary } from '../verification/runPull';
 import { BrowserPageFetcher, type PageFetcher } from '../verification/validateSources';
 import { CapacitorPageFetcher } from '../platform/CapacitorPageFetcher';
 import { isNative } from '../platform';
@@ -10,11 +10,6 @@ import { loadVerifierConfig } from '../lib/keyStore';
 import { DEFAULT_PULL_BUDGET } from '../domain/cadence';
 
 export type PullArgs = { onlyPredictionId?: string } | void;
-
-export interface PullProgress {
-  done: number;
-  total: number;
-}
 
 export type PullHandle = UseMutationResult<PullSummary, Error, PullArgs> & {
   /** How far through the pull is, while one runs. */

@@ -58,6 +58,12 @@ Stated preferences, honored throughout this session:
 - **Prose over bullets.** Short paragraphs. Structure only when items are truly
   discrete. Match length to the task: brief for execution, detailed for
   decisions.
+- **Warn before a usage spike.** Before running anything that fans out into
+  many agents or long autonomous passes (`/code-review max`, workflows,
+  `ultra` anything), say what it will cost in rough terms and let the owner
+  decide. A `/code-review max` on 2026-09-13 spawned ten agents and hit the
+  session cap inside a minute; nine of them died before reporting. Light
+  review by hand is the default; the heavy version needs a yes.
 - **No em dashes.** American English, US dollars, imperial units.
 - Banned words: actually, certainly, absolutely, of course, it's worth noting,
   that being said, needless to say, to be clear, at the end of the day, dive
@@ -196,7 +202,7 @@ read-only on a you-decide bet (PR #14, owner confirmed the Settle flow but
 not the tap); the Standings screen and the receipt share, which nobody has
 looked at this session.
 
-**Install drill.** Install over the previous APK (every build since 2026-09-13
+**Install drill.** Install over the previous APK (every build from f255f7f on
 is signed with the checked-in debug key, so data and the API key survive), wipe
 data in Settings if the seed changed, one pull.
 Settings ends with an "Installed build:" line; the release page title carries
@@ -302,8 +308,8 @@ Errors made across sessions, recorded so they are not repeated:
   background Bash call rather than chained sleeps.
 - **Every APK is signed with `android/debug.keystore`**, checked in, so a new
   build installs over the old one and keeps the database and the saved key.
-  Before 2026-09-13 each build had a throwaway key and every install was an
-  uninstall first, which is why the key had to be pasted every time. The
+  Before f255f7f (2026-09-13 12:52 UTC) each build had a throwaway key and
+  every install was an uninstall first, which is why the key had to be pasted every time. The
   owner asked for a "use test key" checkbox with the key hardcoded instead;
   the repo is public, so that was declined and this is the fix. The one
   remaining uninstall is the move from the last throwaway build to the first

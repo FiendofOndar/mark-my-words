@@ -162,8 +162,8 @@ jobs:
 
           Every build is signed with the same checked-in debug key, so this
           installs over the previous build and keeps your bets and your saved
-          API key. Builds before 2026-09-13 used a throwaway key: coming from
-          one of those, uninstall it first, one last time."
+          API key. Builds before f255f7f (2026-09-13 12:52 UTC) used a throwaway
+          key: coming from one of those, uninstall it first, one last time."
 
           if retry gh release view latest --json tagName >/dev/null 2>&1; then
             retry gh release edit latest --title "Latest build, ${BUILD_TIME}: ${BUILD_LABEL}" --notes "$NOTES" --target "$GITHUB_SHA"
