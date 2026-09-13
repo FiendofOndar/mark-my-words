@@ -313,7 +313,14 @@ export function PredictionForm({
         </section>
       )}
 
-      <Field label="What was said" hint="Verbatim. This is never edited later.">
+      <Field
+        label="What was said"
+        hint={
+          lockStatement
+            ? 'Verbatim. This is never edited.'
+            : 'Editable until it goes on the record. After that it is verbatim and never edited.'
+        }
+      >
         <textarea
           value={v.rawStatement}
           onChange={(e) => set('rawStatement', e.target.value)}
