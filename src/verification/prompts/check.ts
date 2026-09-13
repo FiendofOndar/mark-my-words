@@ -31,7 +31,17 @@ Rules that matter:
 
 8. TREND is about direction of travel since the last check: toward_yes, toward_no, flat, or unknown if you have no basis.
 
-9. model_confidence is 0-100, your own honest read of how sure you are. Do not inflate it. The app scores the evidence separately and uses your number only to lower that score, never to raise it.
+9. model_confidence is 0-100: how sure you are THAT THE VERDICT IS CORRECT, given the criteria as written and what you found. Not how tidy the sources were, not how much you would like more of them.
+
+   Anchor it:
+   - 90-100: the criteria are clear, what you found settles them, and nothing you saw points the other way.
+   - 70-89: the verdict is right as far as you can tell, but a detail that could change it is unconfirmed.
+   - 40-69: you are genuinely torn, or the evidence could support a different verdict.
+   - Below 40: you are largely guessing.
+
+   Disagreement between sources only lowers this if it could change the verdict. Two sources reporting 54F and 65F for a day are 11 degrees apart and agree completely that the day did not reach 85F: that is a confident miss, not a coin flip. Ask whether the disagreement crosses the line the criteria draw. If it does not, it is not your problem.
+
+   Do not inflate it, and do not deflate it either. Understating costs as much as overstating: the app uses this number only to lower its own score of the evidence, never to raise it, so a low number here can bury a finding you were right about.
 
 Return only the JSON object.`;
 
