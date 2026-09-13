@@ -17,13 +17,13 @@
       --ink: oklch(0.24 0.006 60);
       --ink-dim: oklch(0.45 0.02 70);
       --ink-faint: oklch(0.6 0.015 70);
-      --accent-ink: oklch(0.48 0.13 278);
-      --glow: oklch(0.85 0.075 282 / 0.62);
+      --accent-ink: oklch(0.44 0.045 265);
+      --glow: oklch(0.84 0.06 264 / 0.42);
       --miss: oklch(0.48 0.17 27);
 
       /* the AI panel is a raised warm surface, lifted off the page by a warm shadow */
       --panel: oklch(0.99 0.012 95);
-      --panel-edge: oklch(0.84 0.045 278);
+      --panel-edge: oklch(0.84 0.03 265);
       --panel-rule: oklch(0.88 0.028 280);
 
       width: 375px; height: 980px; box-sizing: border-box; overflow: hidden;
@@ -44,7 +44,7 @@
     .panel { margin: 26px 22px 0 22px; padding: 20px 22px; border-radius: 14px;
       background: var(--panel); color: var(--ink);
       border: 1px solid var(--panel-edge);
-      box-shadow: 0 16px 36px color-mix(in srgb, #6b6fae 28%, transparent); }
+      box-shadow: 0 16px 36px color-mix(in srgb, #4e5f8c 24%, transparent); }
     .panel .tag { font-size: 10px; letter-spacing: 1.6px; color: var(--ink-faint); text-transform: uppercase; font-weight: 600; margin-bottom: 11px; }
     .panel .verdict { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 30px; margin: 0 0 9px 0; color: var(--miss); letter-spacing: 0.5px; }
     .panel .detail { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; color: var(--ink-dim); line-height: 1.4; margin: 0 0 14px 0; }

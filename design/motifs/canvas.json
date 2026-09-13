@@ -1,55 +1,12 @@
 {
   "artboards": [
     {
-      "file": "Main.dc.html",
-      "x": 0,
-      "y": -300,
-      "w": 1400,
-      "h": 230
-    },
-    {
-      "file": "GrainGlass.dc.html",
+      "file": "Status.dc.html",
       "x": 0,
       "y": 0,
-      "w": 400,
-      "h": 460
-    },
-    {
-      "file": "EditorialQuote.dc.html",
-      "x": 480,
-      "y": 0,
-      "w": 400,
-      "h": 460
-    },
-    {
-      "file": "CitationNetwork.dc.html",
-      "x": 960,
-      "y": 0,
-      "w": 400,
-      "h": 460
-    },
-    {
-      "file": "MeshDepth.dc.html",
-      "x": 1440,
-      "y": 0,
-      "w": 400,
-      "h": 460
-    },
-    {
-      "file": "AdoptedTheme.dc.html",
-      "x": 0,
-      "y": 0,
-      "w": 360,
-      "h": 680,
-      "page": "page-2"
-    },
-    {
-      "file": "SettingsAccentPicker.dc.html",
-      "x": 460,
-      "y": 0,
-      "w": 375,
-      "h": 812,
-      "page": "page-2"
+      "w": 1180,
+      "h": 560,
+      "page": "page-status"
     },
     {
       "file": "MergedFeed.dc.html",
@@ -57,187 +14,187 @@
       "y": 0,
       "w": 375,
       "h": 812,
-      "page": "page-merged"
+      "page": "page-current"
     },
     {
       "file": "MergedDetail.dc.html",
-      "x": 460,
+      "x": 495,
       "y": 0,
       "w": 375,
       "h": 1100,
-      "page": "page-merged"
-    },
-    {
-      "file": "MergedDetailLight.dc.html",
-      "x": 920,
-      "y": 0,
-      "w": 375,
-      "h": 980,
-      "page": "page-merged"
-    },
-    {
-      "file": "CombinedFullWash.dc.html",
-      "x": 0,
-      "y": 0,
-      "w": 360,
-      "h": 680,
-      "page": "page-3"
-    },
-    {
-      "file": "CombinedFramed.dc.html",
-      "x": 440,
-      "y": 0,
-      "w": 360,
-      "h": 680,
-      "page": "page-3"
+      "page": "page-current"
     },
     {
       "file": "CheckQueued.dc.html",
-      "x": 0,
+      "x": 990,
       "y": 0,
       "w": 375,
       "h": 1100,
-      "page": "page-checks"
+      "page": "page-current"
     },
     {
       "file": "CheckStates.dc.html",
-      "x": 470,
+      "x": 1485,
       "y": 0,
       "w": 430,
       "h": 1120,
-      "page": "page-checks"
+      "page": "page-current"
+    },
+    {
+      "file": "MergedDetailLight.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 375,
+      "h": 980,
+      "page": "page-light"
+    },
+    {
+      "file": "SettingsAccentPicker.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 375,
+      "h": 812,
+      "page": "page-super"
+    },
+    {
+      "file": "AdoptedTheme.dc.html",
+      "x": 495,
+      "y": 0,
+      "w": 360,
+      "h": 680,
+      "page": "page-super"
     },
     {
       "file": "AccentTextOptions.dc.html",
-      "x": 990,
+      "x": 975,
       "y": 0,
       "w": 430,
       "h": 1240,
-      "page": "page-checks"
+      "page": "page-super"
     },
     {
       "file": "AlphaTextAcrossAccents.dc.html",
-      "x": 0,
-      "y": 1380,
+      "x": 1525,
+      "y": 0,
       "w": 1360,
       "h": 820,
-      "page": "page-checks"
+      "page": "page-super"
+    },
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": -320,
+      "w": 1400,
+      "h": 230,
+      "page": "page-history"
+    },
+    {
+      "file": "GrainGlass.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 400,
+      "h": 460,
+      "page": "page-history"
+    },
+    {
+      "file": "EditorialQuote.dc.html",
+      "x": 480,
+      "y": 0,
+      "w": 400,
+      "h": 460,
+      "page": "page-history"
+    },
+    {
+      "file": "CitationNetwork.dc.html",
+      "x": 960,
+      "y": 0,
+      "w": 400,
+      "h": 460,
+      "page": "page-history"
+    },
+    {
+      "file": "MeshDepth.dc.html",
+      "x": 1440,
+      "y": 0,
+      "w": 400,
+      "h": 460,
+      "page": "page-history"
+    },
+    {
+      "file": "CombinedFullWash.dc.html",
+      "x": 1920,
+      "y": 0,
+      "w": 360,
+      "h": 680,
+      "page": "page-history"
+    },
+    {
+      "file": "CombinedFramed.dc.html",
+      "x": 2360,
+      "y": 0,
+      "w": 360,
+      "h": 680,
+      "page": "page-history"
     }
   ],
   "annotations": [
     {
-      "id": "label-adopted",
+      "id": "s-0",
       "x": 0,
-      "y": -60,
-      "w": 420,
-      "text": "Adopted theme \u2014 try the accent color chip above the card",
-      "page": "page-2"
+      "y": -56,
+      "w": 620,
+      "text": "Build from these.",
+      "page": "page-current"
     },
     {
-      "id": "label-settings",
-      "x": 460,
-      "y": -60,
-      "w": 380,
-      "text": "Settings picker \u2014 click a swatch, watch the preview above it update",
-      "page": "page-2"
-    },
-    {
-      "id": "label-mfeed",
+      "id": "s-1",
       "x": 0,
-      "y": -60,
-      "w": 380,
-      "text": "Feed \u2014 Box Score density, serif claims, glow only on the row that needs you",
-      "page": "page-merged"
+      "y": -56,
+      "w": 620,
+      "text": "Hue aligned; the prose alphas still need their own pass.",
+      "page": "page-light"
     },
     {
-      "id": "label-mdetail",
-      "x": 460,
-      "y": -60,
-      "w": 380,
-      "text": "Detail \u2014 Spotlight up top, dense mono check log below. Glow stays amber on a BUSTED",
-      "page": "page-merged"
-    },
-    {
-      "id": "label-mlight",
-      "x": 920,
-      "y": -60,
-      "w": 380,
-      "text": "Same screen, light mode \u2014 warm page, glow wash, AI panel raised on a warm shadow",
-      "page": "page-merged"
-    },
-    {
-      "id": "label-fullwash",
+      "id": "s-2",
       "x": 0,
-      "y": -50,
-      "w": 340,
-      "text": "Archived \u2014 Full Wash (not picked)",
-      "page": "page-3"
+      "y": -56,
+      "w": 620,
+      "text": "The picker that was cut. Kept for the argument, not the design.",
+      "page": "page-super"
     },
     {
-      "id": "label-framed",
-      "x": 440,
-      "y": -50,
-      "w": 340,
-      "text": "Archived \u2014 Framed (not picked)",
-      "page": "page-3"
-    },
-    {
-      "id": "label-cqueued",
+      "id": "s-3",
       "x": 0,
-      "y": -60,
-      "w": 400,
-      "text": "Waiting on you \u2014 gates are the hero, not a hidden detail",
-      "page": "page-checks"
-    },
-    {
-      "id": "label-cstates",
-      "x": 470,
-      "y": -60,
-      "w": 400,
-      "text": "Every check-log state, in the app's own wording",
-      "page": "page-checks"
-    },
-    {
-      "id": "label-accenttext",
-      "x": 990,
-      "y": -60,
-      "w": 400,
-      "text": "Accent text \u2014 four treatments of the same panel",
-      "page": "page-checks"
-    },
-    {
-      "id": "label-alphaaccents",
-      "x": 0,
-      "y": 1320,
-      "w": 480,
-      "text": "Alpha text under four accents \u2014 flat neutral on top, reduced alpha below",
-      "page": "page-checks"
+      "y": -56,
+      "w": 620,
+      "text": "Drawn before the accent was settled. Amber on purpose.",
+      "page": "page-history"
     }
   ],
   "pages": [
     {
-      "id": "page-1",
-      "name": "Individual motifs"
+      "id": "page-status",
+      "name": "Start here"
     },
     {
-      "id": "page-2",
-      "name": "Adopted theme"
+      "id": "page-current",
+      "name": "Current theme"
     },
     {
-      "id": "page-merged",
-      "name": "Merged theme (dark + light)"
+      "id": "page-light",
+      "name": "Light theme"
     },
     {
-      "id": "page-checks",
-      "name": "Check log + gates"
+      "id": "page-super",
+      "name": "Superseded \u2014 accent picker"
     },
     {
-      "id": "page-3",
-      "name": "Archived combined options"
+      "id": "page-history",
+      "name": "How we got here"
     }
   ],
   "launch": {
     "view": "canvas",
-    "page": "page-checks"
+    "page": "page-status"
   }
 }
