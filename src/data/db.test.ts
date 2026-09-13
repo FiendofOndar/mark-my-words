@@ -561,13 +561,15 @@ describe('demo seed', () => {
     seedDemoData(db);
 
     const all = db.predictions.list();
-    expect(all.length).toBe(9);
-    expect(all.filter((p) => p.status === 'open').length).toBe(7);
+    expect(all.length).toBe(12);
+    expect(all.filter((p) => p.status === 'open').length).toBe(10);
     expect(all.filter((p) => p.lateHitAt).length).toBe(1);
     expect(all.filter((p) => p.status === 'hit').length).toBe(1);
     expect(all.filter((p) => p.verificationMode === 'manual').length).toBe(1);
     expect(all.filter((p) => p.deadlineType === 'window').length).toBe(1);
-    expect(all.filter((p) => p.deadlineType === 'event').length).toBe(1);
+    // The live fixtures: one negative claim, one that can still happen late.
+    expect(all.filter((p) => p.polarity === 'negative').length).toBe(1);
+    expect(all.filter((p) => p.status === 'open' && p.canHappenLate).length).toBe(1);
   });
 
   it('produces a usable author record', () => {
@@ -575,7 +577,7 @@ describe('demo seed', () => {
     const me = db.authors.findByName('Me')!;
     const record = tallyRecord(db.predictions.list({ authorId: me.id }));
     expect(record.hit).toBe(1);
-    expect(record.open).toBe(2);
+    expect(record.open).toBe(3);
   });
 
   it('seeds a weather claim that is already past its deadline, ready to check', () => {

@@ -334,27 +334,26 @@ is for.
 - **The API key never touches the database**, because Settings exports the whole
   database file.
 
-## The two live test fixtures
+## The six live test fixtures
 
-The seed carries two predictions that exist to be checked against a real key,
-chosen to be opposites on every axis that matters. Running one pull settles both
-and produces two independent data points per attempt.
+The seed carries six predictions that exist to be checked against a real key,
+each testing a different shape of check. One pull covers all six, which is why
+the per-pull budget is six and why there are not more.
 
-| | Anacortes weather | Super Bowl LIX |
+| fixture | expected | what it tests |
 |---|---|---|
-| verdict | miss | hit |
-| criteria | one numeric threshold | two discrete facts |
-| place | pinned to a locality | none |
-| sources | a .gov page that rewrites hourly | static recaps from Feb 2025 |
-| tier | primary | major outlet, plus nfl.com |
+| Anacortes weather | miss, settled | numeric threshold, pinned place, a .gov page that rewrites hourly |
+| Super Bowl LIX | hit, settled | two discrete facts, static recaps; caught the criterion index bug |
+| Return of the King | hit, settled | a film plot point: nothing measured, only what happens in the story |
+| Oppenheimer Oscars | partial, queued | one criterion holds and one fails; the mixed ticks and the approval card |
+| Moon landing (negative) | hit, queued | an absence: the model finds nothing, the app queues the hit past the deadline |
+| GTA VI | no_change, open | an unresolved claim: trend, countdown, and `canHappenLate` |
 
-The Super Bowl one is the two-criterion fixture, which is what caught the
-criterion index being off by one: its headline criterion showed unticked on a
-HIT. Its recap pages are static, so its links should always come back green.
-
-Its result was verified against live sources before seeding. A fabricated demo
-verdict about a real team has already misled someone once here; do not do it
-again.
+Every fact in them was verified against live sources before seeding, and the
+commit that added each says so. A fabricated demo verdict about a real team has
+already misled someone once here; do not do it again. Two other open seeds (the
+rogue-drone claim and the CNN winter forecast) are also searchable and will be
+checked when the budget allows; neither can resolve yet.
 
 ## Unverified
 
