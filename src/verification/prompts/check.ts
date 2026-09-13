@@ -42,11 +42,7 @@ Rules that matter:
    - ambiguous: the evidence cannot settle it, or the criteria do not cleanly apply
    - no_change: still open, nothing decisive found
 
-12. CRITERIA_STATUS IS ONE ENTRY PER CRITERION, in the order given. "index" is the criterion's number as listed below, starting at 1: the first criterion is index 1, the second is index 2. "satisfied" is whether that criterion was met. "basis" is how you know, and it is about the answer, not about the answer being yes:
-   - quoted: a source you cited states it, whether it states that it happened or that it did not
-   - inferred: you are reasoning from what you found rather than reading it off the page
-   - none: you could not establish it either way
-   A criterion you showed was NOT met is "quoted". Returning "none" there tells the app you found nothing, when you found the opposite of the claim.
+12. CRITERIA_STATUS IS ONE ENTRY PER CRITERION, in the order given. "index" is the criterion's number as listed below, starting at 1: the first criterion is index 1, the second is index 2. "satisfied" is whether that criterion was met, and "why" is the one line of evidence that says so, whether it says it happened or that it did not.
 
 13. SUMMARY IS ONE SENTENCE, TWO AT MOST. It is shown under the verdict as the reason, so lead with the fact that settles it and put the number, date or name in it. "Anacortes reached a high of 66F on September 11, short of the 85F called for" says everything. Do not restate the claim, do not narrate your search, do not hedge in it.
 
@@ -132,10 +128,9 @@ export const CHECK_RESPONSE_SCHEMA = {
         properties: {
           index: { type: 'INTEGER' },
           satisfied: { type: 'BOOLEAN' },
-          basis: { type: 'STRING', enum: ['quoted', 'inferred', 'none'] },
           why: { type: 'STRING' },
         },
-        required: ['index', 'satisfied', 'basis', 'why'],
+        required: ['index', 'satisfied', 'why'],
       },
     },
     sources: {

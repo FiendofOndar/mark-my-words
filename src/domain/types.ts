@@ -123,7 +123,6 @@ export interface Prediction {
   // state
   status: PredictionStatus;
   trend: Trend | null;
-  confidenceScore: number | null;
   resolvedAt: Iso | null;
   resolvedBy: ResolvedBy | null;
   lateHitAt: Iso | null;
@@ -179,8 +178,8 @@ export interface Check {
   model: string | null;
   proposedVerdict: PredictionStatus | 'no_change' | null;
   proposedTrend: Trend | null;
-  rubricScore: number | null;
-  rubricBreakdown: string | null;
+  /** What the app noticed about the citations that kept it from acting alone. */
+  gates: string[];
   modelConfidence: number | null;
   summary: string;
   outcome: CheckOutcome;

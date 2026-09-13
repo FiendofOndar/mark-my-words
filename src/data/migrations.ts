@@ -275,6 +275,20 @@ ALTER TABLE evidence_v7 RENAME TO evidence;
 CREATE INDEX idx_evidence_check ON evidence(check_id);
 `,
   },
+  /*
+   * The evidence score is gone. It decided nothing, and the gates were the
+   * only part of its breakdown anything read. The column is renamed rather
+   * than replaced so existing rows keep their gates (parseGates reads the old
+   * object shape). rubric_score and predictions.confidence_score stay in
+   * place, unwritten: dropping a column is a table rebuild for no gain.
+   */
+  {
+    version: 8,
+    name: 'gates instead of a score',
+    sql: `
+ALTER TABLE checks RENAME COLUMN rubric_breakdown TO gates;
+`,
+  },
 ];
 
 export function currentVersion(driver: SqlDriver): number {

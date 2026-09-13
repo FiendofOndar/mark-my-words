@@ -449,9 +449,7 @@ export function useApproveVerdict() {
     } else {
       db.predictions.update(
         args.predictionId,
-        resolve(prediction, check.proposedVerdict, 'user', new Date(), {
-          confidenceScore: check.rubricScore ?? undefined,
-        }),
+        resolve(prediction, check.proposedVerdict, 'user', new Date()),
       );
     }
     db.checks.markActedOn(args.checkId, 'auto_resolved');

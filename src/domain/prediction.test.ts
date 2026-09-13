@@ -48,10 +48,9 @@ describe('transitions', () => {
 describe('resolving', () => {
   it('records who resolved it and clears the trend', () => {
     const p = makePrediction();
-    const patch = resolve(p, 'hit', 'auto', NOW, { confidenceScore: 97 });
+    const patch = resolve(p, 'hit', 'auto', NOW);
     expect(patch.status).toBe('hit');
     expect(patch.resolvedBy).toBe('auto');
-    expect(patch.confidenceScore).toBe(97);
     expect(patch.trend).toBeNull();
   });
 

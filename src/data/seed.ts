@@ -122,16 +122,7 @@ export function seedDemoData(db: Db): void {
       model: 'demo',
       proposedVerdict: 'no_change',
       proposedTrend: 'flat',
-      rubricScore: 12,
-      rubricBreakdown: {
-        independentSources: 0,
-        sourceTier: 0,
-        urlValidation: 0,
-        criteriaCoverage: 0,
-        temporalSanity: 0,
-        capApplied: false,
-        gates: ['No sources were cited.'],
-      },
+      gates: ['No sources were cited.'],
       modelConfidence: 12,
       summary: 'The series is tied at three. Nothing settled yet.',
       outcome: 'no_change',
@@ -140,7 +131,7 @@ export function seedDemoData(db: Db): void {
 
     /*
      * Queued rather than resolved because the model reported 68, under the 70
-     * the rubric treats as sure, which is the honest reason this sits waiting
+     * the app treats as sure, which is the honest reason this sits waiting
      * for a person. The evidence carries no quoted text and no fetch result,
      * because nothing here was fetched: these are real addresses the app has
      * never opened, and saying otherwise is what went wrong last time.
@@ -152,16 +143,7 @@ export function seedDemoData(db: Db): void {
       model: 'demo',
       proposedVerdict: 'hit',
       proposedTrend: 'toward_yes',
-      rubricScore: 65,
-      rubricBreakdown: {
-        independentSources: 30,
-        sourceTier: 10,
-        urlValidation: 0,
-        criteriaCoverage: 15,
-        temporalSanity: 10,
-        capApplied: false,
-        gates: [],
-      },
+      gates: [],
       modelConfidence: 68,
       summary:
         'Los Angeles won Game 7 in Toronto 5-4 in eleven innings on November 1, taking the series 4-3.',
@@ -363,7 +345,6 @@ export function seedDemoData(db: Db): void {
       resolvedAt: '2024-12-05T18:00:00.000Z',
       resolvedBy: 'user',
       trend: null,
-      confidenceScore: 97,
       lastCheckedAt: '2024-12-05T18:00:00.000Z',
       checkCount: 6,
       updatedAt: nowIso(),

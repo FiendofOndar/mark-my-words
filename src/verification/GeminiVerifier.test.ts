@@ -204,7 +204,7 @@ const CHECK_JSON = JSON.stringify({
   verdict: 'hit',
   trend: 'toward_yes',
   summary: 'The Eagles beat the Chiefs 40-22.',
-  criteria_status: [{ index: 0, satisfied: true, basis: 'quoted', why: 'Final score.' }],
+  criteria_status: [{ index: 0, satisfied: true, why: 'Final score.' }],
   sources: [
     {
       url: 'https://apnews.com/a',

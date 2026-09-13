@@ -96,7 +96,6 @@ export interface CitedSource {
 export interface CriterionStatus {
   index: number;
   satisfied: boolean;
-  basis: 'quoted' | 'inferred' | 'none';
   why: string;
 }
 

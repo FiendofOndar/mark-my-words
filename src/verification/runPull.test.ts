@@ -42,7 +42,7 @@ function hitResult(confidence = 98): CheckResult {
     verdict: 'hit',
     trend: 'toward_yes',
     summary: 'It happened, widely reported.',
-    criteriaStatus: [{ index: 0, satisfied: true, basis: 'quoted', why: 'Reported.' }],
+    criteriaStatus: [{ index: 0, satisfied: true, why: 'Reported.' }],
     sources: ['AP', 'Reuters', 'BBC'].map((publisher, i) => ({
       url: `https://outlet${i}.com/story`,
       title: 'It happened',

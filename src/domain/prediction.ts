@@ -182,7 +182,7 @@ export function resolve(
   verdict: PredictionStatus,
   by: ResolvedBy,
   now: Date = new Date(),
-  opts: { confidenceScore?: number; lateWatch?: LateWatchPeriod } = {},
+  opts: { lateWatch?: LateWatchPeriod } = {},
 ): PredictionPatch {
   if (!isResolved(verdict)) throw new InvalidTransitionError(p.status, verdict);
   if (!canTransition(p.status, verdict)) throw new InvalidTransitionError(p.status, verdict);
@@ -193,7 +193,6 @@ export function resolve(
     resolvedAt: iso,
     resolvedBy: by,
     trend: null,
-    confidenceScore: opts.confidenceScore ?? null,
     updatedAt: iso,
   };
 
@@ -217,7 +216,6 @@ export function reopen(p: Prediction, now: Date = new Date()): PredictionPatch {
     status: 'open',
     resolvedAt: null,
     resolvedBy: 'user_override',
-    confidenceScore: null,
     lateWatchUntil: null,
     trend: 'unknown',
     updatedAt: iso,

@@ -64,7 +64,7 @@ function result(overrides: Partial<CheckResult> = {}): CheckResult {
     verdict: 'hit',
     trend: 'toward_yes',
     summary: 'It happened.',
-    criteriaStatus: [{ index: 0, satisfied: true, basis: 'quoted', why: 'Reported.' }],
+    criteriaStatus: [{ index: 0, satisfied: true, why: 'Reported.' }],
     sources: [
       citedSource(),
       citedSource({ url: 'https://reuters.com/a', publisher: 'Reuters' }),
@@ -92,13 +92,12 @@ function ctx(prediction: Prediction, texts = ['The thing happens']) {
 }
 
 describe('a decisive, well-sourced check', () => {
-  it('auto-resolves and stamps the score', async () => {
+  it('auto-resolves', async () => {
     const plan = await runCheck(deps(result()), ctx(makePrediction()));
 
     expect(plan.outcome).toBe('resolved');
     expect(plan.predictionPatch).toMatchObject({ status: 'hit', resolvedBy: 'auto' });
-    // No threshold here any more: the verdict decides and the score describes.
-    expect(plan.predictionPatch!.confidenceScore).toBeGreaterThan(0);
+    expect(plan.check!.gates).toEqual([]);
     expect(plan.check!.outcome).toBe('auto_resolved');
     expect(plan.check!.evidence).toHaveLength(3);
     expect(plan.countsAsChecked).toBe(true);
@@ -120,8 +119,8 @@ describe('a decisive, well-sourced check', () => {
       deps(
         result({
           criteriaStatus: [
-            { index: 0, satisfied: true, basis: 'quoted', why: '' },
-            { index: 1, satisfied: false, basis: 'none', why: '' },
+            { index: 0, satisfied: true, why: '' },
+            { index: 1, satisfied: false, why: '' },
           ],
         }),
       ),
@@ -145,7 +144,7 @@ describe('a check that should not decide anything', () => {
     expect(plan.predictionPatch!.status).toBeUndefined();
   });
 
-  it('queues a verdict the rubric will not auto-resolve', async () => {
+  it('queues a verdict the model is not sure of', async () => {
     const plan = await runCheck(
       deps(result({ modelConfidence: 60 })),
       ctx(makePrediction()),
@@ -162,7 +161,7 @@ describe('a check that should not decide anything', () => {
       ctx(makePrediction()),
     );
     expect(plan.outcome).toBe('queued');
-    expect(plan.rubric!.gates.join(' ')).toMatch(/one independent source/i);
+    expect(plan.assessment!.gates.join(' ')).toMatch(/one independent source/i);
   });
 
   it('never auto-resolves a prediction the user reserved for themselves', async () => {
@@ -186,8 +185,6 @@ describe('source validation feeds the decision', () => {
     );
     expect(plan.sources.every((s) => s.fetchStatus === 'quote_not_found')).toBe(true);
     expect(plan.outcome).toBe('resolved');
-    // It still costs points, so the log says the app could not stand it up.
-    expect(plan.rubric!.breakdown.urlValidation).toBe(4);
   });
 
   it('stands the check up on the figures when the wording has moved', async () => {
@@ -216,7 +213,6 @@ describe('source validation feeds the decision', () => {
     );
     expect(plan.sources.every((s) => s.fetchStatus === 'facts_found')).toBe(true);
     expect(plan.outcome).toBe('resolved');
-    expect(plan.rubric!.breakdown.urlValidation).toBe(16);
   });
 
   it('treats an unreachable citation as a reason to stop', async () => {
@@ -225,7 +221,7 @@ describe('source validation feeds the decision', () => {
       ctx(makePrediction()),
     );
     expect(plan.outcome).not.toBe('resolved');
-    expect(plan.rubric!.gates.join(' ')).toMatch(/invented/i);
+    expect(plan.assessment!.gates.join(' ')).toMatch(/invented/i);
   });
 
   it('resolves when sources could not be read at all, since that accuses nobody', () => {
@@ -236,7 +232,7 @@ describe('source validation feeds the decision', () => {
       ctx(makePrediction()),
     ).then((plan) => {
       expect(plan.outcome).toBe('resolved');
-      expect(plan.rubric!.gates).toEqual([]);
+      expect(plan.assessment!.gates).toEqual([]);
     });
   });
 
@@ -248,7 +244,7 @@ describe('source validation feeds the decision', () => {
       ctx(makePrediction()),
     );
     expect(plan.outcome).toBe('queued');
-    expect(plan.rubric!.gates.join(' ')).toMatch(/invented citations/i);
+    expect(plan.assessment!.gates.join(' ')).toMatch(/invented citations/i);
   });
 });
 

@@ -73,11 +73,10 @@ function outcomeLabel(check: Check): string {
 /**
  * What the app actually established, as a count.
  *
- * This slot used to read "88/100", which sounded like a probability that the
- * verdict was right. It was a composite of five weighted dimensions describing
- * the citation paperwork, and once the verdict stopped depending on it the
- * number implied a precision it never had. Sources confirmed is the part the
- * app knows first-hand: it fetched those pages and found the quoted line.
+ * This slot used to read "88/100", a composite of five weighted dimensions
+ * describing the citation paperwork. It decided nothing and read as a
+ * probability that the verdict was right, so it is gone. Sources confirmed is
+ * the part the app knows first-hand: it fetched those pages itself.
  */
 export function describeSources(evidence: Evidence[]): string {
   if (evidence.length === 0) return 'no sources';
@@ -157,7 +156,7 @@ export function CheckLog({
                 One of them asserts a World Series winner for a season that has
                 not been played. */}
             {check.provider === 'demo' && <Pill tone="warn">Sample</Pill>}
-            {check.rubricScore !== null && <ScoreChip check={check} evidence={evidence} />}
+            {check.outcome !== 'error' && <SourcesChip check={check} evidence={evidence} />}
           </div>
 
           {check.id !== summaryShownAbove && (
@@ -202,10 +201,7 @@ export function CheckLog({
   );
 }
 
-function ScoreChip({ check, evidence }: { check: Check; evidence: Evidence[] }) {
-  const breakdown = parseBreakdown(check.rubricBreakdown);
-  const gates = breakdown?.gates ?? [];
-
+function SourcesChip({ check, evidence }: { check: Check; evidence: Evidence[] }) {
   return (
     <details className="w-full">
       {/* A summary is display:list-item, so once the details opened inside a
@@ -214,27 +210,18 @@ function ScoreChip({ check, evidence }: { check: Check; evidence: Evidence[] }) 
       <summary className="inline-flex w-fit cursor-pointer list-none rounded-full border border-rule px-2 py-0.5 text-[11px] text-ink-dim">
         {describeSources(evidence)}
       </summary>
-      <div className="mt-2 rounded border border-rule bg-surface p-2.5 text-[12px]">
-        {breakdown && (
-          <dl className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1 text-ink-faint">
-            <Row label="Independent sources" value={breakdown.independentSources} max={30} />
-            <Row label="Source tier" value={breakdown.sourceTier} max={25} />
-            <Row label="Links verified" value={breakdown.urlValidation} max={20} />
-            <Row label="Criteria covered" value={breakdown.criteriaCoverage} max={15} />
-            <Row label="Dates make sense" value={breakdown.temporalSanity} max={10} />
-          </dl>
+      <div className="mt-2 rounded border border-rule bg-surface p-2.5 text-[12px] text-ink-faint">
+        {/* The reasons the app did not act on its own, if any. These are the
+            answer to the only question this panel is opened to ask. */}
+        {check.gates.length > 0 ? (
+          <Bullets items={check.gates} className="text-partial" />
+        ) : (
+          <p>Nothing about the citations stopped the app acting on this.</p>
         )}
-        {/* Still here, one layer down, because it is useful when a check goes
-            wrong. It just is not the headline any more. */}
-        <p className="mt-2 text-ink-faint">
-          Evidence scored {check.rubricScore}/100
-          {check.modelConfidence !== null ? `, model confidence ${check.modelConfidence}/100` : ''}.
-          The verdict does not depend on it.
-        </p>
+        {check.modelConfidence !== null && (
+          <p className="mt-2">The model put its confidence at {check.modelConfidence}/100.</p>
+        )}
         <SearchesRun queries={check.searchQueries} />
-        {gates.length > 0 && (
-          <Bullets items={gates} className="mt-2 text-partial" />
-        )}
       </div>
     </details>
   );
@@ -267,26 +254,6 @@ function SearchesRun({ queries }: { queries: string[] | null }) {
         ))}
       </ul>
     </details>
-  );
-}
-
-/**
- * One line of the rubric.
- *
- * The lines that fell short are tinted, because they are the answer to the only
- * question this panel is opened to ask: why did this not resolve on its own?
- * Every row looked the same, so finding the 10/20 among four perfect scores
- * meant reading all five.
- */
-function Row({ label, value, max }: { label: string; value: number; max: number }) {
-  const short = value < max;
-  return (
-    <>
-      <dt className={short ? 'text-partial' : undefined}>{label}</dt>
-      <dd className={`tabular-nums ${short ? 'text-partial' : ''}`}>
-        {value}/{max}
-      </dd>
-    </>
   );
 }
 
@@ -332,23 +299,4 @@ function EvidenceRow({ source }: { source: Evidence }) {
       </div>
     </li>
   );
-}
-
-interface Breakdown {
-  independentSources: number;
-  sourceTier: number;
-  urlValidation: number;
-  criteriaCoverage: number;
-  temporalSanity: number;
-  capApplied: boolean;
-  gates?: string[];
-}
-
-function parseBreakdown(raw: string | null): Breakdown | null {
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as Breakdown;
-  } catch {
-    return null;
-  }
 }
