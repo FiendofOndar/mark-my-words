@@ -285,9 +285,16 @@ export function DetailScreen() {
 
       {queuedVerdict && (
         <section className="border-b border-rule bg-partial/5 px-5 py-5">
-          <h2 className="text-[11px] font-semibold tracking-wide text-partial uppercase">
-            Verdict ready for you
-          </h2>
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-[11px] font-semibold tracking-wide text-partial uppercase">
+              Verdict ready for you
+            </h2>
+            {/* The seeded demo verdict says the Cardinals took a World Series
+                that has not been played, citing example.com under real wire
+                service names. Presented on this card it is indistinguishable
+                from a real finding, and it was believed. */}
+            {queuedVerdict.provider === 'demo' && <Pill tone="warn">Sample</Pill>}
+          </div>
           <p className="mt-2 font-display text-[17px] leading-snug text-ink">
             {STATUS_LABEL[queuedVerdict.proposedVerdict as PredictionStatus]}
             {queuedVerdict.rubricScore !== null && (

@@ -1,6 +1,6 @@
-import type { Check, Evidence, FetchStatus } from '../../domain/types';
+import type { Check, Evidence, FetchStatus, PredictionStatus } from '../../domain/types';
 import type { CheckLogEntry } from '../queries';
-import { formatDate } from '../../domain/format';
+import { STATUS_LABEL, formatDate } from '../../domain/format';
 import { Pill } from './Stamp';
 import { Bullets } from './Bullets';
 
@@ -40,6 +40,23 @@ const OUTCOME_LABEL: Record<Check['outcome'], string> = {
   error: 'Failed',
 };
 
+/**
+ * What this check actually concluded.
+ *
+ * A check the app held for thin evidence is stored as `no_change`, the same as
+ * one that genuinely found nothing. On screen both read "No change", so a model
+ * that proposed a miss and was overruled by the scoring looked identical to a
+ * model that had nothing to say. The proposed verdict is on the row; use it.
+ */
+function outcomeLabel(check: Check): string {
+  const held =
+    check.outcome === 'no_change' &&
+    check.proposedVerdict !== null &&
+    check.proposedVerdict !== 'no_change';
+
+  return held ? `Held: ${STATUS_LABEL[check.proposedVerdict as PredictionStatus]}` : OUTCOME_LABEL[check.outcome];
+}
+
 export function CheckLog({
   entries,
   /**
@@ -69,9 +86,12 @@ export function CheckLog({
         <li key={check.id} className="border-l border-rule pl-3">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
             <span className="text-[13px] text-ink-faint">{formatDate(check.ranAt)}</span>
-            <Pill tone={check.outcome === 'error' ? 'warn' : 'muted'}>
-              {OUTCOME_LABEL[check.outcome]}
-            </Pill>
+            <Pill tone={check.outcome === 'error' ? 'warn' : 'muted'}>{outcomeLabel(check)}</Pill>
+            {/* Seeded demo checks cite example.com and were never fetched, but
+                they carry publisher names and read exactly like a real result.
+                One of them asserts a World Series winner for a season that has
+                not been played. */}
+            {check.provider === 'demo' && <Pill tone="warn">Sample</Pill>}
             {check.rubricScore !== null && <ScoreChip check={check} />}
           </div>
 
@@ -173,6 +193,14 @@ function Row({ label, value, max }: { label: string; value: number; max: number 
   );
 }
 
+function host(url: string): string | null {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return null;
+  }
+}
+
 function EvidenceRow({ source }: { source: Evidence }) {
   const status = FETCH_LABEL[source.fetchStatus];
   return (
@@ -192,6 +220,13 @@ function EvidenceRow({ source }: { source: Evidence }) {
           </a>
           <span className={`shrink-0 text-[11px] ${status.tone}`}>{status.short}</span>
         </p>
+        {/* The publisher is whatever the model typed. The host is where the
+            page actually is, and showing only the former hid the one thing this
+            layer exists to catch: a citation labelled "AP" sitting on
+            example.com read as a real wire report. */}
+        {host(source.url) && (
+          <p className="text-[11px] text-ink-faint">{host(source.url)}</p>
+        )}
         {source.quotedText && (
           <p className="mt-0.5 line-clamp-2 font-display text-[13px] text-ink-faint italic">
             &ldquo;{source.quotedText}&rdquo;
