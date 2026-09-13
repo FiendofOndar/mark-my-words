@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The notification small icon. capacitor.config.ts has referenced ic_stat_icon
+  since it was written and the resource never existed, so every notification
+  this app has posted fell back to the platform default.
+
+  Android draws a small icon as a silhouette: it keeps the alpha and throws the
+  colours away, so this is the monochrome mark at 24dp. The viewport stays 108
+  and the mark keeps its safe-zone inset, which reads as generous padding at
+  status-bar size - correct, because a small icon touching its own bounds looks
+  cramped beside the system's own.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.44"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M39.54,61.08 C35.62,52.08 38.92,41.57 47.27,36.43 C55.63,31.29 66.5,33.09 72.76,40.64 C79.02,48.2 78.76,59.21 72.15,66.47 C65.55,73.72 54.61,75.01 46.5,69.48 L32.53,76.67 Z">
+    </path>
+
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.21"
+        android:strokeLineCap="round"
+        android:pathData="M57.72,52.4 L57.72,39.57" />
+
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.21"
+        android:strokeLineCap="round"
+        android:pathData="M57.72,52.4 L65.74,56.98" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M57.72,50.57 C58.73,50.57 59.55,51.39 59.55,52.4 C59.55,53.41 58.73,54.23 57.72,54.23 C56.71,54.23 55.89,53.41 55.89,52.4 C55.89,51.39 56.71,50.57 57.72,50.57 Z" />
+</vector>
