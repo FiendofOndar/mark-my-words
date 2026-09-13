@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; }
+
+    .tile { width: 480px; height: 480px; border-radius: 104px; position: relative;
+      overflow: hidden; display: flex; align-items: center; justify-content: center;
+      flex: none; background: oklch(0.16 0.012 270); }
+    .conicwrap { position: absolute; inset: 0; }
+    .conicramp { position: absolute; inset: 0;
+      background: conic-gradient(from -90deg at 52.81% 47.5%,
+        #5fbb8c 0%, #ddb45e 34%, #d9533a 62%, #8a5a86 82%, #5fbb8c 100%);
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22360%22%20height%3D%22360%22%20viewBox%3D%220%200%20240%20240%22%3E%3Cg%20transform%3D%22translate%289%206%29%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M%2040.6%20143.9%20A%2086%2086%200%201%201%2071%20180.6%20L%2010%20212%20Z%22%20stroke-width%3D%2213%22%2F%3E%3Cline%20x1%3D%22120%22%20y1%3D%22106%22%20x2%3D%22120%22%20y2%3D%2250%22%20stroke-width%3D%2212%22%2F%3E%3Ccircle%20cx%3D%22120%22%20cy%3D%22106%22%20r%3D%227%22%20fill%3D%22%23000%22%20stroke%3D%22none%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22360%22%20height%3D%22360%22%20viewBox%3D%220%200%20240%20240%22%3E%3Cg%20transform%3D%22translate%289%206%29%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M%2040.6%20143.9%20A%2086%2086%200%201%201%2071%20180.6%20L%2010%20212%20Z%22%20stroke-width%3D%2213%22%2F%3E%3Cline%20x1%3D%22120%22%20y1%3D%22106%22%20x2%3D%22120%22%20y2%3D%2250%22%20stroke-width%3D%2212%22%2F%3E%3Ccircle%20cx%3D%22120%22%20cy%3D%22106%22%20r%3D%227%22%20fill%3D%22%23000%22%20stroke%3D%22none%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+      -webkit-mask-size: 360px 360px; mask-size: 360px 360px;
+      -webkit-mask-position: center; mask-position: center;
+      -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; }
+    .minute { position: absolute; left: 60px; top: 60px; }
+
+  </style>
+</helmet>
+<div class="tile"><svg width="360" height="360" viewBox="0 0 240 240"><defs><linearGradient id="gbasemain" gradientUnits="userSpaceOnUse" x1="61" y1="70" x2="175" y2="181"><stop offset="0%" stop-color="#5fbb8c"/><stop offset="50%" stop-color="#ddb45e"/><stop offset="100%" stop-color="#d9533a"/></linearGradient></defs><g transform="translate(9 6)" fill="none" stroke-linejoin="round" stroke-linecap="round"><path d="M 40.6 143.9 A 86 86 0 1 1 71 180.6 L 10 212 Z" stroke="url(#gbasemain)" stroke-width="13"/><line x1="120" y1="106" x2="120" y2="50" stroke="#f2e8d8" stroke-width="12"/><line x1="120" y1="106" x2="155" y2="126" stroke="#d9533a" stroke-width="12"/><circle cx="120" cy="106" r="7" fill="#f2e8d8" stroke="none"/></g></svg></div>
+</x-dc>
+</body>
+</html>

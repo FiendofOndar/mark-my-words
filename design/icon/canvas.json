@@ -1,6 +1,62 @@
 {
   "artboards": [
     {
+      "file": "RampSizes.dc.html",
+      "x": 0,
+      "y": -1920,
+      "w": 1320,
+      "h": 1800,
+      "page": "page-ramp"
+    },
+    {
+      "file": "RampBase.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ramp"
+    },
+    {
+      "file": "RampDown.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ramp"
+    },
+    {
+      "file": "RampConic.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ramp"
+    },
+    {
+      "file": "RampGreenHand.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ramp"
+    },
+    {
+      "file": "RampHot.dc.html",
+      "x": 2240,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ramp"
+    },
+    {
+      "file": "RampHeavy.dc.html",
+      "x": 2800,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ramp"
+    },
+    {
       "file": "VerSizes.dc.html",
       "x": 0,
       "y": -1900,
@@ -491,6 +547,54 @@
   ],
   "annotations": [
     {
+      "id": "rp-0",
+      "x": 0,
+      "y": -56,
+      "w": 460,
+      "text": "As picked \u2014 unchanged, for reference",
+      "page": "page-ramp"
+    },
+    {
+      "id": "rp-1",
+      "x": 560,
+      "y": -56,
+      "w": 460,
+      "text": "Ramp down the dial \u2014 axis turned to run 12 to 6",
+      "page": "page-ramp"
+    },
+    {
+      "id": "rp-2",
+      "x": 1120,
+      "y": -56,
+      "w": 460,
+      "text": "Ramp around the dial \u2014 a true sweep from 12",
+      "page": "page-ramp"
+    },
+    {
+      "id": "rp-3",
+      "x": 1680,
+      "y": -56,
+      "w": 460,
+      "text": "Green hour hand \u2014 the pair becomes the two hands",
+      "page": "page-ramp"
+    },
+    {
+      "id": "rp-4",
+      "x": 2240,
+      "y": -56,
+      "w": 460,
+      "text": "Brighter minute hand \u2014 pulls it off the red rim",
+      "page": "page-ramp"
+    },
+    {
+      "id": "rp-5",
+      "x": 2800,
+      "y": -56,
+      "w": 460,
+      "text": "Heavier strokes \u2014 bubble 15, hands 14",
+      "page": "page-ramp"
+    },
+    {
       "id": "vr-0",
       "x": 0,
       "y": -56,
@@ -901,9 +1005,13 @@
   ],
   "launch": {
     "view": "canvas",
-    "page": "page-ver"
+    "page": "page-ramp"
   },
   "pages": [
+    {
+      "id": "page-ramp",
+      "name": "Ramp refinements"
+    },
     {
       "id": "page-ver",
       "name": "Red + green"
