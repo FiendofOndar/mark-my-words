@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   InvalidTransitionError,
   canTransition,
+  checkedButUnsettled,
   confirmDraft,
   daysUntilDeadline,
   effectiveDeadline,
@@ -175,6 +176,44 @@ describe('deadlines', () => {
     const iso = endOfLocalDay('2026-10-31');
     expect(toLocalDateInput(iso)).toBe('2026-10-31');
     expect(new Date(iso).getHours()).toBe(23);
+  });
+});
+
+describe('checked but unsettled', () => {
+  const overdue = (extra: Parameters<typeof makePrediction>[0] = {}) =>
+    makePrediction({ resolutionDate: isoDaysFrom(NOW, -2), ...extra });
+
+  it('asks the user once the app has looked since the deadline and come up short', () => {
+    // The real one: three checks, zero citations the app could confirm, and the
+    // prediction sat at "1 day overdue" forever with nothing pointing at it.
+    expect(checkedButUnsettled(overdue({ lastCheckedAt: isoDaysFrom(NOW, -1) }), NOW)).toBe(true);
+  });
+
+  it('waits until the app has actually tried', () => {
+    expect(checkedButUnsettled(overdue({ lastCheckedAt: null }), NOW)).toBe(false);
+    // Checked, but before the deadline, so the answer could not have been there.
+    expect(checkedButUnsettled(overdue({ lastCheckedAt: isoDaysFrom(NOW, -5) }), NOW)).toBe(false);
+  });
+
+  it('leaves alone anything already settled or not yet due', () => {
+    expect(
+      checkedButUnsettled(overdue({ status: 'miss', lastCheckedAt: isoDaysFrom(NOW, -1) }), NOW),
+    ).toBe(false);
+    expect(
+      checkedButUnsettled(
+        makePrediction({ resolutionDate: isoDaysFrom(NOW, 30), lastCheckedAt: isoDaysFrom(NOW, -1) }),
+        NOW,
+      ),
+    ).toBe(false);
+  });
+
+  it('says nothing about a manual prediction, which the feed already asks about', () => {
+    expect(
+      checkedButUnsettled(
+        overdue({ verificationMode: 'manual', lastCheckedAt: isoDaysFrom(NOW, -1) }),
+        NOW,
+      ),
+    ).toBe(false);
   });
 });
 

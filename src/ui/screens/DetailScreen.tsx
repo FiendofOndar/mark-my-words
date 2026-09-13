@@ -33,6 +33,7 @@ import {
   daysUntilDeadline,
   endOfLocalDay,
   isResolved,
+  checkedButUnsettled,
   isPastDeadline,
   isUnderLateWatch,
   markLateHit,
@@ -107,8 +108,12 @@ export function DetailScreen() {
           ? 'text-partial'
           : 'text-ink';
 
+  // Either nothing can search it, or something did and could not settle it.
+  // Both end in the same place: the answer has to come from the person.
+  const searchedInVain = checkedButUnsettled(p);
   const awaitingAnswer =
-    p.status === 'open' && p.verificationMode === 'manual' && isPastDeadline(p);
+    p.status === 'open' &&
+    ((p.verificationMode === 'manual' && isPastDeadline(p)) || searchedInVain);
 
   const onResolve = (verdict: PredictionStatus) => {
     resolveManually.mutate({ id: p.id, verdict });
@@ -249,9 +254,15 @@ export function DetailScreen() {
       {awaitingAnswer && (
         <section className="border-b border-rule bg-partial/5 px-5 py-5">
           <h2 className="text-[11px] font-semibold tracking-wide text-partial uppercase">
-            Only you can settle this
+            {searchedInVain ? 'Checked, and still open' : 'Only you can settle this'}
           </h2>
           <p className="mt-2 font-display text-[19px]">Did it happen?</p>
+          {searchedInVain && (
+            <p className="mt-1 text-[12px] text-ink-faint">
+              The deadline passed and the last check could not stand its own evidence up. What it
+              found is in the log below.
+            </p>
+          )}
           {p.promptSnoozes > 0 && (
             <p className="mt-1 text-[12px] text-ink-faint">
               Put off {p.promptSnoozes} time{p.promptSnoozes === 1 ? '' : 's'} so far.

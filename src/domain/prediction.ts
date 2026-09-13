@@ -92,6 +92,27 @@ export function isPastDeadline(p: Prediction, now: Date = new Date()): boolean {
 }
 
 /**
+ * The deadline has passed, the app has looked since, and it still cannot settle
+ * it. Nobody else is going to.
+ *
+ * Without this a searchable prediction whose checks keep coming back too thin
+ * to act on simply sat in the feed reading "1 day overdue" forever. The app had
+ * a finding it could not stand up, and said nothing: the check log is the only
+ * place it appeared, and nothing pointed there. Requires a check *since* the
+ * deadline, so a claim that went overdue an hour ago does not start asking
+ * before the app has even tried.
+ */
+export function checkedButUnsettled(p: Prediction, now: Date = new Date()): boolean {
+  if (p.status !== 'open') return false;
+  if (p.verificationMode !== 'searchable') return false;
+  if (!isPastDeadline(p, now)) return false;
+  if (!p.lastCheckedAt) return false;
+
+  const deadline = effectiveDeadline(p);
+  return deadline !== null && new Date(p.lastCheckedAt).getTime() >= new Date(deadline).getTime();
+}
+
+/**
  * Is `at` inside the period the claim covers? A window hit anywhere between
  * start and end counts as on time; a fixed date only counts up to the deadline.
  */

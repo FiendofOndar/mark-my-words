@@ -4,7 +4,7 @@ import type { Db } from '../data/db';
 import { useDb } from './DbProvider';
 import type { Author, Category, Prediction, PredictionStatus } from '../domain/types';
 import { sortByHeat, type HeatInput } from '../domain/heat';
-import { isPastDeadline } from '../domain/prediction';
+import { checkedButUnsettled, isPastDeadline } from '../domain/prediction';
 import type { PredictionPatch } from '../domain/prediction';
 import type { NewPrediction } from '../data/repositories/predictionRepo';
 import { tallyRecord, type AuthorRecord } from '../domain/scoring';
@@ -52,6 +52,8 @@ export function awaitsUser(p: Prediction, now = new Date(), hasQueuedVerdict = f
   if (p.status === 'draft') return true;
   if (hasQueuedVerdict) return true;
   if (p.status !== 'open') return false;
+  // Searched for, past due, and still unsettled: the app has done what it can.
+  if (checkedButUnsettled(p, now)) return true;
   if (p.verificationMode !== 'manual') return false;
   return isPastDeadline(p, now);
 }
