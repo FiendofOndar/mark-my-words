@@ -7,16 +7,21 @@ import {
   toNewPrediction,
   type PredictionFormValues,
 } from '../components/PredictionForm';
+import { useState } from 'react';
 import {
   useAuthors,
   useConfirmDraft,
   useDeletePrediction,
   useFindOrCreateAuthor,
   usePrediction,
+  useStructureStatement,
   useUpdateDraft,
 } from '../queries';
 import { formatDate } from '../../domain/format';
+import { toLocalDateInput } from '../../domain/prediction';
 import type { IntakeNotes } from '../../domain/types';
+import { structuredToDraft } from '../../verification/toPrediction';
+import { VerifierError } from '../../verification/types';
 import { Bullets } from '../components/Bullets';
 
 /**
@@ -34,6 +39,8 @@ export function ReviewScreen() {
   const updateDraft = useUpdateDraft();
   const confirmDraft = useConfirmDraft();
   const remove = useDeletePrediction();
+  const structure = useStructureStatement();
+  const [redraftError, setRedraftError] = useState<string | null>(null);
 
   if (isLoading) return <Screen title="..." back><div /></Screen>;
 
@@ -69,6 +76,38 @@ export function ReviewScreen() {
     navigate(`/p/${p.id}`, { replace: true });
   };
 
+  /*
+   * Draft the testable version, questions and criteria again from the
+   * statement as it now reads. The row keeps its id, author and provenance;
+   * everything the model wrote is replaced, and the form remounts on the new
+   * draft time so it shows the new values rather than its own stale state.
+   */
+  const redraft = async (rawStatement: string) => {
+    setRedraftError(null);
+    try {
+      const result = await structure.mutateAsync({
+        rawStatement: rawStatement.trim(),
+        sourceUrl: p.sourceUrl,
+        sourceContext: p.sourceContext,
+        today: toLocalDateInput(p.statementDate),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      });
+      await updateDraft.mutateAsync({
+        id: p.id,
+        input: structuredToDraft(result, {
+          authorId: p.authorId,
+          rawStatement: rawStatement.trim(),
+          statementDate: p.statementDate,
+          sourceUrl: p.sourceUrl,
+          sourceContext: p.sourceContext,
+        }),
+      });
+    } catch (err) {
+      const detail = err instanceof VerifierError ? err.detail : undefined;
+      setRedraftError(`${(err as Error).message}${detail ? ` (${detail})` : ''}`);
+    }
+  };
+
   const busy = updateDraft.isPending || confirmDraft.isPending || findOrCreateAuthor.isPending;
 
   return (
@@ -91,6 +130,7 @@ export function ReviewScreen() {
       }
     >
       <PredictionForm
+        key={notes?.draftedAt ?? 'manual'}
         initial={initial}
         authors={authors}
         submitLabel="Put it on the record"
@@ -99,13 +139,21 @@ export function ReviewScreen() {
         ambiguities={notes?.ambiguities ?? []}
         deadlineNote={notes?.deadlineReasoning}
         verifiabilityNote={notes?.verifiabilityReasoning}
-        banner={notes ? <IntakeBanner notes={notes} /> : <ManualBanner />}
+        onRedraft={notes && notes.provider !== 'mock' ? redraft : undefined}
+        redrafting={structure.isPending || updateDraft.isPending}
+        banner={
+          notes ? (
+            <IntakeBanner notes={notes} error={redraftError} />
+          ) : (
+            <ManualBanner />
+          )
+        }
       />
     </Screen>
   );
 }
 
-function IntakeBanner({ notes }: { notes: IntakeNotes }) {
+function IntakeBanner({ notes, error }: { notes: IntakeNotes; error?: string | null }) {
   const offline = notes.provider === 'mock';
 
   return (
@@ -122,6 +170,7 @@ function IntakeBanner({ notes }: { notes: IntakeNotes }) {
       {notes.warnings.length > 0 && (
         <Bullets items={notes.warnings} className="mt-2 text-[12px] text-ink-faint" />
       )}
+      {error && <p className="mt-2 text-[12px] text-miss">Redraft failed: {error}</p>}
     </section>
   );
 }
