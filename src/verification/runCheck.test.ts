@@ -210,6 +210,40 @@ describe('source validation feeds the decision', () => {
   });
 });
 
+describe('a claim that something will not happen', () => {
+  const negative = (daysToDeadline: number) =>
+    makePrediction({
+      polarity: 'negative',
+      disconfirmingTrigger: 'The neighbors raise the gutters again',
+      resolutionDate: isoDaysFrom(NOW, daysToDeadline),
+    });
+  const nothingFound = () =>
+    result({ verdict: 'no_change', trend: 'flat', summary: 'No mention found.', sources: [] });
+
+  it('queues a hit for approval once the deadline passes with nothing found', async () => {
+    // An absence has no sources, so it can never arrive as a verdict. Before
+    // this, negative claims sat open until the person noticed.
+    const plan = await runCheck(deps(nothingFound()), ctx(negative(-2)));
+    expect(plan.outcome).toBe('queued');
+    expect(plan.check!.proposedVerdict).toBe('hit');
+    expect(plan.check!.outcome).toBe('queued');
+    expect(plan.check!.summary).toMatch(/gutters/);
+    expect(plan.predictionPatch!.status).toBeUndefined();
+  });
+
+  it('is still just no_change before the deadline', async () => {
+    const plan = await runCheck(deps(nothingFound()), ctx(negative(30)));
+    expect(plan.outcome).toBe('no_change');
+    expect(plan.check!.proposedVerdict).toBe('no_change');
+  });
+
+  it('applies a miss when the disconfirming event was found', async () => {
+    const plan = await runCheck(deps(result({ verdict: 'miss' })), ctx(negative(-2)));
+    expect(plan.outcome).toBe('resolved');
+    expect(plan.predictionPatch!.status).toBe('miss');
+  });
+});
+
 describe('late hits', () => {
   const lateWatched = () =>
     makePrediction({

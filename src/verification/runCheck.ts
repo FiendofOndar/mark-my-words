@@ -11,6 +11,7 @@ import {
   describeDeadline,
 } from '../domain/format';
 import {
+  isPastDeadline,
   isResolved,
   isUnderLateWatch,
   markLateHit,
@@ -154,6 +155,39 @@ export async function runCheck(deps: CheckDeps, ctx: CheckContext): Promise<Chec
       fetchedAt: s.fetchedAt,
     })),
   });
+
+  /*
+   * A claim that something will NOT happen is settled by the deadline passing
+   * with the disconfirming event never found. That is an absence, and an
+   * absence has no sources, so it can never come back from the model as a
+   * verdict: the parser holds a sourceless verdict open, correctly. The app
+   * reads the absence itself, and asks rather than applying it, because "the
+   * search found nothing" and "nothing happened" are not the same claim.
+   */
+  if (
+    p.polarity === 'negative' &&
+    p.status === 'open' &&
+    isPastDeadline(p, now) &&
+    result.verdict === 'no_change'
+  ) {
+    const trigger = p.disconfirmingTrigger ?? 'the event that would have disproved it';
+    return {
+      ...base,
+      outcome: 'queued',
+      message: 'Deadline passed with nothing found, needs you',
+      check: {
+        ...checkRow('queued'),
+        proposedVerdict: 'hit',
+        gates: ['The deadline passed and the search found nothing; only you can say nothing happened.'],
+        summary: `${result.summary} The deadline has passed and nothing showed that ${trigger} happened, which reads as a hit.`,
+      },
+      predictionPatch: {
+        lastCheckedAt: now.toISOString(),
+        checkCount: p.checkCount + 1,
+        updatedAt: now.toISOString(),
+      },
+    };
+  }
 
   // Nothing decisive. Record the finding and move the trend.
   if (result.verdict === 'no_change') {

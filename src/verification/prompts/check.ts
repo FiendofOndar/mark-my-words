@@ -41,6 +41,7 @@ Rules that matter:
    - partial: some criteria satisfied, some not, and the deadline has passed
    - ambiguous: the evidence cannot settle it, or the criteria do not cleanly apply
    - no_change: still open, nothing decisive found
+   For a claim that something would NOT happen, never return hit. If you found no occurrence of the disconfirming event, return no_change and say what you searched, even after the deadline. An absence has no source to cite, so the app settles it by asking the owner rather than by taking your word for it.
 
 12. CRITERIA_STATUS IS ONE ENTRY PER CRITERION, in the order given. "index" is the criterion's number as listed below, starting at 1: the first criterion is index 1, the second is index 2. "satisfied" is whether that criterion was met, and "why" is the one line of evidence that says so, whether it says it happened or that it did not.
 
