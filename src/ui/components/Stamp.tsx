@@ -3,18 +3,19 @@ import { STATUS_LABEL } from '../../domain/format';
 
 /** Border and text for a status, shared with anything that offers a verdict. */
 export const STATUS_TONE: Record<PredictionStatus, string> = {
-  hit: 'text-hit border-hit/55',
-  miss: 'text-miss border-miss/55',
-  partial: 'text-partial border-partial/55',
-  ambiguous: 'text-ambiguous border-ambiguous/55',
-  void: 'text-voided border-voided/55 line-through',
+  hit: 'text-hit border-hit',
+  miss: 'text-miss border-miss',
+  partial: 'text-partial border-partial',
+  ambiguous: 'text-ambiguous border-ambiguous',
+  void: 'text-voided border-voided line-through',
   open: 'text-ink-dim border-rule',
-  draft: 'text-draft border-draft/55',
+  draft: 'text-draft border-draft',
 };
 
 /**
- * The verdict. Carries its own text label so the meaning never rests on color
- * alone, and never rotates: see the note on `.stamp` in styles.css.
+ * The verdict, stamped. Carries its own text label so the meaning never rests
+ * on color alone. Tilted by default, level where it sits in a column: see the
+ * note on `.stamp` in styles.css.
  *
  * Each size sets a min-width from the longest word it has to hold, UNCLEAR.
  * Letting the tag shrink to fit gave the feed a ragged right edge, and the
@@ -24,13 +25,15 @@ export const STATUS_TONE: Record<PredictionStatus, string> = {
 export function Stamp({
   status,
   size = 'md',
+  tilt = true,
 }: {
   status: PredictionStatus;
   size?: 'sm' | 'md' | 'lg';
+  tilt?: boolean;
 }) {
   const scale =
     size === 'lg'
-      ? 'min-w-[124px] px-4 py-1.5 text-[22px]'
+      ? 'min-w-[132px] px-5 py-2 text-2xl'
       : size === 'sm'
         ? 'min-w-[68px] px-2 py-[3px] text-[11.5px]'
         : 'min-w-[86px] px-3 py-1 text-[14px]';
@@ -40,7 +43,7 @@ export function Stamp({
   const voice = status === 'open' || status === 'draft' ? 'font-mono font-medium tracking-normal' : '';
 
   return (
-    <span className={`stamp ${STATUS_TONE[status]} ${scale} ${voice} inline-block`}>
+    <span className={`stamp ${tilt ? 'stamp-tilt' : ''} ${STATUS_TONE[status]} ${scale} ${voice} inline-block`}>
       {STATUS_LABEL[status]}
     </span>
   );

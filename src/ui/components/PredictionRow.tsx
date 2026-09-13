@@ -91,7 +91,7 @@ export function PredictionRow({ item }: { item: FeedItem }) {
         </span>
 
         {settled ? (
-          <Stamp status={p.status} size="sm" />
+          <Stamp status={p.status} size="sm" tilt={false} />
         ) : (
           <span
             className={`flex shrink-0 items-center gap-1.5 text-[12.5px] ${COUNTDOWN[urgency]}`}
