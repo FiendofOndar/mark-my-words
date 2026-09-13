@@ -640,11 +640,11 @@ export function PredictionForm({
             ))}
           </select>
         </Field>
-        <Field label="Stakes">
+        <Field label="Riding on it">
           <input
             value={v.stakes}
             onChange={(e) => set('stakes', e.target.value)}
-            placeholder="$20, a beer"
+            placeholder="loser buys lunch, bragging rights"
             className={inputClass}
           />
         </Field>

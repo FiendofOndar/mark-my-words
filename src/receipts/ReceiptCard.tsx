@@ -120,8 +120,11 @@ export function ReceiptCard({
           <Mark size={46} />
           Mark My Words
         </span>
-        <span style={{ color: '#6f675c' }}>
-          {prediction.stakes ? `Stakes: ${prediction.stakes}` : ''}
+        {/* The label grew from "Stakes" to "Riding on it" (#28), and this line
+            also carries the retroactive note and the amendment count, so it
+            wraps under the wordmark's row rather than running off the card. */}
+        <span style={{ color: '#6f675c', flex: 1, textAlign: 'right', marginLeft: 32, lineHeight: 1.35 }}>
+          {prediction.stakes ? `Riding on it: ${prediction.stakes}` : ''}
           {prediction.isRetroactive ? '  ·  entered after the fact' : ''}
           {amendmentCount > 0 ? `  ·  amended ${amendmentCount}×` : ''}
         </span>
