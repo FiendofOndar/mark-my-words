@@ -382,10 +382,16 @@ export function DetailScreen() {
                 // its reason like every other amendment.
                 <button
                   type="button"
+                  aria-label={`Amend criterion ${c.position + 1}`}
                   onClick={() => setAmendingCriterion(c.id)}
-                  className="-my-1 flex-1 py-1 text-left text-[15px] leading-snug text-ink-dim active:opacity-60"
+                  className="-my-1 flex flex-1 items-start gap-2 py-1 text-left text-[15px] leading-snug text-ink-dim active:opacity-60"
                 >
-                  {c.text}
+                  <span className="min-w-0 flex-1">{c.text}</span>
+                  {/* Without this the criterion was just text, and the only
+                      thing on screen that looked like a way to fix a wrong one
+                      was the "Amend claim" button, which edits a different
+                      field entirely. */}
+                  <Icon name="edit" size={15} className="mt-0.5 shrink-0 text-ink-faint" />
                 </button>
               )}
             </li>

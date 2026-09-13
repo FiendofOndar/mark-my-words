@@ -155,7 +155,33 @@ describe('url validation', () => {
         ],
       }),
     );
-    expect(result.breakdown.urlValidation).toBe(10);
+    expect(result.breakdown.urlValidation).toBe(12);
+  });
+
+  it('gives a little credit when every page was read but nothing was quoted back', () => {
+    // Live pages are the usual cause: a weather forecast or a scoreboard has
+    // already rewritten itself by the time the app fetches it minutes later.
+    // The URLs still resolved, which is most of what this dimension guards.
+    const result = scoreCheck(
+      input({
+        sources: input().sources.map((s) => ({ ...s, fetchStatus: 'quote_not_found' as const })),
+      }),
+    );
+    expect(result.breakdown.urlValidation).toBe(4);
+  });
+
+  it('gives nothing when a page could not be read at all', () => {
+    // Mixed: one page read and unquoted, one never opened. Not every page was
+    // read, so the benefit of the doubt does not apply.
+    const result = scoreCheck(
+      input({
+        sources: [
+          source({ publisher: 'AP', fetchStatus: 'quote_not_found' }),
+          source({ publisher: 'Reuters', fetchStatus: 'blocked' }),
+        ],
+      }),
+    );
+    expect(result.breakdown.urlValidation).toBe(0);
   });
 
   it('treats a blocked source as unchecked rather than as a fake citation', () => {

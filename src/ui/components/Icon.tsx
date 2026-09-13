@@ -5,7 +5,7 @@
  * baseline the device's font happens to use and never matched each other.
  * Stroked paths at one width, inheriting colour, so they behave like type.
  */
-export type IconName = 'refresh' | 'standings' | 'settings' | 'back' | 'chevron' | 'plus' | 'share';
+export type IconName = 'refresh' | 'standings' | 'settings' | 'back' | 'chevron' | 'plus' | 'share' | 'edit';
 
 const PATHS: Record<IconName, React.ReactNode> = {
   // A circular arrow, open at the top right where the head sits.
@@ -34,6 +34,12 @@ const PATHS: Record<IconName, React.ReactNode> = {
   ),
   back: <path d="M15 5l-7 7 7 7" />,
   chevron: <path d="M9 5l7 7-7 7" />,
+  edit: (
+    <>
+      <path d="M4 20h4l10-10-4-4L4 16v4z" />
+      <path d="M14 6l4 4" />
+    </>
+  ),
   plus: (
     <>
       <path d="M12 5v14" />
