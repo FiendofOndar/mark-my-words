@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,600;1,500;1,600&family=Oswald:wght@600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .screen {
+      /* page tokens flip between themes */
+      --ground: oklch(0.945 0.017 88);
+      --rule: oklch(0.87 0.02 85);
+      --ink: oklch(0.24 0.006 60);
+      --ink-dim: oklch(0.45 0.02 70);
+      --ink-faint: oklch(0.6 0.015 70);
+      --accent-ink: oklch(0.52 0.12 68);
+      --glow: oklch(0.86 0.1 74 / 0.85);
+      --miss: oklch(0.48 0.17 27);
+
+      /* panel tokens stay put in both themes */
+      --panel: oklch(0.19 0.012 270);
+      --panel-ink: oklch(0.96 0.01 90);
+      --panel-ink-dim: oklch(0.72 0.01 90);
+      --panel-accent: #dba456;
+      --panel-miss: oklch(0.66 0.15 27);
+
+      width: 375px; height: 980px; box-sizing: border-box; overflow: hidden;
+      background:
+        radial-gradient(ellipse 460px 300px at 50% 44%, var(--glow), transparent 62%),
+        var(--ground);
+      color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex; flex-direction: column;
+    }
+    .crumb { padding: 46px 22px 0 22px; font-size: 10.5px; letter-spacing: 1.8px; color: var(--ink-faint); text-transform: uppercase; }
+    .quote-zone { padding: 30px 24px 0 24px; }
+    .quote { font-family: 'Cormorant', serif; font-weight: 500; font-style: italic; font-size: 33px; line-height: 1.22; margin: 0 0 16px 0; }
+    .byline { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 15px; color: var(--ink-dim); }
+    .byline span { color: var(--ink-faint); font-weight: 500; }
+
+    /* the machine's output is a dark surface in both themes */
+    .panel { margin: 26px 22px 0 22px; padding: 20px 22px; border-radius: 14px;
+      background: var(--panel); color: var(--panel-ink);
+      box-shadow: 0 18px 40px color-mix(in srgb, #b8822f 38%, transparent); }
+    .panel .tag { font-size: 10px; letter-spacing: 1.6px; color: var(--panel-accent); text-transform: uppercase; font-weight: 600; margin-bottom: 11px; }
+    .panel .verdict { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 30px; margin: 0 0 9px 0; color: var(--panel-miss); letter-spacing: 0.5px; }
+    .panel .detail { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; color: var(--panel-ink-dim); line-height: 1.4; margin: 0 0 14px 0; }
+    .panel .strip { font-size: 10px; letter-spacing: 1.1px; color: oklch(0.6 0.01 90); border-top: 1px solid oklch(0.9 0.01 90 / 0.12); padding-top: 11px; }
+
+    .log { margin-top: 32px; }
+    .log h2 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 2px;
+      color: var(--ink-dim); margin: 0; padding: 0 22px 10px 22px; }
+    .entry { padding: 13px 22px; border-top: 1px solid var(--rule); }
+    .entry .line1 { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+    .entry .when { font-size: 10.5px; letter-spacing: 1.1px; color: var(--ink-faint); text-transform: uppercase; }
+    .entry .score { font-size: 10.5px; color: var(--ink-dim); }
+    .entry .summary { font-family: 'Barlow Condensed', sans-serif; font-size: 14.5px; color: var(--ink-dim); line-height: 1.35; margin: 0 0 6px 0; }
+    .srcs { display: flex; gap: 6px; flex-wrap: wrap; }
+    .src { font-size: 9.5px; letter-spacing: 0.6px; padding: 2px 7px; border-radius: 2px;
+      background: oklch(0.2 0.01 70 / 0.06); color: var(--ink-faint); }
+    .src.ok { color: var(--accent-ink); }
+  </style>
+</helmet>
+<div class="screen">
+  <div class="crumb">Prediction &middot; tech/ai</div>
+  <div class="quote-zone">
+    <p class="quote">&ldquo;The AI bubble crashes by spring.&rdquo;</p>
+    <div class="byline">fastcompany.com <span>&middot; said Jan 4 &middot; deadline Mar 20</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="tag">AI Verdict &middot; auto-resolved</div>
+    <p class="verdict">MISS</p>
+    <p class="detail">Deadline passed with no qualifying index drop. Four checks across ten weeks found no reporting that met the criteria.</p>
+    <div class="strip">SCORE 96 &middot; 4 SOURCES &middot; ALL CITATIONS RESOLVED</div>
+  </div>
+
+  <div class="log">
+    <h2>CHECK LOG</h2>
+    <div class="entry">
+      <div class="line1"><span class="when">Mar 20 &middot; deadline &middot; auto</span><span class="score">96</span></div>
+      <p class="summary">Deadline reached. No index in the basket fell 30% or more from peak.</p>
+      <div class="srcs"><span class="src ok">reuters.com &#10003;</span><span class="src ok">ft.com &#10003;</span><span class="src ok">bloomberg.com &#10003;</span></div>
+    </div>
+    <div class="entry">
+      <div class="line1"><span class="when">Mar 06 &middot; pull &middot; no change</span><span class="score">41</span></div>
+      <p class="summary">Drawdown at 11% from January peak. Trend flat.</p>
+      <div class="srcs"><span class="src ok">wsj.com &#10003;</span><span class="src">cnbc.com &mdash; quote not found</span></div>
+    </div>
+    <div class="entry">
+      <div class="line1"><span class="when">Feb 12 &middot; pull &middot; no change</span><span class="score">38</span></div>
+      <p class="summary">Two outlets describe a correction, not a crash. Criteria unmet.</p>
+      <div class="srcs"><span class="src ok">reuters.com &#10003;</span><span class="src">barrons.com &mdash; blocked</span></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

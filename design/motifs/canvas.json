@@ -10,19 +10,27 @@
     { "file": "AdoptedTheme.dc.html", "x": 0, "y": 0, "w": 360, "h": 680, "page": "page-2" },
     { "file": "SettingsAccentPicker.dc.html", "x": 460, "y": 0, "w": 375, "h": 812, "page": "page-2" },
 
+    { "file": "MergedFeed.dc.html", "x": 0, "y": 0, "w": 375, "h": 812, "page": "page-merged" },
+    { "file": "MergedDetail.dc.html", "x": 460, "y": 0, "w": 375, "h": 980, "page": "page-merged" },
+    { "file": "MergedDetailLight.dc.html", "x": 920, "y": 0, "w": 375, "h": 980, "page": "page-merged" },
+
     { "file": "CombinedFullWash.dc.html", "x": 0, "y": 0, "w": 360, "h": 680, "page": "page-3" },
     { "file": "CombinedFramed.dc.html", "x": 440, "y": 0, "w": 360, "h": 680, "page": "page-3" }
   ],
   "annotations": [
     { "id": "label-adopted", "x": 0, "y": -60, "w": 420, "text": "Adopted theme — try the accent color chip above the card", "page": "page-2" },
     { "id": "label-settings", "x": 460, "y": -60, "w": 380, "text": "Settings picker — click a swatch, watch the preview above it update", "page": "page-2" },
+    { "id": "label-mfeed", "x": 0, "y": -60, "w": 380, "text": "Feed — Box Score density, serif claims, glow only on the row that needs you", "page": "page-merged" },
+    { "id": "label-mdetail", "x": 460, "y": -60, "w": 380, "text": "Detail — Spotlight up top, dense mono check log below. Glow stays amber on a MISS", "page": "page-merged" },
+    { "id": "label-mlight", "x": 920, "y": -60, "w": 380, "text": "Same screen, light mode — page flips to paper, the AI panel stays dark", "page": "page-merged" },
     { "id": "label-fullwash", "x": 0, "y": -50, "w": 340, "text": "Archived — Full Wash (not picked)", "page": "page-3" },
     { "id": "label-framed", "x": 440, "y": -50, "w": 340, "text": "Archived — Framed (not picked)", "page": "page-3" }
   ],
   "pages": [
     { "id": "page-1", "name": "Individual motifs" },
     { "id": "page-2", "name": "Adopted theme" },
+    { "id": "page-merged", "name": "Merged theme (dark + light)" },
     { "id": "page-3", "name": "Archived combined options" }
   ],
-  "launch": { "view": "canvas", "page": "page-2" }
+  "launch": { "view": "canvas", "page": "page-merged" }
 }

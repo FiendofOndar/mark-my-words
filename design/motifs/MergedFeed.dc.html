@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,600;1,600&family=Oswald:wght@600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: var(--accent); }
+    .screen {
+      --ground: oklch(0.145 0.012 270);
+      --surface: oklch(0.19 0.012 270);
+      --rule: oklch(0.26 0.01 270);
+      --ink: oklch(0.96 0.01 90);
+      --ink-dim: oklch(0.68 0.01 90);
+      --ink-faint: oklch(0.52 0.01 270);
+      --accent: #dba456;
+      --glow: color-mix(in srgb, #dba456 34%, transparent);
+      --miss: oklch(0.66 0.15 27);
+
+      width: 375px; height: 812px; box-sizing: border-box; overflow: hidden;
+      background:
+        radial-gradient(ellipse 420px 260px at 50% 20%, var(--glow), transparent 64%),
+        var(--ground);
+      color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex; flex-direction: column;
+    }
+    .top { padding: 48px 20px 12px 20px; display: flex; align-items: baseline; justify-content: space-between; }
+    .top h1 { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 22px; margin: 0; letter-spacing: 0.5px; }
+    .top .quota { font-size: 11px; color: var(--ink-dim); }
+    .chips { display: flex; gap: 7px; padding: 0 20px 14px 20px; }
+    .chip { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 12.5px; padding: 4px 12px;
+      border-radius: 3px; background: oklch(0.96 0.01 90 / 0.07); color: var(--ink-dim); white-space: nowrap; }
+    .chip.on { background: var(--accent); color: oklch(0.17 0.02 72); }
+
+    .featured { margin: 4px 16px 16px 16px; padding: 16px 16px 14px 16px; border-radius: 14px;
+      background: oklch(0.94 0.01 90 / 0.07);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid oklch(0.9 0.01 90 / 0.13);
+      box-shadow: 0 16px 34px oklch(0 0 0 / 0.3); }
+    .featured .flag { font-size: 10px; letter-spacing: 1.6px; color: var(--accent); font-weight: 600; margin-bottom: 9px; }
+    .claim-lg { font-family: 'Cormorant', serif; font-weight: 600; font-size: 23px; line-height: 1.24; margin: 0 0 10px 0; }
+    .featured .foot { display: flex; align-items: center; justify-content: space-between; }
+    .featured .meta { font-size: 10.5px; color: var(--ink-dim); letter-spacing: 0.4px; }
+    .verdict-chip { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 1px;
+      padding: 4px 11px; border-radius: 3px; background: var(--accent); color: oklch(0.17 0.02 72); }
+
+    .list { flex: 1; }
+    .row { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-top: 1px solid var(--rule); }
+    .mono-badge { width: 30px; height: 30px; border-radius: 4px; background: oklch(0.28 0.015 270); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--ink-dim); }
+    .body { flex: 1; min-width: 0; }
+    .author { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink-faint); margin-bottom: 3px; }
+    .claim { font-family: 'Cormorant', serif; font-weight: 600; font-size: 18px; line-height: 1.2; margin: 0 0 4px 0; }
+    .meta { font-size: 10px; color: var(--ink-faint); letter-spacing: 0.4px; }
+    .tag { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 0.8px;
+      padding: 3px 9px; border-radius: 3px; border: 1.5px solid; flex-shrink: 0; }
+    .tag.hit { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+    .tag.miss { color: var(--miss); border-color: color-mix(in srgb, var(--miss) 55%, transparent); }
+    .tag.open { color: var(--ink-dim); border-color: var(--rule); font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 11px; }
+  </style>
+</helmet>
+<div class="screen">
+  <div class="top"><h1>THE FEED</h1><span class="quota">14 / 250</span></div>
+  <div class="chips">
+    <span class="chip on">ALL</span><span class="chip">OPEN</span><span class="chip">NEEDS YOU</span><span class="chip">RESOLVED</span>
+  </div>
+
+  <div class="featured">
+    <div class="flag">VERDICT READY &mdash; NEEDS YOU</div>
+    <p class="claim-lg">&ldquo;The Cardinals win it all this year.&rdquo;</p>
+    <div class="foot">
+      <span class="meta">@popops &middot; 3 sources &middot; score 92</span>
+      <span class="verdict-chip">HIT?</span>
+    </div>
+  </div>
+
+  <div class="list">
+    <div class="row">
+      <div class="mono-badge">FC</div>
+      <div class="body">
+        <div class="author">fastcompany.com &middot; tech/ai</div>
+        <p class="claim">&ldquo;The AI bubble crashes by spring.&rdquo;</p>
+        <div class="meta">RESOLVED MAR 20 &middot; SCORE 96 &middot; 4 SRC</div>
+      </div>
+      <span class="tag miss">MISS</span>
+    </div>
+    <div class="row">
+      <div class="mono-badge">JC</div>
+      <div class="body">
+        <div class="author">@jordan &middot; personal</div>
+        <p class="claim">&ldquo;Neighbors drop the gutter thing by Nov.&rdquo;</p>
+        <div class="meta">RESOLVED AUG 30 &middot; SCORE 100 &middot; 4 SRC</div>
+      </div>
+      <span class="tag hit">HIT</span>
+    </div>
+    <div class="row">
+      <div class="mono-badge">LZ</div>
+      <div class="body">
+        <div class="author">@liz &middot; entertainment</div>
+        <p class="claim">&ldquo;Thor loses the arm in Doomsday.&rdquo;</p>
+        <div class="meta">EVENT &middot; LAST CHECKED 6D AGO</div>
+      </div>
+      <span class="tag open">OPEN</span>
+    </div>
+    <div class="row">
+      <div class="mono-badge">RS</div>
+      <div class="body">
+        <div class="author">@popops &middot; weather</div>
+        <p class="claim">&ldquo;Biggest winter in a decade.&rdquo;</p>
+        <div class="meta">WINDOW &middot; 41 DAYS &middot; TREND &#8599;</div>
+      </div>
+      <span class="tag open">41D</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
