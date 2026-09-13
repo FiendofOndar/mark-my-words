@@ -9,6 +9,12 @@ the owner's working constraints, the reasoning behind the decisions that took
 longest to reach, where the last run actually landed, and the open bugs with
 their diagnosis already done.
 
+**Before distribution work, or anything that spends money per user, read
+[VIABILITY.md](./VIABILITY.md).** It holds the cost model, the store rules
+as sourced, the staged plan to a store, and the recurring review that keeps
+them true. Its section 6 says when to re-read it; its section 7 is the
+metrics ledger to update.
+
 ## How we work
 
 Process rules, not style rules. Every one of them is here because skipping it
