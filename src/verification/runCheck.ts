@@ -117,9 +117,17 @@ export async function runCheck(deps: CheckDeps, ctx: CheckContext): Promise<Chec
     isRetroactive: p.isRetroactive,
   });
 
+  // A check that resolved nothing has not established that a criterion was
+  // NOT met; it has established that it is not met yet, which is the same
+  // mark the criterion already carries. Writing false there drew a red cross
+  // beside every criterion of an open claim, which reads as a miss in
+  // progress. A criterion the check found already met is still worth
+  // recording, since that is progress the next check can build on.
   const criteriaUpdates = result.criteriaStatus.flatMap((status) => {
     const element = ctx.criteria[status.index];
-    return element ? [{ id: element.id, satisfied: status.satisfied }] : [];
+    if (!element) return [];
+    if (result.verdict === 'no_change' && !status.satisfied) return [];
+    return [{ id: element.id, satisfied: status.satisfied }];
   });
 
   const base = {
