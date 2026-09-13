@@ -12,6 +12,7 @@
  */
 import type { FetchStatus, PredictionStatus, SourceTier } from './types';
 import { publisherMismatch, registrableDomain, tierForUrl } from './sources';
+import { toLocalDateInput } from './prediction';
 
 export interface SourceAssessment {
   url: string;
@@ -153,13 +154,31 @@ function collectGates(input: AssessmentInput): string[] {
   // Citing background alongside the decisive article is not a defect. A check
   // where everything on offer was already in print when the prediction was
   // made is, because none of it can be evidence of what happened since.
-  const statement = new Date(input.statementDate).getTime();
+  //
+  // Compared as calendar days, not instants. A publication date arrives as a
+  // bare "2026-09-12", which parses as midnight UTC, and the claim is stored
+  // as a local instant: in Pacific time a source dated the day after the
+  // claim read as published seven hours before it, and this gate held a
+  // correct verdict on the first real run after the score was removed. A
+  // source dated the same day as the claim is not evidence of anything
+  // either way, so it does not count as predating.
+  const statementDay = toLocalDateInput(input.statementDate);
   if (!input.isRetroactive && input.sources.length > 0) {
-    const anyAfter = input.sources.some(
-      (s) => !s.publishedAt || new Date(s.publishedAt).getTime() >= statement,
-    );
+    const anyAfter = input.sources.some((s) => {
+      const day = publishedDay(s.publishedAt);
+      return day === null || day >= statementDay;
+    });
     if (!anyAfter) gates.push('Every source predates the prediction.');
   }
 
   return gates;
+}
+
+/** The calendar day a source was published, or null when it did not say. */
+function publishedDay(publishedAt: string | null): string | null {
+  if (!publishedAt) return null;
+  const match = /^(\d{4}-\d{2}-\d{2})/.exec(publishedAt.trim());
+  if (match) return match[1]!;
+  const parsed = new Date(publishedAt);
+  return Number.isNaN(parsed.getTime()) ? null : toLocalDateInput(parsed.toISOString());
 }

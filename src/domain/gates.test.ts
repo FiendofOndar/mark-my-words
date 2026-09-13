@@ -222,6 +222,37 @@ describe('gates', () => {
     expect(oneBefore.gates).toEqual([]);
   });
 
+  it('compares publication dates as days, not as instants', () => {
+    // The Anacortes run: the claim is stored as the end of Sep 11 local, the
+    // sources were dated "2026-09-12", which parses as midnight UTC, seven
+    // hours earlier in Pacific time. The gate read every source as predating
+    // the claim and held a correct miss.
+    const endOfSep11Local = new Date(2026, 8, 11, 23, 59, 59, 999).toISOString();
+    const nextDay = assessCheck(
+      input({
+        statementDate: endOfSep11Local,
+        sources: [primarySource({ publishedAt: '2026-09-12' })],
+      }),
+    );
+    expect(nextDay.gates).toEqual([]);
+
+    const sameDay = assessCheck(
+      input({
+        statementDate: endOfSep11Local,
+        sources: [primarySource({ publishedAt: '2026-09-11' })],
+      }),
+    );
+    expect(sameDay.gates).toEqual([]);
+
+    const dayBefore = assessCheck(
+      input({
+        statementDate: endOfSep11Local,
+        sources: [primarySource({ publishedAt: '2026-09-10' })],
+      }),
+    );
+    expect(dayBefore.gates.join(' ')).toMatch(/predates/);
+  });
+
   it('reads an undated source as unknown, not as older than the claim', () => {
     const result = assessCheck(
       input({ sources: [primarySource({ publishedAt: null })] }),
