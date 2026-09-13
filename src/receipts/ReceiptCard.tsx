@@ -81,7 +81,9 @@ export function ReceiptCard({
       <p style={{ ...label, marginTop: 48 }}>Called for</p>
       <p style={{ ...meta, marginTop: 8 }}>{describeDeadline(prediction)}</p>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 28, marginTop: 44 }}>
+      {/* The stamp is rotated, so its corners reach past its box: the gaps
+          around it are wider than the rest of the card's rhythm on purpose. */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 56, marginTop: 64 }}>
         <span style={{ ...stamp, color: tone, borderColor: tone }}>
           {STATUS_LABEL[prediction.status]}
         </span>
@@ -93,7 +95,7 @@ export function ReceiptCard({
       </div>
 
       {late && (
-        <p style={{ ...meta, color: '#c9a227', marginTop: 28, fontSize: 30 }}>★ {late}</p>
+        <p style={{ ...meta, color: '#c9a227', marginTop: 52, fontSize: 30 }}>★ {late}</p>
       )}
 
       <div style={{ flex: 1 }} />
