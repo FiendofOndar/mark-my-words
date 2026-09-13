@@ -122,19 +122,84 @@ export function CheckLog({
 
   return (
     <ol className="mt-3 space-y-5">
-      {entries.map(({ check, evidence }) => (
-        <li key={check.id} className="border-l border-rule pl-3">
-          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-            <span className="text-[13px] text-ink-faint">{formatDate(check.ranAt)}</span>
-            <Pill tone={check.outcome === 'error' ? 'warn' : 'muted'}>{outcomeLabel(check)}</Pill>
-            {/* Seeded demo checks cite example.com and were never fetched, but
-                they carry publisher names and read exactly like a real result.
-                One of them asserts a World Series winner for a season that has
-                not been played. */}
-            {check.provider === 'demo' && <Pill tone="warn">Sample</Pill>}
-            {check.outcome !== 'error' && <SourcesChip check={check} evidence={evidence} />}
-          </div>
+      {entries.map(({ check, evidence }, index) => (
+        <LogEntry
+          key={check.id}
+          check={check}
+          evidence={evidence}
+          summaryShownAbove={summaryShownAbove}
+          // Newest first, and only the newest is open. Every earlier check
+          // folds to its date and outcome; a log of six full entries pushed
+          // the action buttons a screen and a half down.
+          collapsed={index > 0}
+        />
+      ))}
+    </ol>
+  );
+}
 
+function LogEntry({
+  check,
+  evidence,
+  summaryShownAbove,
+  collapsed,
+}: {
+  check: Check;
+  evidence: Evidence[];
+  summaryShownAbove?: string;
+  collapsed: boolean;
+}) {
+  const header = (
+    <>
+      <span className="text-[13px] text-ink-faint">{formatDate(check.ranAt)}</span>
+      <Pill tone={check.outcome === 'error' ? 'warn' : 'muted'}>{outcomeLabel(check)}</Pill>
+      {/* Seeded demo checks cite example.com and were never fetched, but
+          they carry publisher names and read exactly like a real result.
+          One of them asserts a World Series winner for a season that has
+          not been played. */}
+      {check.provider === 'demo' && <Pill tone="warn">Sample</Pill>}
+    </>
+  );
+
+  if (collapsed) {
+    return (
+      <li className="border-l border-rule pl-3">
+        <details>
+          <summary className="flex cursor-pointer list-none flex-wrap items-baseline gap-x-2 gap-y-1">
+            {header}
+            <span className="text-[12px] text-ink-faint">Show</span>
+          </summary>
+          <div className="mt-1.5">
+            {check.outcome !== 'error' && <SourcesChip check={check} evidence={evidence} />}
+            <EntryBody check={check} evidence={evidence} summaryShownAbove={summaryShownAbove} />
+          </div>
+        </details>
+      </li>
+    );
+  }
+
+  return (
+    <li className="border-l border-rule pl-3">
+      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+        {header}
+        {check.outcome !== 'error' && <SourcesChip check={check} evidence={evidence} />}
+      </div>
+      <EntryBody check={check} evidence={evidence} summaryShownAbove={summaryShownAbove} />
+    </li>
+  );
+}
+
+function EntryBody({
+  check,
+  evidence,
+  summaryShownAbove,
+}: {
+  check: Check;
+  evidence: Evidence[];
+  summaryShownAbove?: string;
+}) {
+  return (
+    <>
           {check.id !== summaryShownAbove && (
             <p className="mt-1.5 text-[13.5px] leading-relaxed text-prose-dim">{check.summary}</p>
           )}
@@ -171,9 +236,7 @@ export function CheckLog({
               </ul>
             </>
           )}
-        </li>
-      ))}
-    </ol>
+    </>
   );
 }
 

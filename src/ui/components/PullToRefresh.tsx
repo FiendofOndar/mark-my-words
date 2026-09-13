@@ -1,5 +1,6 @@
 import { useRef, useState, type ReactNode } from 'react';
 import { describeProgress, type PullProgress } from '../../verification/runPull';
+import { Busy } from './Spinner';
 
 const TRIGGER_PX = 72;
 const MAX_PULL = 110;
@@ -67,7 +68,7 @@ export function PullToRefresh({
       >
         <span className="pb-3 font-sans text-[15px] tracking-wide text-ink-faint uppercase">
           {busy
-            ? describeProgress(progress ?? null)
+            ? <Busy>{describeProgress(progress ?? null)}</Busy>
             : armed
               ? 'Release to check'
               : 'Pull to check'}

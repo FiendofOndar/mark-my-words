@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Screen } from '../components/Screen';
 import { Field, inputClass, primaryButton, secondaryButton } from '../components/Field';
+import { Busy } from '../components/Spinner';
 import { today } from '../components/PredictionForm';
 import {
   useAuthors,
@@ -175,7 +176,7 @@ export function CaptureScreen() {
             disabled={!ready || busy}
             className={`${primaryButton} w-full py-3 text-[17px]`}
           >
-            {structure.isPending ? 'Reading it...' : 'Draft the criteria'}
+            {structure.isPending ? <Busy>Reading it...</Busy> : 'Draft the criteria'}
           </button>
           {/* Tinted only once one of the two fields is filled. On an untouched
               form the hint is just orientation, and colouring it is scolding

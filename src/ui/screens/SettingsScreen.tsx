@@ -5,6 +5,7 @@ import { resetDb } from '../../data/appDb';
 import { MIGRATIONS } from '../../data/migrations';
 import { applyTheme, readTheme, type Theme } from '../../lib/theme';
 import { Field, SegmentedControl, inputClass, primaryButton, secondaryButton } from '../components/Field';
+import { Busy } from '../components/Spinner';
 import {
   loadVerifierConfig,
   maskKey,
@@ -253,7 +254,7 @@ export function SettingsScreen() {
                     disabled={!apiKey.trim() || listing}
                     className={`${secondaryButton} mt-2 min-h-11 px-4 text-[13px]`}
                   >
-                    {listing ? 'Asking Google...' : 'Show models this key can use'}
+                    {listing ? <Busy>Asking Google...</Busy> : 'Show models this key can use'}
                   </button>
                   <p className="mt-2 text-[12px] text-ink-faint">
                     Free keys are limited per minute as well as per day, so give it a few seconds
@@ -331,7 +332,7 @@ export function SettingsScreen() {
                     disabled={!apiKey.trim() || test.state === 'running'}
                     className={`${secondaryButton} min-h-11 px-4 text-[13px]`}
                   >
-                    {test.state === 'running' ? 'Testing...' : 'Test connection'}
+                    {test.state === 'running' ? <Busy>Testing...</Busy> : 'Test connection'}
                   </button>
                 </div>
 
