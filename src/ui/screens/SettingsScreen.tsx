@@ -484,9 +484,14 @@ export function SettingsScreen() {
           </div>
         </section>
 
+        {/* Which build this is, in the words of the change that made it. The
+            release page on GitHub carries the same line, so telling whether
+            the phone is on the latest build is reading two lines, not
+            remembering a hash. */}
         <p className="text-[12px] text-ink-faint">
-          Phase 0.6 on {platformName()}. None of the native adapters have been run on a device
-          yet.
+          {import.meta.env.VITE_BUILD_LABEL
+            ? `Installed build: ${import.meta.env.VITE_BUILD_LABEL}. Built ${import.meta.env.VITE_BUILD_TIME}. The latest release on GitHub shows the same line for what is available.`
+            : `Development build on ${platformName()}.`}
         </p>
       </div>
     </Screen>
