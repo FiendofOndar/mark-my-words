@@ -7,7 +7,16 @@ import type { FetchStatus } from '../domain/types';
 import type { CitedSource } from './types';
 
 export type PageFetchOutcome =
-  | { kind: 'ok'; text: string }
+  /**
+   * `finalUrl` is where the fetch actually landed, which is not always where it
+   * was pointed. Gemini's grounding returns redirect URLs on
+   * vertexaisearch.cloud.google.com, and when the model cites those rather than
+   * the publisher's own address, every judgement the app makes from a domain -
+   * the tier, whether two sources are independent, whether the publisher name
+   * can be true - was being made about Google. Two different outlets counted as
+   * one source and a National Weather Service record scored as an unknown site.
+   */
+  | { kind: 'ok'; text: string; finalUrl?: string }
   | { kind: 'unreachable' }
   | { kind: 'blocked' };
 
@@ -101,6 +110,10 @@ export async function validateSources(
       const text = stripHtml(outcome.text);
       return {
         ...source,
+        // Follow the redirect through to whoever actually published this, so
+        // the record, the link the user taps, and everything scored from the
+        // domain all name the real source.
+        url: outcome.finalUrl?.trim() || source.url,
         fetchStatus: pageContainsQuote(text, source.quotedText) ? 'ok' : 'quote_not_found',
         fetchedAt,
       };
@@ -130,7 +143,7 @@ export class BrowserPageFetcher implements PageFetcher {
       const response = await fetch(url, { signal: controller.signal, redirect: 'follow' });
       if (response.status === 404 || response.status === 410) return { kind: 'unreachable' };
       if (!response.ok) return { kind: 'blocked' };
-      return { kind: 'ok', text: await response.text() };
+      return { kind: 'ok', text: await response.text(), finalUrl: response.url };
     } catch {
       return { kind: 'blocked' };
     } finally {

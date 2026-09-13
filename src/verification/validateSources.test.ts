@@ -137,3 +137,59 @@ describe('validateSources', () => {
     expect(result.map((r) => r.fetchStatus)).toEqual(['ok', 'blocked']);
   });
 });
+
+describe('grounding redirects', () => {
+  it('records the publisher the redirect landed on, not the redirect', async () => {
+    // The real one. Gemini cited two different outlets, both as
+    // vertexaisearch.cloud.google.com/grounding-api-redirect/... links, so the
+    // app judged both by Google's domain: two sources collapsed to one, an NWS
+    // climate record scored as an unknown site, and the resulting "only one
+    // independent source" gate blocked a verdict the model was 98% sure of.
+    const fetcher: PageFetcher = {
+      canProveUnreachable: true,
+      fetchPage: async () => ({
+        kind: 'ok',
+        text: 'the thing definitively happened on Tuesday in front of everyone',
+        finalUrl: 'https://www.weather.gov/sew/climate-report',
+      }),
+    };
+
+    const [validated] = await validateSources(
+      [
+        {
+          url: 'https://vertexaisearch.cloud.google.com/grounding-api-redirect/abc123',
+          title: null,
+          publisher: 'National Weather Service',
+          publishedAt: '2026-09-11',
+          quotedText: 'the thing definitively happened on Tuesday in front of everyone',
+          tier: 'primary',
+        },
+      ],
+      fetcher,
+    );
+
+    expect(validated!.url).toBe('https://www.weather.gov/sew/climate-report');
+    expect(validated!.fetchStatus).toBe('ok');
+  });
+
+  it('keeps the cited URL when the fetch never landed anywhere', async () => {
+    const fetcher: PageFetcher = {
+      canProveUnreachable: true,
+      fetchPage: async () => ({ kind: 'blocked' }),
+    };
+    const [validated] = await validateSources(
+      [
+        {
+          url: 'https://example.com/a',
+          title: null,
+          publisher: 'Someone',
+          publishedAt: null,
+          quotedText: 'x',
+          tier: 'secondary',
+        },
+      ],
+      fetcher,
+    );
+    expect(validated!.url).toBe('https://example.com/a');
+  });
+});
