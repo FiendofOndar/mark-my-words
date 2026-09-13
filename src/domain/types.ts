@@ -123,7 +123,6 @@ export interface Prediction {
   // state
   status: PredictionStatus;
   trend: Trend | null;
-  confidenceScore: number | null;
   resolvedAt: Iso | null;
   resolvedBy: ResolvedBy | null;
   lateHitAt: Iso | null;
@@ -179,8 +178,8 @@ export interface Check {
   model: string | null;
   proposedVerdict: PredictionStatus | 'no_change' | null;
   proposedTrend: Trend | null;
-  rubricScore: number | null;
-  rubricBreakdown: string | null;
+  /** What the app noticed about the citations that kept it from acting alone. */
+  gates: string[];
   modelConfidence: number | null;
   summary: string;
   outcome: CheckOutcome;
@@ -195,30 +194,20 @@ export interface Check {
 
 export type SourceTier = 'primary' | 'major_outlet' | 'secondary' | 'social';
 /**
- * What the app learned by opening a cited page itself.
+ * What the app learned by opening a cited link itself: whether it goes
+ * anywhere. `ok` means the page answered, `blocked` means the host answered
+ * but refused the app (a bot wall, a paywall, a timeout), `unreachable` means
+ * there is no page there. Only the last is evidence of an invented citation.
  *
- * `facts_found` sits between a verbatim hit and nothing: the page loaded and
- * every number, date and proper noun in the quoted line is on it, but the
- * sentence is not. Four real checks in a row confirmed almost nothing, because
- * a model working from search snippets reproduces the substance of a line
- * reliably and its exact wording almost never, and the matcher only recognised
- * the wording. A page carrying "71" and "Anacortes" and "September 5" is not
- * proof of a fabricated citation, which is the one thing this layer exists to
- * catch.
+ * There used to be two more, for a page that loaded but did not carry the
+ * quoted sentence, or carried its figures without its wording. Neither reached
+ * a decision, and telling drift from invention was never something a text
+ * match could do. The verdict is the model's; the link is the app's.
  *
  * `not_checked` is for evidence that never went through the fetch stage at all
- * - seeded samples, imported records. It is not `blocked`: nobody tried. The
- * sample check used to say "page would not open" about three pages the app had
- * never opened, which is a small lie in the one part of the screen that exists
- * to tell you what the app verified for itself.
+ * - seeded samples, imported records. It is not `blocked`: nobody tried.
  */
-export type FetchStatus =
-  | 'ok'
-  | 'facts_found'
-  | 'unreachable'
-  | 'quote_not_found'
-  | 'blocked'
-  | 'not_checked';
+export type FetchStatus = 'ok' | 'unreachable' | 'blocked' | 'not_checked';
 
 export interface Evidence {
   id: Uuid;

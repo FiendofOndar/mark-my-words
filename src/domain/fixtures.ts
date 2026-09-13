@@ -34,7 +34,6 @@ export function makePrediction(overrides: Partial<Prediction> = {}): Prediction 
     noCheckBefore: null,
     status: 'open',
     trend: 'unknown',
-    confidenceScore: null,
     resolvedAt: null,
     resolvedBy: null,
     lateHitAt: null,

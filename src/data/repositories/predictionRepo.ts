@@ -186,7 +186,6 @@ export class PredictionRepo {
       noCheckBefore: input.noCheckBefore ?? null,
       status: input.status ?? 'open',
       trend: (input.status ?? 'open') === 'open' ? 'unknown' : null,
-      confidenceScore: null,
       resolvedAt: null,
       resolvedBy: null,
       lateHitAt: null,

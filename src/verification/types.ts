@@ -96,7 +96,6 @@ export interface CitedSource {
 export interface CriterionStatus {
   index: number;
   satisfied: boolean;
-  basis: 'quoted' | 'inferred' | 'none';
   why: string;
 }
 
@@ -122,6 +121,14 @@ export interface CheckResult {
    * usually started with the wrong query.
    */
   searchQueries?: string[] | null;
+  /**
+   * Something the provider returned that the app could not read, verbatim,
+   * so it can be diagnosed from the check log instead of guessed at. Used
+   * today for a grounded response that reports no search queries: the field
+   * name was written from memory once and did not work, and the only way to
+   * see what actually arrives is to show it.
+   */
+  providerNote?: string | null;
 }
 
 export class VerifierError extends Error {
@@ -147,8 +154,6 @@ export class VerifierError extends Error {
 export interface Verifier {
   readonly providerId: string;
   readonly modelId: string;
-  /** null when the provider publishes no daily cap. */
-  readonly dailyQuota: number | null;
   structure(input: StructureInput): Promise<StructureResult>;
   check(input: CheckInput): Promise<CheckResult>;
   /** Cheap round trip to prove the key works. */

@@ -140,13 +140,12 @@ At intake, every `polarity: negative` prediction must store a **disconfirming tr
 concrete event that, if found, kills the claim. Checks hunt for that trigger, never for the negative itself.
 
 - Trigger found before deadline → `miss`, immediately.
-- Deadline passes, trigger never found → `hit`, auto-resolved.
-- User has set `force_manual: true` on the prediction → deadline passes, app surfaces a summary of
-  everything it searched and found nothing, and asks the user to confirm. Nothing auto-resolves.
+- Deadline passes, trigger never found → the app queues a `hit` for the user's approval, with the
+  check log saying what was searched. It never applies the absence on its own: "the search found
+  nothing" and "nothing happened" are different claims, and only the user can make the second one.
 
-`force_manual` is a per-prediction toggle available at intake and editable at any time. Use it for
-topics where the user does not trust a null search result (obscure subjects, non-English sources,
-anything where "no news" plausibly means "the search was bad").
+`force_manual` is a per-prediction toggle available at intake and editable at any time. For a
+negative claim it changes nothing, since the deadline path already asks.
 
 ### 3.5 Author
 
@@ -487,7 +486,7 @@ The model is instructed to use web search grounding and return:
   "verdict": "hit | miss | partial | ambiguous | no_change",
   "trend": "toward_yes | toward_no | flat | unknown",
   "summary": "1-3 sentences",
-  "criteria_status": [ { "index": 0, "satisfied": true, "why": "..." } ],
+  "criteria_status": [ { "index": 1, "satisfied": true, "why": "..." } ],   // 1-based, as listed in the prompt
   "sources": [
     {
       "url": "https://...",
@@ -504,59 +503,44 @@ The model is instructed to use web search grounding and return:
 
 ### 6.4 Source validation
 
-Before the verdict is scored, the app validates every cited URL itself. This is the single most
-important guardrail, because the most common model failure is a confident verdict resting on a
+The app opens every cited URL itself, to confirm the link goes somewhere. This is the guardrail
+against the one failure nothing else in the pipeline can catch: a confident verdict resting on a
 plausible-looking URL that does not exist.
 
 For each source:
-1. HTTP GET the URL (follow redirects, 10 second timeout).
-2. If non-200 or unreachable → `fetch_status: unreachable`.
-3. Strip HTML to text and search for `quoted_text` (normalized whitespace, case-insensitive,
-   fuzzy match at 90% similarity to survive ellipses and smart quotes).
-4. Found → `ok`. Not found → `quote_not_found`. 403 / bot wall → `blocked`.
+1. HTTP GET the URL, following redirects. Grounding returns redirect addresses, and the source is
+   recorded against where the fetch landed, since tier and independence are judged from the domain.
+2. 404 / 410 / DNS failure → `unreachable`. 403 / paywall / timeout → `blocked`. Anything that
+   answered → `ok`. Seeded or imported evidence is `not_checked`.
 
-Sources that fail validation still get stored, marked, and shown in the evidence trail. They just
-do not earn points.
+The page body is not read. An earlier version matched it against the quoted passage, then against
+the passage's figures; neither answer reached a decision, and a text match cannot tell a rewritten
+page from an invented one. The quoted passage is still requested and shown beside the link as the
+citation. On screen a working link gets a green check and a dead one a yellow mark, and that is all
+the mark means.
 
-### 6.5 Confidence rubric
+### 6.5 What stands between a verdict and the record
 
-The score is computed by the app from checkable properties of the evidence. The model's own
-confidence number is a minority input because it reflects how confident the sentence sounded,
-not how good the evidence is.
+The verdict is the model's. The app applies it unless it noticed something about the citations
+that a person should see first, or the model itself reported it was unsure. There is no score.
 
-**Evidence rubric, 100 points:**
-
-| Dimension | Points | Scoring |
-|---|---|---|
-| Independent source count | 30 | 0 sources: 0. One: 10. Two independent: 22. Three or more: 30. Same publisher counts once. |
-| Source tier | 25 | Highest tier present: primary/official 25, major outlet 18, secondary 10, social/blog 4. |
-| URL validation | 20 | All sources `ok`: 20. Majority `ok`: 10. Any `unreachable`: 0. |
-| Criteria coverage | 15 | All elements explicitly satisfied by a quoted passage: 15. Partial: 7. Inferred rather than stated: 3. |
-| Temporal sanity | 10 | All sources published after `statement_date` and inside the claim window: 10. Otherwise 0. |
-
-**Model confidence applied as a cap, not a bonus:**
-
-```
-final_score = min(evidence_rubric, model_confidence + 20)
-```
-
-A perfect evidence trail with a model that says 60% lands at 80 and goes to manual review.
-A model that says 99% with one blog post still lands in the 30s.
-
-**Hard gates. No auto-resolve if any of these are true, regardless of score:**
-- Fewer than two independent sources.
-- Any cited URL returned `unreachable`.
-- Any source is dated before `statement_date` (unless `is_retroactive`).
-- `force_manual` is set on the prediction.
+**Gates. A gated verdict is queued for approval, never buried and never applied:**
 - The proposed verdict is `partial` or `ambiguous`.
+- `force_manual` is set on the prediction.
+- No sources were cited, or only one and it is not a primary source (a .gov host or a governing
+  body the app recognises). One source is enough when it is the body that keeps the record.
+- Every cited link is unreachable. One dead link among pages that resolved is a citation error,
+  not fabrication; it just stops counting as corroboration.
+- Every source predates the prediction (unless `is_retroactive`). One old background page among
+  newer ones is fine.
+- A source is credited to a publisher the host cannot be, and nothing clean and reachable is left.
+  If other sources stand, the mismatch is noted on the row instead.
 
-**Thresholds:**
+**Model confidence:** read once. Under 70 the verdict is queued, because that is the model saying it
+is torn. It never raises anything.
 
-| Score | Action |
-|---|---|
-| 95 to 100 | Auto-resolve. Notification on next open. Reversible from the detail screen. |
-| 80 to 94 | Queue for approval. Feed row shows "Verdict ready", detail screen shows the proposed verdict with Approve / Reject / Edit. |
-| Below 80 | No resolution. Record the check, update the trend, stay open. |
+A gate fires on "nothing here works", never on "one thing does not". Every gate that fired on a
+single bad citation among good ones blocked a correct verdict, four times over.
 
 ### 6.6 Reversal and override
 
@@ -585,9 +569,14 @@ it only makes the trail visible.
 
 The verdict never changes. A miss is a miss permanently, because the timeframe was part of the claim.
 
-When a prediction resolves `miss` at its deadline, the app sets `late_watch_until` to
+When an event-shaped prediction resolves `miss`, the app sets `late_watch_until` to
 `resolution_date + late_watch_period` (default 3 years, configurable per prediction: never, 1 year,
-3 years, forever). The prediction stays on the 30-day cadence.
+3 years, forever) and the prediction stays on the 30-day cadence. A dated claim (fixed date or
+window) defaults to no watch: a day's high temperature cannot come true later, and every check under
+watch is a paid call. A person can turn the watch on for a particular prediction.
+
+A late-watch check that confirms the miss records the check and changes nothing. It must never try
+to re-apply the verdict; that once threw on the miss-to-miss transition and ended the whole pull.
 
 If the event later occurs, the app sets `late_hit_at`, keeps `status: miss`, and the record gains a
 gold "Better Late Than Never" badge showing the actual delay: *"Called it, 19 months late."*
@@ -718,8 +707,8 @@ future per-category statistics usable; freeform tags alone would degrade into `A
 - **Malformed model JSON.** Retry once with a repair prompt containing the schema and the bad output.
   On second failure, write a `checks` row with `outcome: error` and move on. Never consume the
   prediction's cadence slot on an error; it stays due.
-- **All sources fail validation.** Downgrade the verdict to `ambiguous` with score 0, record it,
-  leave the prediction open, and surface it in "Needs you" after three consecutive such checks.
+- **No cited link resolves.** The verdict is queued for the user with the reason on the check log.
+  It is the signature of invented citations, and also of a model that got every deep link wrong.
 - **Offline pull.** Detect no connectivity, show "Offline. Last checked 4 days ago" without consuming
   quota or writing check rows.
 - **Quota exhausted mid-pull.** Stop cleanly, report checks completed and deferred, keep the deferred
@@ -911,7 +900,7 @@ sync backend, public figure auto-ingest.
 | Gemini free-tier grounding limits are lower than assumed | Medium | Quota meter and per-pull budget already cap usage; fall back to a paid key |
 | Archive services fail on the platforms that matter most (Instagram, TikTok) | Medium | Screenshot prompt at capture for those hosts |
 | Source URL fetching is blocked by bot walls on major outlets | Medium | `blocked` status earns no points; rubric already tolerates partial validation |
-| The model resolves confidently and wrongly | High | Hard gates, URL validation, quote matching, and the 80-94 review band exist for this |
+| The model resolves confidently and wrongly | High | The gates, the link check, the model's own confidence, and a reversible verdict exist for this |
 | Capture friction kills the habit | High | Share sheet must work on day one; a capture that takes more than one tap will not happen |
 | App is opened rarely enough that checks never run | Medium | The three notification triggers are the only thing pulling the user back; measure and add if needed |
 | Android OEM battery managers drop scheduled notifications | Medium | Re-schedule all pending notifications on every app open |
@@ -931,10 +920,10 @@ sync backend, public figure auto-ingest.
 | Intake | AI drafts resolution criteria, user confirms, criteria freeze on first check |
 | Criteria edits | Free until first check, then amendment log with required reason |
 | Verdict states | open (with trend), hit, miss, partial, ambiguous, void |
-| Resolution authority | Auto-resolve at 95+, manual approval 80-94, open below 80, always reversible |
-| Confidence | Computed from evidence rubric; model self-confidence is a cap, not a bonus |
-| Negative claims | Store a disconfirming trigger, auto-resolve hit at deadline, `force_manual` toggle to opt out |
-| Late hits | Verdict stays miss permanently, gains a Better Late Than Never badge and its own list |
+| Resolution authority | The verdict is applied unless a gate fires or the model reports confidence under 70; then it is queued for approval; always reversible |
+| Confidence | No score. The model's confidence is read once, as a reason to ask |
+| Negative claims | Store a disconfirming trigger; at the deadline with nothing found, queue a hit for approval |
+| Late hits | Verdict stays miss permanently, gains a Better Late Than Never badge and its own list; watched by default only for event-shaped claims |
 | Deadlines | Fixed date, window, or event-triggered; races require a stale-out date |
 | Authors | First-class records, leaderboard with volume shown, minimum five scored to rank |
 | Backfill | Accepted, flagged retroactive, excluded from hit-rate math |

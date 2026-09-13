@@ -98,7 +98,7 @@ summarized context, read this before acting.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 354 tests, all of them fast
+npm test           # 320 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -193,14 +193,15 @@ is for.
   be filed `primary`, and two pages on one site labelled "AP" and "Reuters"
   counted as two independent sources. `src/domain/sources.ts` decides both from
   the URL, and flags a publisher name the host cannot support.
-- **The verdict decides. The score describes.** The rubric measures whether the
-  citations check out, and it was being read as though it measured whether the
-  answer is right. Those are different questions, and requiring 95/100 of the
-  first meant the app could get a correct miss and file it as "no change"
-  because two pages had been rewritten since the model read them. The score is
-  information on the check log now. Only two things stand between a verdict and
-  the record: a gate, and the model reporting confidence under `CONFIDENT_AT`.
-  Both ask the user; neither buries the finding.
+- **The verdict decides. There is no score.** A 0-100 evidence rubric used to
+  sit beside the gates. First it decided (a correct miss filed as "no change"
+  because two pages had been rewritten since the model read them), then it was
+  demoted to information on the check log, where it printed two structurally
+  wrong numbers on correct checks. It is gone. `src/domain/gates.ts` is what is
+  left: a gate is something the app noticed about the citations, and the only
+  other thing that stops a verdict is the model reporting confidence under
+  `CONFIDENT_AT`. Both queue the verdict for the user; neither buries it. Do
+  not bring a composite number back.
 - **One source is enough when it is the body that keeps the record.** The NWS
   does not report a temperature, it measures it, and requiring a second
   independent outlet before believing it blocked a correct verdict four times
@@ -213,26 +214,28 @@ is for.
   not inventing citations; it got one deep link wrong. The gate fires only when
   every cited source is unreachable. A dead link still costs its place in the
   independent-source count, because a page that does not exist corroborates
-  nothing. `quote_not_found` and `blocked` cost points and gate nothing.
+  nothing. `blocked` gates nothing.
 - **Reporting comes after the event, so a late publication date is not a
-  problem.** The score used to require every source to be published before the
+  problem.** A rule once required every source to be published before the
   deadline the claim named. A Sunday night game is written up on Monday
   morning; a check run six months later cites a retrospective from six months
-  later. Both scored as though the dates did not add up. A publication date
-  cannot tell you an article is about the wrong event - only its contents can,
-  and that is the criteria's job. What is still checked: every source carries a
-  date, and none of them predate the prediction.
+  later. A publication date cannot tell you an article is about the wrong
+  event - only its contents can, and that is the criteria's job. What is still
+  gated: a check where every source predates the prediction. An undated source
+  is unknown, not old.
 - **A gate fires on "nothing here works", never on "one thing does not".** This
-  shape has now been wrong three times: any single dead link gated the check,
-  any single stale quote gated it, and any single source older than the
-  prediction gated it. Each time a correct verdict carried by the other sources
-  was blocked by one bad citation among them. Citing background alongside the
-  decisive article is not a defect. The score still falls for the bad one; only
-  the gate is reserved for a check where every source failed the same way.
+  shape has now been wrong four times: any single dead link gated the check,
+  any single stale quote gated it, any single source older than the prediction
+  gated it, and any single mislabelled publisher gated it (a YouTube link
+  called ESPN held a verdict carried by mlb.com and Wikipedia). Each time a
+  correct verdict carried by the other sources was blocked by one bad citation
+  among them. Citing background alongside the decisive article is not a defect.
+  The bad one is marked on its row; the gate is reserved for a check where
+  every source failed the same way.
 - **`hold` is only for a check that resolved nothing.** A verdict the app cannot
   act on is still a verdict somebody should see.
-- **Model confidence can only lower the score, never raise it.** The score is
-  computed by the app from evidence the app verified itself.
+- **Model confidence is read once, as a reason to ask.** Under `CONFIDENT_AT`
+  the verdict is queued. It never makes a verdict stronger.
 - **A seeded check is indistinguishable from a real one on screen, so it must
   never assert anything false.** The seed once claimed a World Series winner for
   a season that had not been played, on example.com URLs under real wire-service
@@ -252,22 +255,14 @@ is for.
   could not read the page; a dead URL means there may be no page. Neither is
   proof of a fake on its own. Calling a real citation invented is the one
   mistake this layer exists to prevent.
-- **The page check matches on facts, not on wording.** Verbatim matching
-  confirmed 1, 2, 0 and 0 citations across four real runs, because a model
-  writing from a search snippet reproduces the substance of a line reliably and
-  its exact phrasing almost never. `pageSupportsQuote` asks the narrower
-  question the layer actually exists to answer: does this page carry the
-  figures, dates and names the verdict rests on? All of them, or it is a miss -
-  a partial hit is what the wrong year and the wrong town look like, and both
-  have really happened here. A page passing that but not the verbatim match is
-  `facts_found`, worth 16 of 20 against a verbatim 20.
-- **Dates and units are where this breaks, so both are normalised.** A weather
-  service climate report writes "SEPT 5 2026." and "71F" where the model wrote
-  "September 5, 2026" and "71 degrees". Months collapse to three letters against
-  an explicit table (never a prefix match: "may" is a prefix of "mayor"), digit
-  runs are pulled out of alphanumeric tokens, an ISO date expands to year,
-  month and day, and trailing periods are trimmed off page tokens - `words`
-  keeps them, because it also has to keep the one in "71.4".
+- **The link check is a link check.** `validateSources` opens each cited URL
+  and records whether it answered. It does not read the page. Two generations
+  of text matching lived here (verbatim, then figures-and-names, with month
+  tables and unit normalisation) and neither answer ever reached a decision:
+  a real page whose wording moved on is still a real page, and the matcher
+  could not tell drift from invention by its own admission. Most of one
+  session's bugs were in that layer. Do not rebuild it; the quoted passage is
+  shown as the citation and the reader judges it.
 - **A hit rate is never shown for an author who is not ranked.** `formatHeadline`
   is the one place that decides. A 1-0 record printed as "100%" is the
   cherry-pick the five-call threshold exists to refuse, and it had reached the
@@ -300,13 +295,19 @@ is for.
   end-of-day, so west of Greenwich the UTC date is already tomorrow. Use
   `toLocalDateInput`. This has now shipped twice: once in the check prompt, once
   in the seed's own prose, and both times only misbehaved after 5pm Pacific.
-- **A citation the app could not confirm is not a citation it disproved.** A
-  moved quote and an invented one are different things. Live pages (forecasts,
-  scoreboards, "today" pages) rewrite themselves between the model reading them
-  and the app fetching them, so `quote_not_found` on a page that served content
-  earns a little credit and `facts_found` earns most of a hit. `blocked` still
-  earns nothing: the page was never read.
-  The check prompt tells the model to cite the record, not the forecast.
+- **A late-watch re-check must never re-apply the verdict.** The likeliest
+  answer on a settled miss is "still a miss", and passing that to `resolve`
+  throws on the miss-to-miss transition. It once ended the whole pull. Under
+  late watch anything but a hit records the check and changes nothing, and the
+  pull loop files anything that escapes `runCheck` as a failed check row.
+- **A negative claim is settled by asking, not by the model.** An absence has
+  no sources, and a sourceless verdict is held open by the parser, so the
+  model can never deliver the hit the spec describes. Past the deadline, a
+  check that finds nothing queues a hit for approval. The prompt tells the
+  model never to return hit on a negative claim.
+- **Late watch is for claims that can still happen.** Every miss used to get
+  three years of monthly paid checks, including a day's high temperature.
+  `defaultLateWatch` gives it to event-shaped claims only; dated ones opt in.
 - **The billed unit is the search, not the check.** Gemini charges per search
   query on a grounded call, so twenty checks can cost twenty searches or two
   hundred depending on whether the model respected a ceiling the prompt cannot
@@ -336,10 +337,9 @@ and produces two independent data points per attempt.
 | sources | a .gov page that rewrites hourly | static recaps from Feb 2025 |
 | tier | primary | major outlet, plus nfl.com |
 
-The Super Bowl one is the only fair test of the page check in the app: those
-recap pages have not changed since the night they were published. If nothing can
-be confirmed there - not even on the figures - the page-fetching layer is not
-earning its keep and should be reduced to a reachability check.
+The Super Bowl one is the two-criterion fixture, which is what caught the
+criterion index being off by one: its headline criterion showed unticked on a
+HIT. Its recap pages are static, so its links should always come back green.
 
 Its result was verified against live sources before seeding. A fabricated demo
 verdict about a real team has already misled someone once here; do not do it
@@ -387,10 +387,13 @@ again.
   manual checks against a live key returned three correct verdicts: the
   Anacortes miss and the Super Bowl hit both settled without asking, and the
   Dodgers hit was held because the model cited a YouTube link and labelled it
-  ESPN. The page check confirmed three quotes verbatim and matched one on its
-  figures, against 1, 2, 0 and 0 on the four runs before it. What is still
-  unverified is the search-count instrumentation, which came back empty (see
-  HANDOFF.md, bug 4).
+  ESPN (that gate has since been narrowed: the two clean sources should have
+  carried it). The page check confirmed three quotes verbatim and matched one
+  on its figures, against 1, 2, 0 and 0 on the four runs before it; the layer
+  was then reduced to a link check, because none of those confirmations reached
+  a decision. What is still unverified is the search-count instrumentation,
+  which came back empty; the next build prints the raw grounding metadata on
+  the check log when that happens (see HANDOFF.md, bug 4).
 - **The Android build runs on a real device.** Debug APKs from CI have been
   installed and exercised on the owner's phone: notifications, the check
   pipeline, Capacitor HTTP fetching of cited pages. The build container still

@@ -1,48 +1,38 @@
 import type { Check, Evidence, FetchStatus, PredictionStatus } from '../../domain/types';
 import type { CheckLogEntry } from '../queries';
 import { STATUS_LABEL, formatDate } from '../../domain/format';
-import { registrableDomain } from '../../domain/sources';
+import { publisherMismatch, registrableDomain } from '../../domain/sources';
 import { Pill } from './Stamp';
 import { Bullets } from './Bullets';
 
 /**
- * What the app found when it opened the cited page itself.
+ * Whether the cited link goes anywhere, which is the one thing about a citation
+ * the app checks for itself. A green check means you can tap it and land on a
+ * page; a yellow mark means there is no page there.
  *
- * `short` is printed on the row. The glyph alone was read as "does this source
- * agree with the claim", which is not what it means at all, and there is no
- * hover on a phone to correct it.
+ * `short` is printed on the row. A glyph alone was read as "does this source
+ * agree with the claim", which is not what it means, and there is no hover on
+ * a phone to correct it.
  */
 const FETCH_LABEL: Record<FetchStatus, { glyph: string; short: string; label: string; tone: string }> = {
-  ok: { glyph: '✓', short: 'quote verified', label: 'Quote found on the page', tone: 'text-hit' },
-  facts_found: {
-    glyph: '≈',
-    short: 'figures match the page',
-    label: 'Page loaded; its figures and names match the quote, its wording does not',
+  ok: { glyph: '✓', short: 'link works', label: 'The page answered', tone: 'text-hit' },
+  blocked: {
+    glyph: '✓',
+    short: 'link works',
+    label: 'The host answered but would not show the app the page',
     tone: 'text-hit',
   },
-  quote_not_found: {
+  unreachable: {
     glyph: '!',
-    short: 'quote not found on page',
-    label: 'Page loaded, quote not found',
+    short: 'link does not work',
+    label: 'There is no page at this address',
     tone: 'text-partial',
-  },
-  blocked: {
-    glyph: '–',
-    short: 'page would not open',
-    label: 'Could not read the page',
-    tone: 'text-ink-faint',
   },
   not_checked: {
     glyph: '·',
     short: 'not checked',
-    label: 'The app has not opened this page',
+    label: 'The app has not tried this link',
     tone: 'text-ink-faint',
-  },
-  unreachable: {
-    glyph: '✕',
-    short: 'link did not resolve',
-    label: 'Link did not resolve',
-    tone: 'text-miss',
   },
 };
 
@@ -71,55 +61,33 @@ function outcomeLabel(check: Check): string {
 }
 
 /**
- * What the app actually established, as a count.
- *
- * This slot used to read "88/100", which sounded like a probability that the
- * verdict was right. It was a composite of five weighted dimensions describing
- * the citation paperwork, and once the verdict stopped depending on it the
- * number implied a precision it never had. Sources confirmed is the part the
- * app knows first-hand: it fetched those pages and found the quoted line.
+ * What the app stood behind, as a count of independent sources whose links
+ * work. Counted by domain, the way the gates count, or the two disagree on
+ * screen: this once read "2 sources" beside a gate saying only one had been
+ * cited, because it was counting a dead link and a duplicate domain.
  */
 export function describeSources(evidence: Evidence[]): string {
   if (evidence.length === 0) return 'no sources';
 
-  // Counted the way the scoring counts, or the two disagree on screen: this
-  // read "2 sources" beside a gate saying only one had been cited, because it
-  // was counting a dead link and a duplicate domain that the rubric was not.
-  const domains = new Set(
-    evidence
-      .filter((e) => e.fetchStatus !== 'unreachable')
-      .map((e) => registrableDomain(e.url) ?? e.url),
-  );
-  if (domains.size === 0) return 'no source reachable';
+  const domainOf = (e: Evidence) => registrableDomain(e.url) ?? e.url;
+  const cited = new Set(evidence.map(domainOf));
+  const plural = cited.size === 1 ? 'source' : 'sources';
 
-  const confirmed = new Set(
-    evidence.filter((e) => e.fetchStatus === 'ok').map((e) => registrableDomain(e.url) ?? e.url),
-  );
-  const plural = domains.size === 1 ? 'source' : 'sources';
-  if (confirmed.size === domains.size) {
-    return domains.size === 1 ? '1 source, confirmed' : `${domains.size} sources, all confirmed`;
-  }
-  if (confirmed.size > 0) return `${confirmed.size} confirmed of ${domains.size} ${plural}`;
-
-  /*
-   * A page that still carries the quote's figures is not a source that failed
-   * to check out, and reading "none quoted back" over an evidence list that
-   * matched on every number was the panel calling a correct verdict unsupported.
-   */
-  const supported = new Set(
-    evidence
-      .filter((e) => e.fetchStatus === 'facts_found')
-      .map((e) => registrableDomain(e.url) ?? e.url),
-  );
-  if (supported.size > 0) return `${supported.size} of ${domains.size} match on the figures`;
-
-  // "None quoted back" implies the app looked. On a seeded or imported check
-  // it never did, and saying otherwise is the same small lie as marking those
+  // "None working" implies the app looked. On a seeded or imported check it
+  // never did, and saying otherwise is the same small lie as marking those
   // rows "page would not open".
   if (evidence.every((e) => e.fetchStatus === 'not_checked')) {
-    return `${domains.size} ${plural}, none checked`;
+    return `${cited.size} ${plural}, links not checked`;
   }
-  return `${domains.size} ${plural}, none quoted back`;
+
+  const working = new Set(
+    evidence.filter((e) => e.fetchStatus !== 'unreachable').map(domainOf),
+  );
+  if (working.size === 0) return `${cited.size} ${plural}, no link works`;
+  if (working.size === cited.size) {
+    return cited.size === 1 ? '1 source, link works' : `${cited.size} sources, links work`;
+  }
+  return `${working.size} of ${cited.size} ${plural} with working links`;
 }
 
 export function CheckLog({
@@ -157,7 +125,7 @@ export function CheckLog({
                 One of them asserts a World Series winner for a season that has
                 not been played. */}
             {check.provider === 'demo' && <Pill tone="warn">Sample</Pill>}
-            {check.rubricScore !== null && <ScoreChip check={check} evidence={evidence} />}
+            {check.outcome !== 'error' && <SourcesChip check={check} evidence={evidence} />}
           </div>
 
           {check.id !== summaryShownAbove && (
@@ -202,10 +170,7 @@ export function CheckLog({
   );
 }
 
-function ScoreChip({ check, evidence }: { check: Check; evidence: Evidence[] }) {
-  const breakdown = parseBreakdown(check.rubricBreakdown);
-  const gates = breakdown?.gates ?? [];
-
+function SourcesChip({ check, evidence }: { check: Check; evidence: Evidence[] }) {
   return (
     <details className="w-full">
       {/* A summary is display:list-item, so once the details opened inside a
@@ -214,27 +179,18 @@ function ScoreChip({ check, evidence }: { check: Check; evidence: Evidence[] }) 
       <summary className="inline-flex w-fit cursor-pointer list-none rounded-full border border-rule px-2 py-0.5 text-[11px] text-ink-dim">
         {describeSources(evidence)}
       </summary>
-      <div className="mt-2 rounded border border-rule bg-surface p-2.5 text-[12px]">
-        {breakdown && (
-          <dl className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1 text-ink-faint">
-            <Row label="Independent sources" value={breakdown.independentSources} max={30} />
-            <Row label="Source tier" value={breakdown.sourceTier} max={25} />
-            <Row label="Links verified" value={breakdown.urlValidation} max={20} />
-            <Row label="Criteria covered" value={breakdown.criteriaCoverage} max={15} />
-            <Row label="Dates make sense" value={breakdown.temporalSanity} max={10} />
-          </dl>
+      <div className="mt-2 rounded border border-rule bg-surface p-2.5 text-[12px] text-ink-faint">
+        {/* The reasons the app did not act on its own, if any. These are the
+            answer to the only question this panel is opened to ask. */}
+        {check.gates.length > 0 ? (
+          <Bullets items={check.gates} className="text-partial" />
+        ) : (
+          <p>Nothing about the citations stopped the app acting on this.</p>
         )}
-        {/* Still here, one layer down, because it is useful when a check goes
-            wrong. It just is not the headline any more. */}
-        <p className="mt-2 text-ink-faint">
-          Evidence scored {check.rubricScore}/100
-          {check.modelConfidence !== null ? `, model confidence ${check.modelConfidence}/100` : ''}.
-          The verdict does not depend on it.
-        </p>
+        {check.modelConfidence !== null && (
+          <p className="mt-2">The model put its confidence at {check.modelConfidence}/100.</p>
+        )}
         <SearchesRun queries={check.searchQueries} />
-        {gates.length > 0 && (
-          <Bullets items={gates} className="mt-2 text-partial" />
-        )}
       </div>
     </details>
   );
@@ -270,26 +226,6 @@ function SearchesRun({ queries }: { queries: string[] | null }) {
   );
 }
 
-/**
- * One line of the rubric.
- *
- * The lines that fell short are tinted, because they are the answer to the only
- * question this panel is opened to ask: why did this not resolve on its own?
- * Every row looked the same, so finding the 10/20 among four perfect scores
- * meant reading all five.
- */
-function Row({ label, value, max }: { label: string; value: number; max: number }) {
-  const short = value < max;
-  return (
-    <>
-      <dt className={short ? 'text-partial' : undefined}>{label}</dt>
-      <dd className={`tabular-nums ${short ? 'text-partial' : ''}`}>
-        {value}/{max}
-      </dd>
-    </>
-  );
-}
-
 function host(url: string): string | null {
   try {
     return new URL(url).hostname.replace(/^www\./, '');
@@ -322,7 +258,16 @@ function EvidenceRow({ source }: { source: Evidence }) {
             layer exists to catch: a citation labelled "AP" sitting on
             example.com read as a real wire report. */}
         {host(source.url) && (
-          <p className="text-[11px] text-ink-faint">{host(source.url)}</p>
+          <p className="text-[11px] text-ink-faint">
+            {host(source.url)}
+            {/* The one thing the label can still do is mislead the reader. */}
+            {publisherMismatch(source.url, source.publisher) && (
+              <span className="text-partial">
+                {' '}
+                &middot; credited to {source.publisher}, which is not whose site this is
+              </span>
+            )}
+          </p>
         )}
         {source.quotedText && (
           <p className="mt-0.5 line-clamp-2 font-display text-[13px] text-ink-faint italic">
@@ -332,23 +277,4 @@ function EvidenceRow({ source }: { source: Evidence }) {
       </div>
     </li>
   );
-}
-
-interface Breakdown {
-  independentSources: number;
-  sourceTier: number;
-  urlValidation: number;
-  criteriaCoverage: number;
-  temporalSanity: number;
-  capApplied: boolean;
-  gates?: string[];
-}
-
-function parseBreakdown(raw: string | null): Breakdown | null {
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as Breakdown;
-  } catch {
-    return null;
-  }
 }

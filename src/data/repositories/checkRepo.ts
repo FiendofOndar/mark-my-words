@@ -22,8 +22,7 @@ export interface NewCheck {
   model: string | null;
   proposedVerdict: PredictionStatus | 'no_change' | null;
   proposedTrend: Trend | null;
-  rubricScore: number | null;
-  rubricBreakdown: unknown;
+  gates?: string[] | null;
   modelConfidence: number | null;
   summary: string;
   outcome: CheckOutcome;
@@ -103,10 +102,10 @@ export class CheckRepo {
       this.db.run(
         `INSERT INTO checks (
            id, prediction_id, ran_at, trigger, provider, model,
-           proposed_verdict, proposed_trend, rubric_score, rubric_breakdown,
+           proposed_verdict, proposed_trend, gates,
            model_confidence, summary, outcome, error_message, tokens_used,
            search_queries, created_at, updated_at, deleted_at
-         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)`,
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)`,
         [
           id,
           input.predictionId,
@@ -116,10 +115,7 @@ export class CheckRepo {
           input.model,
           input.proposedVerdict,
           input.proposedTrend,
-          input.rubricScore,
-          input.rubricBreakdown === undefined || input.rubricBreakdown === null
-            ? null
-            : JSON.stringify(input.rubricBreakdown),
+          input.gates?.length ? JSON.stringify(input.gates) : null,
           input.modelConfidence,
           input.summary,
           input.outcome,

@@ -111,9 +111,9 @@ export function DetailScreen() {
   /**
    * The check that settled this, and the single source worth linking from it.
    *
-   * Preferring a source the app actually confirmed: linking someone to a page
-   * that has since been rewritten, from a verdict that says it was checked, is
-   * the worst version of this. Highest tier wins among equals.
+   * Preferring a link the app saw answer: sending someone to a dead address
+   * from a verdict that says it was checked is the worst version of this.
+   * Highest tier wins among equals.
    */
   const settledBy = isResolved(p.status)
     ? log.find((entry) => entry.check.outcome === 'auto_resolved') ?? null
@@ -231,7 +231,7 @@ export function DetailScreen() {
                   : p.resolvedBy === 'user'
                     ? 'You called it'
                     : p.resolvedBy === 'auto'
-                      ? `Settled automatically${settledBy ? ` · ${describeSources(settledBy.evidence)}` : ''}`
+                      ? `Settled by the app${settledBy ? ` · ${describeSources(settledBy.evidence)}` : ''}`
                       : 'Settled'}
               </p>
 
@@ -684,7 +684,7 @@ const TIER_RANK: Record<string, number> = {
 /** The one citation to put a verdict's name on: confirmed first, then tier. */
 function bestSource(evidence: Evidence[]): Evidence | null {
   const ranked = [...evidence].sort((a, b) => {
-    const confirmed = Number(b.fetchStatus === 'ok') - Number(a.fetchStatus === 'ok');
+    const confirmed = Number(b.fetchStatus !== 'unreachable') - Number(a.fetchStatus !== 'unreachable');
     if (confirmed !== 0) return confirmed;
     return (TIER_RANK[a.tier ?? 'social'] ?? 3) - (TIER_RANK[b.tier ?? 'social'] ?? 3);
   });

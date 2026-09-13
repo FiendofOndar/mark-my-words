@@ -35,10 +35,9 @@ export class CapacitorPageFetcher implements PageFetcher {
       if (status === 401 || status === 403 || status === 429) return { kind: 'blocked' };
       if (status < 200 || status >= 400) return { kind: 'blocked' };
 
-      const text = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
       // Where it landed, not where it was pointed: grounding hands back
       // redirect URLs, and a citation has to be recorded against its publisher.
-      return { kind: 'ok', text, finalUrl: response.url };
+      return { kind: 'ok', finalUrl: response.url };
     } catch (err) {
       // A DNS failure is the signature of an invented citation; a timeout is
       // not, so only the former is reported as unreachable.

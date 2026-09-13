@@ -13,7 +13,6 @@ import { CATEGORIES, type Category } from '../domain/types';
 export class MockVerifier implements Verifier {
   readonly providerId = 'mock';
   readonly modelId = 'offline-heuristics';
-  readonly dailyQuota = null;
 
   async structure(input: StructureInput): Promise<StructureResult> {
     const text = stripPreamble(input.rawStatement);

@@ -48,17 +48,29 @@ describe('transitions', () => {
 describe('resolving', () => {
   it('records who resolved it and clears the trend', () => {
     const p = makePrediction();
-    const patch = resolve(p, 'hit', 'auto', NOW, { confidenceScore: 97 });
+    const patch = resolve(p, 'hit', 'auto', NOW);
     expect(patch.status).toBe('hit');
     expect(patch.resolvedBy).toBe('auto');
-    expect(patch.confidenceScore).toBe(97);
     expect(patch.trend).toBeNull();
   });
 
-  it('starts a late watch on a miss and not on a hit', () => {
-    const p = makePrediction();
+  it('starts a late watch on an event-shaped miss and not on a hit', () => {
+    const p = makePrediction({
+      deadlineType: 'event',
+      triggerEvent: 'The film releases',
+      triggerExpectedDate: isoDaysFrom(NOW, -1),
+      staleOutDate: isoDaysFrom(NOW, 365),
+    });
     expect(resolve(p, 'miss', 'auto', NOW).lateWatchUntil).toBeTruthy();
     expect(resolve(p, 'hit', 'auto', NOW).lateWatchUntil).toBeNull();
+  });
+
+  it('does not watch a dated miss, which cannot come true later', () => {
+    // Every miss used to get three years of monthly checks, each a paid call
+    // asking whether a day's high temperature had changed.
+    const p = makePrediction({ deadlineType: 'fixed_date', resolutionDate: isoDaysFrom(NOW, -1) });
+    expect(resolve(p, 'miss', 'auto', NOW).lateWatchUntil).toBeNull();
+    expect(resolve(p, 'miss', 'auto', NOW, { lateWatch: '1y' }).lateWatchUntil).toBeTruthy();
   });
 
   it('honors a late watch period of never', () => {

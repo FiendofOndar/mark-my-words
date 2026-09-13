@@ -21,7 +21,7 @@ Rules that matter:
 
 5. FLAG AMBIGUITY, DO NOT GUESS IT AWAY. "The Cardinals" is two teams. "Next winter" depends on hemisphere. "The election" needs a year. Put each one in ambiguities as a direct question for the user. Still fill in your best reading of the other fields.
 
-6. VERIFIABILITY IS HONEST. Mark "manual" when no public source would report the outcome: private life, personal relationships, anything about the user's own household or neighbors. Also lean manual when general web search is structurally weak on the topic (local weather details, obscure sports statistics, niche hobbyist outcomes) and say so in verifiability_reasoning.
+6. VERIFIABILITY IS HONEST. Mark "manual" when no public source would report the outcome: private life, personal relationships, anything about the user's own household or neighbors. Also lean manual when no public record would carry the outcome (obscure sports statistics, niche hobbyist outcomes) and say so in verifiability_reasoning. Local weather is searchable: official station records are public.
 
 7. DATES ARE YYYY-MM-DD. Relative phrases resolve against the given date of today. "In 6 months" from 2026-09-12 is 2027-03-12.
 

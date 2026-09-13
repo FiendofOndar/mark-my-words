@@ -144,6 +144,20 @@ export type LateWatchPeriod = 'never' | '1y' | '3y' | 'forever';
 export const DEFAULT_LATE_WATCH: LateWatchPeriod = '3y';
 
 /**
+ * Whether a miss should keep being checked for a late hit.
+ *
+ * Late watch is for "X will happen by Y" claims that land after Y. A claim
+ * pinned to a date, like the high temperature on a given day, cannot come true
+ * later, and every miss used to get three years of monthly checks anyway,
+ * each one a paid call asking the same question. Event-shaped claims are the
+ * ones that can still happen; dated ones default to no watch, and a person
+ * can still turn it on for a particular prediction.
+ */
+export function defaultLateWatch(p: Pick<Prediction, 'deadlineType'>): LateWatchPeriod {
+  return p.deadlineType === 'event' ? DEFAULT_LATE_WATCH : 'never';
+}
+
+/**
  * How long we keep looking after a miss. The verdict never changes, but a late
  * occurrence earns a "Better Late Than Never" badge.
  */
@@ -182,7 +196,7 @@ export function resolve(
   verdict: PredictionStatus,
   by: ResolvedBy,
   now: Date = new Date(),
-  opts: { confidenceScore?: number; lateWatch?: LateWatchPeriod } = {},
+  opts: { lateWatch?: LateWatchPeriod } = {},
 ): PredictionPatch {
   if (!isResolved(verdict)) throw new InvalidTransitionError(p.status, verdict);
   if (!canTransition(p.status, verdict)) throw new InvalidTransitionError(p.status, verdict);
@@ -193,14 +207,13 @@ export function resolve(
     resolvedAt: iso,
     resolvedBy: by,
     trend: null,
-    confidenceScore: opts.confidenceScore ?? null,
     updatedAt: iso,
   };
 
   if (verdict === 'miss') {
     const deadline = effectiveDeadline(p);
     patch.lateWatchUntil = deadline
-      ? lateWatchUntil(deadline, opts.lateWatch ?? DEFAULT_LATE_WATCH)
+      ? lateWatchUntil(deadline, opts.lateWatch ?? defaultLateWatch(p))
       : null;
   } else {
     patch.lateWatchUntil = null;
@@ -217,7 +230,6 @@ export function reopen(p: Prediction, now: Date = new Date()): PredictionPatch {
     status: 'open',
     resolvedAt: null,
     resolvedBy: 'user_override',
-    confidenceScore: null,
     lateWatchUntil: null,
     trend: 'unknown',
     updatedAt: iso,

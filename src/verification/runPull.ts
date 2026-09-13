@@ -6,7 +6,7 @@
  */
 import type { Db } from '../data/db';
 import { DEFAULT_PULL_BUDGET, planPull } from '../domain/cadence';
-import { runCheck, type CheckDeps, type CheckPlan } from './runCheck';
+import { errorPlan, runCheck, type CheckDeps, type CheckPlan } from './runCheck';
 import { VerifierError, type CheckTriggerKind } from './types';
 import { cooldownFor, describeCooldown, isCoolingDown, type Cooldown } from './cooldown';
 import { parseQuotaFailure } from './quotaError';
@@ -153,12 +153,22 @@ export async function runPull(
     if (!first) await sleep(options.minGapMs ?? DEFAULT_MIN_GAP_MS);
     first = false;
 
-    const plan = await runCheck(deps, {
-      prediction,
-      criteria: db.predictions.criteriaFor(prediction.id),
-      priorFindings: db.checks.priorFindings(prediction.id),
-      trigger,
-    });
+    let plan: CheckPlan;
+    try {
+      plan = await runCheck(deps, {
+        prediction,
+        criteria: db.predictions.criteriaFor(prediction.id),
+        priorFindings: db.checks.priorFindings(prediction.id),
+        trigger,
+      });
+    } catch (err) {
+      // One prediction's failure is one failed check on the log, not the end
+      // of the pull. Anything that escapes `runCheck` here is a bug in the
+      // decision logic rather than a provider error, and a bug that takes the
+      // other five checks down with it is worse than one that shows up as a
+      // failed row.
+      plan = errorPlan(prediction, trigger, deps.verifier, err as Error);
+    }
 
     applyCheckPlan(db, plan);
     summary.plans.push(plan);

@@ -109,7 +109,6 @@ export function toPrediction(r: Row): Prediction {
 
     status: str(r.status) as PredictionStatus,
     trend: (nstr(r.trend) as Trend | null) ?? null,
-    confidenceScore: nnum(r.confidence_score),
     resolvedAt: nstr(r.resolved_at),
     resolvedBy: (nstr(r.resolved_by) as ResolvedBy | null) ?? null,
     lateHitAt: nstr(r.late_hit_at),
@@ -169,8 +168,7 @@ export function toCheck(r: Row): Check {
     model: nstr(r.model),
     proposedVerdict: (nstr(r.proposed_verdict) as Check['proposedVerdict']) ?? null,
     proposedTrend: (nstr(r.proposed_trend) as Trend | null) ?? null,
-    rubricScore: nnum(r.rubric_score),
-    rubricBreakdown: nstr(r.rubric_breakdown),
+    gates: parseGates(nstr(r.gates)),
     modelConfidence: nnum(r.model_confidence),
     summary: str(r.summary),
     outcome: str(r.outcome) as CheckOutcome,
@@ -230,7 +228,6 @@ export const PREDICTION_COLUMNS: Record<keyof Prediction, string> = {
   noCheckBefore: 'no_check_before',
   status: 'status',
   trend: 'trend',
-  confidenceScore: 'confidence_score',
   resolvedAt: 'resolved_at',
   resolvedBy: 'resolved_by',
   lateHitAt: 'late_hit_at',
@@ -271,5 +268,24 @@ function parseStringList(raw: string | null): string[] | null {
     return parsed.filter((x): x is string => typeof x === 'string');
   } catch {
     return null;
+  }
+}
+
+/**
+ * Gates are stored as a JSON array. Rows written before the score was removed
+ * hold the old breakdown object with the gates inside it, so both shapes read.
+ */
+function parseGates(raw: string | null): string[] {
+  if (!raw) return [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    const list = Array.isArray(parsed)
+      ? parsed
+      : parsed && typeof parsed === 'object' && Array.isArray((parsed as { gates?: unknown }).gates)
+        ? (parsed as { gates: unknown[] }).gates
+        : [];
+    return list.filter((g): g is string => typeof g === 'string');
+  } catch {
+    return [];
   }
 }

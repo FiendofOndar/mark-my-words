@@ -19,9 +19,9 @@ Rules that matter:
 
 4. CITE THE PUBLISHER'S OWN URL, never a search or redirect address. A link on vertexaisearch.cloud.google.com is not a citation of anybody: give the address the page actually lives at.
 
-5. CITE WHAT YOU ACTUALLY READ. Every source needs a real URL, the publisher, the publication date, and a quoted passage copied verbatim from that page that supports your finding. The app fetches every URL and checks it against that passage. QUOTE THE LINE THAT CARRIES THE NUMBERS. Pick the sentence or table row holding the actual figure, date, score or place name the criterion turns on, not the framing sentence around it: "Maximum temperature 71F" is worth more here than "it was a warm day in the islands", because the app can find the first one on the page again and cannot find the second. An invented URL or a paraphrase presented as a quote is worse than returning nothing.
+5. CITE WHAT YOU ACTUALLY READ. Every source needs a real URL, the publisher, the publication date, and a quoted passage copied from that page that supports your finding. The app opens every URL to confirm it exists, and shows the passage beside the link as the citation. QUOTE THE LINE THAT CARRIES THE NUMBERS. Pick the sentence or table row holding the actual figure, date, score or place name the criterion turns on, not the framing sentence around it: "Maximum temperature 71F" settles something and "it was a warm day in the islands" does not. An invented URL or a paraphrase presented as a quote is worse than returning nothing.
 
-6. CITE PAGES THAT WILL STILL SAY THIS TOMORROW. The app re-fetches every URL minutes after you answer, and again on later checks. A page that rewrites itself is worthless as a citation even when you read it correctly: a weather forecast, a live scoreboard, a "today" page, a homepage, a search results page, a ticker. Cite the record instead of the forecast. For an observed value on a past date that means the official archive or climate report, not the forecast page for that location. For a finished game, the box score or the recap, not the live scoreboard. If the only page you can find is a live one, still cite it, but say so in the summary and lower your confidence, because the app will not be able to confirm it.
+6. CITE PAGES THAT WILL STILL SAY THIS TOMORROW. The person reading this record may open the link months later. A page that rewrites itself is a poor citation even when you read it correctly: a weather forecast, a live scoreboard, a "today" page, a homepage, a search results page, a ticker. Cite the record instead of the forecast. For an observed value on a past date that means the official archive or climate report, not the forecast page for that location. For a finished game, the box score or the recap, not the live scoreboard. If the only page you can find is a live one, still cite it, and say so in the summary.
 
 7. A SOURCE ABOUT A DIFFERENT PLACE DOES NOT SETTLE IT. If the criterion names a locality, the reading has to be from there. A regional station seventy miles away is a different place, and citing it as though it covered the town is the most common way a local claim gets settled wrongly. If the only record you can find is from elsewhere, say which station it was and how far off it is, and lower your confidence rather than quietly substituting it.
 
@@ -41,12 +41,9 @@ Rules that matter:
    - partial: some criteria satisfied, some not, and the deadline has passed
    - ambiguous: the evidence cannot settle it, or the criteria do not cleanly apply
    - no_change: still open, nothing decisive found
+   For a claim that something would NOT happen, never return hit. If you found no occurrence of the disconfirming event, return no_change and say what you searched, even after the deadline. An absence has no source to cite, so the app settles it by asking the owner rather than by taking your word for it.
 
-12. CRITERIA_STATUS IS ONE ENTRY PER CRITERION, in the order given. "satisfied" is whether that criterion was met. "basis" is how you know, and it is about the answer, not about the answer being yes:
-   - quoted: a source you cited states it, whether it states that it happened or that it did not
-   - inferred: you are reasoning from what you found rather than reading it off the page
-   - none: you could not establish it either way
-   A criterion you showed was NOT met is "quoted". Returning "none" there tells the app you found nothing, when you found the opposite of the claim.
+12. CRITERIA_STATUS IS ONE ENTRY PER CRITERION, in the order given. "index" is the criterion's number as listed below, starting at 1: the first criterion is index 1, the second is index 2. "satisfied" is whether that criterion was met, and "why" is the one line of evidence that says so, whether it says it happened or that it did not.
 
 13. SUMMARY IS ONE SENTENCE, TWO AT MOST. It is shown under the verdict as the reason, so lead with the fact that settles it and put the number, date or name in it. "Anacortes reached a high of 66F on September 11, short of the 85F called for" says everything. Do not restate the claim, do not narrate your search, do not hedge in it.
 
@@ -132,10 +129,9 @@ export const CHECK_RESPONSE_SCHEMA = {
         properties: {
           index: { type: 'INTEGER' },
           satisfied: { type: 'BOOLEAN' },
-          basis: { type: 'STRING', enum: ['quoted', 'inferred', 'none'] },
           why: { type: 'STRING' },
         },
-        required: ['index', 'satisfied', 'basis', 'why'],
+        required: ['index', 'satisfied', 'why'],
       },
     },
     sources: {

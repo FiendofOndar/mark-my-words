@@ -138,18 +138,21 @@ describe('migrations', () => {
     );
     expect(rows).toHaveLength(1);
     expect(String(rows[0]!.url)).toBe('https://weather.gov/x');
-    expect(String(rows[0]!.fetch_status)).toBe('quote_not_found');
+    // A page that loaded but did not carry the quote was still a page that
+    // loaded. The quote check is gone; the link check is what remains.
+    expect(String(rows[0]!.fetch_status)).toBe('ok');
 
-    // And the widened constraint now accepts the outcomes added since.
-    driver.run(
-      `INSERT INTO evidence (id, check_id, url, fetch_status, created_at, updated_at)
-       VALUES ('e2', 'c1', 'https://weather.gov/y', 'facts_found', '2026-01-01', '2026-01-01')`,
-    );
     driver.run(
       `INSERT INTO evidence (id, check_id, url, fetch_status, created_at, updated_at)
        VALUES ('e3', 'c1', 'https://weather.gov/z', 'not_checked', '2026-01-01', '2026-01-01')`,
     );
-    expect(driver.select('SELECT id FROM evidence')).toHaveLength(3);
+    expect(driver.select('SELECT id FROM evidence')).toHaveLength(2);
+    expect(() =>
+      driver.run(
+        `INSERT INTO evidence (id, check_id, url, fetch_status, created_at, updated_at)
+         VALUES ('e4', 'c1', 'https://weather.gov/w', 'facts_found', '2026-01-01', '2026-01-01')`,
+      ),
+    ).toThrow();
   });
 
   it('is idempotent', async () => {
@@ -374,8 +377,6 @@ describe('what a check cost', () => {
       model: 'g',
       proposedVerdict: 'no_change',
       proposedTrend: null,
-      rubricScore: null,
-      rubricBreakdown: null,
       modelConfidence: null,
       summary: 's',
       outcome: 'no_change',
@@ -398,8 +399,6 @@ describe('what a check cost', () => {
         model: 'g',
         proposedVerdict: 'no_change',
         proposedTrend: null,
-        rubricScore: null,
-        rubricBreakdown: null,
         modelConfidence: null,
         summary: 's',
         outcome: 'no_change',
@@ -435,8 +434,6 @@ describe('checks written in the same millisecond', () => {
       model: null,
       proposedVerdict: outcome === 'queued' ? 'hit' : 'no_change',
       proposedTrend: null,
-      rubricScore: null,
-      rubricBreakdown: null,
       modelConfidence: null,
       summary,
       outcome,
