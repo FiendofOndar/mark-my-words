@@ -1,0 +1,44 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": -420,
+      "w": 1180,
+      "h": 340
+    },
+    {
+      "file": "Flyer.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1000,
+      "h": 1400
+    },
+    {
+      "file": "FeatureGraphic.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 1024,
+      "h": 500
+    }
+  ],
+  "annotations": [
+    {
+      "id": "m-0",
+      "x": 0,
+      "y": -56,
+      "w": 560,
+      "text": "Flyer \u2014 1000 x 1400"
+    },
+    {
+      "id": "m-1",
+      "x": 1120,
+      "y": -56,
+      "w": 640,
+      "text": "Play Store feature graphic \u2014 exactly 1024 x 500; the store crops the sides"
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}

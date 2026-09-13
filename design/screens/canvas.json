@@ -1,0 +1,248 @@
+{
+  "artboards": [
+    {
+      "file": "Palette.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 900,
+      "h": 1160,
+      "page": "page-palette"
+    },
+    {
+      "file": "AccentCheck.dc.html",
+      "x": 1020,
+      "y": 0,
+      "w": 1140,
+      "h": 1060,
+      "page": "page-palette"
+    },
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": -420,
+      "w": 1400,
+      "h": 340,
+      "page": "page-capture"
+    },
+    {
+      "file": "Capture.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 375,
+      "h": 812,
+      "page": "page-capture"
+    },
+    {
+      "file": "CaptureNoKey.dc.html",
+      "x": 495,
+      "y": 0,
+      "w": 375,
+      "h": 812,
+      "page": "page-capture"
+    },
+    {
+      "file": "Review.dc.html",
+      "x": 990,
+      "y": 0,
+      "w": 375,
+      "h": 1080,
+      "page": "page-capture"
+    },
+    {
+      "file": "Standings.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 375,
+      "h": 812,
+      "page": "page-people"
+    },
+    {
+      "file": "Author.dc.html",
+      "x": 495,
+      "y": 0,
+      "w": 375,
+      "h": 812,
+      "page": "page-people"
+    },
+    {
+      "file": "AuthorUnranked.dc.html",
+      "x": 990,
+      "y": 0,
+      "w": 375,
+      "h": 812,
+      "page": "page-people"
+    },
+    {
+      "file": "Settings.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 375,
+      "h": 1340,
+      "page": "page-settings"
+    },
+    {
+      "file": "ReceiptCard.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "page": "page-cards"
+    },
+    {
+      "file": "ReceiptCardLate.dc.html",
+      "x": 1200,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "page": "page-cards"
+    },
+    {
+      "file": "Scorecard.dc.html",
+      "x": 2400,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "page": "page-cards"
+    },
+    {
+      "file": "ScorecardUnranked.dc.html",
+      "x": 3600,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "page": "page-cards"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "p-0",
+      "x": 0,
+      "y": -56,
+      "w": 560,
+      "text": "Locked. Every colour has one job, written next to it.",
+      "page": "page-palette"
+    },
+    {
+      "id": "p-1",
+      "x": 1020,
+      "y": -56,
+      "w": 620,
+      "text": "Slate is settled. This is the glow tuning it forces.",
+      "page": "page-palette"
+    },
+    {
+      "id": "n-0",
+      "x": 0,
+      "y": -56,
+      "w": 420,
+      "text": "Capture \u2014 a key is set",
+      "page": "page-capture"
+    },
+    {
+      "id": "n-1",
+      "x": 495,
+      "y": -56,
+      "w": 460,
+      "text": "Capture \u2014 no key, so the hint turns amber",
+      "page": "page-capture"
+    },
+    {
+      "id": "n-2",
+      "x": 990,
+      "y": -56,
+      "w": 460,
+      "text": "Review \u2014 the draft, before the clock starts",
+      "page": "page-capture"
+    },
+    {
+      "id": "n-3",
+      "x": 0,
+      "y": -56,
+      "w": 460,
+      "text": "Standings \u2014 ranked table, then everyone else",
+      "page": "page-people"
+    },
+    {
+      "id": "n-4",
+      "x": 495,
+      "y": -56,
+      "w": 460,
+      "text": "Author \u2014 ranked, so the rate is allowed",
+      "page": "page-people"
+    },
+    {
+      "id": "n-5",
+      "x": 990,
+      "y": -56,
+      "w": 460,
+      "text": "Author \u2014 unranked, so the record leads",
+      "page": "page-people"
+    },
+    {
+      "id": "n-6",
+      "x": 0,
+      "y": -56,
+      "w": 300,
+      "text": "Settings",
+      "page": "page-settings"
+    },
+    {
+      "id": "n-7",
+      "x": 0,
+      "y": -56,
+      "w": 500,
+      "text": "Receipt \u2014 a settled call",
+      "page": "page-cards"
+    },
+    {
+      "id": "n-8",
+      "x": 1200,
+      "y": -56,
+      "w": 540,
+      "text": "Receipt \u2014 a miss that came true late",
+      "page": "page-cards"
+    },
+    {
+      "id": "n-9",
+      "x": 2400,
+      "y": -56,
+      "w": 500,
+      "text": "Scorecard \u2014 ranked",
+      "page": "page-cards"
+    },
+    {
+      "id": "n-10",
+      "x": 3600,
+      "y": -56,
+      "w": 540,
+      "text": "Scorecard \u2014 unranked, record only",
+      "page": "page-cards"
+    }
+  ],
+  "launch": {
+    "view": "canvas",
+    "page": "page-palette"
+  },
+  "pages": [
+    {
+      "id": "page-palette",
+      "name": "Palette"
+    },
+    {
+      "id": "page-capture",
+      "name": "Capture + review"
+    },
+    {
+      "id": "page-people",
+      "name": "Standings + authors"
+    },
+    {
+      "id": "page-settings",
+      "name": "Settings"
+    },
+    {
+      "id": "page-cards",
+      "name": "Share cards"
+    }
+  ]
+}

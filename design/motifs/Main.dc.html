@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .wrap {
+      width: 1400px; height: 230px; box-sizing: border-box;
+      background: oklch(0.17 0.012 270); color: oklch(0.96 0.01 90);
+      font-family: 'Barlow Condensed', sans-serif;
+      display: flex; align-items: center; padding: 0 60px; gap: 48px;
+    }
+    .tag { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 2px; color: oklch(0.76 0.13 72); font-weight: 600; margin-bottom: 8px; }
+    h1 { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 34px; margin: 0 0 6px 0; letter-spacing: 0.3px; }
+    p { font-size: 18px; line-height: 1.4; margin: 0; max-width: 900px; color: oklch(0.78 0.01 90); font-weight: 500; }
+  </style>
+</helmet>
+<div class="wrap">
+  <div>
+    <div class="tag">SPOTLIGHT ADOPTED AS THE INTERNAL THEME</div>
+    <h1>Aesthetic motifs</h1>
+    <p>Page 1: the four original texture/motif samples. Page 2: the adopted theme card, plus a working Settings &ldquo;Appearance&rdquo; picker &mdash; six curated accent presets (two of them gradients), click one and the preview updates. Red and green are deliberately absent from every option; those stay reserved for MISS and HIT. Page 3: the two combined options that didn't get picked, kept for reference.</p>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,600;1,600&family=Oswald:wght@500;600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .screen {
+      --ground: oklch(0.145 0.012 270);
+      --surface: oklch(0.19 0.012 270);
+      --rule: oklch(0.26 0.01 270);
+      --ink: oklch(0.96 0.01 90);
+      --ink-dim: oklch(0.68 0.01 90);
+      --ink-faint: oklch(0.52 0.01 270);
+      --accent: #8792ab;
+      /* Fixed. "The app needs you" is semantic, so it never follows the accent. */
+      --attention: #dba456;
+      /* Low on purpose: glow is contrast taken off the ink above it. */
+      --glow: color-mix(in srgb, #8792ab 20%, transparent);
+      --prose: oklch(0.97 0.01 90 / 0.82);
+      --prose-dim: oklch(0.97 0.01 90 / 0.6);
+      --prose-faint: oklch(0.97 0.01 90 / 0.46);
+      --hit: #5aa87a;
+      --miss: oklch(0.66 0.15 27);
+      --partial: #d29a43;
+
+      box-sizing: border-box; overflow: hidden;
+      background:
+        radial-gradient(ellipse 940px 760px at 50% 34%, var(--glow), transparent 78%),
+        var(--ground);
+      color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex; flex-direction: column;
+    }
+    .hdr { padding: 42px 18px 12px 18px; border-bottom: 1px solid var(--rule);
+      display: flex; align-items: flex-start; gap: 10px; flex: none; }
+    .hdr .ttl { flex: 1; min-width: 0; }
+    .hdr h1 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 20px;
+      margin: 0; letter-spacing: 0.4px; }
+    .hdr .sub { font-size: 10.5px; color: var(--ink-faint); margin-top: 3px; letter-spacing: 0.3px; }
+    .hdr .act { font-size: 11.5px; color: var(--miss); flex: none; padding-top: 3px; }
+    .back { width: 22px; height: 22px; flex: none; color: var(--ink-dim); margin-left: -4px; }
+
+    .pad { padding: 16px 18px; }
+    .lbl { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 11px;
+      letter-spacing: 1.4px; text-transform: uppercase; color: var(--ink-faint); display: block; }
+    .hint { font-size: 10.5px; color: var(--prose-faint); line-height: 1.45; }
+    .prose { font-size: 11.5px; color: var(--prose-dim); line-height: 1.5; }
+    .input { border: 1px solid var(--rule); border-radius: 8px; background: oklch(0.96 0.01 90 / 0.04);
+      padding: 10px 11px; font-size: 12.5px; color: var(--ink); font-family: inherit;
+      display: block; width: 100%; box-sizing: border-box; }
+    .input.ph { color: var(--ink-faint); }
+    .btn { border-radius: 9px; text-align: center; font-family: 'Oswald', sans-serif;
+      font-weight: 600; letter-spacing: 0.6px; display: block; }
+    .btn.primary { background: var(--accent); color: oklch(0.18 0.02 270); padding: 12px; font-size: 15px; }
+    .btn.secondary { border: 1px solid var(--rule); color: var(--ink-dim); padding: 9px; font-size: 13px; }
+    .glass { border-radius: 13px; background: oklch(0.94 0.01 90 / 0.07);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid oklch(0.9 0.01 90 / 0.13); box-shadow: 0 16px 34px oklch(0 0 0 / 0.3); }
+    .quote { font-family: 'Cormorant', serif; font-weight: 600; line-height: 1.24; margin: 0; }
+    .tag { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 11.5px; letter-spacing: 0.8px;
+      padding: 3px 8px; border-radius: 3px; border: 1.5px solid; flex: none;
+      min-width: 68px; box-sizing: border-box; text-align: center; }
+    .tag.hit { color: var(--hit); border-color: color-mix(in srgb, var(--hit) 55%, transparent); }
+    .tag.miss { color: var(--miss); border-color: color-mix(in srgb, var(--miss) 55%, transparent); }
+    .tag.partial { color: var(--partial); border-color: color-mix(in srgb, var(--partial) 55%, transparent); }
+    .tag.open { color: var(--ink-dim); border-color: var(--rule);
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+    .row { display: flex; align-items: center; gap: 12px; padding: 13px 18px; border-top: 1px solid var(--rule); }
+    .author { font-size: 9.5px; text-transform: uppercase; letter-spacing: 1.2px;
+      color: var(--ink-faint); margin-bottom: 3px; }
+    .claim { font-family: 'Cormorant', serif; font-weight: 600; font-size: 17px; line-height: 1.2; margin: 0 0 4px 0; }
+    .meta { font-size: 9.5px; color: var(--ink-faint); letter-spacing: 0.4px; }
+
+    .strip { display: flex; gap: 26px; padding: 30px 0 0 0; }
+    .wrap { padding: 32px 30px 34px; background: oklch(0.09 0.006 270); }
+    .wrap h1 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 24px;
+      letter-spacing: 0.5px; text-transform: uppercase; color: #f2ede3; margin: 0 0 8px; }
+    .wrap p { font-size: 13.5px; line-height: 1.65; color: oklch(0.97 0.01 90 / 0.6);
+      margin: 0 0 6px; max-width: 1000px; font-family: 'IBM Plex Mono', monospace; }
+    .col { width: 340px; }
+    .screen.fd { width: 340px; height: 660px; border-radius: 16px; }
+    .fd .top { padding: 26px 18px 10px; display: flex; align-items: baseline; justify-content: space-between; }
+    .fd .top h1 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 19px;
+      margin: 0; letter-spacing: 0.5px; text-transform: none; color: var(--ink); }
+    .fd .quota { font-size: 10px; color: var(--ink-dim); }
+    .fd .chips { display: flex; gap: 6px; padding: 0 18px 12px; }
+    .fd .chip { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 11.5px;
+      padding: 3px 10px; border-radius: 3px; background: oklch(0.96 0.01 90 / 0.07);
+      color: var(--ink-dim); white-space: nowrap; }
+    .fd .chip.on { background: var(--accent); color: oklch(0.18 0.02 270); }
+    .fd .feat { margin: 2px 14px 12px; padding: 14px; }
+    .fd .flag { font-size: 9px; letter-spacing: 1.5px; color: var(--attention); font-weight: 600; margin-bottom: 8px; }
+    .fd .ft { display: flex; align-items: center; justify-content: space-between; }
+    .fd .meta { font-size: 9.5px; color: var(--ink-dim); }
+    .fd .row { padding: 11px 18px; }
+    .fd .claim { font-size: 16px; }
+    .cap { font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 12.5px; letter-spacing: 1.4px;
+      text-transform: uppercase; color: #f2ede3; text-align: center; padding: 14px 0 4px; }
+    .sub { font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.5;
+      color: oklch(0.97 0.01 90 / 0.46); text-align: center; }
+
+  </style>
+</helmet>
+<div class="wrap"><h1>How much glow sits behind the ink</h1><p>All three tiles are the same slate. What changes is how much of it is washed across the ground behind the text, which is why the left one looks like a darker colour &mdash; it is not, it just has less light on it.</p><p>The left one is chosen, and the reason it wins is the right reason: every unit of glow is a unit of contrast taken off the ink sitting on top of it, and the ink is what anyone is actually here to read. Atmosphere is worth having right up until it starts costing legibility, and somewhere between the first tile and the second is where that line is.</p><div class="strip"><div class="col"><div class="screen fd" style="--accent:#8792ab;--glow:color-mix(in srgb, #8792ab 20%, transparent)"><div class="top"><h1>THE FEED</h1><span class="quota">14 / 20</span></div><div class="chips"><span class="chip on">ALL</span><span class="chip">OPEN</span><span class="chip">NEEDS YOU</span><span class="chip">SETTLED</span></div><div class="feat glass"><div class="flag">VERDICT READY &mdash; NEEDS YOU</div><p class="quote" style="font-size:22px;margin-bottom:10px">&ldquo;The Cardinals win it all this year.&rdquo;</p><div class="ft"><span class="meta">@popops &middot; 3 sources, links work</span><span class="tag hit">PROVEN?</span></div></div><div class="row"><div style="flex:1;min-width:0"><div class="author">Aunt Renee &middot; Jan 12</div><p class="claim">&ldquo;Gas is under three bucks by summer.&rdquo;</p><div class="meta">Settled Jun 30 &middot; 3 sources</div></div><span class="tag hit">PROVEN</span></div><div class="row"><div style="flex:1;min-width:0"><div class="author">Popops &middot; Nov 2</div><p class="claim">&ldquo;They&rsquo;ll never finish that bridge on time.&rdquo;</p><div class="meta">Settled Mar 1 &middot; 2 sources</div></div><span class="tag miss">BUSTED</span></div><div class="row"><div style="flex:1;min-width:0"><div class="author">Dave from work &middot; Feb 8</div><p class="claim">&ldquo;The office is fully remote by fall.&rdquo;</p><div class="meta">Due Sep 30 &middot; next check in 6 days</div></div><span class="tag open">OPEN</span></div><div class="row"><div style="flex:1;min-width:0"><div class="author">Kayla &middot; Mar 22</div><p class="claim">&ldquo;Rain every weekend in September.&rdquo;</p><div class="meta">Settled Oct 1 &middot; 1 source</div></div><span class="tag partial">SPLIT</span></div><div style="flex:1"></div></div><div class="cap">20% &mdash; chosen</div><div class="sub">The darkest of the three, and the one where the ink has the most ground to stand on.</div></div><div class="col"><div class="screen fd" style="--accent:#8792ab;--glow:color-mix(in srgb, #8792ab 30%, transparent)"><div class="top"><h1>THE FEED</h1><span class="quota">14 / 20</span></div><div class="chips"><span class="chip on">ALL</span><span class="chip">OPEN</span><span class="chip">NEEDS YOU</span><span class="chip">SETTLED</span></div><div class="feat glass"><div class="flag">VERDICT READY &mdash; NEEDS YOU</div><p class="quote" style="font-size:22px;margin-bottom:10px">&ldquo;The Cardinals win it all this year.&rdquo;</p><div class="ft"><span class="meta">@popops &middot; 3 sources, links work</span><span class="tag hit">PROVEN?</span></div></div><div class="row"><div style="flex:1;min-width:0"><div class="author">Aunt Renee &middot; Jan 12</div><p class="claim">&ldquo;Gas is under three bucks by summer.&rdquo;</p><div class="meta">Settled Jun 30 &middot; 3 sources</div></div><span class="tag hit">PROVEN</span></div><div class="row"><div style="flex:1;min-width:0"><div class="author">Popops &middot; Nov 2</div><p class="claim">&ldquo;They&rsquo;ll never finish that bridge on time.&rdquo;</p><div class="meta">Settled Mar 1 &middot; 2 sources</div></div><span class="tag miss">BUSTED</span></div><div class="row"><div style="flex:1;min-width:0"><div class="author">Dave from work &middot; Feb 8</div><p class="claim">&ldquo;The office is fully remote by fall.&rdquo;</p><div class="meta">Due Sep 30 &middot; next check in 6 days</div></div><span class="tag open">OPEN</span></div><div class="row"><div style="flex:1;min-width:0"><div class="author">Kayla &middot; Mar 22</div><p class="claim">&ldquo;Rain every weekend in September.&rdquo;</p><div class="meta">Settled Oct 1 &middot; 1 source</div></div><span class="tag partial">SPLIT</span></div><div style="flex:1"></div></div><div class="cap">30%</div><div class="sub">More air in the tile. Every quote and label on it loses contrast to get that.</div></div><div class="col"><div class="screen fd" style="--accent:#8792ab;--glow:color-mix(in srgb, #8792ab 44%, transparent)"><div class="top"><h1>THE FEED</h1><span class="quota">14 / 20</span></div><div class="chips"><span class="chip on">ALL</span><span class="chip">OPEN</span><span class="chip">NEEDS YOU</span><span class="chip">SETTLED</span></div><div class="feat glass"><div class="flag">VERDICT READY &mdash; NEEDS YOU</div><p class="quote" style="font-size:22px;margin-bottom:10px">&ldquo;The Cardinals win it all this year.&rdquo;</p><div class="ft"><span class="meta">@popops &middot; 3 sources, links work</span><span class="tag hit">PROVEN?</span></div></div><div class="row"><div style="flex:1;min-width:0"><div class="author">Aunt Renee &middot; Jan 12</div><p class="claim">&ldquo;Gas is under three bucks by summer.&rdquo;</p><div class="meta">Settled Jun 30 &middot; 3 sources</div></div><span class="tag hit">PROVEN</span></div><div class="row"><div style="flex:1;min-width:0"><div class="author">Popops &middot; Nov 2</div><p class="claim">&ldquo;They&rsquo;ll never finish that bridge on time.&rdquo;</p><div class="meta">Settled Mar 1 &middot; 2 sources</div></div><span class="tag miss">BUSTED</span></div><div class="row"><div style="flex:1;min-width:0"><div class="author">Dave from work &middot; Feb 8</div><p class="claim">&ldquo;The office is fully remote by fall.&rdquo;</p><div class="meta">Due Sep 30 &middot; next check in 6 days</div></div><span class="tag open">OPEN</span></div><div class="row"><div style="flex:1;min-width:0"><div class="author">Kayla &middot; Mar 22</div><p class="claim">&ldquo;Rain every weekend in September.&rdquo;</p><div class="meta">Settled Oct 1 &middot; 1 source</div></div><span class="tag partial">SPLIT</span></div><div style="flex:1"></div></div><div class="cap">44%</div><div class="sub">Back to a stage light, which is what the diffuse rule exists to prevent.</div></div></div></div>
+</x-dc>
+</body>
+</html>

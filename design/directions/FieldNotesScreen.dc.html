@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: oklch(0.6 0.15 55); }
+    a:hover { color: oklch(0.5 0.15 55); }
+    .phone {
+      width: 375px; height: 812px; box-sizing: border-box;
+      background: oklch(0.95 0.018 90); color: oklch(0.22 0.02 260);
+      font-family: 'Zilla Slab', serif;
+      background-image: linear-gradient(oklch(0.88 0.01 90) 1px, transparent 1px), linear-gradient(90deg, oklch(0.88 0.01 90) 1px, transparent 1px);
+      background-size: 24px 24px;
+      display: flex; flex-direction: column;
+    }
+    .top { padding: 52px 22px 10px 22px; }
+    .top h1 { font-size: 24px; margin: 0 0 3px 0; font-weight: 700; }
+    .top .sub { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: oklch(0.45 0.02 260); letter-spacing: 0.5px; }
+    .list { flex: 1; display: flex; flex-direction: column; padding: 10px 22px; gap: 14px; overflow: hidden; }
+    .card { background: oklch(0.99 0.008 90); border: 1px solid oklch(0.82 0.01 90); border-radius: 3px; padding: 14px 16px; }
+    .row1 { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+    .author { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 1px; color: oklch(0.5 0.02 260); }
+    .date { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: oklch(0.55 0.02 260); }
+    .claim { font-size: 17px; font-weight: 600; line-height: 1.25; margin: 0 0 10px 0; }
+    .conf { display: flex; align-items: center; gap: 8px; }
+    .bar { flex: 1; height: 6px; background: oklch(0.85 0.01 90); border-radius: 3px; overflow: hidden; }
+    .bar span { display: block; height: 100%; background: oklch(0.6 0.15 55); }
+    .pct { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; width: 34px; text-align: right; }
+    .verdict { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 2px; border: 1px solid currentColor; }
+    .verdict.hit { color: oklch(0.42 0.1 150); }
+    .verdict.miss { color: oklch(0.46 0.17 15); }
+  </style>
+</helmet>
+<div class="phone">
+  <div class="top"><h1>Open cases</h1><span class="sub">14 CHECKED TODAY &middot; 250 DAILY CAP</span></div>
+  <div class="list">
+    <div class="card">
+      <div class="row1"><span class="author">@popops &middot; sports</span><span class="date">41d out</span></div>
+      <p class="claim">"Cardinals win it all this year."</p>
+      <div class="conf"><div class="bar"><span style="width: 58%"></span></div><span class="pct">58%</span></div>
+    </div>
+    <div class="card">
+      <div class="row1"><span class="author">fastcompany.com &middot; tech/ai</span><span class="date">resolved</span></div>
+      <p class="claim">"The AI bubble crashes by spring."</p>
+      <div class="conf"><div class="bar"><span style="width: 96%; background: oklch(0.46 0.17 15)"></span></div><span class="verdict miss">MISS</span></div>
+    </div>
+    <div class="card">
+      <div class="row1"><span class="author">@jordan &middot; personal</span><span class="date">resolved</span></div>
+      <p class="claim">"Neighbors drop the gutter thing by Nov."</p>
+      <div class="conf"><div class="bar"><span style="width: 100%"></span></div><span class="verdict hit">HIT</span></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

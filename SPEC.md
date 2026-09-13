@@ -849,21 +849,68 @@ this document.
 
 ## 12. Design direction
 
-**Receipts and case files.** The app is a ledger of people being wrong, and it should feel like
-evidence, not like a productivity tool.
+**Spotlight.** A ledger of people being wrong should feel like a record under a
+light, not like a productivity tool and not like a costume. The claim and the
+verdict carry the page; everything else gets out of the way.
 
-- **Type.** A display serif for statements and verdicts (Instrument Serif or Newsreader). A neutral
-  sans for UI chrome and metadata. Statements are always set in the serif, always in quotation marks,
-  always larger than they need to be. The quote is the content.
-- **Surface.** Dark by default: near-black ground, warm off-white ink, a subtle paper grain on cards.
-  Light mode is genuine paper cream, not white.
-- **Verdicts as stamps.** HIT, MISS, PARTIAL, AMBIGUOUS, VOID render as rotated letterpress stamps
-  with slightly imperfect edges. HIT green, MISS red, PARTIAL amber, AMBIGUOUS gray,
-  VOID slate with a strikethrough. The "Better Late Than Never" badge is gold foil.
-- **Restraint elsewhere.** Chrome, chips, and lists stay quiet so the statements carry the page.
-  The costume is on the verdict and the quote, nowhere else.
-- **Accessibility.** Stamps carry text labels, never color alone. Minimum 4.5:1 contrast on both themes.
-  Serif display sizes stay above 18px.
+The values live in `design/tokens.css`, with the reasoning for each one beside
+it, and take effect in `src/styles.css`. The screens are drawn on two published
+canvases: `design/screens` is the current design, `design/motifs` is the record
+of how it was chosen and deliberately still contains the options that lost.
+
+- **Type.** Four families, one job each, all self-hosted in `public/fonts`.
+  Cormorant for the human's own words and only ever those; Oswald for headlines,
+  verdict words and section labels; Barlow Condensed for chrome; IBM Plex Mono
+  for metadata, timestamps and hosts. Statements are always in the serif, always
+  in quotation marks, always larger than they need to be.
+- **Surface.** Dark by default: near-black ground, warm off-white ink, and a
+  wide ambient glow whose origin sits near or past an edge so only the falloff
+  is ever on screen. An origin inside the frame makes it a stage light. The glow
+  is kept low, because every unit of it is contrast taken off the ink above it.
+  Light mode is paper cream, not white.
+- **One accent, fixed.** Slate, `#8792ab`, and the near-neutrality is the point.
+  Green, red and gold belong to the verdicts and amber is the attention signal,
+  so an accent with real chroma competes with the only colours that mean
+  anything. It carries fills, active states and selection, never reading text.
+  There is no accent picker: six palettes meant designing for the worst of them.
+- **Amber means the app is asking you for something.** Waiting on you, the
+  verdict-ready flag, a dead link, the Sample badge, a source credited to the
+  wrong outlet. Never decorative. It is the only saturated thing on a screen
+  that has one, which is what makes it work.
+- **Verdicts, not stamps.** Flat and filled on the share cards, outlined in the
+  app. Never rotated: a tilted outline reads as a novelty sticker at the size
+  these actually get seen. Proven green, Busted red, Split amber, Unclear grey,
+  Moot slate. The late badge is gold. The words shown to a person live in
+  `STATUS_LABEL` (`src/domain/format.ts`); the stored values stay `hit` / `miss`
+  / `partial` / `ambiguous` / `void`, because those are also the model's JSON
+  contract and the schema's column values.
+- **The model's output is glass.** The verdict panel is the one translucent
+  surface in the system: frosted over the glow on dark, a raised warm card on
+  light. Everything else is opaque.
+- **Prose is translucent, small type is not.** Running sentences are warm white
+  at reduced alpha so the glow tints them and they belong to the ground.
+  Anything small or uppercase stays solid: transparency costs contrast and small
+  type has none to spare.
+- **Restraint elsewhere.** Chrome, chips and lists stay quiet. Air where there
+  is one thing, density where there is a list.
+- **Accessibility.** Verdicts carry text labels, never colour alone. Minimum
+  4.5:1 contrast on both themes. Serif display sizes stay above 18px. Any
+  design resting on telling red from green is checked against a deuteranopia
+  simulation and a grayscale pass before it ships; the icon's ramp survives both
+  because nothing in it depends on that distinction.
+
+### The mark
+
+A round speech bubble whose circle doubles as a clock dial: what was said, and
+the deadline running on it. The bubble carries a green-gold-red ramp, the hour
+hand is cream, and the minute hand is the fail red.
+
+Three compositions, and they are not the same drawing at three sizes. The
+square store icon lets the tail run almost into the corner. The adaptive
+foreground is inset to clear the 66dp safe circle, because a launcher mask is
+chosen by the manufacturer and may be a circle that would amputate the tail. The
+legacy round icon sits between them. `design/icon/export/README.md` has the
+numbers and why each one is what it is.
 
 ### Receipt card
 

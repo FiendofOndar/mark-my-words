@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .doc {
+      width: 1000px; height: 1300px; box-sizing: border-box; overflow: hidden;
+      background: oklch(0.145 0.012 270);
+      color: oklch(0.96 0.01 90);
+      font-family: 'Barlow Condensed', sans-serif;
+      padding: 44px 48px;
+    }
+    h1 { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 28px; margin: 0 0 10px 0; }
+    .intro { font-size: 17px; line-height: 1.45; color: oklch(0.74 0.012 82); margin: 0 0 34px 0; max-width: 760px; }
+
+    h2 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 1.4px;
+      text-transform: uppercase; color: oklch(0.66 0.012 82); margin: 0 0 5px 0; }
+    .cap { font-size: 15.5px; line-height: 1.45; color: oklch(0.66 0.012 82); margin: 0 0 16px 0; max-width: 820px; }
+    .after { font-size: 15.5px; line-height: 1.45; color: oklch(0.7 0.012 82); margin: 14px 0 0 0; max-width: 820px; }
+    .after b { color: oklch(0.94 0.012 85); font-weight: 600; }
+    section { margin-bottom: 40px; }
+
+    /* --- 1. the mechanism, over a background that changes underneath --- */
+    .strip { border-radius: 12px; overflow: hidden;
+      background: linear-gradient(90deg, #dba456 0%, #c98f3e 26%, oklch(0.22 0.02 60) 62%, oklch(0.16 0.012 270) 100%); }
+    .band { padding: 20px 26px; }
+    .band + .band { border-top: 1px solid oklch(0 0 0 / 0.25); }
+    .band .who { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1.4px;
+      text-transform: uppercase; color: oklch(0 0 0 / 0.5); margin-bottom: 7px; }
+    .band .line { font-size: 30px; line-height: 1.25; }
+    .solid .line { color: oklch(0.78 0.012 82); }
+    .seethru .line { color: oklch(1 0 0 / 0.5); }
+
+    /* --- 2. the same thing at the strength we would really ship --- */
+    .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .panel { border-radius: 12px; padding: 22px 24px;
+      background: radial-gradient(ellipse 700px 420px at 50% 40%, color-mix(in srgb, #8a8cd8 20%, transparent), transparent 78%),
+                  oklch(0.158 0.012 270); }
+    .panel .who { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1.4px;
+      text-transform: uppercase; color: oklch(0.55 0.012 82); margin-bottom: 10px; }
+    .panel .line { font-size: 21px; line-height: 1.4; }
+    .real-solid .line { color: oklch(0.9 0.012 85); }
+    .real-thru .line { color: oklch(0.97 0.01 90 / 0.82); }
+
+    /* --- 3. what it costs on the small text --- */
+    .small-demo { display: flex; gap: 46px; align-items: flex-start;
+      background: radial-gradient(ellipse 700px 360px at 50% 50%, color-mix(in srgb, #8a8cd8 20%, transparent), transparent 78%),
+                  oklch(0.158 0.012 270);
+      border-radius: 12px; padding: 24px 26px; }
+    .small-col .who { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1.4px;
+      text-transform: uppercase; color: oklch(0.55 0.012 82); margin-bottom: 12px; }
+    .tiny { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; }
+    .big3x { font-family: 'IBM Plex Mono', monospace; font-size: 27px; letter-spacing: 4.5px;
+      text-transform: uppercase; margin-top: 14px; }
+    .s-solid { color: oklch(0.6 0.012 80); }
+    .s-thru { color: oklch(0.97 0.01 90 / 0.42); }
+    .zoomnote { font-size: 13.5px; color: oklch(0.55 0.012 82); margin-top: 8px; }
+  </style>
+</helmet>
+<div class="doc">
+  <h1>What transparency does to text</h1>
+  <p class="intro">Normally text is painted a solid colour and looks the same no matter what sits behind it. The alternative is to make it slightly see-through, so the colour behind bleeds up through the letters and tints them. That is the whole choice. Three demonstrations, loudest first.</p>
+
+  <section>
+    <h2>1 &middot; The mechanism, turned up loud</h2>
+    <p class="cap">The background under both lines goes from strong orange on the left to plain dark on the right. The same sentence is printed twice.</p>
+    <div class="strip">
+      <div class="band solid">
+        <div class="who">Solid colour</div>
+        <div class="line">The same grey the whole way across.</div>
+      </div>
+      <div class="band seethru">
+        <div class="who">See-through</div>
+        <div class="line">Warm on the left, grey on the right.</div>
+      </div>
+    </div>
+    <p class="after">The top line ignores the background completely &mdash; identical over orange and over dark. The bottom line is <b>the same white at 50% see-through</b>, and it changes as the thing behind it changes. Nothing else differs between the two.</p>
+  </section>
+
+  <section>
+    <h2>2 &middot; The same choice, at the strength we would actually ship</h2>
+    <p class="cap">Real panel, real glow, real text size. This is the decision in front of you.</p>
+    <div class="pair">
+      <div class="panel real-solid">
+        <div class="who">Solid &mdash; what is live now</div>
+        <div class="line">Only one independent source was cited, and it is not the body that would know.</div>
+      </div>
+      <div class="panel real-thru">
+        <div class="who">See-through at 82%</div>
+        <div class="line">Only one independent source was cited, and it is not the body that would know.</div>
+      </div>
+    </div>
+    <p class="after">Honestly: <b>the difference is small</b>, and you are not missing anything by finding it hard to spot. The right-hand text is very slightly cooler because the blue glow is coming through it. That is all you get &mdash; and all you would get, automatically, under any accent colour a user picks.</p>
+  </section>
+
+  <section>
+    <h2>3 &middot; Where it costs you</h2>
+    <p class="cap">The small uppercase labels, at real size on top and blown up underneath so the difference is visible.</p>
+    <div class="small-demo">
+      <div class="small-col">
+        <div class="who">Solid</div>
+        <div class="tiny s-solid">What stopped the app</div>
+        <div class="big3x s-solid">What stopped</div>
+      </div>
+      <div class="small-col">
+        <div class="who">See-through at 42%</div>
+        <div class="tiny s-thru">What stopped the app</div>
+        <div class="big3x s-thru">What stopped</div>
+      </div>
+    </div>
+    <p class="after">See-through means dimmer, and small text has the least to spare. This is the one place I would <b>not</b> use it &mdash; which is what the third option, the mix, was about: see-through on the sentences, solid on the little labels.</p>
+  </section>
+</div>
+</x-dc>
+</body>
+</html>

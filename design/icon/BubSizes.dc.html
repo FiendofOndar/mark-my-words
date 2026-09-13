@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .sheet { width: 1180px; height: 900px; box-sizing: border-box; overflow: hidden;
+      background: oklch(0.145 0.012 270); color: oklch(0.96 0.01 90);
+      font-family: 'Barlow Condensed', sans-serif; padding: 38px 44px; }
+    h1 { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 23px; margin: 0 0 8px 0; }
+    .intro { font-size: 16px; line-height: 1.45; color: oklch(0.7 0.012 82); margin: 0 0 26px 0; max-width: 900px; }
+    h2 { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase;
+      color: oklch(0.55 0.012 82); margin: 0 0 14px 0; }
+    .row { display: flex; gap: 34px; align-items: flex-start; margin-bottom: 26px; }
+    .cell { text-align: center; }
+    .sizes { display: flex; gap: 12px; align-items: flex-end; justify-content: center; }
+    .name { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase;
+      color: oklch(0.6 0.012 82); margin-top: 10px; }
+    .sub { font-size: 13px; color: oklch(0.55 0.012 82); margin-top: 3px; max-width: 172px; line-height: 1.3; }
+
+    .mini { overflow: hidden; flex-shrink: 0; }
+    .mini > .art { transform-origin: top left; }
+    .s96 { width: 96px; height: 96px; } .s96 > .art { transform: scale(0.2); }
+    .s48 { width: 48px; height: 48px; } .s48 > .art { transform: scale(0.1); }
+    .s28 { width: 28px; height: 28px; } .s28 > .art { transform: scale(0.0583); }
+    .art { width: 480px; height: 480px; border-radius: 104px; box-sizing: border-box;
+      background: oklch(0.16 0.012 270); display: flex; align-items: center; justify-content: center; }
+
+    .tray { display: flex; gap: 18px; align-items: center; background: oklch(0.2 0.014 268);
+      border-radius: 18px; padding: 18px 22px; width: fit-content; }
+    .neighbour { width: 48px; height: 48px; border-radius: 10.4px; background: oklch(0.33 0.02 250); flex-shrink: 0; }
+    .neighbour.b { background: oklch(0.38 0.04 150); }
+    .neighbour.c { background: oklch(0.36 0.05 25); }
+    .note { font-size: 15px; line-height: 1.45; color: oklch(0.68 0.012 82); margin: 12px 0 0 0; max-width: 960px; }
+    .note b { color: oklch(0.94 0.012 85); font-weight: 600; }
+  </style>
+</helmet>
+<div class="sheet">
+  <h1>Bubble-clock, five finishes</h1>
+  <p class="intro">Same structure throughout: a round speech bubble whose circle doubles as the dial. What changes is outline versus mass, stroke weight, and how much of the clock is spelled out. Shown at 96, 48 and 28px &mdash; 28 is the notification-tray size, where only mass survives.</p>
+
+  <h2>The five</h2>
+  <div class="row">
+
+    <div class="cell">
+      <div class="sizes">
+        <div class="mini s96"><div class="art"><svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(7 11)" stroke="oklch(0.95 0.014 88)" fill="none" stroke-linejoin="round" stroke-linecap="round"><path d="M 37.3 136.1 A 88 88 0 1 1 76 182.2 L 18 200 Z" stroke-width="20"/><g stroke-width="18"><line x1="120" y1="106" x2="120" y2="48"/><line x1="120" y1="106" x2="154.6" y2="126"/></g><circle cx="120" cy="106" r="9" fill="oklch(0.95 0.014 88)" stroke="none"/></g></svg></div></div>
+        <div class="mini s48"><div class="art"><svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(7 11)" stroke="oklch(0.95 0.014 88)" fill="none" stroke-linejoin="round" stroke-linecap="round"><path d="M 37.3 136.1 A 88 88 0 1 1 76 182.2 L 18 200 Z" stroke-width="20"/><g stroke-width="18"><line x1="120" y1="106" x2="120" y2="48"/><line x1="120" y1="106" x2="154.6" y2="126"/></g><circle cx="120" cy="106" r="9" fill="oklch(0.95 0.014 88)" stroke="none"/></g></svg></div></div>
+        <div class="mini s28"><div class="art"><svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(7 11)" stroke="oklch(0.95 0.014 88)" fill="none" stroke-linejoin="round" stroke-linecap="round"><path d="M 37.3 136.1 A 88 88 0 1 1 76 182.2 L 18 200 Z" stroke-width="20"/><g stroke-width="18"><line x1="120" y1="106" x2="120" y2="48"/><line x1="120" y1="106" x2="154.6" y2="126"/></g><circle cx="120" cy="106" r="9" fill="oklch(0.95 0.014 88)" stroke="none"/></g></svg></div></div>
+      </div>
+      <div class="name">A &middot; Outline, bold</div>
+      <div class="sub">Tail is part of the same closed path</div>
+    </div>
+
+    <div class="cell">
+      <div class="sizes">
+        <div class="mini s96"><div class="art"><svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(7 11)"><path d="M 37.3 136.1 A 88 88 0 1 1 76 182.2 L 18 200 Z" fill="oklch(0.95 0.014 88)"/><circle cx="120" cy="106" r="60" fill="none" stroke="oklch(0.16 0.012 270)" stroke-width="14"/><g stroke="oklch(0.16 0.012 270)" stroke-width="14" stroke-linecap="round"><line x1="120" y1="106" x2="120" y2="58"/><line x1="120" y1="106" x2="150" y2="124"/></g></g></svg></div></div>
+        <div class="mini s48"><div class="art"><svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(7 11)"><path d="M 37.3 136.1 A 88 88 0 1 1 76 182.2 L 18 200 Z" fill="oklch(0.95 0.014 88)"/><circle cx="120" cy="106" r="60" fill="none" stroke="oklch(0.16 0.012 270)" stroke-width="14"/><g stroke="oklch(0.16 0.012 270)" stroke-width="14" stroke-linecap="round"><line x1="120" y1="106" x2="120" y2="58"/><line x1="120" y1="106" x2="150" y2="124"/></g></g></svg></div></div>
+        <div class="mini s28"><div class="art"><svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(7 11)"><path d="M 37.3 136.1 A 88 88 0 1 1 76 182.2 L 18 200 Z" fill="oklch(0.95 0.014 88)"/><circle cx="120" cy="106" r="60" fill="none" stroke="oklch(0.16 0.012 270)" stroke-width="14"/><g stroke="oklch(0.16 0.012 270)" stroke-width="14" stroke-linecap="round"><line x1="120" y1="106" x2="120" y2="58"/><line x1="120" y1="106" x2="150" y2="124"/></g></g></svg></div></div>
+      </div>
+      <div class="name">B &middot; Filled, dial cut out</div>
+      <div class="sub">Mass survives scaling better than line</div>
+    </div>
+
+    <div class="cell">
+      <div class="sizes">
+        <div class="mini s96"><div class="art"><svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(7 11)"><path d="M 37.3 136.1 A 88 88 0 1 1 76 182.2 L 18 200 Z" fill="oklch(0.95 0.014 88)"/><g stroke="oklch(0.16 0.012 270)" stroke-width="19" stroke-linecap="round"><line x1="120" y1="106" x2="120" y2="46"/><line x1="120" y1="106" x2="158" y2="128"/></g></g></svg></div></div>
+        <div class="mini s48"><div class="art"><svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(7 11)"><path d="M 37.3 136.1 A 88 88 0 1 1 76 182.2 L 18 200 Z" fill="oklch(0.95 0.014 88)"/><g stroke="oklch(0.16 0.012 270)" stroke-width="19" stroke-linecap="round"><line x1="120" y1="106" x2="120" y2="46"/><line x1="120" y1="106" x2="158" y2="128"/></g></g></svg></div></div>
+        <div class="mini s28"><div class="art"><svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(7 11)"><path d="M 37.3 136.1 A 88 88 0 1 1 76 182.2 L 18 200 Z" fill="oklch(0.95 0.014 88)"/><g stroke="oklch(0.16 0.012 270)" stroke-width="19" stroke-linecap="round"><line x1="120" y1="106" x2="120" y2="46"/><line x1="120" y1="106" x2="158" y2="128"/></g></g></svg></div></div>
+      </div>
+      <div class="name">C &middot; Filled, hands only</div>
+      <div class="sub">The bubble's own edge is the dial</div>
+    </div>
+
+    <div class="cell">
+      <div class="sizes">
+        <div class="mini s96"><div class="art"><svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(9 6)" stroke="oklch(0.95 0.014 88)" fill="none" stroke-linejoin="round" stroke-linecap="round"><path d="M 40.6 143.9 A 86 86 0 1 1 71 180.6 L 10 212 Z" stroke-width="13"/><g stroke-width="12"><line x1="120" y1="106" x2="120" y2="50"/><line x1="120" y1="106" x2="155" y2="126"/></g><circle cx="120" cy="106" r="7" fill="oklch(0.95 0.014 88)" stroke="none"/></g></svg></div></div>
+        <div class="mini s48"><div class="art"><svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(9 6)" stroke="oklch(0.95 0.014 88)" fill="none" stroke-linejoin="round" stroke-linecap="round"><path d="M 40.6 143.9 A 86 86 0 1 1 71 180.6 L 10 212 Z" stroke-width="13"/><g stroke-width="12"><line x1="120" y1="106" x2="120" y2="50"/><line x1="120" y1="106" x2="155" y2="126"/></g><circle cx="120" cy="106" r="7" fill="oklch(0.95 0.014 88)" stroke="none"/></g></svg></div></div>
+        <div class="mini s28"><div class="art"><svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(9 6)" stroke="oklch(0.95 0.014 88)" fill="none" stroke-linejoin="round" stroke-linecap="round"><path d="M 40.6 143.9 A 86 86 0 1 1 71 180.6 L 10 212 Z" stroke-width="13"/><g stroke-width="12"><line x1="120" y1="106" x2="120" y2="50"/><line x1="120" y1="106" x2="155" y2="126"/></g><circle cx="120" cy="106" r="7" fill="oklch(0.95 0.014 88)" stroke="none"/></g></svg></div></div>
+      </div>
+      <div class="name">D &middot; Outline, light</div>
+      <div class="sub">Elegant on a wordmark, at risk when small</div>
+    </div>
+
+    <div class="cell">
+      <div class="sizes">
+        <div class="mini s96"><div class="art"><svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(7 11)"><path d="M 37.3 136.1 A 88 88 0 1 1 76 182.2 L 18 200 Z" fill="oklch(0.95 0.014 88)"/><g stroke="#c98d34" stroke-width="19" stroke-linecap="round"><line x1="120" y1="106" x2="120" y2="46"/><line x1="120" y1="106" x2="158" y2="128"/></g></g></svg></div></div>
+        <div class="mini s48"><div class="art"><svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(7 11)"><path d="M 37.3 136.1 A 88 88 0 1 1 76 182.2 L 18 200 Z" fill="oklch(0.95 0.014 88)"/><g stroke="#c98d34" stroke-width="19" stroke-linecap="round"><line x1="120" y1="106" x2="120" y2="46"/><line x1="120" y1="106" x2="158" y2="128"/></g></g></svg></div></div>
+        <div class="mini s28"><div class="art"><svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(7 11)"><path d="M 37.3 136.1 A 88 88 0 1 1 76 182.2 L 18 200 Z" fill="oklch(0.95 0.014 88)"/><g stroke="#c98d34" stroke-width="19" stroke-linecap="round"><line x1="120" y1="106" x2="120" y2="46"/><line x1="120" y1="106" x2="158" y2="128"/></g></g></svg></div></div>
+      </div>
+      <div class="name">E &middot; Filled, amber hands</div>
+      <div class="sub">Amber is the one colour no user setting changes</div>
+    </div>
+  </div>
+
+  <h2>Among neighbours, at 48px</h2>
+  <div class="tray">
+    <div class="neighbour"></div>
+    <div class="mini s48"><div class="art"><svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(7 11)" stroke="oklch(0.95 0.014 88)" fill="none" stroke-linejoin="round" stroke-linecap="round"><path d="M 37.3 136.1 A 88 88 0 1 1 76 182.2 L 18 200 Z" stroke-width="20"/><g stroke-width="18"><line x1="120" y1="106" x2="120" y2="48"/><line x1="120" y1="106" x2="154.6" y2="126"/></g><circle cx="120" cy="106" r="9" fill="oklch(0.95 0.014 88)" stroke="none"/></g></svg></div></div>
+    <div class="neighbour b"></div>
+    <div class="mini s48"><div class="art"><svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(7 11)"><path d="M 37.3 136.1 A 88 88 0 1 1 76 182.2 L 18 200 Z" fill="oklch(0.95 0.014 88)"/><g stroke="oklch(0.16 0.012 270)" stroke-width="19" stroke-linecap="round"><line x1="120" y1="106" x2="120" y2="46"/><line x1="120" y1="106" x2="158" y2="128"/></g></g></svg></div></div>
+    <div class="neighbour c"></div>
+    <div class="mini s48"><div class="art"><svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(7 11)"><path d="M 37.3 136.1 A 88 88 0 1 1 76 182.2 L 18 200 Z" fill="oklch(0.95 0.014 88)"/><g stroke="#c98d34" stroke-width="19" stroke-linecap="round"><line x1="120" y1="106" x2="120" y2="46"/><line x1="120" y1="106" x2="158" y2="128"/></g></g></svg></div></div>
+    <div class="neighbour"></div>
+  </div>
+
+  <p class="note">A, C and E in the tray. If C holds at 28px and A does not, that settles it: <b>filled wins</b>, and the outline versions are for the wordmark and the splash screen where size is not the constraint.</p>
+</div>
+</x-dc>
+</body>
+</html>

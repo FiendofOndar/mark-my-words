@@ -105,7 +105,7 @@ export function DetailScreen() {
       : overdueDays !== null && overdueDays < 0
         ? 'text-miss'
         : overdueDays !== null && overdueDays <= 7
-          ? 'text-partial'
+          ? 'text-attention'
           : 'text-ink';
 
   /**
@@ -159,8 +159,8 @@ export function DetailScreen() {
       back
     >
       {/* The quote carries the page. */}
-      <section className="paper border-b border-rule bg-surface px-5 py-6">
-        <blockquote className="font-display text-[22px] leading-snug text-ink">
+      <section className="border-b border-rule px-5 py-6">
+        <blockquote className="font-quote text-[26px] leading-snug font-semibold text-ink">
           <span className="text-ink-faint">&ldquo;</span>
           {p.rawStatement}
           <span className="text-ink-faint">&rdquo;</span>
@@ -218,7 +218,7 @@ export function DetailScreen() {
             <>
               {/* The stamp already says the verdict, so saying it again in
                   words beside it is just noise. This carries the when. */}
-              <p className="font-display text-[26px] leading-none">
+              <p className="font-display text-[28px] leading-none font-semibold">
                 {formatDate(p.resolvedAt)}
               </p>
               <p className="mt-2 text-[13px] text-ink-faint">
@@ -240,7 +240,7 @@ export function DetailScreen() {
                 <button
                   type="button"
                   onClick={() => update.mutate({ id: p.id, patch: reopen(p) })}
-                  className="mt-2 text-[13px] text-partial underline-offset-2 hover:underline"
+                  className="mt-2 text-[13px] text-ink-dim underline-offset-2 hover:underline"
                 >
                   Not right? Reopen it
                 </button>
@@ -250,7 +250,7 @@ export function DetailScreen() {
           ) : (
             <>
               <p
-                className={`flex items-center gap-2 font-display text-[32px] leading-none ${countdownTone}`}
+                className={`flex items-center gap-2 font-display text-[34px] leading-none font-semibold ${countdownTone}`}
               >
                 <TrendMark trend={p.trend} />
                 {p.status === 'draft' ? 'Unfinished' : formatCountdown(p)}
@@ -306,11 +306,11 @@ export function DetailScreen() {
       )}
 
       {awaitingAnswer && (
-        <section className="border-b border-rule bg-partial/5 px-5 py-5">
-          <h2 className="text-[11px] font-semibold tracking-wide text-partial uppercase">
+        <section className="border-b border-rule bg-attention/5 px-5 py-5">
+          <h2 className="label text-attention">
             {searchedInVain ? 'Checked, and still open' : 'Only you can settle this'}
           </h2>
-          <p className="mt-2 font-display text-[19px]">Did it happen?</p>
+          <p className="mt-2 font-display text-[20px] font-semibold tracking-wide">Did it happen?</p>
           {searchedInVain && (
             <p className="mt-1 text-[12px] text-ink-faint">
               The deadline passed and the last check could not stand its own evidence up. What it
@@ -349,9 +349,9 @@ export function DetailScreen() {
       )}
 
       {queuedVerdict && (
-        <section className="border-b border-rule bg-partial/5 px-5 py-5">
+        <section className="border-b border-rule bg-attention/5 px-5 py-5">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-[11px] font-semibold tracking-wide text-partial uppercase">
+            <h2 className="label text-attention">
               Verdict ready for you
             </h2>
             {/* A seeded verdict is indistinguishable from a real finding on
@@ -361,7 +361,7 @@ export function DetailScreen() {
                 result on real addresses, and the badge stays either way. */}
             {queuedVerdict.provider === 'demo' && <Pill tone="warn">Sample</Pill>}
           </div>
-          <p className="mt-2 font-display text-[17px] leading-snug text-ink">
+          <p className="mt-2 text-[14px] leading-relaxed text-prose">
             {STATUS_LABEL[queuedVerdict.proposedVerdict as PredictionStatus]}
             {queuedEvidence.length > 0 && (
               <span className="text-ink-faint"> · {describeSources(queuedEvidence)}</span>
@@ -393,7 +393,7 @@ export function DetailScreen() {
       {/* Criteria. */}
       <section className="border-b border-rule px-5 py-5">
         <div className="flex items-baseline justify-between">
-          <h2 className="text-[11px] font-semibold tracking-wide text-ink-faint uppercase">
+          <h2 className="label">
             Resolution criteria
           </h2>
           {p.criteriaFrozenAt || isResolved(p.status) ? (
@@ -466,7 +466,7 @@ export function DetailScreen() {
 
         {p.polarity === 'negative' && p.disconfirmingTrigger && (
           <div className="mt-4 rounded border border-rule bg-surface px-3 py-2.5">
-            <p className="text-[11px] font-semibold tracking-wide text-ink-faint uppercase">
+            <p className="label">
               Kills this claim
             </p>
             <p className="mt-1 text-[14px] text-ink-dim">{p.disconfirmingTrigger}</p>
@@ -475,10 +475,10 @@ export function DetailScreen() {
 
         {amendments.length > 0 && (
           <details className="mt-4">
-            <summary className="cursor-pointer text-[13px] text-partial">
+            <summary className="cursor-pointer text-[13px] text-ink-dim">
               {amendments.length} amendment{amendments.length === 1 ? '' : 's'} on record
             </summary>
-            <ul className="mt-2 space-y-3 border-l border-partial/40 pl-3">
+            <ul className="mt-2 space-y-3 border-l border-rule pl-3">
               {amendments.map((a) => (
                 <li key={a.id} className="text-[13px]">
                   <p className="text-ink-faint">
@@ -496,7 +496,7 @@ export function DetailScreen() {
 
       {/* Check log. The evidence trail is the record, so it is never collapsed. */}
       <section className="px-5 py-5">
-        <h2 className="text-[11px] font-semibold tracking-wide text-ink-faint uppercase">
+        <h2 className="label">
           Check log
         </h2>
         {p.verificationMode === 'manual' ? (
@@ -529,7 +529,7 @@ export function DetailScreen() {
 
       {/* Actions. */}
       <section className="border-t border-rule px-5 pt-5 pb-8">
-        <h2 className="text-[11px] font-semibold tracking-wide text-ink-faint uppercase">
+        <h2 className="label">
           Actions
         </h2>
         {/* A grid, not a wrap. The buttons have four different label lengths, so
@@ -769,7 +769,7 @@ function AmendForm({
   return (
     <div
       ref={hostRef}
-      className={`rounded border border-partial/40 bg-surface p-3 ${className}`}
+      className={`rounded-lg border border-rule bg-surface p-3 ${className}`}
     >
       <p className="text-[13px] text-ink-dim">
         Editing is allowed. Hiding the edit is not, so the reason goes on the record.
@@ -791,7 +791,7 @@ function AmendForm({
           type="button"
           disabled={!valid}
           onClick={() => onSubmit(value.trim(), reason.trim())}
-          className="rounded border border-partial px-3 py-1.5 text-[13px] text-partial disabled:opacity-40"
+          className="rounded-lg border border-rule px-3 py-1.5 font-display text-[13px] tracking-wide text-ink-dim disabled:opacity-40"
         >
           Record amendment
         </button>

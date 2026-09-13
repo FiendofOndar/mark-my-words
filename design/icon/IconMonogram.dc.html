@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap">
+  <style>
+    body { margin: 0; }
+    .icon { width: 480px; height: 480px; border-radius: 104px; box-sizing: border-box;
+      background: oklch(0.16 0.012 270);
+      display: flex; align-items: center; justify-content: center; position: relative; }
+    .m { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 300px; line-height: 1;
+      color: oklch(0.95 0.014 88); letter-spacing: -2px; }
+    .mark { position: absolute; top: 118px; right: 104px; }
+  </style>
+</helmet>
+<div class="icon">
+  <span class="m">M</span>
+  <svg class="mark" width="86" height="63" viewBox="0 0 220 160" fill="#dba456">
+    <g>
+      <circle cx="50" cy="52" r="30"/>
+      <path d="M 38 72 L 80 72 C 80 104 64 126 36 140 L 22 118 C 40 108 38 92 38 72 Z"/>
+    </g>
+    <g transform="translate(110 0)">
+      <circle cx="50" cy="52" r="30"/>
+      <path d="M 38 72 L 80 72 C 80 104 64 126 36 140 L 22 118 C 40 108 38 92 38 72 Z"/>
+    </g>
+  </svg>
+</div>
+</x-dc>
+</body>
+</html>

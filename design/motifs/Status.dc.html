@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400&display=swap">
+  <style>
+    body { margin: 0; }
+    .sheet { width: 1180px; box-sizing: border-box; padding: 42px 46px 46px;
+      background: oklch(0.115 0.008 270); color: oklch(0.96 0.01 90);
+      font-family: 'IBM Plex Mono', monospace; }
+    h1 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 27px; letter-spacing: 0.5px;
+      margin: 0 0 10px; text-transform: uppercase; }
+    p { font-size: 14px; line-height: 1.7; color: oklch(0.97 0.01 90 / 0.6); margin: 0 0 12px; max-width: 940px; }
+    b { color: oklch(0.97 0.01 90 / 0.88); font-weight: 400; }
+    h2 { font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 12px; letter-spacing: 1.6px;
+      text-transform: uppercase; color: oklch(0.97 0.01 90 / 0.46); margin: 30px 0 12px;
+      padding-bottom: 8px; border-bottom: 1px solid oklch(0.26 0.01 270); }
+    .r { display: flex; gap: 16px; padding: 9px 0; align-items: baseline;
+      border-bottom: 1px solid color-mix(in srgb, oklch(0.26 0.01 270) 60%, transparent); }
+    .pg { width: 250px; flex: none; font-family: 'Oswald', sans-serif; font-weight: 500;
+      font-size: 13.5px; letter-spacing: 0.6px; }
+    .st { width: 116px; flex: none; font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+      font-size: 11px; letter-spacing: 1.3px; text-transform: uppercase; }
+    .st.live { color: #5aa87a; }
+    .st.old { color: oklch(0.52 0.01 270); }
+    .st.wip { color: #dba456; }
+    .d { flex: 1; font-size: 13px; line-height: 1.5; color: oklch(0.97 0.01 90 / 0.6); }
+  </style>
+</helmet>
+<div class="sheet">
+  <h1>This canvas is the record, not the design</h1>
+  <p>The current design lives in the <b>Screens</b> canvas. This one is how the theme got
+  decided, so it deliberately still contains the options that lost. Four of the pages below are
+  history and should look nothing like the app: they were built before the accent was settled,
+  and repainting them would destroy the only reason to keep them.</p>
+  <p>Two things here were genuinely stale rather than archival, and both are fixed. The light
+  theme kept a violet accent because it writes its colours in <b>oklch</b> and the sweep that
+  moved everything to slate matched <b>hex</b>. And the pages were never labelled, so a
+  superseded artboard and a live one sat side by side looking equally current.</p>
+
+  <h2>What each page is</h2>
+  <div class="r"><span class="pg">Current theme</span><span class="st live">Live</span>
+    <span class="d">The feed, the detail screen and the check log as they should be built. Slate accent, glow at 20%.</span></div>
+  <div class="r"><span class="pg">Light theme</span><span class="st wip">Unfinished</span>
+    <span class="d">Hue now matches. The prose transparency still does not: alpha runs the other way on paper and needs its own pass.</span></div>
+  <div class="r"><span class="pg">Superseded &mdash; accent picker</span><span class="st old">History</span>
+    <span class="d">A Settings picker and two comparison sheets for a feature that no longer exists. Kept because the argument for killing it is in them.</span></div>
+  <div class="r"><span class="pg">How we got here</span><span class="st old">History</span>
+    <span class="d">The four original motifs and the two combined options. All amber, because amber was the accent when they were drawn.</span></div>
+</div>
+</x-dc>
+</body>
+</html>

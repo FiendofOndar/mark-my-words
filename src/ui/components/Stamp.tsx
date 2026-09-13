@@ -3,39 +3,44 @@ import { STATUS_LABEL } from '../../domain/format';
 
 /** Border and text for a status, shared with anything that offers a verdict. */
 export const STATUS_TONE: Record<PredictionStatus, string> = {
-  hit: 'text-hit border-hit',
-  miss: 'text-miss border-miss',
-  partial: 'text-partial border-partial',
-  ambiguous: 'text-ambiguous border-ambiguous',
-  void: 'text-voided border-voided line-through',
+  hit: 'text-hit border-hit/55',
+  miss: 'text-miss border-miss/55',
+  partial: 'text-partial border-partial/55',
+  ambiguous: 'text-ambiguous border-ambiguous/55',
+  void: 'text-voided border-voided/55 line-through',
   open: 'text-ink-dim border-rule',
-  draft: 'text-draft border-draft',
+  draft: 'text-draft border-draft/55',
 };
 
 /**
- * The verdict, stamped. Carries its own text label so the meaning never rests
- * on color alone.
+ * The verdict. Carries its own text label so the meaning never rests on color
+ * alone, and never rotates: see the note on `.stamp` in styles.css.
+ *
+ * Each size sets a min-width from the longest word it has to hold, UNCLEAR.
+ * Letting the tag shrink to fit gave the feed a ragged right edge, and the
+ * rows are built on a tabular rhythm that only works if the column is a
+ * column.
  */
 export function Stamp({
   status,
   size = 'md',
-  tilt = true,
 }: {
   status: PredictionStatus;
   size?: 'sm' | 'md' | 'lg';
-  tilt?: boolean;
 }) {
   const scale =
     size === 'lg'
-      ? 'px-5 py-2 text-2xl'
+      ? 'min-w-[124px] px-4 py-1.5 text-[22px]'
       : size === 'sm'
-        ? 'px-2 py-0.5 text-[11px]'
-        : 'px-3 py-1 text-sm';
+        ? 'min-w-[68px] px-2 py-[3px] text-[11.5px]'
+        : 'min-w-[86px] px-3 py-1 text-[14px]';
+
+  // Open and Draft are not verdicts, they are states, so they stay in the mono
+  // voice the rest of a row's metadata uses rather than shouting in Oswald.
+  const voice = status === 'open' || status === 'draft' ? 'font-mono font-medium tracking-normal' : '';
 
   return (
-    <span
-      className={`stamp ${tilt ? 'stamp-tilt' : ''} ${STATUS_TONE[status]} ${scale} inline-block font-semibold opacity-90`}
-    >
+    <span className={`stamp ${STATUS_TONE[status]} ${scale} ${voice} inline-block`}>
       {STATUS_LABEL[status]}
     </span>
   );
@@ -43,7 +48,7 @@ export function Stamp({
 
 export function LateBadge({ label }: { label: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-late/50 bg-late/10 px-2.5 py-0.5 text-[11px] font-medium tracking-wide text-late">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-late/50 bg-late/10 px-2.5 py-0.5 font-sans text-[12px] font-semibold tracking-wide text-late uppercase">
       <span aria-hidden>★</span>
       {label}
     </span>
@@ -61,7 +66,9 @@ export function Pill({
 }) {
   const tones = {
     neutral: 'border-rule text-ink-dim',
-    warn: 'border-partial/50 text-partial',
+    // An ask, not a verdict: attention amber rather than --color-partial, which
+    // is the Split verdict and once made a warning read as "partially true".
+    warn: 'border-attention/50 text-attention',
     muted: 'border-rule/60 text-ink-faint',
   };
   return (

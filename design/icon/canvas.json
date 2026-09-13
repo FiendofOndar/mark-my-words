@@ -1,0 +1,1084 @@
+{
+  "artboards": [
+    {
+      "file": "FinalSheet.dc.html",
+      "x": 0,
+      "y": -1840,
+      "w": 1300,
+      "h": 1720,
+      "page": "page-final"
+    },
+    {
+      "file": "IconFinal.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-final"
+    },
+    {
+      "file": "RampSizes.dc.html",
+      "x": 0,
+      "y": -1920,
+      "w": 1320,
+      "h": 1800,
+      "page": "page-ramp"
+    },
+    {
+      "file": "RampBase.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ramp"
+    },
+    {
+      "file": "RampDown.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ramp"
+    },
+    {
+      "file": "RampConic.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ramp"
+    },
+    {
+      "file": "RampGreenHand.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ramp"
+    },
+    {
+      "file": "RampHot.dc.html",
+      "x": 2240,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ramp"
+    },
+    {
+      "file": "RampHeavy.dc.html",
+      "x": 2800,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ramp"
+    },
+    {
+      "file": "VerSizes.dc.html",
+      "x": 0,
+      "y": -1900,
+      "w": 1320,
+      "h": 1780,
+      "page": "page-ver"
+    },
+    {
+      "file": "VerRed.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ver"
+    },
+    {
+      "file": "VerTips.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ver"
+    },
+    {
+      "file": "VerThrough.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ver"
+    },
+    {
+      "file": "VerRamp.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ver"
+    },
+    {
+      "file": "VerRing.dc.html",
+      "x": 2240,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ver"
+    },
+    {
+      "file": "VerSplit.dc.html",
+      "x": 2800,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ver"
+    },
+    {
+      "file": "IterSizes.dc.html",
+      "x": 0,
+      "y": -1740,
+      "w": 1320,
+      "h": 1620,
+      "page": "page-iter"
+    },
+    {
+      "file": "IterFull.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-iter"
+    },
+    {
+      "file": "IterLift.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-iter"
+    },
+    {
+      "file": "IterLong.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-iter"
+    },
+    {
+      "file": "IterShort.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-iter"
+    },
+    {
+      "file": "IterGround.dc.html",
+      "x": 2240,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-iter"
+    },
+    {
+      "file": "IterRim.dc.html",
+      "x": 2800,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-iter"
+    },
+    {
+      "file": "InkSizes.dc.html",
+      "x": 0,
+      "y": -1520,
+      "w": 1180,
+      "h": 1400,
+      "page": "page-ink"
+    },
+    {
+      "file": "InkFixed.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ink"
+    },
+    {
+      "file": "InkRed.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ink"
+    },
+    {
+      "file": "InkRedCool.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ink"
+    },
+    {
+      "file": "InkRedCream.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-ink"
+    },
+    {
+      "file": "FusSizes.dc.html",
+      "x": 0,
+      "y": -1580,
+      "w": 1300,
+      "h": 1460,
+      "page": "page-fus"
+    },
+    {
+      "file": "FusSweep.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-fus"
+    },
+    {
+      "file": "FusSnap.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-fus"
+    },
+    {
+      "file": "FusTip.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-fus"
+    },
+    {
+      "file": "FusFocus.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-fus"
+    },
+    {
+      "file": "FusQuiet.dc.html",
+      "x": 2240,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-fus"
+    },
+    {
+      "file": "FusBloom.dc.html",
+      "x": 2800,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-fus"
+    },
+    {
+      "file": "StandSizes.dc.html",
+      "x": 0,
+      "y": -1500,
+      "w": 1240,
+      "h": 1380,
+      "page": "page-stand"
+    },
+    {
+      "file": "StandBleed.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-stand"
+    },
+    {
+      "file": "StandSplit.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-stand"
+    },
+    {
+      "file": "StandGrain.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-stand"
+    },
+    {
+      "file": "StandInked.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-stand"
+    },
+    {
+      "file": "StandRedHand.dc.html",
+      "x": 2240,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-stand"
+    },
+    {
+      "file": "StandPaper.dc.html",
+      "x": 2800,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-stand"
+    },
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": -980,
+      "w": 1100,
+      "h": 900,
+      "page": "page-1"
+    },
+    {
+      "file": "IconQuote.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-1"
+    },
+    {
+      "file": "IconQuoteRing.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-1"
+    },
+    {
+      "file": "IconTally.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-1"
+    },
+    {
+      "file": "IconMonogram.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-1"
+    },
+    {
+      "file": "TimeSizes.dc.html",
+      "x": 0,
+      "y": -860,
+      "w": 1100,
+      "h": 760,
+      "page": "page-time"
+    },
+    {
+      "file": "TimeA.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-time"
+    },
+    {
+      "file": "TimeB.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-time"
+    },
+    {
+      "file": "TimeC.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-time"
+    },
+    {
+      "file": "TimeD.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-time"
+    },
+    {
+      "file": "LitSizes.dc.html",
+      "x": 0,
+      "y": -880,
+      "w": 1120,
+      "h": 780,
+      "page": "page-lit"
+    },
+    {
+      "file": "LitA.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-lit"
+    },
+    {
+      "file": "LitB.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-lit"
+    },
+    {
+      "file": "LitC.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-lit"
+    },
+    {
+      "file": "LitD.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-lit"
+    },
+    {
+      "file": "BubSizes.dc.html",
+      "x": 0,
+      "y": -1000,
+      "w": 1180,
+      "h": 900,
+      "page": "page-bub"
+    },
+    {
+      "file": "BubA.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-bub"
+    },
+    {
+      "file": "BubB.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-bub"
+    },
+    {
+      "file": "BubC.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-bub"
+    },
+    {
+      "file": "BubD.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-bub"
+    },
+    {
+      "file": "BubE.dc.html",
+      "x": 2240,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-bub"
+    },
+    {
+      "file": "StySizes.dc.html",
+      "x": 0,
+      "y": -1120,
+      "w": 1200,
+      "h": 1000,
+      "page": "page-sty"
+    },
+    {
+      "file": "StyEmber.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-sty"
+    },
+    {
+      "file": "StyDusk.dc.html",
+      "x": 560,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-sty"
+    },
+    {
+      "file": "StyViolet.dc.html",
+      "x": 1120,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-sty"
+    },
+    {
+      "file": "StyGlow.dc.html",
+      "x": 1680,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-sty"
+    },
+    {
+      "file": "StyGlass.dc.html",
+      "x": 2240,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-sty"
+    },
+    {
+      "file": "StyLight.dc.html",
+      "x": 2800,
+      "y": 0,
+      "w": 480,
+      "h": 480,
+      "page": "page-sty"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "fn-0",
+      "x": 0,
+      "y": -56,
+      "w": 520,
+      "text": "The icon \u2014 heavier strokes plus the brighter hand",
+      "page": "page-final"
+    },
+    {
+      "id": "rp-0",
+      "x": 0,
+      "y": -56,
+      "w": 460,
+      "text": "As picked \u2014 unchanged, for reference",
+      "page": "page-ramp"
+    },
+    {
+      "id": "rp-1",
+      "x": 560,
+      "y": -56,
+      "w": 460,
+      "text": "Ramp down the dial \u2014 axis turned to run 12 to 6",
+      "page": "page-ramp"
+    },
+    {
+      "id": "rp-2",
+      "x": 1120,
+      "y": -56,
+      "w": 460,
+      "text": "Ramp around the dial \u2014 a true sweep from 12",
+      "page": "page-ramp"
+    },
+    {
+      "id": "rp-3",
+      "x": 1680,
+      "y": -56,
+      "w": 460,
+      "text": "Green hour hand \u2014 the pair becomes the two hands",
+      "page": "page-ramp"
+    },
+    {
+      "id": "rp-4",
+      "x": 2240,
+      "y": -56,
+      "w": 460,
+      "text": "Brighter minute hand \u2014 pulls it off the red rim",
+      "page": "page-ramp"
+    },
+    {
+      "id": "rp-5",
+      "x": 2800,
+      "y": -56,
+      "w": 460,
+      "text": "Heavier strokes \u2014 bubble 15, hands 14",
+      "page": "page-ramp"
+    },
+    {
+      "id": "vr-0",
+      "x": 0,
+      "y": -56,
+      "w": 460,
+      "text": "Red hand \u2014 the baseline, ink sweep, no green",
+      "page": "page-ver"
+    },
+    {
+      "id": "vr-1",
+      "x": 560,
+      "y": -56,
+      "w": 460,
+      "text": "Both hands \u2014 green at 12, red at the deadline",
+      "page": "page-ver"
+    },
+    {
+      "id": "vr-2",
+      "x": 1120,
+      "y": -56,
+      "w": 460,
+      "text": "Through cream \u2014 light between the two hues",
+      "page": "page-ver"
+    },
+    {
+      "id": "vr-3",
+      "x": 1680,
+      "y": -56,
+      "w": 460,
+      "text": "Traffic ramp \u2014 green, gold, red; avoids olive",
+      "page": "page-ver"
+    },
+    {
+      "id": "vr-4",
+      "x": 2240,
+      "y": -56,
+      "w": 460,
+      "text": "Green ring \u2014 dominance instead of balance",
+      "page": "page-ver"
+    },
+    {
+      "id": "vr-5",
+      "x": 2800,
+      "y": -56,
+      "w": 460,
+      "text": "Hard split \u2014 cut on the 12-to-6 line",
+      "page": "page-ver"
+    },
+    {
+      "id": "it-0",
+      "x": 0,
+      "y": -56,
+      "w": 460,
+      "text": "Full range \u2014 the fix: axis retargeted to the mark",
+      "page": "page-iter"
+    },
+    {
+      "id": "it-1",
+      "x": 560,
+      "y": -56,
+      "w": 460,
+      "text": "Lifted \u2014 every stop raised for contrast on dark",
+      "page": "page-iter"
+    },
+    {
+      "id": "it-2",
+      "x": 1120,
+      "y": -56,
+      "w": 460,
+      "text": "Longer \u2014 a cyan stop ahead of the violet",
+      "page": "page-iter"
+    },
+    {
+      "id": "it-3",
+      "x": 1680,
+      "y": -56,
+      "w": 460,
+      "text": "Shorter \u2014 violet into orchid, no warm end",
+      "page": "page-iter"
+    },
+    {
+      "id": "it-4",
+      "x": 2240,
+      "y": -56,
+      "w": 460,
+      "text": "Grounded \u2014 faint indigo wash behind the cool end",
+      "page": "page-iter"
+    },
+    {
+      "id": "it-5",
+      "x": 2800,
+      "y": -56,
+      "w": 460,
+      "text": "Rimmed \u2014 one hairline of light on the tile edge",
+      "page": "page-iter"
+    },
+    {
+      "id": "ik-0",
+      "x": 0,
+      "y": -56,
+      "w": 460,
+      "text": "Ink, repaired \u2014 hour hand restored, no red",
+      "page": "page-ink"
+    },
+    {
+      "id": "ik-1",
+      "x": 560,
+      "y": -56,
+      "w": 460,
+      "text": "Ink + red \u2014 sweep ends in amber where the hand points",
+      "page": "page-ink"
+    },
+    {
+      "id": "ik-2",
+      "x": 1120,
+      "y": -56,
+      "w": 460,
+      "text": "Cool ink + red \u2014 nothing warm but the hand",
+      "page": "page-ink"
+    },
+    {
+      "id": "ik-3",
+      "x": 1680,
+      "y": -56,
+      "w": 460,
+      "text": "Ink, cream hour hand, red minute hand",
+      "page": "page-ink"
+    },
+    {
+      "id": "fu-0",
+      "x": 0,
+      "y": -56,
+      "w": 460,
+      "text": "Sweep \u2014 one gradient, red where the minute hand is",
+      "page": "page-fus"
+    },
+    {
+      "id": "fu-1",
+      "x": 560,
+      "y": -56,
+      "w": 460,
+      "text": "Snap \u2014 cool bubble, flat red hand; soft meets hard",
+      "page": "page-fus"
+    },
+    {
+      "id": "fu-2",
+      "x": 1120,
+      "y": -56,
+      "w": 460,
+      "text": "Tip \u2014 the hand carries its own gradient into red",
+      "page": "page-fus"
+    },
+    {
+      "id": "fu-3",
+      "x": 1680,
+      "y": -56,
+      "w": 460,
+      "text": "Focus \u2014 radial; red at the pivot, violet at the rim",
+      "page": "page-fus"
+    },
+    {
+      "id": "fu-4",
+      "x": 2240,
+      "y": -56,
+      "w": 460,
+      "text": "Quiet \u2014 no gradient at all; the control",
+      "page": "page-fus"
+    },
+    {
+      "id": "fu-5",
+      "x": 2800,
+      "y": -56,
+      "w": 460,
+      "text": "Bloom \u2014 sweep, with a red bloom behind the hand",
+      "page": "page-fus"
+    },
+    {
+      "id": "st-0",
+      "x": 0,
+      "y": -56,
+      "w": 460,
+      "text": "Bleed \u2014 too big for the tile, tail cropped by the corner",
+      "page": "page-stand"
+    },
+    {
+      "id": "st-1",
+      "x": 560,
+      "y": -56,
+      "w": 460,
+      "text": "Split \u2014 hard edge, no gradient; the mark inverts across it",
+      "page": "page-stand"
+    },
+    {
+      "id": "st-2",
+      "x": 1120,
+      "y": -56,
+      "w": 460,
+      "text": "Grain \u2014 matte and textured where everything else is glossy",
+      "page": "page-stand"
+    },
+    {
+      "id": "st-3",
+      "x": 1680,
+      "y": -56,
+      "w": 460,
+      "text": "Inked \u2014 quiet ground, the colour lives in the mark",
+      "page": "page-stand"
+    },
+    {
+      "id": "st-4",
+      "x": 2240,
+      "y": -56,
+      "w": 460,
+      "text": "Red hand \u2014 the BUSTED colour on the hand that moves",
+      "page": "page-stand"
+    },
+    {
+      "id": "st-5",
+      "x": 2800,
+      "y": -56,
+      "w": 460,
+      "text": "Paper \u2014 the bright tile in a tray of dark ones",
+      "page": "page-stand"
+    },
+    {
+      "id": "lbl-a",
+      "x": 0,
+      "y": -56,
+      "w": 380,
+      "text": "A \u2014 Quote: the app is about what people said",
+      "page": "page-1"
+    },
+    {
+      "id": "lbl-b",
+      "x": 560,
+      "y": -56,
+      "w": 380,
+      "text": "B \u2014 Quote + clock: the claim, and the deadline running on it",
+      "page": "page-1"
+    },
+    {
+      "id": "lbl-c",
+      "x": 1120,
+      "y": -56,
+      "w": 380,
+      "text": "C \u2014 Tally: the ledger, keeping count",
+      "page": "page-1"
+    },
+    {
+      "id": "lbl-d",
+      "x": 1680,
+      "y": -56,
+      "w": 380,
+      "text": "D \u2014 Monogram: the conventional option, for comparison",
+      "page": "page-1"
+    },
+    {
+      "id": "t-a",
+      "x": 0,
+      "y": -56,
+      "w": 420,
+      "text": "A \u2014 Curled pair: two commas sharing a centre",
+      "page": "page-time"
+    },
+    {
+      "id": "t-b",
+      "x": 560,
+      "y": -56,
+      "w": 420,
+      "text": "B \u2014 Quote breaking the ring",
+      "page": "page-time"
+    },
+    {
+      "id": "t-c",
+      "x": 1120,
+      "y": -56,
+      "w": 420,
+      "text": "C \u2014 The commas are the hands",
+      "page": "page-time"
+    },
+    {
+      "id": "t-d",
+      "x": 1680,
+      "y": -56,
+      "w": 420,
+      "text": "D \u2014 One giant comma, tail curled all the way round",
+      "page": "page-time"
+    },
+    {
+      "id": "l-a",
+      "x": 0,
+      "y": -56,
+      "w": 440,
+      "text": "A \u2014 Quote + clock badge",
+      "page": "page-lit"
+    },
+    {
+      "id": "l-b",
+      "x": 560,
+      "y": -56,
+      "w": 440,
+      "text": "B \u2014 A round bubble and a dial are the same circle",
+      "page": "page-lit"
+    },
+    {
+      "id": "l-c",
+      "x": 1120,
+      "y": -56,
+      "w": 440,
+      "text": "C \u2014 Quote on the dial, where 12 would be",
+      "page": "page-lit"
+    },
+    {
+      "id": "l-d",
+      "x": 1680,
+      "y": -56,
+      "w": 440,
+      "text": "D \u2014 Half quote, half clock",
+      "page": "page-lit"
+    },
+    {
+      "id": "b-a",
+      "x": 0,
+      "y": -56,
+      "w": 440,
+      "text": "A \u2014 Outline, bold",
+      "page": "page-bub"
+    },
+    {
+      "id": "b-b",
+      "x": 560,
+      "y": -56,
+      "w": 440,
+      "text": "B \u2014 Filled, dial and hands cut out",
+      "page": "page-bub"
+    },
+    {
+      "id": "b-c",
+      "x": 1120,
+      "y": -56,
+      "w": 440,
+      "text": "C \u2014 Filled, hands only: the bubble edge is the dial",
+      "page": "page-bub"
+    },
+    {
+      "id": "b-d",
+      "x": 1680,
+      "y": -56,
+      "w": 440,
+      "text": "D \u2014 Outline, light and tapered",
+      "page": "page-bub"
+    },
+    {
+      "id": "b-e",
+      "x": 2240,
+      "y": -56,
+      "w": 440,
+      "text": "E \u2014 Filled, amber hands",
+      "page": "page-bub"
+    },
+    {
+      "id": "s-1",
+      "x": 0,
+      "y": -56,
+      "w": 440,
+      "text": "Ember \u2014 warm analogous pair",
+      "page": "page-sty"
+    },
+    {
+      "id": "s-2",
+      "x": 560,
+      "y": -56,
+      "w": 440,
+      "text": "Dusk \u2014 blue into violet",
+      "page": "page-sty"
+    },
+    {
+      "id": "s-3",
+      "x": 1120,
+      "y": -56,
+      "w": 440,
+      "text": "Violet to blue \u2014 the most-cited pairing",
+      "page": "page-sty"
+    },
+    {
+      "id": "s-4",
+      "x": 1680,
+      "y": -56,
+      "w": 440,
+      "text": "Glow on deep \u2014 the app's own signature",
+      "page": "page-sty"
+    },
+    {
+      "id": "s-5",
+      "x": 2240,
+      "y": -56,
+      "w": 440,
+      "text": "Liquid glass \u2014 highlight sweep and lit rim",
+      "page": "page-sty"
+    },
+    {
+      "id": "s-6",
+      "x": 2800,
+      "y": -56,
+      "w": 440,
+      "text": "Light ground \u2014 inverted",
+      "page": "page-sty"
+    }
+  ],
+  "launch": {
+    "view": "canvas",
+    "page": "page-final"
+  },
+  "pages": [
+    {
+      "id": "page-final",
+      "name": "The icon"
+    },
+    {
+      "id": "page-ramp",
+      "name": "Ramp refinements"
+    },
+    {
+      "id": "page-ver",
+      "name": "Red + green"
+    },
+    {
+      "id": "page-iter",
+      "name": "Sweep iterations"
+    },
+    {
+      "id": "page-ink",
+      "name": "Ink repaired + red"
+    },
+    {
+      "id": "page-fus",
+      "name": "Ink + red hand"
+    },
+    {
+      "id": "page-stand",
+      "name": "Standing out"
+    },
+    {
+      "id": "page-sty",
+      "name": "Icon styling"
+    },
+    {
+      "id": "page-bub",
+      "name": "Bubble-clock finishes"
+    },
+    {
+      "id": "page-lit",
+      "name": "Literal forms"
+    },
+    {
+      "id": "page-time",
+      "name": "Fused forms (failed)"
+    },
+    {
+      "id": "page-1",
+      "name": "First four directions"
+    }
+  ]
+}

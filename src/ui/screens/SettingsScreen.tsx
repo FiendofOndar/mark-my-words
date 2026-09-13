@@ -285,7 +285,7 @@ export function SettingsScreen() {
                     ? `${quotaUsed.data.used} checks today, ${quotaUsed.data.thisMonth} this month.`
                     : 'No checks recorded yet.'}
                   {quota.trim() === '' && (
-                    <span className="text-partial">
+                    <span className="text-attention">
                       {' '}
                       No daily ceiling is set.
                     </span>
@@ -529,6 +529,6 @@ function Toggle({
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="text-[11px] font-semibold tracking-wide text-ink-faint uppercase">{children}</h2>
+    <h2 className="label">{children}</h2>
   );
 }

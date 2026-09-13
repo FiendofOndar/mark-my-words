@@ -159,10 +159,10 @@ function IntakeBanner({ notes, error }: { notes: IntakeNotes; error?: string | n
   return (
     <section
       className={`rounded border px-3 py-2.5 ${
-        offline ? 'border-partial/40 bg-partial/5' : 'border-rule bg-surface'
+        offline ? 'border-attention/40 bg-attention/5' : 'border-glass-edge bg-glass-fill'
       }`}
     >
-      <p className={`text-[13px] ${offline ? 'text-partial' : 'text-ink-dim'}`}>
+      <p className={`text-[13px] leading-relaxed ${offline ? 'text-attention' : 'text-prose-dim'}`}>
         {offline
           ? 'Drafted offline by pattern matching, not by a model. Treat every field below as a guess.'
           : `Drafted by ${notes.model}. Nothing is tracked until you confirm it.`}

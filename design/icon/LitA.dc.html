@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap">
+  <style>
+    body { margin: 0; }
+    .icon { width: 480px; height: 480px; border-radius: 104px; box-sizing: border-box;
+      background: oklch(0.16 0.012 270); position: relative; overflow: hidden; }
+    /* A real typographic quote mark, not an approximation of one, plus a real
+       clock face as a corner badge. Neither shape is asked to be the other. */
+    .q { position: absolute; left: 54px; top: -44px;
+      font-family: 'Playfair Display', serif; font-weight: 900; font-size: 360px;
+      color: oklch(0.95 0.014 88); line-height: 1; }
+    .badge { position: absolute; right: 40px; bottom: 40px; }
+  </style>
+</helmet>
+<div class="icon">
+  <span class="q">&ldquo;</span>
+  <svg class="badge" width="168" height="168" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="59" fill="oklch(0.16 0.012 270)"/>
+    <circle cx="60" cy="60" r="45" fill="none" stroke="oklch(0.95 0.014 88)" stroke-width="11"/>
+    <g stroke="oklch(0.95 0.014 88)" stroke-width="11" stroke-linecap="round">
+      <line x1="60" y1="60" x2="60" y2="32"/>
+      <line x1="60" y1="60" x2="82" y2="70"/>
+    </g>
+  </svg>
+</div>
+</x-dc>
+</body>
+</html>

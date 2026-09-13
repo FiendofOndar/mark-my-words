@@ -35,7 +35,7 @@ export function AuthorScreen() {
               author 1-0 headlined as "100%" is the cherry-picked number the
               five-call threshold exists to refuse, printed directly above the
               sentence explaining the threshold. */}
-          <span className="font-display text-5xl tabular-nums">
+          <span className="font-display text-[52px] leading-none font-semibold tabular-nums">
             {formatHeadline(record)}
           </span>
           <span className="text-[14px] text-ink-dim">
@@ -72,7 +72,7 @@ export function AuthorScreen() {
       </section>
 
       {items.length === 0 ? (
-        <p className="px-8 py-16 text-center font-display text-lg text-ink-dim italic">
+        <p className="px-8 py-16 text-center font-quote text-[21px] font-semibold text-ink-dim italic">
           Nothing on the record for {author.displayName} yet.
         </p>
       ) : (

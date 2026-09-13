@@ -1,28 +1,110 @@
 @import 'tailwindcss';
 
 /*
- * Receipts and case files. The statement and the verdict carry the design;
- * everything else stays quiet so the quote reads first.
+ * The design system's values. The long form, with the reasoning behind each
+ * decision, is design/tokens.css; this file is where they take effect.
+ *
+ * Tailwind v4 generates utilities from these names: --color-ground becomes
+ * bg-ground and text-ground, --font-quote becomes font-quote, and so on.
  */
 @theme {
-  --font-display: 'Newsreader', ui-serif, Georgia, 'Times New Roman', serif;
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  /* ---- Type ------------------------------------------------------------
+   * Four families, one job each. All four are self-hosted in public/fonts:
+   * an APK has no network on first launch, and a receipt card rasterized
+   * through an SVG foreignObject cannot reach a remote face.
+   *
+   *   quote    the human's own words, and only ever those
+   *   display  headlines, verdict words, the numbers that carry a screen
+   *   sans     labels, chips, buttons - anything letterspaced or uppercase
+   *   mono     body copy, metadata, timestamps, hosts. The default.
+   *
+   * font-display used to do two jobs at once, quotes AND headlines. Splitting
+   * it is most of this restyle: a quote is now font-quote and stays a serif,
+   * a headline is font-display and becomes a condensed sans.
+   */
+  --font-quote: 'Cormorant', ui-serif, Georgia, serif;
+  --font-display: 'Oswald', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Barlow Condensed', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
 
-  --color-ground: #111014;
+  /* ---- Surfaces and ink ------------------------------------------------- */
+  --color-ground: #131218;
   --color-surface: #1a181e;
   --color-surface-raised: #221f28;
-  --color-ink: #ede7dc;
-  --color-ink-dim: #a49c8f;
-  --color-ink-faint: #6f675c;
+  --color-ink: #f2ede3;
+  --color-ink-dim: #a9a196;
+  --color-ink-faint: #877e72;
   --color-rule: #2e2a35;
 
+  /* ---- Prose ink -------------------------------------------------------
+   * Running prose is warm white made partly transparent, so the glow behind
+   * it tints it and the text belongs to the ground rather than floating above
+   * it. Prose only: anything small or uppercase stays solid, because
+   * transparency costs contrast and small type has none to spare.
+   */
+  --color-prose: oklch(0.97 0.01 90 / 0.82);
+  --color-prose-dim: oklch(0.97 0.01 90 / 0.6);
+  --color-prose-faint: oklch(0.97 0.01 90 / 0.48);
+
+  /* ---- The AI panel ----------------------------------------------------
+   * Frosted glass over the glow on dark, a raised warm card on light. The
+   * only translucent surfaces in the system; everything else is opaque.
+   */
+  --color-glass-fill: oklch(0.94 0.01 90 / 0.07);
+  --color-glass-edge: oklch(0.9 0.01 90 / 0.13);
+  --shadow-panel: 0 20px 42px oklch(0 0 0 / 0.34);
+
+  /* ---- Accent ----------------------------------------------------------
+   * One value, fixed, and deliberately near-neutral. Green, red and gold
+   * belong to the verdicts and amber is the attention signal, so an accent
+   * with real chroma competes with the only colours here that mean anything.
+   * It carries fills, active states and selection, never reading text.
+   */
+  --color-accent: #8792ab;
+  --color-accent-ink: oklch(0.44 0.045 265);
+  /*
+   * The label on an accent fill. NOT --color-ground: the accent is the same
+   * value in both themes, so a label that follows the ground turns cream on
+   * light and lands at 2.7:1 - the primary button's own text, unreadable, on
+   * every screen that has one. This stays dark in both themes and is the one
+   * colour token the light block deliberately does not redefine.
+   */
+  --color-on-accent: #131218;
+
+  /* Ambient colour, not a spotlight: a wide ellipse with its origin near or
+   * past an edge, so only the falloff is ever on screen. Kept low, because
+   * every unit of glow is contrast taken off the ink sitting on top of it.
+   * Reference: ellipse 940px 760px at 50% 34%, transparent by 78%.
+   */
+  --color-glow: color-mix(in srgb, var(--color-accent) 20%, transparent);
+
+  /* ---- Attention -------------------------------------------------------
+   * "This needs you", and nothing else. Waiting on you, the verdict-ready
+   * flag, the mark beside a dead link, the Sample badge, a source credited to
+   * the wrong outlet. Never decorative, and a different hue from the accent
+   * on purpose. Separate from --color-partial despite sharing a hue: partial
+   * is the Split verdict, and gate prose painted with it once read as "this
+   * partially came true".
+   */
+  --color-attention: #dba456;
+
+  /* ---- Verdicts --------------------------------------------------------
+   * Fixed and semantic. Token names follow the stored status values, which
+   * are also the model's JSON contract; the words a person sees live in
+   * STATUS_LABEL (src/domain/format.ts). Every one is always paired with its
+   * word in the UI, never carried by colour alone.
+   */
   --color-hit: #5aa87a;
   --color-miss: #cf6049;
   --color-partial: #d29a43;
   --color-ambiguous: #8a8078;
-  --color-voided: #5d5650;
+  --color-voided: #7f8590;
   --color-late: #c9a227;
   --color-draft: #7a8fb8;
+
+  /* ---- Radii ----------------------------------------------------------- */
+  --radius-chip: 3px;
+  --radius-panel: 14px;
 }
 
 /*
@@ -37,14 +119,45 @@
     --color-surface-raised: #fbf6ea;
     --color-ink: #1c1917;
     --color-ink-dim: #5f574c;
-    --color-ink-faint: #8b8175;
+    --color-ink-faint: #736a60;
     --color-rule: #ddd5c4;
+
+    /* Translucency needs darkness to read, so on paper the panel stops being
+       glass and becomes a raised card: near-white, a warm hairline, a cool
+       shadow. The glow still does the colouring. */
+    --color-glass-fill: #fffcf4;
+    --color-glass-edge: oklch(0.85 0.05 80);
+    --shadow-panel: 0 16px 36px color-mix(in srgb, #4e5f8c 24%, transparent);
+
+    /*
+     * On light the glow is a lift toward white, not a wash of hue.
+     *
+     * The note this replaces said the glow needs MORE saturation on a bright
+     * ground "to register". That is backwards: a translucent tint has more
+     * light to work with on cream than on near-black, so it registers harder,
+     * and what registered was a cool blue-grey haze over warm paper. It read as
+     * a dirty screen rather than as atmosphere, and it cost the light theme the
+     * one thing that makes it paper rather than white.
+     *
+     * A whisper of the accent's hue survives in the lift, which is enough to
+     * tie the two themes together without tinting the page.
+     */
+    --color-glow: oklch(0.99 0.012 265 / 0.8);
+
+    /* NOT YET DESIGNED. Alpha runs the other way on paper: dark ink at
+       reduced alpha washes out, where on dark it got dimmer and warmer.
+       Solid until that gets its own pass. */
+    --color-prose: var(--color-ink);
+    --color-prose-dim: var(--color-ink-dim);
+    --color-prose-faint: var(--color-ink-faint);
+
+    --color-attention: #84680f;
 
     --color-hit: #2f7a4f;
     --color-miss: #a8341c;
-    --color-partial: #9a6b14;
+    --color-partial: #8f6313;
     --color-ambiguous: #6b625a;
-    --color-voided: #857c73;
+    --color-voided: #61676f;
     --color-late: #8a6d10;
     --color-draft: #3b5688;
   }
@@ -55,11 +168,24 @@
     height: 100%;
   }
 
+  /*
+   * The glow is painted on #root rather than body so it scrolls with nothing:
+   * it is the room the app sits in, not part of the page. Wide ellipse with
+   * its origin high and off-centre, so only the falloff is ever on screen. An
+   * origin inside the frame puts the hot centre under the glass and the whole
+   * thing reads as a stage light.
+   */
+  #root {
+    background:
+      radial-gradient(ellipse 940px 760px at 50% 34%, var(--color-glow), transparent 78%),
+      var(--color-ground);
+  }
+
   body {
     margin: 0;
     background: var(--color-ground);
     color: var(--color-ink);
-    font-family: var(--font-sans);
+    font-family: var(--font-mono);
     -webkit-font-smoothing: antialiased;
     overscroll-behavior-y: contain;
   }
@@ -88,16 +214,6 @@
 }
 
 @layer components {
-  /* Faint paper grain on card surfaces. Cheap, no image request. */
-  .paper {
-    background-image: radial-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px);
-    background-size: 3px 3px;
-  }
-
-  :root[data-theme='light'] .paper {
-    background-image: radial-gradient(rgba(0, 0, 0, 0.025) 1px, transparent 1px);
-  }
-
   /*
    * Chrome draws an unchecked checkbox as a solid white box, which on a dark
    * ground is the loudest thing on the screen: the review card's one blocker
@@ -130,11 +246,12 @@
     transform: translateY(-1px) rotate(-45deg);
   }
 
-  /* The review card's blockers are amber, not cream, so they read as the thing
-     still holding the clock rather than as another setting. */
+  /* The review card's blockers read as the thing still holding the clock rather
+     than as another setting. Attention, not --color-partial: partial is the
+     Split verdict, and a blocker is the app asking, not a half-true claim. */
   .checkbox-warn:checked {
-    border-color: var(--color-partial);
-    background: var(--color-partial);
+    border-color: var(--color-attention);
+    background: var(--color-attention);
   }
 
   .checkbox:focus-visible {
@@ -142,18 +259,58 @@
     outline-offset: 2px;
   }
 
+  /*
+   * The verdict. Never rotated: a tilted outline reads as a novelty sticker at
+   * the size these are actually seen, and the rotation was the last piece of
+   * the case-file aesthetic this design replaced.
+   *
+   * min-width is sized to the longest word, UNCLEAR. A verdict column that
+   * shrinks to fit each word gives the feed a ragged right edge and undoes the
+   * tabular rhythm the rows are built on.
+   */
   .stamp {
-    font-family: var(--font-sans);
-    letter-spacing: 0.14em;
-    border-width: 2.5px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    border-width: 1.5px;
     border-style: solid;
-    border-radius: 3px;
+    border-radius: var(--radius-chip);
     text-transform: uppercase;
+    text-align: center;
+    box-sizing: border-box;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .stamp-tilt {
-      transform: rotate(-5deg);
-    }
+  /*
+   * The model's own output, and the one translucent surface in the app. On
+   * light it stops being glass and becomes a raised card, because translucency
+   * needs darkness to read.
+   */
+  .glass {
+    background: var(--color-glass-fill);
+    border: 1px solid var(--color-glass-edge);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--shadow-panel);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  /* On light the fill is opaque, so the blur samples nothing and buys nothing
+     while still forcing a compositing layer for every panel on screen. */
+  :root[data-theme='light'] .glass {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  /*
+   * The letterspaced uppercase label. Solid ink, never a prose token: alpha
+   * costs contrast and type this small has none to spare.
+   */
+  .label {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
   }
 }

@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,600;1,500;1,600&family=Oswald:wght@600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .screen {
+      --ground: oklch(0.145 0.012 270);
+      --rule: oklch(0.26 0.01 270);
+      --ink: oklch(0.96 0.01 90);
+      --ink-dim: oklch(0.68 0.01 90);
+      --ink-faint: oklch(0.52 0.01 270);
+      --accent: #8792ab;
+      /* Fixed. "Needs you" is semantic, so it never follows the chosen accent. */
+      --attention: #dba456;
+      --glow: color-mix(in srgb, #8792ab 20%, transparent);
+      /* Prose is warm white made see-through, so the glow tints it. Chosen to land
+         at about the same brightness over bare ground as the solid values did. */
+      --prose: oklch(0.97 0.01 90 / 0.82);
+      --prose-dim: oklch(0.97 0.01 90 / 0.6);
+      --prose-faint: oklch(0.97 0.01 90 / 0.46);
+      --hit: #5aa87a;
+      --miss: oklch(0.66 0.15 27);
+      --partial: #d29a43;
+
+      width: 375px; height: 1100px; box-sizing: border-box; overflow: hidden;
+      background:
+        radial-gradient(ellipse 940px 760px at 50% 34%, var(--glow), transparent 78%),
+        var(--ground);
+      color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex; flex-direction: column;
+    }
+    .crumb { padding: 46px 22px 0 22px; font-size: 10.5px; letter-spacing: 1.8px; color: var(--ink-faint); text-transform: uppercase; }
+    .quote-zone { padding: 26px 24px 0 24px; }
+    .quote { font-family: 'Cormorant', serif; font-weight: 500; font-style: italic; font-size: 31px; line-height: 1.22; margin: 0 0 14px 0; }
+    .byline { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 15px; color: var(--ink-dim); }
+    .byline span { color: var(--ink-faint); font-weight: 500; }
+
+    .glass { margin: 24px 22px 0 22px; padding: 20px 22px; border-radius: 14px;
+      background: oklch(0.94 0.01 90 / 0.07);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid oklch(0.9 0.01 90 / 0.13);
+      box-shadow: 0 20px 42px oklch(0 0 0 / 0.34); }
+    /* Neutral: nothing is being asked of anyone here. Amber is reserved for that. */
+    .glass .tag { font-size: 10px; letter-spacing: 1.6px; color: oklch(0.6 0.012 80); text-transform: uppercase; font-weight: 600; margin-bottom: 11px; }
+    .glass .verdict { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 30px; margin: 0 0 9px 0; color: var(--miss); letter-spacing: 0.5px; }
+    .glass .detail { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; color: var(--prose-dim); line-height: 1.4; margin: 0 0 14px 0; }
+    /* Nothing gated this one, and saying so plainly is the counterpart to the
+       gate list on a check that is waiting. */
+    .clear { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; color: var(--prose-faint); line-height: 1.4;
+      border-top: 1px solid oklch(0.9 0.01 90 / 0.1); padding-top: 13px; margin: 0; }
+    .strip { margin-top: 12px; font-size: 9.5px; letter-spacing: 1.1px; color: var(--ink-faint); }
+
+    .log { margin-top: 30px; }
+    .log h2 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 2px;
+      color: var(--ink-dim); margin: 0; padding: 0 22px 4px 22px; }
+    .log .note { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; color: var(--ink-faint); padding: 0 22px 10px 22px; margin: 0; }
+    .entry { padding: 13px 22px; border-top: 1px solid var(--rule); }
+    .entry .line1 { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+    .entry .when { font-size: 10px; letter-spacing: 1.1px; color: var(--ink-faint); text-transform: uppercase; }
+    .pill { font-size: 9.5px; letter-spacing: 0.8px; padding: 2px 8px; border-radius: 999px;
+      border: 1px solid var(--rule); color: var(--ink-dim); text-transform: uppercase; }
+    .pill.done { border-color: color-mix(in srgb, var(--hit) 45%, transparent); color: var(--hit); }
+    .entry .summary { font-family: 'Barlow Condensed', sans-serif; font-size: 14.5px; color: var(--prose-dim); line-height: 1.35; margin: 0 0 8px 0; }
+    .srcs { display: flex; flex-direction: column; gap: 4px; }
+    .src { display: flex; align-items: baseline; gap: 7px; font-size: 10.5px; }
+    .src .mark { font-weight: 600; }
+    .src .mark.ok { color: var(--hit); }
+    .src .mark.bad { color: var(--partial); }
+    .src .host { color: var(--ink-dim); }
+    .src .state { color: var(--ink-faint); }
+
+    /* The searches actually run. Grounded checks are billed per query, and this
+       is the only place anyone sees whether the model kept to its budget. */
+    .searches { margin-top: 10px; padding-top: 9px; border-top: 1px dashed var(--rule); }
+    .searches .lab { font-size: 9.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 6px; }
+    .searches .q { font-size: 10.5px; color: var(--ink-dim); line-height: 1.6; }
+    .searches .q::before { content: '→'; color: var(--ink-faint); margin-right: 6px; }
+  </style>
+</helmet>
+<div class="screen">
+  <div class="crumb">Prediction &middot; tech/ai</div>
+  <div class="quote-zone">
+    <p class="quote">&ldquo;The AI bubble crashes by spring.&rdquo;</p>
+    <div class="byline">fastcompany.com <span>&middot; said Jan 4 &middot; deadline Mar 20</span></div>
+  </div>
+
+  <div class="glass">
+    <div class="tag">AI Verdict &middot; auto-resolved</div>
+    <p class="verdict">BUSTED</p>
+    <p class="detail">Deadline passed with no qualifying index drop. Four checks across ten weeks found no reporting that met the criteria.</p>
+    <p class="clear">Nothing about the citations stopped the app acting on this.</p>
+    <div class="strip">3 SOURCES, LINKS WORK &middot; MODEL CONFIDENCE 94/100</div>
+  </div>
+
+  <div class="log">
+    <h2>CHECK LOG</h2>
+    <p class="note">Marks are the app's own check of each link, not whether the source agrees.</p>
+
+    <div class="entry">
+      <div class="line1">
+        <span class="when">Mar 20 &middot; deadline &middot; auto</span>
+        <span class="pill done">Resolved</span>
+      </div>
+      <p class="summary">Deadline reached. No index in the basket fell 30% or more from peak.</p>
+      <div class="srcs">
+        <div class="src"><span class="mark ok">&#10003;</span><span class="host">reuters.com</span><span class="state">link works</span></div>
+        <div class="src"><span class="mark ok">&#10003;</span><span class="host">ft.com</span><span class="state">link works</span></div>
+        <div class="src"><span class="mark ok">&#10003;</span><span class="host">bloomberg.com</span><span class="state">link works</span></div>
+      </div>
+      <div class="searches">
+        <div class="lab">Searches run &middot; 4</div>
+        <div class="q">nasdaq drawdown from peak March 2026</div>
+        <div class="q">AI stocks correction percentage 2026</div>
+        <div class="q">"AI bubble" burst reporting March 2026</div>
+        <div class="q">semiconductor index peak to trough 2026</div>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="line1">
+        <span class="when">Mar 06 &middot; pull</span>
+        <span class="pill">No change</span>
+      </div>
+      <p class="summary">Drawdown at 11% from January peak. Trend flat.</p>
+      <div class="srcs">
+        <div class="src"><span class="mark ok">&#10003;</span><span class="host">wsj.com</span><span class="state">link works</span></div>
+        <div class="src"><span class="mark bad">!</span><span class="host">cnbc.com</span><span class="state">link does not work</span></div>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="line1">
+        <span class="when">Feb 12 &middot; pull</span>
+        <span class="pill">No change</span>
+      </div>
+      <p class="summary">Two outlets describe a correction, not a crash. Criteria unmet.</p>
+      <div class="srcs">
+        <div class="src"><span class="mark ok">&#10003;</span><span class="host">reuters.com</span><span class="state">link works</span></div>
+        <div class="src"><span class="mark ok">&#10003;</span><span class="host">barrons.com</span><span class="state">link works &mdash; page not shown to the app</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

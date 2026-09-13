@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The themed icon (Android 13+). The system tints this drawable to the
+  wallpaper palette, so it has to hold with no ramp at all - which it does,
+  because the structure is a bubble and two hands, not a colour scheme.
+
+  Same geometry as brand_mark, flattened to one ink. White rather than a brand
+  colour: the launcher replaces it, and a brand colour here would only ever show
+  up if the tint failed to apply.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.44"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M39.54,61.08 C35.62,52.08 38.92,41.57 47.27,36.43 C55.63,31.29 66.5,33.09 72.76,40.64 C79.02,48.2 78.76,59.21 72.15,66.47 C65.55,73.72 54.61,75.01 46.5,69.48 L32.53,76.67 Z">
+    </path>
+
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.21"
+        android:strokeLineCap="round"
+        android:pathData="M57.72,52.4 L57.72,39.57" />
+
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.21"
+        android:strokeLineCap="round"
+        android:pathData="M57.72,52.4 L65.74,56.98" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M57.72,50.57 C58.73,50.57 59.55,51.39 59.55,52.4 C59.55,53.41 58.73,54.23 57.72,54.23 C56.71,54.23 55.89,53.41 55.89,52.4 C55.89,51.39 56.71,50.57 57.72,50.57 Z" />
+</vector>

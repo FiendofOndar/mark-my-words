@@ -1,14 +1,18 @@
 import type { Prediction, PredictionStatus } from './types';
 import { daysUntilDeadline, effectiveDeadline, lateByMonths } from './prediction';
 
+/**
+ * Display only. The stored status values stay `hit` / `miss` / etc., because
+ * they are also the model's JSON contract and the schema's column values.
+ */
 export const STATUS_LABEL: Record<PredictionStatus, string> = {
   draft: 'Draft',
   open: 'Open',
-  hit: 'Hit',
-  miss: 'Miss',
-  partial: 'Partial',
-  ambiguous: 'Ambiguous',
-  void: 'Void',
+  hit: 'Proven',
+  miss: 'Busted',
+  partial: 'Split',
+  ambiguous: 'Unclear',
+  void: 'Moot',
 };
 
 export function formatDate(iso: string | null): string {

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- The app's ground. Was Capacitor's default teal. -->
-    <color name="ic_launcher_background">#111014</color>
-    <color name="brand_ink">#EDE7DC</color>
+    <!-- The icon's ground. Deliberately a shade off the app's own ground token:
+         the tile is a fraction warmer so the mark's green end does not go cold
+         against it. Was Capacitor's default teal, then the app's near-black. -->
+    <color name="ic_launcher_background">#1F1E2B</color>
+    <color name="brand_ink">#F2E8D8</color>
+    <!-- The minute hand, and the notification accent. The verdict red, lifted
+         so it separates from the ramp's own red end behind it. -->
+    <color name="brand_miss">#F2593A</color>
 </resources>

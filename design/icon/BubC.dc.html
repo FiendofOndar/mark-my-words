@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; }
+    .icon { width: 480px; height: 480px; border-radius: 104px; box-sizing: border-box;
+      background: oklch(0.16 0.012 270);
+      display: flex; align-items: center; justify-content: center; }
+  </style>
+</helmet>
+<div class="icon">
+  <!-- Fewest parts that still say both things: the bubble's own edge is the dial,
+       so only the hands are cut out. Nothing here can be dropped. -->
+  <svg width="360" height="360" viewBox="0 0 240 240">
+    <g transform="translate(7 11)">
+      <path d="M 37.3 136.1 A 88 88 0 1 1 76 182.2 L 18 200 Z" fill="oklch(0.95 0.014 88)"/>
+      <g stroke="oklch(0.16 0.012 270)" stroke-width="19" stroke-linecap="round">
+        <line x1="120" y1="106" x2="120" y2="46"/>
+        <line x1="120" y1="106" x2="158" y2="128"/>
+      </g>
+    </g>
+  </svg>
+</div>
+</x-dc>
+</body>
+</html>

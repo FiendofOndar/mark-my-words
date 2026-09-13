@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,600;1,600&family=Oswald:wght@500;600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .screen {
+      --ground: oklch(0.145 0.012 270);
+      --surface: oklch(0.19 0.012 270);
+      --rule: oklch(0.26 0.01 270);
+      --ink: oklch(0.96 0.01 90);
+      --ink-dim: oklch(0.68 0.01 90);
+      --ink-faint: oklch(0.52 0.01 270);
+      --accent: #8792ab;
+      /* Fixed. "The app needs you" is semantic, so it never follows the accent. */
+      --attention: #dba456;
+      --glow: color-mix(in srgb, #8792ab 20%, transparent);
+      --prose: oklch(0.97 0.01 90 / 0.82);
+      --prose-dim: oklch(0.97 0.01 90 / 0.6);
+      --prose-faint: oklch(0.97 0.01 90 / 0.46);
+      --hit: #5aa87a;
+      --miss: oklch(0.66 0.15 27);
+      --partial: #d29a43;
+
+      box-sizing: border-box; overflow: hidden;
+      background:
+        radial-gradient(ellipse 940px 760px at 50% 34%, var(--glow), transparent 78%),
+        var(--ground);
+      color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex; flex-direction: column;
+    }
+    .hdr { padding: 42px 18px 12px 18px; border-bottom: 1px solid var(--rule);
+      display: flex; align-items: flex-start; gap: 10px; flex: none; }
+    .hdr .ttl { flex: 1; min-width: 0; }
+    .hdr h1 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 20px;
+      margin: 0; letter-spacing: 0.4px; }
+    .hdr .sub { font-size: 10.5px; color: var(--ink-faint); margin-top: 3px; letter-spacing: 0.3px; }
+    .hdr .act { font-size: 11.5px; color: var(--miss); flex: none; padding-top: 3px; }
+    .back { width: 22px; height: 22px; flex: none; color: var(--ink-dim); margin-left: -4px; }
+
+    .pad { padding: 16px 18px; }
+    .lbl { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 11px;
+      letter-spacing: 1.4px; text-transform: uppercase; color: var(--ink-faint); display: block; }
+    .hint { font-size: 10.5px; color: var(--prose-faint); line-height: 1.45; }
+    .prose { font-size: 11.5px; color: var(--prose-dim); line-height: 1.5; }
+    .input { border: 1px solid var(--rule); border-radius: 8px; background: oklch(0.96 0.01 90 / 0.04);
+      padding: 10px 11px; font-size: 12.5px; color: var(--ink); font-family: inherit;
+      display: block; width: 100%; box-sizing: border-box; }
+    .input.ph { color: var(--ink-faint); }
+    .btn { border-radius: 9px; text-align: center; font-family: 'Oswald', sans-serif;
+      font-weight: 600; letter-spacing: 0.6px; display: block; }
+    .btn.primary { background: var(--accent); color: oklch(0.18 0.02 270); padding: 12px; font-size: 15px; }
+    .btn.secondary { border: 1px solid var(--rule); color: var(--ink-dim); padding: 9px; font-size: 13px; }
+    .glass { border-radius: 13px; background: oklch(0.94 0.01 90 / 0.07);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid oklch(0.9 0.01 90 / 0.13); box-shadow: 0 16px 34px oklch(0 0 0 / 0.3); }
+    .quote { font-family: 'Cormorant', serif; font-weight: 600; line-height: 1.24; margin: 0; }
+    .tag { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 11.5px; letter-spacing: 0.8px;
+      padding: 3px 8px; border-radius: 3px; border: 1.5px solid; flex: none;
+      min-width: 68px; box-sizing: border-box; text-align: center; }
+    .tag.hit { color: var(--hit); border-color: color-mix(in srgb, var(--hit) 55%, transparent); }
+    .tag.miss { color: var(--miss); border-color: color-mix(in srgb, var(--miss) 55%, transparent); }
+    .tag.partial { color: var(--partial); border-color: color-mix(in srgb, var(--partial) 55%, transparent); }
+    .tag.open { color: var(--ink-dim); border-color: var(--rule);
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+    .row { display: flex; align-items: center; gap: 12px; padding: 13px 18px; border-top: 1px solid var(--rule); }
+    .author { font-size: 9.5px; text-transform: uppercase; letter-spacing: 1.2px;
+      color: var(--ink-faint); margin-bottom: 3px; }
+    .claim { font-family: 'Cormorant', serif; font-weight: 600; font-size: 17px; line-height: 1.2; margin: 0 0 4px 0; }
+    .meta { font-size: 9.5px; color: var(--ink-faint); letter-spacing: 0.4px; }
+
+    .screen.author { width: 375px; height: 812px; }
+    .author .head { padding: 18px 18px 16px 18px; border-bottom: 1px solid var(--rule); }
+    .author .big { display: flex; align-items: baseline; gap: 16px; }
+    .author .rate { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 52px;
+      line-height: 0.95; font-variant-numeric: tabular-nums; }
+    .author .vol { font-size: 11px; color: var(--ink-dim); line-height: 1.45; }
+    .author .share { margin-top: 15px; width: 172px; }
+    .author .rowlist .row:first-child { border-top: none; }
+    .author .out { display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; border-top: 1px solid var(--rule); font-size: 11.5px; color: var(--ink-dim); }
+    .author .chev { width: 15px; height: 15px; color: var(--ink-faint); }
+
+  </style>
+</helmet>
+<div class="screen author">
+  <div class="hdr"><svg class="back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg><div class="ttl"><h1>Popops</h1>
+    <div class="sub">9-4 &middot; 69%</div></div></div>
+
+  <div class="head">
+    <!-- The rate appears only once it is allowed to mean something. An author
+         at 1-0 headlined as "100%" is exactly the number the threshold refuses. -->
+    <div class="big"><span class="rate">69%</span>
+      <span class="vol">13 settled<br>4 running &middot; 1 late</span></div>
+    <div class="btn secondary share">Share the record</div>
+  </div>
+
+  <div class="rowlist"><div class="row"><div style="flex:1;min-width:0"><div class="author">Apr 3, 2026</div><p class="claim">&ldquo;The Cardinals win it all this year.&rdquo;</p><div class="meta">Due Nov 5</div></div><span class="tag open">OPEN</span></div><div class="row"><div style="flex:1;min-width:0"><div class="author">Jan 12, 2026</div><p class="claim">&ldquo;Gas is under three bucks by summer.&rdquo;</p><div class="meta">Settled Jun 30 &middot; 3 sources</div></div><span class="tag hit">PROVEN</span></div><div class="row"><div style="flex:1;min-width:0"><div class="author">Nov 2, 2025</div><p class="claim">&ldquo;They&rsquo;ll never finish that bridge on time.&rdquo;</p><div class="meta">Settled Mar 1 &middot; 2 sources</div></div><span class="tag miss">BUSTED</span></div><div class="row"><div style="flex:1;min-width:0"><div class="author">Aug 19, 2025</div><p class="claim">&ldquo;Rain every weekend in September.&rdquo;</p><div class="meta">Settled Oct 1 &middot; 1 source</div></div><span class="tag partial">SPLIT</span></div></div>
+
+  <div class="out"><span>See the full standings</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+</div>
+</x-dc>
+</body>
+</html>

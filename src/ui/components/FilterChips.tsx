@@ -73,15 +73,15 @@ export function FilterChips({
               type="button"
               onClick={() => onChange(chip.filter)}
               aria-pressed={isActive}
-              className={`flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-4 text-[13px] transition-colors ${
+              className={`flex min-h-11 shrink-0 items-center gap-1.5 rounded-chip border px-3.5 font-sans text-[14px] font-semibold tracking-wide uppercase transition-colors ${
                 isActive
-                  ? 'border-ink bg-ink text-ground'
+                  ? 'border-accent bg-accent text-on-accent'
                   : 'border-rule text-ink-dim active:bg-surface-raised'
               }`}
             >
               {chip.label}
               {chip.count !== undefined && (
-                <span className={isActive ? 'text-ground/70' : 'text-ink-faint'}>{chip.count}</span>
+                <span className={isActive ? 'text-on-accent/70' : 'text-ink-faint'}>{chip.count}</span>
               )}
             </button>
           );

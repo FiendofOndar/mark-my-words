@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .wrap {
+      width: 1400px; height: 200px; box-sizing: border-box;
+      background: oklch(0.17 0.012 270);
+      color: oklch(0.96 0.01 90);
+      font-family: 'Barlow Condensed', sans-serif;
+      display: flex; align-items: center; padding: 0 60px; gap: 48px;
+    }
+    h1 { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 38px; margin: 0 0 6px 0; letter-spacing: 0.5px; }
+    p.lede { font-size: 19px; line-height: 1.4; margin: 0; max-width: 480px; color: oklch(0.78 0.01 90); font-weight: 500; }
+    .tag { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 2px; color: oklch(0.76 0.13 72); font-weight: 600; margin-bottom: 8px; }
+    .note { border-left: 1px solid oklch(0.32 0.01 270); padding-left: 32px; font-size: 16px; line-height: 1.4; color: oklch(0.68 0.01 90); max-width: 380px; }
+  </style>
+</helmet>
+<div class="wrap">
+  <div>
+    <div class="tag">DIRECTION LOCKED — BOX SCORE</div>
+    <h1>Mark My Words</h1>
+    <p class="lede">A ledger of predictions and the people who make them. Icon, feed screen, and promo flyer below, all one system now &mdash; scoreboard type, tally-mark iconography, verdicts as scoreboard chips.</p>
+  </div>
+  <div class="note">The Field Notes and Loud Verdict sketches from the first round are archived on page 2, for reference.</div>
+</div>
+</x-dc>
+</body>
+</html>

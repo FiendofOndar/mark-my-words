@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap">
+  <style>
+    body { margin: 0; }
+    .icon { width: 480px; height: 480px; border-radius: 104px; box-sizing: border-box;
+      background: oklch(0.16 0.012 270); position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center; }
+    /* A clock, unmistakably. The quote sits where 12 would be, in the raised
+       position type puts it anyway, so it reads as a mark on the dial. */
+    .q { position: absolute; left: 50%; top: 34px; transform: translateX(-50%);
+      font-family: 'Playfair Display', serif; font-weight: 900; font-size: 150px;
+      color: oklch(0.95 0.014 88); line-height: 0.8; }
+  </style>
+</helmet>
+<div class="icon">
+  <svg width="360" height="360" viewBox="0 0 240 240">
+    <circle cx="120" cy="120" r="92" fill="none" stroke="oklch(0.95 0.014 88)" stroke-width="19"/>
+    <g stroke="oklch(0.95 0.014 88)" stroke-width="19" stroke-linecap="round">
+      <line x1="120" y1="120" x2="120" y2="168"/>
+      <line x1="120" y1="120" x2="172" y2="140"/>
+    </g>
+    <circle cx="120" cy="120" r="11" fill="oklch(0.95 0.014 88)"/>
+    <circle cx="120" cy="120" r="46" fill="oklch(0.16 0.012 270)" opacity="0"/>
+  </svg>
+  <span class="q">&ldquo;</span>
+</div>
+</x-dc>
+</body>
+</html>

@@ -64,7 +64,7 @@ export function PullToRefresh({
         style={{ height }}
         aria-hidden={height === 0}
       >
-        <span className="pb-3 font-display text-[15px] text-ink-faint italic">
+        <span className="pb-3 font-sans text-[15px] tracking-wide text-ink-faint uppercase">
           {busy
             ? progress && progress.total > 1
               ? `Checking ${Math.min(progress.done + 1, progress.total)} of ${progress.total}...`

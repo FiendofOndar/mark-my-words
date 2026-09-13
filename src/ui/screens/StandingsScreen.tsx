@@ -76,7 +76,7 @@ export function StandingsScreen() {
                 <td className="py-3">
                   <Link
                     to={`/author/${standing.author.id}`}
-                    className="flex min-h-11 items-center font-display text-[17px]"
+                    className="flex min-h-11 items-center font-display text-[17px] font-medium tracking-wide"
                   >
                     {standing.author.displayName}
                   </Link>
@@ -84,7 +84,7 @@ export function StandingsScreen() {
                 <td className="py-3 text-right tabular-nums text-ink-dim">
                   {formatRecord(standing.record)}
                 </td>
-                <td className="px-5 py-3 text-right font-display text-[17px] tabular-nums">
+                <td className="px-5 py-3 text-right font-display text-[18px] font-semibold tabular-nums">
                   {formatRate(standing.record)}
                 </td>
               </tr>
@@ -95,7 +95,7 @@ export function StandingsScreen() {
 
       {rest.length > 0 && (
         <section className="px-5 py-6">
-          <h2 className="text-[11px] font-semibold tracking-wide text-ink-faint uppercase">
+          <h2 className="label">
             {ranked.length > 0 ? 'Still building a record' : 'On the board'}
           </h2>
           <p className="mt-1 text-[13px] text-ink-faint">
@@ -110,7 +110,7 @@ export function StandingsScreen() {
                   className="flex min-h-14 items-center justify-between gap-3 border-b border-rule/60 py-2 active:bg-surface-raised"
                 >
                   <span className="min-w-0">
-                    <span className="block truncate font-display text-[17px]">
+                    <span className="block truncate font-display text-[16px] font-medium tracking-wide">
                       {standing.author.displayName}
                     </span>
                     <span className="block text-[12px] text-ink-faint">
@@ -126,7 +126,7 @@ export function StandingsScreen() {
       )}
 
       {data.length === 0 && (
-        <p className="px-8 py-16 text-center font-display text-lg text-ink-dim italic">
+        <p className="px-8 py-16 text-center font-quote text-[21px] font-semibold text-ink-dim italic">
           Nobody is on the record yet.
         </p>
       )}

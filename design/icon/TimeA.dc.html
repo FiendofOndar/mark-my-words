@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; }
+    .icon { width: 480px; height: 480px; border-radius: 104px; box-sizing: border-box;
+      background: oklch(0.16 0.012 270);
+      display: flex; align-items: center; justify-content: center; }
+  </style>
+</helmet>
+<div class="icon">
+  <!-- Two commas whose tails curl around a shared centre: a double quote that is
+       also a dial. One form, two readings, nothing floating inside anything. -->
+  <svg width="340" height="340" viewBox="0 0 240 240">
+    <g fill="oklch(0.95 0.014 88)" stroke="oklch(0.95 0.014 88)">
+      <g>
+        <circle cx="120" cy="52" r="34" stroke="none"/>
+        <path d="M 120 52 A 68 68 0 0 1 172.1 163.7" fill="none" stroke-width="26" stroke-linecap="round"/>
+      </g>
+      <g transform="rotate(180 120 120)">
+        <circle cx="120" cy="52" r="34" stroke="none"/>
+        <path d="M 120 52 A 68 68 0 0 1 172.1 163.7" fill="none" stroke-width="26" stroke-linecap="round"/>
+      </g>
+    </g>
+  </svg>
+</div>
+</x-dc>
+</body>
+</html>

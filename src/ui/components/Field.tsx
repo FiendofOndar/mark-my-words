@@ -21,11 +21,9 @@ export function Field({
 }) {
   const body = (
     <>
-      <span className="text-[12px] font-semibold tracking-wide text-ink-dim uppercase">
-        {label}
-      </span>
+      <span className="label">{label}</span>
       <div className="mt-1.5">{children}</div>
-      {hint && <p className="mt-1 text-[12px] text-ink-faint">{hint}</p>}
+      {hint && <p className="mt-1.5 text-[12px] leading-relaxed text-prose-faint">{hint}</p>}
     </>
   );
 
@@ -41,19 +39,24 @@ export function Field({
 }
 
 export const inputClass =
-  'w-full rounded border border-rule bg-surface px-3 py-2 text-[15px] outline-none focus:border-ink-dim';
+  'w-full rounded-lg border border-rule bg-ink/[0.04] px-3 py-2.5 text-[15px] outline-none focus:border-ink-dim';
 
 /**
  * The filled action. One per screen.
  *
- * Disabled swaps to a surface token rather than diluting the cream. Both
+ * Accent rather than cream. The accent went near-neutral precisely so it could
+ * carry fills without competing with a verdict, and this is the fill it exists
+ * for. Ground-coloured text on it, never ink: the accent is too light to hold
+ * cream at any weight.
+ *
+ * Disabled swaps to a surface token rather than diluting the fill. Both
  * `opacity-40` and `bg-ink/20` end up as the same muddy grey rectangle, which
  * reads as pressed rather than as unavailable, and the grey belongs to neither
  * palette. Three screens each grew their own copy of this button and all three
  * had the bug.
  */
 export const primaryButton =
-  'rounded bg-ink text-ground disabled:border disabled:border-rule disabled:bg-surface-raised disabled:text-ink-faint';
+  'rounded-lg bg-accent font-display font-semibold tracking-wide text-on-accent disabled:border disabled:border-rule disabled:bg-surface-raised disabled:font-normal disabled:text-ink-faint';
 
 /**
  * The outlined action. `border-rule` is already faint, so the disabled state
@@ -61,7 +64,7 @@ export const primaryButton =
  * thing disappeared and the button looked like stray text.
  */
 export const secondaryButton =
-  'rounded border border-rule text-ink-dim active:bg-surface-raised disabled:text-ink-faint';
+  'rounded-lg border border-rule font-display tracking-wide text-ink-dim active:bg-surface-raised disabled:text-ink-faint';
 
 export function SegmentedControl<T extends string>({
   value,
@@ -83,9 +86,9 @@ export function SegmentedControl<T extends string>({
           role="radio"
           aria-checked={value === option.value}
           onClick={() => onChange(option.value)}
-          className={`min-h-11 flex-1 rounded border px-3 py-2 text-[13px] transition-colors ${
+          className={`min-h-11 flex-1 rounded-lg border px-3 py-2 font-sans text-[14px] font-semibold tracking-wide uppercase transition-colors ${
             value === option.value
-              ? 'border-ink bg-ink text-ground'
+              ? 'border-accent bg-accent text-on-accent'
               : 'border-rule text-ink-dim active:bg-surface-raised'
           }`}
         >

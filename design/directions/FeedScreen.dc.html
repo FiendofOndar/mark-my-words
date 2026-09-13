@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: oklch(0.76 0.13 72); }
+    a:hover { color: oklch(0.82 0.13 72); }
+    .phone {
+      width: 375px; height: 812px; box-sizing: border-box;
+      background: oklch(0.15 0.01 270); color: oklch(0.95 0.01 90);
+      font-family: 'Barlow Condensed', sans-serif;
+      display: flex; flex-direction: column;
+    }
+    .top { padding: 52px 20px 14px 20px; display: flex; align-items: baseline; justify-content: space-between; }
+    .top h1 { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 26px; margin: 0; letter-spacing: 0.5px; }
+    .top .quota { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: oklch(0.6 0.01 90); }
+    .chips { display: flex; gap: 8px; padding: 4px 20px 14px 20px; overflow: hidden; }
+    .chip { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 13px; padding: 5px 14px; border-radius: 3px;
+      background: oklch(0.22 0.012 270); color: oklch(0.78 0.01 90); white-space: nowrap; }
+    .chip.on { background: oklch(0.76 0.13 72); color: oklch(0.17 0.02 72); }
+    .list { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .row { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-bottom: 1px solid oklch(0.24 0.01 270); }
+    .avatar { width: 34px; height: 34px; border-radius: 4px; background: oklch(0.28 0.02 270); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: oklch(0.7 0.01 90); }
+    .body { flex: 1; min-width: 0; }
+    .author { font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: oklch(0.62 0.01 90); margin-bottom: 3px; }
+    .claim { font-size: 18px; font-weight: 600; line-height: 1.15; margin: 0 0 4px 0; }
+    .meta { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: oklch(0.58 0.01 90); }
+    .score { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 15px; padding: 5px 11px; border-radius: 3px; letter-spacing: 0.5px; flex-shrink: 0; }
+    .score.hit { background: oklch(0.76 0.13 72 / 0.16); color: oklch(0.8 0.13 72); border: 1.5px solid oklch(0.6 0.12 72); }
+    .score.miss { background: oklch(0.58 0.16 27 / 0.16); color: oklch(0.68 0.15 27); border: 1.5px solid oklch(0.52 0.14 27); }
+    .score.open { font-family: 'IBM Plex Mono', monospace; font-weight: 600; background: transparent; color: oklch(0.68 0.01 90); border: 1.5px solid oklch(0.35 0.01 270); }
+  </style>
+</helmet>
+<div class="phone">
+  <div class="top"><h1>THE FEED</h1><span class="quota">14 / 250</span></div>
+  <div class="chips">
+    <span class="chip on">ALL</span><span class="chip">OPEN</span><span class="chip">NEEDS YOU</span><span class="chip">RESOLVED</span>
+  </div>
+  <div class="list">
+    <div class="row">
+      <div class="avatar">RS</div>
+      <div class="body">
+        <div class="author">@popops &middot; sports</div>
+        <p class="claim">"Cardinals win it all this year."</p>
+        <div class="meta">41 DAYS &middot; TREND &#8599;</div>
+      </div>
+      <span class="score open">41D</span>
+    </div>
+    <div class="row">
+      <div class="avatar">FO</div>
+      <div class="body">
+        <div class="author">fastcompany.com &middot; tech/ai</div>
+        <p class="claim">"The AI bubble crashes by spring."</p>
+        <div class="meta">RESOLVED SEP 2 &middot; SCORE 96 &middot; 3 SRC</div>
+      </div>
+      <span class="score miss">MISS</span>
+    </div>
+    <div class="row">
+      <div class="avatar">JC</div>
+      <div class="body">
+        <div class="author">@jordan &middot; personal</div>
+        <p class="claim">"Neighbors drop the gutter thing by Nov."</p>
+        <div class="meta">RESOLVED AUG 30 &middot; SCORE 100 &middot; 4 SRC</div>
+      </div>
+      <span class="score hit">HIT</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

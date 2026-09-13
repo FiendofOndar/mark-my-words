@@ -1,0 +1,241 @@
+/*
+ * Mark My Words design tokens.
+ *
+ * The single list of every design value the app uses. Nothing else should
+ * hardcode a color, a radius, or a type size: everything refers to a name
+ * here. Changing a theme is then a matter of swapping values rather than
+ * hunting through components.
+ *
+ * This is written to drop into src/styles.css. It follows that file's
+ * existing structure: Tailwind v4 reads `@theme` and generates utilities from
+ * it (`--color-ground` becomes `bg-ground`, `text-ground`, and so on), and the
+ * light theme redefines the same names under `:root[data-theme='light']`
+ * inside `@layer base`. Keep that layering; unlayered CSS outranks every
+ * layered Tailwind utility.
+ *
+ * Values marked NEW do not exist in styles.css yet.
+ */
+
+@theme {
+  /* ---- Type ------------------------------------------------------------
+   * Four families, one job each:
+   *   quote   the human's own words, and only ever those
+   *   display headlines, verdict words, section labels
+   *   sans    UI chrome, chips, supporting copy
+   *   mono    metadata, timestamps, scores, source hosts
+   *
+   * SELF-HOST THESE. Do not add a Google Fonts <link>. Receipt cards are
+   * rasterized through an SVG foreignObject, which cannot reach an external
+   * font, so remote faces come out silently in a fallback. The existing faces
+   * already live in public/fonts; the new ones have to join them there.
+   */
+  --font-quote: 'Cormorant', ui-serif, Georgia, serif;              /* NEW, replaces Newsreader */
+  --font-display: 'Oswald', ui-sans-serif, system-ui, sans-serif;   /* NEW, replaces Newsreader as display */
+  --font-sans: 'Barlow Condensed', ui-sans-serif, system-ui, sans-serif; /* NEW, replaces Inter */
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;  /* NEW */
+
+  /* ---- Surfaces and ink (dark, the default) ---------------------------- */
+  --color-ground: #131218;
+  --color-surface: #1a181e;
+  --color-surface-raised: #221f28;
+  --color-ink: #f2ede3;
+  --color-ink-dim: #a9a196;
+  --color-ink-faint: #877e72;
+  --color-rule: #2e2a35;
+
+  /* ---- Prose ink -------------------------------------------------------
+   * Running prose is warm white made partly transparent, so the glow behind
+   * it tints it and the text belongs to the ground it sits on rather than
+   * floating above it. Alphas are picked to land at roughly the brightness the
+   * solid ink values had over bare ground, so this adds a tint where there is
+   * glow and changes nothing where there is not.
+   *
+   * Prose only. Anything small or uppercase - metadata, timestamps, source
+   * hosts, the letterspaced labels - stays SOLID: transparency costs
+   * contrast, and small type has none to spare. Serif quotes stay solid too;
+   * they are the content and want maximum legibility.
+   */
+  --color-prose: oklch(0.97 0.01 90 / 0.82);        /* NEW  gate sentences */
+  --color-prose-dim: oklch(0.97 0.01 90 / 0.6);     /* NEW  summaries, detail */
+  --color-prose-faint: oklch(0.97 0.01 90 / 0.48);  /* NEW  asides */
+
+  /* ---- The AI panel ----------------------------------------------------
+   * The verdict panel is its own surface in both themes: frosted glass over
+   * the glow on dark, a raised warm card on light. These are the only
+   * translucent tokens in the system; everything else is opaque.
+   */
+  --color-glass-fill: oklch(0.94 0.01 90 / 0.07);   /* NEW */
+  --color-glass-edge: oklch(0.9 0.01 90 / 0.13);    /* NEW */
+  --shadow-panel: 0 20px 42px oklch(0 0 0 / 0.34);  /* NEW */
+
+  /* ---- Accent ----------------------------------------------------------
+   * ONE accent, fixed. There is no picker and no preset list.
+   *
+   * A selectable accent sounded generous and was not. Every screen then had
+   * to work in six palettes, which means designing for the worst of them, so
+   * nothing gets tuned for any of them. It also turned every design review
+   * into "do I like this colour" instead of "does this screen work", which is
+   * the wrong question and an exhausting one to be asked repeatedly.
+   *
+   * Slate, and the near-neutrality is the point. Green, red and gold are
+   * spoken for by the verdicts, and amber is the attention signal, so an
+   * accent with real chroma competes with the only colours in the app that
+   * carry meaning. A desaturated accent cannot be mistaken for a verdict at
+   * any size, in any lighting, or by anyone who cannot separate red from
+   * green, and it leaves the verdicts and the amber ask as the only saturated
+   * things on screen. That is what makes them land.
+   *
+   * The accent carries fills, active states and selection. It never carries
+   * reading text: keeping it off prose leaves the verdict colours as the only
+   * coloured text in the app, which is what makes a verdict land.
+   *
+   * --color-accent-ink is the same hue darkened enough to hold as small text
+   * on a light ground; use it instead of --color-accent under
+   * data-theme='light' wherever the accent is text rather than fill.
+   */
+  --color-accent: #8792ab;                                          /* NEW */
+  --color-accent-ink: oklch(0.44 0.045 265);                        /* NEW */
+
+  /* The label on an accent fill. NOT --color-ground: the accent is the same in
+   * both themes, so a label following the ground turns cream on light and lands
+   * at 2.7:1. Deliberately not redefined in the light block. */
+  --color-on-accent: #131218;                                       /* NEW */
+
+  /* Ambient colour, not a spotlight. Paint it with an ellipse far wider than
+   * the frame and an origin near or past an edge, so only the soft falloff is
+   * ever on screen: an origin inside the frame puts the hot centre on the
+   * glass and the whole thing reads as a stage light.
+   * Reference: ellipse 940px 760px at 50% 34%, transparent by 78%.
+   *
+   * Kept low on purpose. Every unit of glow is a unit of contrast taken off
+   * the ink sitting on top of it, and the ink is what people are here to
+   * read. A brighter wash was tried side by side against this one and the
+   * text lost more than the atmosphere gained.
+   *
+   * At this alpha the glow is a plain tint of the accent again. A separate,
+   * bluer glow source existed briefly, to stop a near-neutral accent reading
+   * as grey haze; over a near-black ground at 20% the two are
+   * indistinguishable, so it was a token earning nothing.
+   */
+  --color-glow: color-mix(in srgb, var(--color-accent) 20%, transparent); /* NEW */
+
+  /* ---- Attention -------------------------------------------------------
+   * "THIS NEEDS YOU". It marks the places the app is asking for something:
+   * "Waiting on you", the verdict-ready flag on the feed, the mark beside a
+   * dead link, the Sample badge, a source credited to the wrong outlet.
+   *
+   * It is a different hue from the accent on purpose. When the accent was
+   * amber these two were the same value, and an ask was indistinguishable
+   * from ordinary brand warmth. With a near-neutral accent nothing else in
+   * the app is amber, or saturated at all, so amber only ever means the app
+   * is waiting on you - and it is now the loudest thing on any screen that
+   * has one.
+   *
+   * A label saying "auto-resolved" is not an ask, and neither is the prose
+   * explaining why a check was held. Those are neutral ink.
+   *
+   * Separate from --color-partial despite sharing a hue: partial is the Split
+   * verdict, and painting gate prose with it once already read as "this
+   * partially came true".
+   */
+  --color-attention: #dba456;                                       /* NEW */
+
+  /* ---- Verdicts --------------------------------------------------------
+   * Fixed, semantic, never user-themeable. Every one of these is also always
+   * paired with a text label in the UI, never carried by color alone.
+   *
+   * Token names follow the stored status values, which are also the model's
+   * JSON contract. The words shown to a person live in STATUS_LABEL
+   * (src/domain/format.ts): hit reads "Proven", miss "Busted", partial
+   * "Split", ambiguous "Unclear", void "Moot".
+   */
+  --color-hit: #5aa87a;
+  --color-miss: #cf6049;
+  --color-partial: #d29a43;
+  --color-ambiguous: #8a8078;
+  --color-voided: #7f8590;
+  --color-late: #c9a227;
+  --color-draft: #7a8fb8;
+
+  /* ---- Radii ----------------------------------------------------------- */
+  --radius-chip: 3px;      /* NEW  filter chips, verdict tags */
+  --radius-panel: 14px;    /* NEW  the AI verdict panel */
+  --radius-icon: 104px;    /* NEW  app icon squircle, at 480px artboard scale */
+
+  /* ---- Type scale ------------------------------------------------------
+   * Only the sizes actually in use. Quote sizes stay above 18px per the
+   * accessibility floor in SPEC.md section 12.
+   */
+  --text-quote-lg: 33px;   /* NEW  detail screen, the claim */
+  --text-quote-md: 23px;   /* NEW  featured feed row */
+  --text-quote-sm: 18px;   /* NEW  standard feed row */
+  --text-verdict: 30px;    /* NEW  the verdict word in the panel */
+  --text-title: 22px;      /* NEW  screen titles */
+  --text-body: 15px;       /* NEW  supporting copy */
+  --text-meta: 10.5px;     /* NEW  mono metadata lines */
+  --text-label: 10px;      /* NEW  uppercase tags, letterspaced */
+
+  /* ---- Spacing ---------------------------------------------------------
+   * Screen gutters and the vertical rhythm between blocks.
+   */
+  --space-gutter: 22px;    /* NEW  screen edge padding */
+  --space-row: 14px;       /* NEW  feed row vertical padding */
+  --space-block: 26px;     /* NEW  between major blocks on a screen */
+}
+
+@layer base {
+  :root[data-theme='light'] {
+    /* ---- Surfaces and ink (light) -------------------------------------- */
+    --color-ground: #f3efe4;
+    --color-surface: #fffcf4;
+    --color-surface-raised: #fbf6ea;
+    --color-ink: #1c1917;
+    --color-ink-dim: #5f574c;
+    --color-ink-faint: #736a60;
+    --color-rule: #ddd5c4;
+
+    /* ---- The AI panel (light) ------------------------------------------
+     * Translucency needs darkness to read, so on paper the panel stops being
+     * glass and becomes a raised card instead: near-white, a warm hairline,
+     * and a warm shadow. The glow still does the coloring; the panel is the
+     * clean sheet laid over it.
+     */
+    --color-glass-fill: #fffcf4;
+    --color-glass-edge: oklch(0.85 0.05 80);
+    --shadow-panel: 0 16px 36px color-mix(in srgb, #4e5f8c 24%, transparent);
+
+    /* ---- Accent (light) -------------------------------------------------
+     * On light the glow is a lift toward white, not a wash of hue.
+     *
+     * This used to say the glow needs MORE saturation on a bright ground to
+     * register. That is backwards: a translucent tint has more light to work
+     * with on cream than on near-black, so it registers harder, and what
+     * registered was a cool blue-grey haze over warm paper - a dirty screen
+     * rather than atmosphere, and it cost the theme the one quality that makes
+     * it paper rather than white.
+     *
+     * A whisper of the accent's hue survives in the lift, which ties the two
+     * themes together without tinting the page.
+     */
+    --color-glow: oklch(0.99 0.012 265 / 0.8);
+
+    /* ---- Prose ink (light) ----------------------------------------------
+     * NOT YET DESIGNED. Transparency runs the other way on paper: dark ink
+     * at reduced alpha gets lighter and washes out, where on the dark theme
+     * it got dimmer and warmer. Solid for now, and worth its own look rather
+     * than a guessed conversion.
+     */
+    --color-prose: var(--color-ink);
+    --color-prose-dim: var(--color-ink-dim);
+    --color-prose-faint: var(--color-ink-faint);
+
+    /* ---- Verdicts (light) ----------------------------------------------- */
+    --color-hit: #2f7a4f;
+    --color-miss: #a8341c;
+    --color-partial: #8f6313;
+    --color-ambiguous: #6b625a;
+    --color-voided: #61676f;
+    --color-late: #8a6d10;
+    --color-draft: #3b5688;
+  }
+}

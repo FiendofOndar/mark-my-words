@@ -1,0 +1,212 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Oswald:wght@600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .sheet { width: 1120px; height: 780px; box-sizing: border-box; overflow: hidden;
+      background: oklch(0.145 0.012 270); color: oklch(0.96 0.01 90);
+      font-family: 'Barlow Condensed', sans-serif; padding: 38px 44px; }
+    h1 { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 23px; margin: 0 0 8px 0; }
+    .intro { font-size: 16px; line-height: 1.45; color: oklch(0.7 0.012 82); margin: 0 0 26px 0; max-width: 880px; }
+    h2 { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase;
+      color: oklch(0.55 0.012 82); margin: 0 0 14px 0; }
+    .row { display: flex; gap: 42px; align-items: flex-start; margin-bottom: 26px; }
+    .cell { text-align: center; }
+    .sizes { display: flex; gap: 14px; align-items: flex-end; justify-content: center; }
+    .name { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase;
+      color: oklch(0.6 0.012 82); margin-top: 10px; }
+    .sub { font-size: 13.5px; color: oklch(0.55 0.012 82); margin-top: 3px; max-width: 200px; line-height: 1.3; }
+
+    .mini { overflow: hidden; flex-shrink: 0; }
+    .mini > .art { transform-origin: top left; }
+    .s96 { width: 96px; height: 96px; } .s96 > .art { transform: scale(0.2); }
+    .s48 { width: 48px; height: 48px; } .s48 > .art { transform: scale(0.1); }
+    .art { width: 480px; height: 480px; border-radius: 104px; box-sizing: border-box;
+      background: oklch(0.16 0.012 270); position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center; }
+
+    .qA { position: absolute; left: 54px; top: -44px; font-family: 'Playfair Display', serif;
+      font-weight: 900; font-size: 360px; color: oklch(0.95 0.014 88); line-height: 1; }
+    .badgeA { position: absolute; right: 40px; bottom: 40px; }
+    .qC { position: absolute; left: 50%; top: 34px; transform: translateX(-50%);
+      font-family: 'Playfair Display', serif; font-weight: 900; font-size: 150px;
+      color: oklch(0.95 0.014 88); line-height: 0.8; }
+    .halfD { position: absolute; left: 66px; top: -30px; font-family: 'Playfair Display', serif;
+      font-weight: 900; font-size: 320px; color: oklch(0.95 0.014 88); line-height: 1; }
+    .clockD { position: absolute; left: 236px; top: 128px; }
+
+    .tray { display: flex; gap: 18px; align-items: center; background: oklch(0.2 0.014 268);
+      border-radius: 18px; padding: 18px 22px; width: fit-content; }
+    .neighbour { width: 48px; height: 48px; border-radius: 10.4px; background: oklch(0.33 0.02 250); flex-shrink: 0; }
+    .neighbour.b { background: oklch(0.38 0.04 150); }
+    .neighbour.c { background: oklch(0.36 0.05 25); }
+    .note { font-size: 15px; line-height: 1.45; color: oklch(0.68 0.012 82); margin: 12px 0 0 0; max-width: 940px; }
+    .note b { color: oklch(0.94 0.012 85); font-weight: 600; }
+  </style>
+</helmet>
+<div class="sheet">
+  <h1>Literal, not clever</h1>
+  <p class="intro">One test only: could somebody who knows nothing about the app tell that this is a quotation mark and a clock? Every one of these keeps both symbols in their conventional form rather than trying to merge them into a third shape.</p>
+
+  <h2>The four</h2>
+  <div class="row">
+
+    <div class="cell">
+      <div class="sizes">
+        <div class="mini s96"><div class="art">
+          <span class="qA">&ldquo;</span>
+          <svg class="badgeA" width="168" height="168" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="59" fill="oklch(0.16 0.012 270)"/>
+            <circle cx="60" cy="60" r="45" fill="none" stroke="oklch(0.95 0.014 88)" stroke-width="11"/>
+            <g stroke="oklch(0.95 0.014 88)" stroke-width="11" stroke-linecap="round">
+              <line x1="60" y1="60" x2="60" y2="32"/><line x1="60" y1="60" x2="82" y2="70"/>
+            </g>
+          </svg>
+        </div></div>
+        <div class="mini s48"><div class="art">
+          <span class="qA">&ldquo;</span>
+          <svg class="badgeA" width="168" height="168" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="59" fill="oklch(0.16 0.012 270)"/>
+            <circle cx="60" cy="60" r="45" fill="none" stroke="oklch(0.95 0.014 88)" stroke-width="11"/>
+            <g stroke="oklch(0.95 0.014 88)" stroke-width="11" stroke-linecap="round">
+              <line x1="60" y1="60" x2="60" y2="32"/><line x1="60" y1="60" x2="82" y2="70"/>
+            </g>
+          </svg>
+        </div></div>
+      </div>
+      <div class="name">A &middot; Quote + clock badge</div>
+      <div class="sub">Real type, real clock face, corner-badge convention</div>
+    </div>
+
+    <div class="cell">
+      <div class="sizes">
+        <div class="mini s96"><div class="art">
+          <svg width="330" height="330" viewBox="0 0 240 240">
+            <circle cx="120" cy="106" r="84" fill="none" stroke="oklch(0.95 0.014 88)" stroke-width="20"/>
+            <path d="M 74 176 L 104 190 L 58 218 Z" fill="oklch(0.95 0.014 88)"/>
+            <g stroke="oklch(0.95 0.014 88)" stroke-width="18" stroke-linecap="round">
+              <line x1="120" y1="106" x2="120" y2="56"/><line x1="120" y1="106" x2="158" y2="124"/>
+            </g>
+            <circle cx="120" cy="106" r="9" fill="oklch(0.95 0.014 88)"/>
+          </svg>
+        </div></div>
+        <div class="mini s48"><div class="art">
+          <svg width="330" height="330" viewBox="0 0 240 240">
+            <circle cx="120" cy="106" r="84" fill="none" stroke="oklch(0.95 0.014 88)" stroke-width="20"/>
+            <path d="M 74 176 L 104 190 L 58 218 Z" fill="oklch(0.95 0.014 88)"/>
+            <g stroke="oklch(0.95 0.014 88)" stroke-width="18" stroke-linecap="round">
+              <line x1="120" y1="106" x2="120" y2="56"/><line x1="120" y1="106" x2="158" y2="124"/>
+            </g>
+            <circle cx="120" cy="106" r="9" fill="oklch(0.95 0.014 88)"/>
+          </svg>
+        </div></div>
+      </div>
+      <div class="name">B &middot; Bubble that is a clock</div>
+      <div class="sub">A round bubble and a dial are the same circle</div>
+    </div>
+
+    <div class="cell">
+      <div class="sizes">
+        <div class="mini s96"><div class="art">
+          <svg width="360" height="360" viewBox="0 0 240 240">
+            <circle cx="120" cy="120" r="92" fill="none" stroke="oklch(0.95 0.014 88)" stroke-width="19"/>
+            <g stroke="oklch(0.95 0.014 88)" stroke-width="19" stroke-linecap="round">
+              <line x1="120" y1="120" x2="120" y2="168"/><line x1="120" y1="120" x2="172" y2="140"/>
+            </g>
+            <circle cx="120" cy="120" r="11" fill="oklch(0.95 0.014 88)"/>
+          </svg>
+          <span class="qC">&ldquo;</span>
+        </div></div>
+        <div class="mini s48"><div class="art">
+          <svg width="360" height="360" viewBox="0 0 240 240">
+            <circle cx="120" cy="120" r="92" fill="none" stroke="oklch(0.95 0.014 88)" stroke-width="19"/>
+            <g stroke="oklch(0.95 0.014 88)" stroke-width="19" stroke-linecap="round">
+              <line x1="120" y1="120" x2="120" y2="168"/><line x1="120" y1="120" x2="172" y2="140"/>
+            </g>
+            <circle cx="120" cy="120" r="11" fill="oklch(0.95 0.014 88)"/>
+          </svg>
+          <span class="qC">&ldquo;</span>
+        </div></div>
+      </div>
+      <div class="name">C &middot; Quote on the dial</div>
+      <div class="sub">The quote sits where 12 is, raised the way type raises it</div>
+    </div>
+
+    <div class="cell">
+      <div class="sizes">
+        <div class="mini s96"><div class="art">
+          <span class="halfD">&lsquo;</span>
+          <svg class="clockD" width="150" height="150" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="oklch(0.95 0.014 88)" stroke-width="13"/>
+            <g stroke="oklch(0.95 0.014 88)" stroke-width="13" stroke-linecap="round">
+              <line x1="60" y1="60" x2="60" y2="30"/><line x1="60" y1="60" x2="84" y2="72"/>
+            </g>
+            <circle cx="60" cy="60" r="7" fill="oklch(0.95 0.014 88)"/>
+          </svg>
+        </div></div>
+        <div class="mini s48"><div class="art">
+          <span class="halfD">&lsquo;</span>
+          <svg class="clockD" width="150" height="150" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="oklch(0.95 0.014 88)" stroke-width="13"/>
+            <g stroke="oklch(0.95 0.014 88)" stroke-width="13" stroke-linecap="round">
+              <line x1="60" y1="60" x2="60" y2="30"/><line x1="60" y1="60" x2="84" y2="72"/>
+            </g>
+            <circle cx="60" cy="60" r="7" fill="oklch(0.95 0.014 88)"/>
+          </svg>
+        </div></div>
+      </div>
+      <div class="name">D &middot; Half quote, half clock</div>
+      <div class="sub">The pair still reads as a quote; one of them is a clock</div>
+    </div>
+  </div>
+
+  <h2>Among neighbours, at 48px</h2>
+  <div class="tray">
+    <div class="neighbour"></div>
+    <div class="mini s48"><div class="art">
+      <span class="qA">&ldquo;</span>
+      <svg class="badgeA" width="168" height="168" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="59" fill="oklch(0.16 0.012 270)"/>
+        <circle cx="60" cy="60" r="45" fill="none" stroke="oklch(0.95 0.014 88)" stroke-width="11"/>
+        <g stroke="oklch(0.95 0.014 88)" stroke-width="11" stroke-linecap="round">
+          <line x1="60" y1="60" x2="60" y2="32"/><line x1="60" y1="60" x2="82" y2="70"/>
+        </g>
+      </svg>
+    </div></div>
+    <div class="neighbour b"></div>
+    <div class="mini s48"><div class="art">
+      <svg width="330" height="330" viewBox="0 0 240 240">
+        <circle cx="120" cy="106" r="84" fill="none" stroke="oklch(0.95 0.014 88)" stroke-width="20"/>
+        <path d="M 74 176 L 104 190 L 58 218 Z" fill="oklch(0.95 0.014 88)"/>
+        <g stroke="oklch(0.95 0.014 88)" stroke-width="18" stroke-linecap="round">
+          <line x1="120" y1="106" x2="120" y2="56"/><line x1="120" y1="106" x2="158" y2="124"/>
+        </g>
+        <circle cx="120" cy="106" r="9" fill="oklch(0.95 0.014 88)"/>
+      </svg>
+    </div></div>
+    <div class="neighbour c"></div>
+    <div class="mini s48"><div class="art">
+      <svg width="360" height="360" viewBox="0 0 240 240">
+        <circle cx="120" cy="120" r="92" fill="none" stroke="oklch(0.95 0.014 88)" stroke-width="19"/>
+        <g stroke="oklch(0.95 0.014 88)" stroke-width="19" stroke-linecap="round">
+          <line x1="120" y1="120" x2="120" y2="168"/><line x1="120" y1="120" x2="172" y2="140"/>
+        </g>
+        <circle cx="120" cy="120" r="11" fill="oklch(0.95 0.014 88)"/>
+      </svg>
+      <span class="qC">&ldquo;</span>
+    </div></div>
+    <div class="neighbour"></div>
+  </div>
+
+  <p class="note">If none of these passes the stranger test either, that is an answer: <b>drop the clock and ship the quote alone.</b> A mark that half-communicates two things is worse than one that fully communicates one.</p>
+</div>
+</x-dc>
+</body>
+</html>

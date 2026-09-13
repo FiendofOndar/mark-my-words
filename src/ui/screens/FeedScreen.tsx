@@ -116,8 +116,8 @@ export function FeedScreen() {
         </div>
 
         {cooldown && (
-          <div className="border-b border-rule bg-partial/5 px-4 py-2.5">
-            <p className="text-[13px] text-partial">{cooldown.message}</p>
+          <div className="border-b border-rule bg-attention/5 px-4 py-2.5">
+            <p className="text-[13px] leading-relaxed text-attention">{cooldown.message}</p>
             <p className="mt-1 text-[12px] text-ink-faint">
               Checks are paused so the next one is not wasted. Drafting still works.
             </p>
@@ -189,7 +189,7 @@ function EmptyState({ filterKind }: { filterKind: FeedFilter['kind'] }) {
 
   return (
     <div className="px-8 py-20 text-center">
-      <p className="font-display text-lg text-ink-dim italic">
+      <p className="font-quote text-[21px] font-semibold text-ink-dim italic">
         {copy[filterKind] ?? 'Nothing here.'}
       </p>
       {/* Only on an empty ledger. A first launch is otherwise a sentence and a

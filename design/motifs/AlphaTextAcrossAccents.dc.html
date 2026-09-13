@@ -1,0 +1,160 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .sheet {
+      --ground: oklch(0.145 0.012 270);
+      --ink: oklch(0.96 0.01 90);
+      --hit: #5aa87a;
+      /* Fixed across every column: the ask never follows the chosen accent. */
+      --attention: #dba456;
+      width: 1360px; height: 820px; box-sizing: border-box; overflow: hidden;
+      background: var(--ground); color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      padding: 30px;
+    }
+    h1 { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 20px; margin: 0 0 4px 0; }
+    .sub { font-family: 'Barlow Condensed', sans-serif; font-size: 13.5px; color: oklch(0.62 0.012 80);
+      margin: 0 0 20px 0; line-height: 1.4; max-width: 900px; }
+
+    .cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+    .col { border-radius: 14px; padding: 16px 14px 18px 14px;
+      background: radial-gradient(ellipse 620px 520px at 50% 30%, var(--glow), transparent 78%), oklch(0.158 0.012 270); }
+    .col.amber  { --accent: #dba456; --glow: color-mix(in srgb, #dba456 22%, transparent); }
+    .col.dusk   { --accent: #8792ab; --glow: color-mix(in srgb, #8792ab 22%, transparent); }
+    .col.reef   { --accent: #3f9cb8; --glow: color-mix(in srgb, #3f9cb8 22%, transparent); }
+    .col.orchid { --accent: #c078ac; --glow: color-mix(in srgb, #c078ac 22%, transparent); }
+
+    .colname { font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--accent);
+      font-weight: 600; margin-bottom: 12px; }
+
+    .which { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: oklch(0.5 0.012 80);
+      margin: 0 0 6px 2px; }
+    .which + .glass { margin-bottom: 16px; }
+
+    .glass { padding: 13px 14px; border-radius: 11px;
+      background: oklch(0.94 0.01 90 / 0.07);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid oklch(0.9 0.01 90 / 0.13); }
+
+    /* The ask is fixed amber in every column. Only the glow and the neutral text move. */
+    .tag { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600;
+      color: var(--attention); margin-bottom: 7px; }
+    .verdict { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 19px; margin: 0 0 8px 0;
+      color: var(--hit); letter-spacing: 0.4px; }
+    .lab { font-size: 8.5px; letter-spacing: 1.4px; text-transform: uppercase; margin-bottom: 5px; }
+    .gate { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; line-height: 1.38; margin: 0; }
+    .strip { margin-top: 9px; padding-top: 8px; border-top: 1px solid oklch(0.9 0.01 90 / 0.1);
+      font-size: 8.5px; letter-spacing: 1px; }
+
+    /* 1 — flat neutral ink. Identical in every column. */
+    .t1 .lab, .t1 .strip { color: oklch(0.6 0.012 80); }
+    .t1 .gate { color: oklch(0.9 0.012 85); }
+
+    /* 2 — warm white at reduced alpha, so the glow behind tints it. */
+    .t2 .lab, .t2 .strip { color: oklch(0.97 0.01 90 / 0.42); }
+    .t2 .gate { color: oklch(0.97 0.01 90 / 0.82); }
+
+    .foot { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; color: oklch(0.6 0.012 80);
+      margin: 20px 0 0 0; line-height: 1.45; max-width: 1000px; }
+  </style>
+</helmet>
+<div class="sheet">
+  <h1>Alpha text across four accents</h1>
+  <p class="sub">Top panel in each column is treatment 1, flat neutral ink &mdash; identical in all four by definition. Bottom is treatment 2, warm white at 42&ndash;82% opacity, which takes a tint from whatever glow sits behind it. The amber "waiting on you" tag and the green verdict are fixed in every column &mdash; only the glow behind and the neutral text change.</p>
+
+  <div class="cols">
+    <div class="col amber">
+      <div class="colname">Amber</div>
+      <div class="which">1 &middot; neutral ink</div>
+      <div class="glass t1">
+        <div class="tag">Waiting on you</div>
+        <p class="verdict">PROVEN?</p>
+        <div class="lab">What stopped the app</div>
+        <p class="gate">Only one independent source was cited, and it is not the body that would know.</p>
+        <div class="strip">1 SOURCE, LINK WORKS</div>
+      </div>
+      <div class="which">2 &middot; reduced alpha</div>
+      <div class="glass t2">
+        <div class="tag">Waiting on you</div>
+        <p class="verdict">PROVEN?</p>
+        <div class="lab">What stopped the app</div>
+        <p class="gate">Only one independent source was cited, and it is not the body that would know.</p>
+        <div class="strip">1 SOURCE, LINK WORKS</div>
+      </div>
+    </div>
+
+    <div class="col dusk">
+      <div class="colname">Dusk</div>
+      <div class="which">1 &middot; neutral ink</div>
+      <div class="glass t1">
+        <div class="tag">Waiting on you</div>
+        <p class="verdict">PROVEN?</p>
+        <div class="lab">What stopped the app</div>
+        <p class="gate">Only one independent source was cited, and it is not the body that would know.</p>
+        <div class="strip">1 SOURCE, LINK WORKS</div>
+      </div>
+      <div class="which">2 &middot; reduced alpha</div>
+      <div class="glass t2">
+        <div class="tag">Waiting on you</div>
+        <p class="verdict">PROVEN?</p>
+        <div class="lab">What stopped the app</div>
+        <p class="gate">Only one independent source was cited, and it is not the body that would know.</p>
+        <div class="strip">1 SOURCE, LINK WORKS</div>
+      </div>
+    </div>
+
+    <div class="col reef">
+      <div class="colname">Reef</div>
+      <div class="which">1 &middot; neutral ink</div>
+      <div class="glass t1">
+        <div class="tag">Waiting on you</div>
+        <p class="verdict">PROVEN?</p>
+        <div class="lab">What stopped the app</div>
+        <p class="gate">Only one independent source was cited, and it is not the body that would know.</p>
+        <div class="strip">1 SOURCE, LINK WORKS</div>
+      </div>
+      <div class="which">2 &middot; reduced alpha</div>
+      <div class="glass t2">
+        <div class="tag">Waiting on you</div>
+        <p class="verdict">PROVEN?</p>
+        <div class="lab">What stopped the app</div>
+        <p class="gate">Only one independent source was cited, and it is not the body that would know.</p>
+        <div class="strip">1 SOURCE, LINK WORKS</div>
+      </div>
+    </div>
+
+    <div class="col orchid">
+      <div class="colname">Orchid</div>
+      <div class="which">1 &middot; neutral ink</div>
+      <div class="glass t1">
+        <div class="tag">Waiting on you</div>
+        <p class="verdict">PROVEN?</p>
+        <div class="lab">What stopped the app</div>
+        <p class="gate">Only one independent source was cited, and it is not the body that would know.</p>
+        <div class="strip">1 SOURCE, LINK WORKS</div>
+      </div>
+      <div class="which">2 &middot; reduced alpha</div>
+      <div class="glass t2">
+        <div class="tag">Waiting on you</div>
+        <p class="verdict">PROVEN?</p>
+        <div class="lab">What stopped the app</div>
+        <p class="gate">Only one independent source was cited, and it is not the body that would know.</p>
+        <div class="strip">1 SOURCE, LINK WORKS</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="foot">What to look for: the small uppercase text at 42% is where the two diverge most &mdash; it thins noticeably under the cooler accents, because a cool glow adds less luminance behind it than the amber does. The gate sentence at 82% holds up in all four.</p>
+</div>
+</x-dc>
+</body>
+</html>

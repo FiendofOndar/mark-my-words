@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,500;1,500&family=Oswald:wght@600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .card {
+      width: 360px; height: 680px; box-sizing: border-box; position: relative; overflow: hidden;
+      background:
+        radial-gradient(ellipse 480px 320px at 50% 108%, var(--glow), transparent 62%),
+        oklch(0.145 0.012 270);
+      color: oklch(0.96 0.01 90);
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex; flex-direction: column;
+    }
+    .label { padding: 44px 26px 0 26px; font-size: 11px; letter-spacing: 2px; color: oklch(0.5 0.01 270); text-transform: uppercase; }
+    .quote-zone { flex: 1; display: flex; align-items: center; padding: 0 30px; }
+    .quote { font-family: 'Cormorant', serif; font-weight: 500; font-style: italic; font-size: 34px; line-height: 1.24; margin: 0; color: oklch(0.96 0.01 90); }
+    .who { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 15px; color: oklch(0.72 0.01 90); padding: 0 30px; margin-bottom: 22px; }
+    .who span { color: oklch(0.5 0.01 90); font-weight: 500; }
+    .glass {
+      margin: 0 22px 30px 22px; padding: 22px 24px; border-radius: 14px;
+      background: oklch(0.94 0.01 90 / 0.06);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid oklch(0.9 0.01 90 / 0.12);
+      box-shadow: 0 20px 40px var(--glow);
+    }
+    .glass .tag { font-size: 10.5px; letter-spacing: 1.5px; color: var(--accent); text-transform: uppercase; font-weight: 600; margin-bottom: 10px; }
+    /* fixed verdict color: deliberately does not follow the accent tweak */
+    .glass .verdict { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 28px; margin: 0 0 8px 0; color: #5aa87a; }
+    .glass .detail { font-size: 12px; color: oklch(0.68 0.01 90); line-height: 1.5; }
+  </style>
+</helmet>
+<div class="card" style="--accent: {{accent}}; --glow: {{glow}}">
+  <div class="label">Resolved</div>
+  <div class="quote-zone"><p class="quote">&ldquo;The Cardinals win it all this year.&rdquo;</p></div>
+  <div class="who">@popops <span>&middot; said Mar 12 &middot; sports</span></div>
+  <div class="glass">
+    <div class="tag">AI Verdict</div>
+    <p class="verdict">PROVEN</p>
+    <p class="detail">3 sources checked &mdash; AP, ESPN, MLB.com. Every citation confirmed before the deadline.</p>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#8792ab","options":["#8792ab","#dba456","#3f9cb8","#b968a0"]}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accent = this.props.accent ?? '#8792ab';
+    return {
+      accent,
+      glow: `color-mix(in srgb, ${accent} 42%, transparent)`,
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,27 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  The verdict stamp, which is the app's strongest visual idea and the one shape
-  that stays legible at launcher size. Quadratic curves rather than arcs:
-  VectorDrawable's arc support has been uneven across Android versions and this
-  needs no arcs.
+  A round speech bubble whose circle doubles as a clock dial: what was said, and
+  the deadline running on it. The ramp runs green through gold to red across the
+  bubble, the hour hand is cream, and the minute hand - the one pointing at the
+  deadline - is the fail red.
+
+  The adaptive foreground, so the mark sits inside the 66dp safe circle of the
+  108dp canvas. A launcher mask is chosen by the manufacturer and can be a
+  circle; the square store icon lets the tail run almost into the corner, and a
+  circle would amputate it. That is why this is a separate drawing rather than
+  the store icon scaled down.
+
+  The dial is cubics, not an arc. VectorDrawable's arc support has been uneven
+  across Android versions, so the A command is converted here where it can be
+  checked rather than trusted to the platform at runtime.
+
+  Gradient strokes need API 24; minSdkVersion is 24.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <group
-        android:pivotX="54"
-        android:pivotY="54"
-        android:rotation="-10">
-        <path
-            android:strokeColor="@color/brand_ink"
-            android:strokeWidth="5.5"
-            android:strokeLineJoin="round"
-            android:fillColor="#00000000"
-            android:pathData="M31,40 L77,40 Q82,40 82,45 L82,63 Q82,68 77,68 L31,68 Q26,68 26,63 L26,45 Q26,40 31,40 Z" />
-        <path
-            android:fillColor="@color/brand_ink"
-            android:pathData="M38,50.5 L70,50.5 Q73.5,50.5 73.5,54 Q73.5,57.5 70,57.5 L38,57.5 Q34.5,57.5 34.5,54 Q34.5,50.5 38,50.5 Z" />
-    </group>
+
+    <path
+        android:fillColor="#00000000"
+        android:strokeWidth="3.44"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M39.54,61.08 C35.62,52.08 38.92,41.57 47.27,36.43 C55.63,31.29 66.5,33.09 72.76,40.64 C79.02,48.2 78.76,59.21 72.15,66.47 C65.55,73.72 54.61,75.01 46.5,69.48 L32.53,76.67 Z">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:type="linear"
+                android:startX="44.21"
+                android:startY="44.15"
+                android:endX="70.32"
+                android:endY="69.57">
+                <item android:offset="0" android:color="#5FBB8C" />
+                <item android:offset="0.5" android:color="#DDB45E" />
+                <item android:offset="1" android:color="#D9533A" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="@color/brand_ink"
+        android:strokeWidth="3.21"
+        android:strokeLineCap="round"
+        android:pathData="M57.72,52.4 L57.72,39.57" />
+
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="@color/brand_miss"
+        android:strokeWidth="3.21"
+        android:strokeLineCap="round"
+        android:pathData="M57.72,52.4 L65.74,56.98" />
+
+    <path
+        android:fillColor="@color/brand_ink"
+        android:pathData="M57.72,50.57 C58.73,50.57 59.55,51.39 59.55,52.4 C59.55,53.41 58.73,54.23 57.72,54.23 C56.71,54.23 55.89,53.41 55.89,52.4 C55.89,51.39 56.71,50.57 57.72,50.57 Z" />
 </vector>

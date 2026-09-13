@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .sheet {
+      --ground: oklch(0.145 0.012 270);
+      --surface: oklch(0.185 0.012 270);
+      --rule: oklch(0.26 0.01 270);
+      --ink: oklch(0.96 0.01 90);
+      --ink-dim: oklch(0.68 0.01 90);
+      --ink-faint: oklch(0.52 0.01 270);
+      --accent: #8792ab;
+      /* Fixed. "Needs you" is semantic, so it never follows the chosen accent. */
+      --attention: #dba456;
+      --hit: #5aa87a;
+      --miss: oklch(0.66 0.15 27);
+      --partial: #d29a43;
+
+      width: 430px; height: 1120px; box-sizing: border-box; overflow: hidden;
+      background: var(--ground); color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      padding: 34px 26px;
+    }
+    h1 { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 20px; margin: 0 0 4px 0; letter-spacing: 0.4px; }
+    .sub { font-family: 'Barlow Condensed', sans-serif; font-size: 13.5px; color: var(--ink-faint); margin: 0 0 22px 0; line-height: 1.4; }
+    section { margin-bottom: 22px; }
+    h2 { font-size: 9.5px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-faint);
+      margin: 0 0 9px 0; padding-bottom: 6px; border-bottom: 1px solid var(--rule); font-weight: 600; }
+
+    .pills { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pill { font-size: 9.5px; letter-spacing: 0.8px; padding: 3px 9px; border-radius: 999px;
+      border: 1px solid var(--rule); color: var(--ink-dim); text-transform: uppercase; }
+    .pill.done { border-color: color-mix(in srgb, var(--hit) 45%, transparent); color: var(--hit); }
+    .pill.need { border-color: color-mix(in srgb, var(--attention) 50%, transparent); color: var(--attention); }
+    .pill.fail { border-color: color-mix(in srgb, var(--miss) 45%, transparent); color: var(--miss); }
+    .pill.sample { border-color: color-mix(in srgb, var(--partial) 50%, transparent); color: var(--partial); }
+
+    .rows { display: flex; flex-direction: column; gap: 7px; }
+    .src { display: flex; align-items: baseline; gap: 8px; font-size: 11px; }
+    .src .mark { font-weight: 600; width: 9px; flex-shrink: 0; }
+    .src .mark.ok { color: var(--hit); }
+    .src .mark.bad { color: var(--partial); }
+    .src .mark.non { color: var(--ink-faint); }
+    .src .host { color: var(--ink-dim); }
+    .src .state { color: var(--ink-faint); }
+    .src .flag { color: var(--partial); }
+    .why { font-family: 'Barlow Condensed', sans-serif; font-size: 12.5px; color: var(--ink-faint);
+      margin: 5px 0 0 17px; line-height: 1.35; }
+
+    .gatebox { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; }
+    .gatebox + .gatebox { margin-top: 9px; }
+    .gatebox .lab { font-size: 9px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 7px; }
+    .gatebox p, .gatebox li { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; line-height: 1.4; color: oklch(0.97 0.01 90 / 0.82); margin: 0; }
+    .gatebox ul { margin: 0; padding-left: 15px; }
+    .gatebox li { margin-bottom: 4px; }
+    .gatebox li::marker { color: oklch(0.46 0.012 80); }
+    .gatebox.clear p { color: var(--ink-faint); }
+    .caption { font-family: 'Barlow Condensed', sans-serif; font-size: 12.5px; color: var(--ink-faint); margin: 7px 0 0 0; line-height: 1.35; }
+  </style>
+</helmet>
+<div class="sheet">
+  <h1>Check log states</h1>
+  <p class="sub">Every condition a check entry can be in, with the app's own wording. Reference for building the real component.</p>
+
+  <section>
+    <h2>Outcome pills</h2>
+    <div class="pills">
+      <span class="pill done">Resolved</span>
+      <span class="pill need">Waiting on you</span>
+      <span class="pill">No change</span>
+      <span class="pill">Held: Busted</span>
+      <span class="pill fail">Failed</span>
+      <span class="pill sample">Sample</span>
+    </div>
+    <p class="caption">"Held: Busted" is a check whose verdict the app declined to apply &mdash; distinct from one that found nothing. "Sample" marks seeded demo checks, which cite example.com and were never fetched.</p>
+  </section>
+
+  <section>
+    <h2>Link states</h2>
+    <div class="rows">
+      <div class="src"><span class="mark ok">&#10003;</span><span class="host">reuters.com</span><span class="state">link works</span></div>
+      <div class="src"><span class="mark ok">&#10003;</span><span class="host">barrons.com</span><span class="state">link works &mdash; page not shown to the app</span></div>
+      <div class="src"><span class="mark bad">!</span><span class="host">cnbc.com</span><span class="state">link does not work</span></div>
+      <div class="src"><span class="mark non">&middot;</span><span class="host">example.com</span><span class="state">not checked</span></div>
+    </div>
+    <p class="caption">A blocked host answered, so the link works &mdash; the app just was not shown the page. Only a dead address earns the warning mark, because that is what an invented citation looks like.</p>
+  </section>
+
+  <section>
+    <h2>A source credited to the wrong outlet</h2>
+    <div class="rows">
+      <div class="src"><span class="mark ok">&#10003;</span><span class="host">youtube.com</span><span class="flag">credited to ESPN</span></div>
+    </div>
+    <p class="why">Noted on the row rather than gating the check. The label cannot make weak evidence look strong &mdash; tier and independence both come from the domain &mdash; but it can mislead whoever is reading.</p>
+  </section>
+
+  <section>
+    <h2>Gates &mdash; one</h2>
+    <div class="gatebox">
+      <div class="lab">What stopped the app acting on its own</div>
+      <p>Only one independent source was cited, and it is not the body that would know.</p>
+    </div>
+    <p class="caption">A single gate is a sentence. A bullet in front of one line is just a dot.</p>
+  </section>
+
+  <section>
+    <h2>Gates &mdash; several, and none</h2>
+    <div class="gatebox">
+      <div class="lab">What stopped the app acting on its own</div>
+      <ul>
+        <li>A partial or ambiguous result is always yours to judge.</li>
+        <li>Every source predates the prediction.</li>
+      </ul>
+    </div>
+    <div class="gatebox clear">
+      <div class="lab">Nothing was gated</div>
+      <p>Nothing about the citations stopped the app acting on this.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>No checks yet</h2>
+    <p class="caption" style="margin-top: 0">No checks run yet. Checks run on their own schedule, or when you ask.</p>
+  </section>
+</div>
+</x-dc>
+</body>
+</html>

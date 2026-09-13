@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,600;1,600&family=Oswald:wght@500;600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .screen {
+      --ground: oklch(0.145 0.012 270);
+      --surface: oklch(0.19 0.012 270);
+      --rule: oklch(0.26 0.01 270);
+      --ink: oklch(0.96 0.01 90);
+      --ink-dim: oklch(0.68 0.01 90);
+      --ink-faint: oklch(0.52 0.01 270);
+      --accent: #8792ab;
+      /* Fixed. "The app needs you" is semantic, so it never follows the accent. */
+      --attention: #dba456;
+      --glow: color-mix(in srgb, #8792ab 20%, transparent);
+      --prose: oklch(0.97 0.01 90 / 0.82);
+      --prose-dim: oklch(0.97 0.01 90 / 0.6);
+      --prose-faint: oklch(0.97 0.01 90 / 0.46);
+      --hit: #5aa87a;
+      --miss: oklch(0.66 0.15 27);
+      --partial: #d29a43;
+
+      box-sizing: border-box; overflow: hidden;
+      background:
+        radial-gradient(ellipse 940px 760px at 50% 34%, var(--glow), transparent 78%),
+        var(--ground);
+      color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex; flex-direction: column;
+    }
+    .hdr { padding: 42px 18px 12px 18px; border-bottom: 1px solid var(--rule);
+      display: flex; align-items: flex-start; gap: 10px; flex: none; }
+    .hdr .ttl { flex: 1; min-width: 0; }
+    .hdr h1 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 20px;
+      margin: 0; letter-spacing: 0.4px; }
+    .hdr .sub { font-size: 10.5px; color: var(--ink-faint); margin-top: 3px; letter-spacing: 0.3px; }
+    .hdr .act { font-size: 11.5px; color: var(--miss); flex: none; padding-top: 3px; }
+    .back { width: 22px; height: 22px; flex: none; color: var(--ink-dim); margin-left: -4px; }
+
+    .pad { padding: 16px 18px; }
+    .lbl { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 11px;
+      letter-spacing: 1.4px; text-transform: uppercase; color: var(--ink-faint); display: block; }
+    .hint { font-size: 10.5px; color: var(--prose-faint); line-height: 1.45; }
+    .prose { font-size: 11.5px; color: var(--prose-dim); line-height: 1.5; }
+    .input { border: 1px solid var(--rule); border-radius: 8px; background: oklch(0.96 0.01 90 / 0.04);
+      padding: 10px 11px; font-size: 12.5px; color: var(--ink); font-family: inherit;
+      display: block; width: 100%; box-sizing: border-box; }
+    .input.ph { color: var(--ink-faint); }
+    .btn { border-radius: 9px; text-align: center; font-family: 'Oswald', sans-serif;
+      font-weight: 600; letter-spacing: 0.6px; display: block; }
+    .btn.primary { background: var(--accent); color: oklch(0.18 0.02 270); padding: 12px; font-size: 15px; }
+    .btn.secondary { border: 1px solid var(--rule); color: var(--ink-dim); padding: 9px; font-size: 13px; }
+    .glass { border-radius: 13px; background: oklch(0.94 0.01 90 / 0.07);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid oklch(0.9 0.01 90 / 0.13); box-shadow: 0 16px 34px oklch(0 0 0 / 0.3); }
+    .quote { font-family: 'Cormorant', serif; font-weight: 600; line-height: 1.24; margin: 0; }
+    .tag { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 11.5px; letter-spacing: 0.8px;
+      padding: 3px 8px; border-radius: 3px; border: 1.5px solid; flex: none;
+      min-width: 68px; box-sizing: border-box; text-align: center; }
+    .tag.hit { color: var(--hit); border-color: color-mix(in srgb, var(--hit) 55%, transparent); }
+    .tag.miss { color: var(--miss); border-color: color-mix(in srgb, var(--miss) 55%, transparent); }
+    .tag.partial { color: var(--partial); border-color: color-mix(in srgb, var(--partial) 55%, transparent); }
+    .tag.open { color: var(--ink-dim); border-color: var(--rule);
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+    .row { display: flex; align-items: center; gap: 12px; padding: 13px 18px; border-top: 1px solid var(--rule); }
+    .author { font-size: 9.5px; text-transform: uppercase; letter-spacing: 1.2px;
+      color: var(--ink-faint); margin-bottom: 3px; }
+    .claim { font-family: 'Cormorant', serif; font-weight: 600; font-size: 17px; line-height: 1.2; margin: 0 0 4px 0; }
+    .meta { font-size: 9.5px; color: var(--ink-faint); letter-spacing: 0.4px; }
+
+    .screen.review { width: 375px; height: 1080px; }
+    .review .banner { margin: 14px 16px 0 16px; padding: 13px 14px; }
+    .review .banner .who { font-size: 11px; color: var(--prose); line-height: 1.5; }
+    .review .banner .who b { color: var(--ink); font-weight: 500; }
+    .review .warn { margin-top: 9px; padding-top: 9px; border-top: 1px solid oklch(0.9 0.01 90 / 0.12); }
+    .review .warn li { font-size: 10.5px; color: var(--prose-dim); line-height: 1.5; margin-bottom: 4px; }
+    .review ul { margin: 0; padding-left: 15px; }
+    .review .said { padding: 18px 18px 4px 18px; }
+    .review .said .quote { font-size: 21px; }
+    .review .said .by { font-size: 10px; color: var(--ink-faint); letter-spacing: 1px;
+      text-transform: uppercase; margin-top: 9px; }
+    .review .sect { padding: 14px 18px 0 18px; }
+    .review .note { font-size: 10.5px; color: var(--prose-faint); line-height: 1.45; margin-top: 6px; }
+    .review .crit { display: flex; gap: 9px; align-items: flex-start; padding: 10px 0;
+      border-bottom: 1px solid var(--rule); }
+    .review .num { font-size: 10px; color: var(--ink-faint); padding-top: 2px; flex: none; width: 12px; }
+    .review .crit .t { font-size: 12px; line-height: 1.45; color: var(--prose); }
+    .review .amb { margin: 12px 16px 0 16px; padding: 12px 14px; border-radius: 11px;
+      border: 1px solid color-mix(in srgb, var(--attention) 34%, transparent);
+      background: color-mix(in srgb, var(--attention) 7%, transparent); }
+    .review .amb .h { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 11px;
+      letter-spacing: 1.4px; text-transform: uppercase; color: var(--attention); margin-bottom: 7px; }
+    .review .amb li { font-size: 10.5px; color: var(--prose-dim); line-height: 1.5; margin-bottom: 4px; }
+    .review .toggle { display: flex; align-items: center; gap: 10px; padding: 13px 18px;
+      border-top: 1px solid var(--rule); }
+    .review .box { width: 17px; height: 17px; border-radius: 4px; border: 1.5px solid var(--rule);
+      flex: none; background: oklch(0.96 0.01 90 / 0.03); }
+    .review .toggle .t { font-size: 11.5px; color: var(--prose-dim); line-height: 1.4; }
+    .review .submit { padding: 16px 18px 22px 18px; }
+
+  </style>
+</helmet>
+<div class="screen review">
+  <div class="hdr"><svg class="back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg><div class="ttl"><h1>Before the clock starts</h1>
+    <div class="sub">Drafted Apr 3, 2026</div></div><div class="act">Discard</div></div>
+
+  <div class="banner glass">
+    <div class="who">Drafted by <b>gemini-flash-latest</b>. Nothing is tracked until you confirm it.</div>
+    <div class="warn"><ul>
+      <li>&ldquo;Win it all&rdquo; read as winning the World Series, not the pennant.</li>
+      <li>No season named, so the deadline is the end of the 2026 postseason.</li>
+    </ul></div>
+  </div>
+
+  <div class="said">
+    <p class="quote">&ldquo;Mark my words, the Cardinals win it all this year.&rdquo;</p>
+    <div class="by">Popops &middot; Apr 3, 2026</div>
+  </div>
+
+  <div class="sect">
+    <span class="lbl" style="margin-bottom:6px">Deadline</span>
+    <div class="input">2026-11-05</div>
+    <div class="note">End of the 2026 World Series. A criterion dated after this can never be met in time, so later dates are refused.</div>
+  </div>
+
+  <div class="sect">
+    <span class="lbl" style="margin-bottom:2px">What has to be true</span>
+    <div class="crit"><span class="num">1</span><span class="t">The St.&nbsp;Louis Cardinals are the winning team of the 2026 World Series.</span></div>
+    <div class="crit"><span class="num">2</span><span class="t">Reported by a wire service or MLB&rsquo;s own record on or before Nov&nbsp;5,&nbsp;2026.</span></div>
+    <div class="note">These freeze on the first check. After that, editing goes through the amendment log with a reason.</div>
+  </div>
+
+  <div class="amb">
+    <div class="h">Worth pinning down first</div>
+    <ul>
+      <li>&ldquo;This year&rdquo; could mean the calendar year or the season. Read as the season.</li>
+      <li>No stake was named.</li>
+    </ul>
+  </div>
+
+  <div style="height:14px"></div>
+  <div class="toggle"><span class="box"></span>
+    <span class="t">Entered after the fact. Retroactive calls never count toward a hit rate.</span></div>
+
+  <div class="submit"><div class="btn primary">Put it on the record</div></div>
+</div>
+</x-dc>
+</body>
+</html>

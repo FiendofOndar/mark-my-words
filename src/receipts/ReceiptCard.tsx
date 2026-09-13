@@ -19,6 +19,31 @@ const TONE: Record<string, string> = {
 };
 
 /**
+ * The mark, inline. A card is rasterized through an SVG foreignObject and then
+ * leaves the app, so it carries its own identification rather than relying on
+ * whatever is around it.
+ */
+function Mark({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 240 240">
+      <defs>
+        <linearGradient id="mmw-ramp" gradientUnits="userSpaceOnUse" x1="61" y1="70" x2="175" y2="181">
+          <stop offset="0%" stopColor="#5fbb8c" />
+          <stop offset="50%" stopColor="#ddb45e" />
+          <stop offset="100%" stopColor="#d9533a" />
+        </linearGradient>
+      </defs>
+      <g transform="translate(9 6)" fill="none" strokeLinejoin="round" strokeLinecap="round">
+        <path d="M 40.6 143.9 A 86 86 0 1 1 71 180.6 L 10 212 Z" stroke="url(#mmw-ramp)" strokeWidth="15" />
+        <line x1="120" y1="106" x2="120" y2="50" stroke="#f2e8d8" strokeWidth="14" />
+        <line x1="120" y1="106" x2="155" y2="126" stroke="#f2593a" strokeWidth="14" />
+        <circle cx="120" cy="106" r="8" fill="#f2e8d8" />
+      </g>
+    </svg>
+  );
+}
+
+/**
  * Rendered offscreen at full size and rasterized. Every value is inline rather
  * than themed, because the card leaves the app and has to look the same
  * wherever it lands.
@@ -57,7 +82,7 @@ export function ReceiptCard({
       <p style={{ ...meta, marginTop: 8 }}>{describeDeadline(prediction)}</p>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 28, marginTop: 44 }}>
-        <span style={{ ...stamp, color: tone, borderColor: tone }}>
+        <span style={{ ...stamp, background: tone }}>
           {STATUS_LABEL[prediction.status]}
         </span>
         {prediction.resolvedAt && (
@@ -78,7 +103,10 @@ export function ReceiptCard({
           <p style={label}>Evidence</p>
           {sources.slice(0, 3).map((source) => (
             <p key={source.id} style={citation}>
-              {source.publisher ?? hostOf(source.url)}
+              {source.publisher && (
+                <span style={{ color: '#f0e9dd' }}>{source.publisher} </span>
+              )}
+              <span>{hostOf(source.url)}</span>
               {source.publishedAt ? ` · ${source.publishedAt}` : ''}
             </p>
           ))}
@@ -86,7 +114,10 @@ export function ReceiptCard({
       )}
 
       <div style={footer}>
-        <span>Mark My Words</span>
+        <span style={wordmark}>
+          <Mark size={46} />
+          Mark My Words
+        </span>
         <span style={{ color: '#6f675c' }}>
           {prediction.stakes ? `Stakes: ${prediction.stakes}` : ''}
           {prediction.isRetroactive ? '  ·  entered after the fact' : ''}
@@ -130,7 +161,16 @@ export function ScorecardCard({
         gets shown to the person it is about. The rate arrives when it means
         something.
       */}
-      <p style={{ fontSize: 220, lineHeight: 1, marginTop: 64, fontFamily: SERIF }}>
+      <p
+        style={{
+          fontSize: 220,
+          lineHeight: 1,
+          marginTop: 64,
+          fontFamily: DISPLAY,
+          fontWeight: 600,
+          fontVariantNumeric: 'tabular-nums',
+        }}
+      >
         {formatHeadline(record)}
       </p>
       <p style={{ ...meta, fontSize: 40, marginTop: 16 }}>
@@ -156,7 +196,10 @@ export function ScorecardCard({
       </div>
 
       <div style={footer}>
-        <span>Mark My Words</span>
+        <span style={wordmark}>
+          <Mark size={46} />
+          Mark My Words
+        </span>
         <span style={{ color: '#6f675c' }}>{since ? `Since ${formatDate(since)}` : ''}</span>
       </div>
     </div>
@@ -184,22 +227,34 @@ function hostOf(url: string): string {
   }
 }
 
-const SERIF = "'Newsreader', Georgia, 'Times New Roman', serif";
-const SANS = "'Inter', system-ui, sans-serif";
+const SERIF = "'Cormorant', Georgia, 'Times New Roman', serif";
+const SANS = "'IBM Plex Mono', ui-monospace, monospace";
+const DISPLAY = "'Oswald', system-ui, sans-serif";
+const LABEL = "'Barlow Condensed', system-ui, sans-serif";
 
 const shell: React.CSSProperties = {
   width: CARD_WIDTH,
   height: CARD_HEIGHT,
   padding: 80,
   boxSizing: 'border-box',
-  background: '#111014',
-  color: '#ede7dc',
+  background:
+    'radial-gradient(ellipse 1500px 1100px at 50% 14%, rgba(135,146,171,0.15), transparent 76%), #141320',
+  color: '#f0e9dd',
   fontFamily: SANS,
   display: 'flex',
   flexDirection: 'column',
 };
 
-const rule: React.CSSProperties = { height: 3, background: '#2e2a35' };
+/**
+ * The brand rule, in the icon's ramp. Fixed, and deliberately not the app's
+ * accent: this card is the only surface strangers ever see, so it should not
+ * change colour depending on a setting inside the app.
+ */
+const rule: React.CSSProperties = {
+  height: 10,
+  borderRadius: 5,
+  background: 'linear-gradient(90deg, #5fbb8c, #ddb45e 50%, #d9533a)',
+};
 
 const meta: React.CSSProperties = {
   margin: 0,
@@ -210,7 +265,9 @@ const meta: React.CSSProperties = {
 
 const label: React.CSSProperties = {
   margin: 0,
-  fontSize: 24,
+  fontFamily: LABEL,
+  fontWeight: 600,
+  fontSize: 26,
   letterSpacing: '0.16em',
   textTransform: 'uppercase',
   color: '#6f675c',
@@ -220,6 +277,7 @@ const quote: React.CSSProperties = {
   margin: 0,
   marginTop: 28,
   fontFamily: SERIF,
+  fontWeight: 600,
   fontSize: 72,
   lineHeight: 1.18,
   display: '-webkit-box',
@@ -229,14 +287,14 @@ const quote: React.CSSProperties = {
 
 const stamp: React.CSSProperties = {
   display: 'inline-block',
-  padding: '14px 36px',
-  border: '6px solid',
-  borderRadius: 8,
-  fontSize: 52,
+  padding: '18px 40px 16px',
+  borderRadius: 10,
+  fontFamily: DISPLAY,
+  fontSize: 58,
   fontWeight: 600,
-  letterSpacing: '0.14em',
+  letterSpacing: '0.1em',
   textTransform: 'uppercase',
-  transform: 'rotate(-5deg)',
+  color: '#141320',
 };
 
 const citation: React.CSSProperties = {
@@ -249,9 +307,18 @@ const citation: React.CSSProperties = {
 const footer: React.CSSProperties = {
   display: 'flex',
   justifyContent: 'space-between',
-  alignItems: 'baseline',
+  alignItems: 'center',
   borderTop: '3px solid #2e2a35',
   paddingTop: 28,
   fontSize: 28,
-  fontFamily: SERIF,
+};
+
+const wordmark: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 18,
+  fontFamily: DISPLAY,
+  fontWeight: 500,
+  letterSpacing: '0.06em',
+  fontSize: 30,
 };

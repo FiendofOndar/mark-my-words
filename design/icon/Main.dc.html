@@ -1,0 +1,191 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .sheet {
+      width: 1100px; height: 900px; box-sizing: border-box; overflow: hidden;
+      background: oklch(0.145 0.012 270); color: oklch(0.96 0.01 90);
+      font-family: 'Barlow Condensed', sans-serif; padding: 40px 44px;
+    }
+    h1 { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 24px; margin: 0 0 8px 0; }
+    .intro { font-size: 16px; line-height: 1.45; color: oklch(0.7 0.012 82); margin: 0 0 30px 0; max-width: 820px; }
+    h2 { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase;
+      color: oklch(0.55 0.012 82); margin: 0 0 14px 0; }
+    .row { display: flex; gap: 34px; align-items: flex-start; margin-bottom: 30px; }
+    .cell { text-align: center; }
+    .name { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase;
+      color: oklch(0.6 0.012 82); margin-top: 10px; }
+    .sizes { display: flex; gap: 14px; align-items: flex-end; justify-content: center; }
+
+    .mini { overflow: hidden; flex-shrink: 0; }
+    .mini > .art { transform-origin: top left; }
+    .s96 { width: 96px; height: 96px; }
+    .s96 > .art { transform: scale(0.2); }
+    .s48 { width: 48px; height: 48px; }
+    .s48 > .art { transform: scale(0.1); }
+
+    .art { width: 480px; height: 480px; border-radius: 104px; box-sizing: border-box;
+      background: oklch(0.16 0.012 270);
+      display: flex; align-items: center; justify-content: center; position: relative; }
+    .m { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 300px; line-height: 1;
+      color: oklch(0.95 0.014 88); letter-spacing: -2px; }
+    .mk { position: absolute; top: 118px; right: 104px; }
+
+    .tray { display: flex; gap: 18px; align-items: center; background: oklch(0.2 0.014 268);
+      border-radius: 18px; padding: 18px 22px; width: fit-content; }
+    .neighbour { width: 48px; height: 48px; border-radius: 10.4px; background: oklch(0.33 0.02 250); flex-shrink: 0; }
+    .neighbour.b { background: oklch(0.38 0.04 150); }
+    .neighbour.c { background: oklch(0.36 0.05 25); }
+    .neighbour.d { background: oklch(0.4 0.03 300); }
+    .note { font-size: 15px; line-height: 1.45; color: oklch(0.68 0.012 82); margin: 12px 0 0 0; max-width: 900px; }
+    .note b { color: oklch(0.94 0.012 85); font-weight: 600; }
+  </style>
+</helmet>
+<div class="sheet">
+  <h1>Four icon directions</h1>
+  <p class="intro">The current checkmark is first, for comparison. Judge these at 48px, not at full size &mdash; that is where the last one failed, and an icon that only works large is not an icon.</p>
+
+  <h2>At 96px, and at 48px &mdash; the size it lives at</h2>
+  <div class="row">
+
+    <div class="cell">
+      <div class="sizes">
+        <div class="mini s96"><div class="art">
+          <svg width="240" height="240" viewBox="0 0 240 240" style="transform: rotate(-3deg)">
+            <path d="M44 132 L96 184 L200 60" fill="none" stroke="#dba456" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div></div>
+        <div class="mini s48"><div class="art">
+          <svg width="240" height="240" viewBox="0 0 240 240" style="transform: rotate(-3deg)">
+            <path d="M44 132 L96 184 L200 60" fill="none" stroke="#dba456" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div></div>
+      </div>
+      <div class="name">Current</div>
+    </div>
+
+    <div class="cell">
+      <div class="sizes">
+        <div class="mini s96"><div class="art">
+          <svg width="268" height="196" viewBox="0 0 220 160" fill="oklch(0.95 0.014 88)">
+            <g><circle cx="50" cy="52" r="30"/><path d="M 38 72 L 80 72 C 80 104 64 126 36 140 L 22 118 C 40 108 38 92 38 72 Z"/></g>
+            <g transform="translate(110 0)"><circle cx="50" cy="52" r="30"/><path d="M 38 72 L 80 72 C 80 104 64 126 36 140 L 22 118 C 40 108 38 92 38 72 Z"/></g>
+          </svg>
+        </div></div>
+        <div class="mini s48"><div class="art">
+          <svg width="268" height="196" viewBox="0 0 220 160" fill="oklch(0.95 0.014 88)">
+            <g><circle cx="50" cy="52" r="30"/><path d="M 38 72 L 80 72 C 80 104 64 126 36 140 L 22 118 C 40 108 38 92 38 72 Z"/></g>
+            <g transform="translate(110 0)"><circle cx="50" cy="52" r="30"/><path d="M 38 72 L 80 72 C 80 104 64 126 36 140 L 22 118 C 40 108 38 92 38 72 Z"/></g>
+          </svg>
+        </div></div>
+      </div>
+      <div class="name">A &middot; Quote</div>
+    </div>
+
+    <div class="cell">
+      <div class="sizes">
+        <div class="mini s96"><div class="art">
+          <svg width="330" height="330" viewBox="0 0 240 240">
+            <circle cx="120" cy="120" r="97" fill="none" stroke="oklch(0.34 0.02 270)" stroke-width="17"/>
+            <path d="M 120 23 A 97 97 0 1 1 23 120" fill="none" stroke="oklch(0.95 0.014 88)" stroke-width="17" stroke-linecap="round"/>
+            <g fill="oklch(0.95 0.014 88)" transform="translate(64 78) scale(0.52)">
+              <g><circle cx="50" cy="52" r="30"/><path d="M 38 72 L 80 72 C 80 104 64 126 36 140 L 22 118 C 40 108 38 92 38 72 Z"/></g>
+              <g transform="translate(110 0)"><circle cx="50" cy="52" r="30"/><path d="M 38 72 L 80 72 C 80 104 64 126 36 140 L 22 118 C 40 108 38 92 38 72 Z"/></g>
+            </g>
+          </svg>
+        </div></div>
+        <div class="mini s48"><div class="art">
+          <svg width="330" height="330" viewBox="0 0 240 240">
+            <circle cx="120" cy="120" r="97" fill="none" stroke="oklch(0.34 0.02 270)" stroke-width="17"/>
+            <path d="M 120 23 A 97 97 0 1 1 23 120" fill="none" stroke="oklch(0.95 0.014 88)" stroke-width="17" stroke-linecap="round"/>
+            <g fill="oklch(0.95 0.014 88)" transform="translate(64 78) scale(0.52)">
+              <g><circle cx="50" cy="52" r="30"/><path d="M 38 72 L 80 72 C 80 104 64 126 36 140 L 22 118 C 40 108 38 92 38 72 Z"/></g>
+              <g transform="translate(110 0)"><circle cx="50" cy="52" r="30"/><path d="M 38 72 L 80 72 C 80 104 64 126 36 140 L 22 118 C 40 108 38 92 38 72 Z"/></g>
+            </g>
+          </svg>
+        </div></div>
+      </div>
+      <div class="name">B &middot; Quote + clock</div>
+    </div>
+
+    <div class="cell">
+      <div class="sizes">
+        <div class="mini s96"><div class="art">
+          <svg width="300" height="240" viewBox="0 0 200 160" stroke="oklch(0.95 0.014 88)" stroke-width="19" stroke-linecap="round" fill="none">
+            <line x1="24" y1="26" x2="24" y2="134"/><line x1="66" y1="26" x2="66" y2="134"/>
+            <line x1="108" y1="26" x2="108" y2="134"/><line x1="150" y1="26" x2="150" y2="134"/>
+            <line x1="10" y1="128" x2="164" y2="32"/>
+          </svg>
+        </div></div>
+        <div class="mini s48"><div class="art">
+          <svg width="300" height="240" viewBox="0 0 200 160" stroke="oklch(0.95 0.014 88)" stroke-width="19" stroke-linecap="round" fill="none">
+            <line x1="24" y1="26" x2="24" y2="134"/><line x1="66" y1="26" x2="66" y2="134"/>
+            <line x1="108" y1="26" x2="108" y2="134"/><line x1="150" y1="26" x2="150" y2="134"/>
+            <line x1="10" y1="128" x2="164" y2="32"/>
+          </svg>
+        </div></div>
+      </div>
+      <div class="name">C &middot; Tally</div>
+    </div>
+
+    <div class="cell">
+      <div class="sizes">
+        <div class="mini s96"><div class="art">
+          <span class="m">M</span>
+          <svg class="mk" width="86" height="63" viewBox="0 0 220 160" fill="#dba456">
+            <g><circle cx="50" cy="52" r="30"/><path d="M 38 72 L 80 72 C 80 104 64 126 36 140 L 22 118 C 40 108 38 92 38 72 Z"/></g>
+            <g transform="translate(110 0)"><circle cx="50" cy="52" r="30"/><path d="M 38 72 L 80 72 C 80 104 64 126 36 140 L 22 118 C 40 108 38 92 38 72 Z"/></g>
+          </svg>
+        </div></div>
+        <div class="mini s48"><div class="art">
+          <span class="m">M</span>
+          <svg class="mk" width="86" height="63" viewBox="0 0 220 160" fill="#dba456">
+            <g><circle cx="50" cy="52" r="30"/><path d="M 38 72 L 80 72 C 80 104 64 126 36 140 L 22 118 C 40 108 38 92 38 72 Z"/></g>
+            <g transform="translate(110 0)"><circle cx="50" cy="52" r="30"/><path d="M 38 72 L 80 72 C 80 104 64 126 36 140 L 22 118 C 40 108 38 92 38 72 Z"/></g>
+          </svg>
+        </div></div>
+      </div>
+      <div class="name">D &middot; Monogram</div>
+    </div>
+  </div>
+
+  <h2>Among neighbours, at 48px</h2>
+  <div class="tray">
+    <div class="neighbour"></div>
+    <div class="neighbour b"></div>
+    <div class="mini s48"><div class="art">
+      <svg width="268" height="196" viewBox="0 0 220 160" fill="oklch(0.95 0.014 88)">
+        <g><circle cx="50" cy="52" r="30"/><path d="M 38 72 L 80 72 C 80 104 64 126 36 140 L 22 118 C 40 108 38 92 38 72 Z"/></g>
+        <g transform="translate(110 0)"><circle cx="50" cy="52" r="30"/><path d="M 38 72 L 80 72 C 80 104 64 126 36 140 L 22 118 C 40 108 38 92 38 72 Z"/></g>
+      </svg>
+    </div></div>
+    <div class="neighbour c"></div>
+    <div class="mini s48"><div class="art">
+      <svg width="300" height="240" viewBox="0 0 200 160" stroke="oklch(0.95 0.014 88)" stroke-width="19" stroke-linecap="round" fill="none">
+        <line x1="24" y1="26" x2="24" y2="134"/><line x1="66" y1="26" x2="66" y2="134"/>
+        <line x1="108" y1="26" x2="108" y2="134"/><line x1="150" y1="26" x2="150" y2="134"/>
+        <line x1="10" y1="128" x2="164" y2="32"/>
+      </svg>
+    </div></div>
+    <div class="neighbour d"></div>
+    <div class="mini s48"><div class="art">
+      <svg width="240" height="240" viewBox="0 0 240 240" style="transform: rotate(-3deg)">
+        <path d="M44 132 L96 184 L200 60" fill="none" stroke="#dba456" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div></div>
+    <div class="neighbour"></div>
+  </div>
+
+  <p class="note">In order: two neighbours, <b>Quote</b>, a neighbour, <b>Tally</b>, a neighbour, <b>Current</b>, a neighbour. The question is not which is prettiest &mdash; it is which one you could pick out of this row without reading a label.</p>
+</div>
+</x-dc>
+</body>
+</html>
