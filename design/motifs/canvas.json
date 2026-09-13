@@ -1,36 +1,211 @@
 {
   "artboards": [
-    { "file": "Main.dc.html", "x": 0, "y": -300, "w": 1400, "h": 230 },
-
-    { "file": "GrainGlass.dc.html", "x": 0, "y": 0, "w": 400, "h": 460 },
-    { "file": "EditorialQuote.dc.html", "x": 480, "y": 0, "w": 400, "h": 460 },
-    { "file": "CitationNetwork.dc.html", "x": 960, "y": 0, "w": 400, "h": 460 },
-    { "file": "MeshDepth.dc.html", "x": 1440, "y": 0, "w": 400, "h": 460 },
-
-    { "file": "AdoptedTheme.dc.html", "x": 0, "y": 0, "w": 360, "h": 680, "page": "page-2" },
-    { "file": "SettingsAccentPicker.dc.html", "x": 460, "y": 0, "w": 375, "h": 812, "page": "page-2" },
-
-    { "file": "MergedFeed.dc.html", "x": 0, "y": 0, "w": 375, "h": 812, "page": "page-merged" },
-    { "file": "MergedDetail.dc.html", "x": 460, "y": 0, "w": 375, "h": 980, "page": "page-merged" },
-    { "file": "MergedDetailLight.dc.html", "x": 920, "y": 0, "w": 375, "h": 980, "page": "page-merged" },
-
-    { "file": "CombinedFullWash.dc.html", "x": 0, "y": 0, "w": 360, "h": 680, "page": "page-3" },
-    { "file": "CombinedFramed.dc.html", "x": 440, "y": 0, "w": 360, "h": 680, "page": "page-3" }
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": -300,
+      "w": 1400,
+      "h": 230
+    },
+    {
+      "file": "GrainGlass.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 400,
+      "h": 460
+    },
+    {
+      "file": "EditorialQuote.dc.html",
+      "x": 480,
+      "y": 0,
+      "w": 400,
+      "h": 460
+    },
+    {
+      "file": "CitationNetwork.dc.html",
+      "x": 960,
+      "y": 0,
+      "w": 400,
+      "h": 460
+    },
+    {
+      "file": "MeshDepth.dc.html",
+      "x": 1440,
+      "y": 0,
+      "w": 400,
+      "h": 460
+    },
+    {
+      "file": "AdoptedTheme.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 360,
+      "h": 680,
+      "page": "page-2"
+    },
+    {
+      "file": "SettingsAccentPicker.dc.html",
+      "x": 460,
+      "y": 0,
+      "w": 375,
+      "h": 812,
+      "page": "page-2"
+    },
+    {
+      "file": "MergedFeed.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 375,
+      "h": 812,
+      "page": "page-merged"
+    },
+    {
+      "file": "MergedDetail.dc.html",
+      "x": 460,
+      "y": 0,
+      "w": 375,
+      "h": 1100,
+      "page": "page-merged"
+    },
+    {
+      "file": "MergedDetailLight.dc.html",
+      "x": 920,
+      "y": 0,
+      "w": 375,
+      "h": 980,
+      "page": "page-merged"
+    },
+    {
+      "file": "CombinedFullWash.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 360,
+      "h": 680,
+      "page": "page-3"
+    },
+    {
+      "file": "CombinedFramed.dc.html",
+      "x": 440,
+      "y": 0,
+      "w": 360,
+      "h": 680,
+      "page": "page-3"
+    },
+    {
+      "file": "CheckQueued.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 375,
+      "h": 1100,
+      "page": "page-checks"
+    },
+    {
+      "file": "CheckStates.dc.html",
+      "x": 470,
+      "y": 0,
+      "w": 430,
+      "h": 1120,
+      "page": "page-checks"
+    }
   ],
   "annotations": [
-    { "id": "label-adopted", "x": 0, "y": -60, "w": 420, "text": "Adopted theme — try the accent color chip above the card", "page": "page-2" },
-    { "id": "label-settings", "x": 460, "y": -60, "w": 380, "text": "Settings picker — click a swatch, watch the preview above it update", "page": "page-2" },
-    { "id": "label-mfeed", "x": 0, "y": -60, "w": 380, "text": "Feed — Box Score density, serif claims, glow only on the row that needs you", "page": "page-merged" },
-    { "id": "label-mdetail", "x": 460, "y": -60, "w": 380, "text": "Detail — Spotlight up top, dense mono check log below. Glow stays amber on a MISS", "page": "page-merged" },
-    { "id": "label-mlight", "x": 920, "y": -60, "w": 380, "text": "Same screen, light mode — warm page, glow wash, AI panel raised on a warm shadow", "page": "page-merged" },
-    { "id": "label-fullwash", "x": 0, "y": -50, "w": 340, "text": "Archived — Full Wash (not picked)", "page": "page-3" },
-    { "id": "label-framed", "x": 440, "y": -50, "w": 340, "text": "Archived — Framed (not picked)", "page": "page-3" }
+    {
+      "id": "label-adopted",
+      "x": 0,
+      "y": -60,
+      "w": 420,
+      "text": "Adopted theme \u2014 try the accent color chip above the card",
+      "page": "page-2"
+    },
+    {
+      "id": "label-settings",
+      "x": 460,
+      "y": -60,
+      "w": 380,
+      "text": "Settings picker \u2014 click a swatch, watch the preview above it update",
+      "page": "page-2"
+    },
+    {
+      "id": "label-mfeed",
+      "x": 0,
+      "y": -60,
+      "w": 380,
+      "text": "Feed \u2014 Box Score density, serif claims, glow only on the row that needs you",
+      "page": "page-merged"
+    },
+    {
+      "id": "label-mdetail",
+      "x": 460,
+      "y": -60,
+      "w": 380,
+      "text": "Detail \u2014 Spotlight up top, dense mono check log below. Glow stays amber on a BUSTED",
+      "page": "page-merged"
+    },
+    {
+      "id": "label-mlight",
+      "x": 920,
+      "y": -60,
+      "w": 380,
+      "text": "Same screen, light mode \u2014 warm page, glow wash, AI panel raised on a warm shadow",
+      "page": "page-merged"
+    },
+    {
+      "id": "label-fullwash",
+      "x": 0,
+      "y": -50,
+      "w": 340,
+      "text": "Archived \u2014 Full Wash (not picked)",
+      "page": "page-3"
+    },
+    {
+      "id": "label-framed",
+      "x": 440,
+      "y": -50,
+      "w": 340,
+      "text": "Archived \u2014 Framed (not picked)",
+      "page": "page-3"
+    },
+    {
+      "id": "label-cqueued",
+      "x": 0,
+      "y": -60,
+      "w": 400,
+      "text": "Waiting on you \u2014 gates are the hero, not a hidden detail",
+      "page": "page-checks"
+    },
+    {
+      "id": "label-cstates",
+      "x": 470,
+      "y": -60,
+      "w": 400,
+      "text": "Every check-log state, in the app's own wording",
+      "page": "page-checks"
+    }
   ],
   "pages": [
-    { "id": "page-1", "name": "Individual motifs" },
-    { "id": "page-2", "name": "Adopted theme" },
-    { "id": "page-merged", "name": "Merged theme (dark + light)" },
-    { "id": "page-3", "name": "Archived combined options" }
+    {
+      "id": "page-1",
+      "name": "Individual motifs"
+    },
+    {
+      "id": "page-2",
+      "name": "Adopted theme"
+    },
+    {
+      "id": "page-merged",
+      "name": "Merged theme (dark + light)"
+    },
+    {
+      "id": "page-checks",
+      "name": "Check log + gates"
+    },
+    {
+      "id": "page-3",
+      "name": "Archived combined options"
+    }
   ],
-  "launch": { "view": "canvas", "page": "page-merged" }
+  "launch": {
+    "view": "canvas",
+    "page": "page-checks"
+  }
 }

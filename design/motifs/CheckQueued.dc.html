@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,600;1,500;1,600&family=Oswald:wght@600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .screen {
+      --ground: oklch(0.145 0.012 270);
+      --rule: oklch(0.26 0.01 270);
+      --ink: oklch(0.96 0.01 90);
+      --ink-dim: oklch(0.68 0.01 90);
+      --ink-faint: oklch(0.52 0.01 270);
+      --accent: #dba456;
+      --glow: color-mix(in srgb, #dba456 40%, transparent);
+      --hit: #5aa87a;
+      --partial: #d29a43;
+
+      width: 375px; height: 1100px; box-sizing: border-box; overflow: hidden;
+      background:
+        radial-gradient(ellipse 460px 320px at 50% 40%, var(--glow), transparent 62%),
+        var(--ground);
+      color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex; flex-direction: column;
+    }
+    .crumb { padding: 46px 22px 0 22px; font-size: 10.5px; letter-spacing: 1.8px; color: var(--ink-faint); text-transform: uppercase; }
+    .quote-zone { padding: 26px 24px 0 24px; }
+    .quote { font-family: 'Cormorant', serif; font-weight: 500; font-style: italic; font-size: 31px; line-height: 1.22; margin: 0 0 14px 0; }
+    .byline { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 15px; color: var(--ink-dim); }
+    .byline span { color: var(--ink-faint); font-weight: 500; }
+
+    .glass { margin: 24px 22px 0 22px; padding: 20px 22px; border-radius: 14px;
+      background: oklch(0.94 0.01 90 / 0.07);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid oklch(0.9 0.01 90 / 0.13);
+      box-shadow: 0 20px 42px oklch(0 0 0 / 0.34); }
+    .glass .tag { font-size: 10px; letter-spacing: 1.6px; color: var(--accent); text-transform: uppercase; font-weight: 600; margin-bottom: 11px; }
+    .glass .verdict { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 30px; margin: 0 0 9px 0; color: var(--hit); letter-spacing: 0.5px; }
+    .glass .detail { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; color: var(--ink-dim); line-height: 1.4; margin: 0 0 16px 0; }
+
+    /* The gates. The answer to the only question this panel is opened to ask,
+       so it is not behind a disclosure when there is something to say. */
+    .gates { border-top: 1px solid oklch(0.9 0.01 90 / 0.1); padding-top: 14px; }
+    .gates .lab { font-size: 9.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 8px; }
+    .gates ul { margin: 0; padding-left: 15px; }
+    .gates li { font-family: 'Barlow Condensed', sans-serif; font-size: 14.5px; line-height: 1.4;
+      color: var(--partial); margin-bottom: 5px; }
+    .gates li::marker { color: color-mix(in srgb, var(--partial) 55%, transparent); }
+
+    .actions { display: flex; gap: 8px; margin-top: 16px; }
+    .btn { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 14px; letter-spacing: 0.4px;
+      padding: 8px 16px; border-radius: 4px; border: 1.5px solid transparent; }
+    .btn.primary { background: var(--accent); color: oklch(0.17 0.02 72); }
+    .btn.ghost { border-color: oklch(0.9 0.01 90 / 0.2); color: var(--ink-dim); }
+
+    .strip { margin-top: 16px; padding-top: 12px; border-top: 1px solid oklch(0.9 0.01 90 / 0.1);
+      font-size: 9.5px; letter-spacing: 1.1px; color: var(--ink-faint); line-height: 1.6; }
+
+    .log { margin-top: 30px; }
+    .log h2 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 2px;
+      color: var(--ink-dim); margin: 0; padding: 0 22px 4px 22px; }
+    .log .note { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; color: var(--ink-faint); padding: 0 22px 10px 22px; margin: 0; }
+    .entry { padding: 13px 22px; border-top: 1px solid var(--rule); }
+    .entry .line1 { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+    .entry .when { font-size: 10px; letter-spacing: 1.1px; color: var(--ink-faint); text-transform: uppercase; }
+    .pill { font-size: 9.5px; letter-spacing: 0.8px; padding: 2px 8px; border-radius: 999px;
+      border: 1px solid var(--rule); color: var(--ink-dim); text-transform: uppercase; }
+    .pill.need { border-color: color-mix(in srgb, var(--accent) 50%, transparent); color: var(--accent); }
+    .entry .summary { font-family: 'Barlow Condensed', sans-serif; font-size: 14.5px; color: var(--ink-dim); line-height: 1.35; margin: 0 0 8px 0; }
+    .srcs { display: flex; flex-direction: column; gap: 4px; }
+    .src { display: flex; align-items: baseline; gap: 7px; font-size: 10.5px; }
+    .src .mark { font-weight: 600; }
+    .src .mark.ok { color: var(--hit); }
+    .src .mark.bad { color: var(--partial); }
+    .src .host { color: var(--ink-dim); }
+    .src .state { color: var(--ink-faint); }
+  </style>
+</helmet>
+<div class="screen">
+  <div class="crumb">Prediction &middot; sports</div>
+  <div class="quote-zone">
+    <p class="quote">&ldquo;The Cardinals win it all this year.&rdquo;</p>
+    <div class="byline">@popops <span>&middot; said Mar 12 &middot; deadline Nov 2</span></div>
+  </div>
+
+  <div class="glass">
+    <div class="tag">AI Verdict &middot; waiting on you</div>
+    <p class="verdict">PROVEN?</p>
+    <p class="detail">The Cardinals took the series in six. One outlet reported it; the app could not find a second.</p>
+
+    <div class="gates">
+      <div class="lab">What stopped the app acting on its own</div>
+      <ul>
+        <li>Only one independent source was cited, and it is not the body that would know.</li>
+        <li>Every source predates the prediction.</li>
+      </ul>
+    </div>
+
+    <div class="actions">
+      <span class="btn primary">Approve</span>
+      <span class="btn ghost">Reject</span>
+      <span class="btn ghost">Edit</span>
+    </div>
+
+    <div class="strip">1 SOURCE, LINK WORKS &middot; MODEL CONFIDENCE 88/100</div>
+  </div>
+
+  <div class="log">
+    <h2>CHECK LOG</h2>
+    <p class="note">Marks are the app's own check of each link, not whether the source agrees.</p>
+    <div class="entry">
+      <div class="line1">
+        <span class="when">Nov 02 &middot; deadline &middot; auto</span>
+        <span class="pill need">Waiting on you</span>
+      </div>
+      <p class="summary">Series decided Nov 1. One outlet reported the result; no second independent source found.</p>
+      <div class="srcs">
+        <div class="src"><span class="mark ok">&#10003;</span><span class="host">stltoday.com</span><span class="state">link works</span></div>
+      </div>
+    </div>
+    <div class="entry">
+      <div class="line1">
+        <span class="when">Oct 19 &middot; pull &middot; no change</span>
+        <span class="pill">No change</span>
+      </div>
+      <p class="summary">Cardinals lead the series 3&ndash;2. Trend toward yes.</p>
+      <div class="srcs">
+        <div class="src"><span class="mark ok">&#10003;</span><span class="host">mlb.com</span><span class="state">link works</span></div>
+        <div class="src"><span class="mark bad">!</span><span class="host">espn.com</span><span class="state">link does not work</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
