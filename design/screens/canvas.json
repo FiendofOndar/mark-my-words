@@ -12,8 +12,8 @@
       "file": "AccentCheck.dc.html",
       "x": 1020,
       "y": 0,
-      "w": 1180,
-      "h": 960,
+      "w": 1140,
+      "h": 1060,
       "page": "page-palette"
     },
     {
@@ -127,7 +127,7 @@
       "x": 1020,
       "y": -56,
       "w": 620,
-      "text": "The one accent decision, made once. Violet is what the canvas already uses.",
+      "text": "Slate is settled. This is the glow tuning it forces.",
       "page": "page-palette"
     },
     {
