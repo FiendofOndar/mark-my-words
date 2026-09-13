@@ -8,7 +8,7 @@ reasoning, including the ones that look arbitrary.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 294 tests, all of them fast
+npm test           # 297 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -113,10 +113,19 @@ is for.
   are cherry-picked by construction.
 - **A criterion dated after the deadline is refused at review.** A criterion is
   judged at the deadline, so a later date inside it can never be met in time.
-  The drafting model produced exactly this (claim about the 11th, criteria about
-  the 12th) and every check then answered "not yet" forever while the feed
-  showed the claim overdue. Earlier dates pass; criteria often measure against
-  one.
+  The seed produced exactly this (deadline the 11th, criteria the 12th) and
+  every check then answered "not yet" forever while the feed showed the claim
+  overdue. Earlier dates pass; criteria often measure against one.
+- **Never `.slice(0, 10)` a stored instant to get a date.** Deadlines are local
+  end-of-day, so west of Greenwich the UTC date is already tomorrow. Use
+  `toLocalDateInput`. This has now shipped twice: once in the check prompt, once
+  in the seed's own prose, and both times only misbehaved after 5pm Pacific.
+- **A citation the app could not confirm is not a citation it disproved.** A
+  moved quote and an invented one are different things. Live pages (forecasts,
+  scoreboards, "today" pages) rewrite themselves between the model reading them
+  and the app fetching them, so `quote_not_found` on a page that served content
+  earns a little credit. `blocked` still earns nothing: the page was never read.
+  The check prompt tells the model to cite the record, not the forecast.
 - **Checks are only ever spent by a deliberate tap.** `runPull` has one caller,
   reached from the feed refresh gesture or a detail screen's "Check now". No
   timer, no launch effect, no background service. Keep it that way: the cadence
