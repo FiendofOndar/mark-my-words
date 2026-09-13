@@ -124,6 +124,13 @@ is for.
   every cited source is unreachable. A dead link still costs its place in the
   independent-source count, because a page that does not exist corroborates
   nothing. `quote_not_found` and `blocked` cost points and gate nothing.
+- **A gate fires on "nothing here works", never on "one thing does not".** This
+  shape has now been wrong three times: any single dead link gated the check,
+  any single stale quote gated it, and any single source older than the
+  prediction gated it. Each time a correct verdict carried by the other sources
+  was blocked by one bad citation among them. Citing background alongside the
+  decisive article is not a defect. The score still falls for the bad one; only
+  the gate is reserved for a check where every source failed the same way.
 - **`hold` is only for a check that resolved nothing.** A verdict the app cannot
   act on is still a verdict somebody should see.
 - **Model confidence can only lower the score, never raise it.** The score is

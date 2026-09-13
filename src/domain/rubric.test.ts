@@ -353,11 +353,32 @@ describe('url validation', () => {
 });
 
 describe('temporal sanity', () => {
-  it('zeroes and gates when a source predates the prediction', () => {
+  it('zeroes the score when one source predates the prediction, without gating', () => {
+    // Citing background alongside the decisive article is not a defect. One
+    // old page used to block a verdict the newer ones carried on their own.
     const result = scoreCheck(
-      input({ sources: [source({ publishedAt: '2011-10-28' }), source({ publisher: 'Reuters' })] }),
+      input({
+        sources: [
+          source({ publishedAt: '2011-10-28' }),
+          source({ url: 'https://reuters.com/a', publisher: 'Reuters' }),
+        ],
+      }),
     );
     expect(result.breakdown.temporalSanity).toBe(0);
+    expect(result.gates).toEqual([]);
+  });
+
+  it('gates when nothing cited postdates the prediction', () => {
+    // Everything on offer was already in print when the claim was made, so
+    // none of it can be evidence of what happened since.
+    const result = scoreCheck(
+      input({
+        sources: [
+          source({ publishedAt: '2011-10-28' }),
+          source({ url: 'https://reuters.com/a', publisher: 'Reuters', publishedAt: '2011-10-29' }),
+        ],
+      }),
+    );
     expect(result.gates.join(' ')).toMatch(/predates/i);
   });
 

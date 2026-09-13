@@ -283,7 +283,7 @@ export function seedDemoData(db: Db): void {
       category: 'Sports',
       stakes: 'A steak dinner',
       criteria: [
-        'The Philadelphia Eagles win Super Bowl LIX, played on 2025-02-09',
+        'The Philadelphia Eagles win Super Bowl LIX, played on February 9, 2025',
         'The team they defeat in that game is the Kansas City Chiefs',
       ],
       searchQueries: [

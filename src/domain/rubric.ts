@@ -301,12 +301,26 @@ function collectGates(input: RubricInput, independent: number): string[] {
     );
   }
 
+  /*
+   * Gating on "nothing here postdates the claim", not on "something does not".
+   *
+   * The same shape as the dead-link gate above, and the same mistake: one
+   * background page published before the prediction used to block a verdict
+   * carried by a decisive article published after it. Citing context is not a
+   * defect. What is a defect is a check where everything on offer was already
+   * in print when the prediction was made, because none of it can be evidence
+   * of what happened since.
+   *
+   * The score still falls to zero either way - `temporalPoints` pays nothing
+   * unless every source lands inside the window - so the mixed case is marked
+   * on the log without standing in the way of an answer.
+   */
   const statement = new Date(input.statementDate).getTime();
-  if (
-    !input.isRetroactive &&
-    input.sources.some((s) => s.publishedAt && new Date(s.publishedAt).getTime() < statement)
-  ) {
-    gates.push('A source predates the prediction.');
+  if (!input.isRetroactive && input.sources.length > 0) {
+    const anyAfter = input.sources.some(
+      (s) => !s.publishedAt || new Date(s.publishedAt).getTime() >= statement,
+    );
+    if (!anyAfter) gates.push('Every source predates the prediction.');
   }
 
   return gates;
