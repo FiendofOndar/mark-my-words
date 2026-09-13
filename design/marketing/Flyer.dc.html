@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:wght@600&family=Oswald:wght@500;600;700&family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; }
+    .flyer {
+      --ground: #131218; --ink: #f2ede3; --dim: #a9a196; --faint: #736b61;
+      --rule: #2e2a35; --accent: #8792ab; --attention: #dba456;
+      --hit: #5aa87a; --miss: #cf6049;
+      width: 1000px; height: 1400px; box-sizing: border-box; padding: 76px 72px 64px;
+      position: relative; overflow: hidden; color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      background:
+        radial-gradient(ellipse 1400px 1100px at 50% 30%,
+          color-mix(in srgb, var(--accent) 20%, transparent), transparent 78%),
+        var(--ground);
+      display: flex; flex-direction: column;
+    }
+    .top { display: flex; align-items: center; justify-content: space-between; }
+    .brand { display: flex; align-items: center; gap: 18px; }
+    .brand .wm { font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 21px;
+      letter-spacing: 3.4px; text-transform: uppercase; }
+    .chip { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 25px;
+      letter-spacing: 4px; text-transform: uppercase; padding: 11px 26px 9px;
+      border-radius: 6px; background: var(--miss); color: #131218; }
+
+    h1 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 82px;
+      line-height: 1.0; margin: 84px 0 0 0; letter-spacing: -0.5px; }
+    h1 em { font-style: normal; color: var(--dim); }
+    .sub { font-size: 22px; line-height: 1.55; max-width: 700px; margin: 34px 0 0 0;
+      color: oklch(0.97 0.01 90 / 0.72); }
+
+    .quote { font-family: 'Cormorant', serif; font-weight: 600; font-size: 42px;
+      line-height: 1.2; margin: 0; }
+    .card { margin-top: 58px; padding: 32px 34px 28px; border-radius: 16px;
+      background: oklch(0.94 0.01 90 / 0.07);
+      border: 1px solid oklch(0.9 0.01 90 / 0.13);
+      box-shadow: 0 24px 52px oklch(0 0 0 / 0.36); }
+    .card .who { font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+      font-size: 14px; letter-spacing: 2.4px; text-transform: uppercase;
+      color: var(--faint); margin-bottom: 14px; }
+    .card .line { display: flex; align-items: center; justify-content: space-between;
+      margin-top: 26px; padding-top: 20px; border-top: 1px solid oklch(0.9 0.01 90 / 0.1); }
+    .card .due { font-size: 14.5px; color: var(--dim); letter-spacing: 0.4px; }
+    .tag { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 17px;
+      letter-spacing: 2px; padding: 6px 15px 4px; border-radius: 4px;
+      color: var(--miss); border: 2px solid color-mix(in srgb, var(--miss) 55%, transparent); }
+
+    .cites { margin-top: 26px; }
+    .cite { display: flex; align-items: baseline; gap: 14px; padding: 9px 0;
+      border-bottom: 1px solid var(--rule); font-size: 15px; }
+    .cite .pub { color: var(--ink); width: 210px; flex: none; }
+    .cite .host { color: var(--faint); flex: 1; }
+    .cite .ok { color: var(--hit); font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 600; font-size: 13.5px; letter-spacing: 1.8px; text-transform: uppercase; }
+
+    .spacer { flex: 1; }
+    .stats { display: flex; gap: 64px; border-top: 1px solid var(--rule); padding-top: 30px; }
+    .stat b { display: block; font-family: 'Oswald', sans-serif; font-weight: 600;
+      font-size: 40px; line-height: 1; }
+    .stat span { display: block; font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+      font-size: 14px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--faint); margin-top: 9px; }
+    .foot { margin-top: 30px; font-size: 15px; color: var(--dim); line-height: 1.5; }
+    .foot b { color: var(--ink); font-weight: 500; }
+  </style>
+</helmet>
+<div class="flyer">
+  <div class="top">
+    <div class="brand">
+      <svg width="58" height="58" viewBox="0 0 240 240">
+        <defs><linearGradient id="fr" gradientUnits="userSpaceOnUse" x1="61" y1="70" x2="175" y2="181">
+          <stop offset="0%" stop-color="#5fbb8c"/><stop offset="50%" stop-color="#ddb45e"/>
+          <stop offset="100%" stop-color="#d9533a"/></linearGradient></defs>
+        <g transform="translate(9 6)" fill="none" stroke-linejoin="round" stroke-linecap="round">
+          <path d="M 40.6 143.9 A 86 86 0 1 1 71 180.6 L 10 212 Z" stroke="url(#fr)" stroke-width="15"/>
+          <line x1="120" y1="106" x2="120" y2="50" stroke="#f2e8d8" stroke-width="14"/>
+          <line x1="120" y1="106" x2="155" y2="126" stroke="#f2593a" stroke-width="14"/>
+          <circle cx="120" cy="106" r="8" fill="#f2e8d8"/>
+        </g>
+      </svg>
+      <span class="wm">Mark My Words</span>
+    </div>
+    <span class="chip">Busted</span>
+  </div>
+
+  <h1>Talk is cheap.<br><em>The record isn&rsquo;t.</em></h1>
+  <p class="sub">Write down what somebody swore would happen. When the deadline lands,
+  the app searches for sources, opens every page it cites, and confirms the quote is
+  actually on it before anything is called.</p>
+
+  <div class="card">
+    <div class="who">Popops &middot; Nov 2, 2025</div>
+    <p class="quote">&ldquo;They&rsquo;ll never finish that bridge on time.&rdquo;</p>
+    <div class="line">
+      <span class="due">Called for Mar 1, 2026 &middot; settled the same day</span>
+      <span class="tag">Busted</span>
+    </div>
+  </div>
+
+  <div class="cites">
+    <div class="cite"><span class="pub">Associated Press</span><span class="host">apnews.com</span><span class="ok">Quote found</span></div>
+    <div class="cite"><span class="pub">Reuters</span><span class="host">reuters.com</span><span class="ok">Quote found</span></div>
+    <div class="cite"><span class="pub">WSDOT</span><span class="host">wsdot.wa.gov</span><span class="ok">Quote found</span></div>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="stats">
+    <div class="stat"><b>212</b><span>calls on the record</span></div>
+    <div class="stat"><b>66%</b><span>hit rate, 5-call minimum</span></div>
+    <div class="stat"><b>3 of 3</b><span>citations opened and read</span></div>
+  </div>
+  <p class="foot"><b>Every source is fetched, not trusted.</b> A verdict resting on a link
+  that does not resolve never settles on its own &mdash; it comes to you instead.</p>
+</div>
+</x-dc>
+</body>
+</html>

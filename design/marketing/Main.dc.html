@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=IBM+Plex+Mono:wght@400&display=swap">
+  <style>
+    body { margin: 0; }
+    .s { width: 1180px; box-sizing: border-box; padding: 40px 46px 44px;
+      background: oklch(0.115 0.008 270); color: oklch(0.96 0.01 90);
+      font-family: 'IBM Plex Mono', monospace; }
+    h1 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 26px;
+      letter-spacing: 0.5px; text-transform: uppercase; margin: 0 0 10px; }
+    p { font-size: 14px; line-height: 1.7; color: oklch(0.97 0.01 90 / 0.6);
+      margin: 0 0 12px; max-width: 940px; }
+    b { color: oklch(0.97 0.01 90 / 0.88); font-weight: 400; }
+    h2 { font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 12px;
+      letter-spacing: 1.6px; text-transform: uppercase; color: oklch(0.97 0.01 90 / 0.46);
+      margin: 28px 0 10px; padding-bottom: 8px; border-bottom: 1px solid oklch(0.26 0.01 270); }
+    li { font-size: 13px; line-height: 1.65; color: oklch(0.97 0.01 90 / 0.6); margin-bottom: 8px; }
+    ul { margin: 0; padding-left: 18px; }
+    .bad { color: #cf6049; }
+  </style>
+</helmet>
+<div class="s">
+  <h1>Marketing</h1>
+  <p>Rebuilt on the settled palette with the real icon. The earlier Box Score flyer predates
+  every colour decision and is kept on the Directions canvas as history.</p>
+
+  <h2>The claim that had to go</h2>
+  <p>The old flyer said the app calls the verdict <span class="bad">&ldquo;the moment the
+  deadline lands, day or night.&rdquo;</span> It does not, and it is built specifically not to.
+  <b>runPull has exactly one caller</b>, reached from the feed refresh gesture or a detail
+  screen&rsquo;s Check now. No timer, no launch effect, no background service. Every check
+  costs the user a metered API request, and on a free key there are twenty a day, so the
+  cadence gate and the per-pull budget exist to stop exactly the behaviour that sentence was
+  advertising.</p>
+  <p>What is true, and is what the new copy says: the app watches the clock and tells you when
+  a call comes due, and when you do spend a check it searches for sources, fetches every page
+  it cites, and confirms the quoted passage is on it before a verdict sticks. That is the
+  harder and more interesting claim anyway.</p>
+
+  <h2>Also changed</h2>
+  <ul>
+    <li>MISS is BUSTED, and the verdict chip is flat and filled rather than a rotated outline.</li>
+    <li>Citations show the host beside the publisher. The publisher is a name the model typed;
+    the host is where the fetch landed, and two pages on one site once counted as two
+    independent sources.</li>
+    <li>&ldquo;66% hit rate&rdquo; carries its five-call minimum on the label, because a rate
+    printed without it is the cherry-pick the threshold exists to refuse.</li>
+    <li>Amber appears nowhere. On these pieces nothing is asking the reader for anything.</li>
+  </ul>
+</div>
+</x-dc>
+</body>
+</html>

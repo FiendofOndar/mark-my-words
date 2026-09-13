@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:wght@600&family=Oswald:wght@500;600&family=Barlow+Condensed:wght@600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; }
+    /* Play Store feature graphic: exactly 1024x500, and the store crops the
+       sides on smaller screens, so nothing that matters goes near the edges. */
+    .fg {
+      --ink: #f2ede3; --dim: #a9a196; --faint: #736b61; --accent: #8792ab; --miss: #cf6049;
+      width: 1024px; height: 500px; box-sizing: border-box; padding: 0 72px;
+      overflow: hidden; color: var(--ink); font-family: 'IBM Plex Mono', monospace;
+      background:
+        radial-gradient(ellipse 1300px 900px at 36% 34%,
+          color-mix(in srgb, var(--accent) 20%, transparent), transparent 78%),
+        #131218;
+      display: flex; align-items: center; gap: 56px;
+    }
+    .left { flex: 1; min-width: 0; }
+    .wm { display: flex; align-items: center; gap: 14px; margin-bottom: 26px; }
+    .wm span { font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 16px;
+      letter-spacing: 3px; text-transform: uppercase; }
+    h1 { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 50px;
+      line-height: 1.04; margin: 0; letter-spacing: -0.3px; }
+    h1 em { font-style: normal; color: var(--dim); }
+    p { font-size: 16.5px; line-height: 1.55; margin: 20px 0 0 0;
+      color: oklch(0.97 0.01 90 / 0.72); max-width: 470px; }
+    .card { width: 330px; flex: none; padding: 24px 24px 20px; border-radius: 15px;
+      background: oklch(0.94 0.01 90 / 0.07); border: 1px solid oklch(0.9 0.01 90 / 0.13);
+      box-shadow: 0 22px 46px oklch(0 0 0 / 0.38); }
+    .card .who { font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+      font-size: 12px; letter-spacing: 2.2px; text-transform: uppercase;
+      color: var(--faint); margin-bottom: 11px; }
+    .card .q { font-family: 'Cormorant', serif; font-weight: 600; font-size: 27px;
+      line-height: 1.2; margin: 0; }
+    .card .line { display: flex; align-items: center; justify-content: space-between;
+      margin-top: 20px; padding-top: 15px; border-top: 1px solid oklch(0.9 0.01 90 / 0.1); }
+    .card .due { font-size: 11.5px; color: var(--dim); }
+    .tag { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 13px;
+      letter-spacing: 1.6px; padding: 4px 11px 3px; border-radius: 3px; color: var(--miss);
+      border: 2px solid color-mix(in srgb, var(--miss) 55%, transparent); }
+  </style>
+</helmet>
+<div class="fg">
+  <div class="left">
+    <div class="wm">
+      <svg width="40" height="40" viewBox="0 0 240 240">
+        <defs><linearGradient id="gr" gradientUnits="userSpaceOnUse" x1="61" y1="70" x2="175" y2="181">
+          <stop offset="0%" stop-color="#5fbb8c"/><stop offset="50%" stop-color="#ddb45e"/>
+          <stop offset="100%" stop-color="#d9533a"/></linearGradient></defs>
+        <g transform="translate(9 6)" fill="none" stroke-linejoin="round" stroke-linecap="round">
+          <path d="M 40.6 143.9 A 86 86 0 1 1 71 180.6 L 10 212 Z" stroke="url(#gr)" stroke-width="15"/>
+          <line x1="120" y1="106" x2="120" y2="50" stroke="#f2e8d8" stroke-width="14"/>
+          <line x1="120" y1="106" x2="155" y2="126" stroke="#f2593a" stroke-width="14"/>
+          <circle cx="120" cy="106" r="8" fill="#f2e8d8"/>
+        </g>
+      </svg>
+      <span>Mark My Words</span>
+    </div>
+    <h1>Talk is cheap.<br><em>The record isn&rsquo;t.</em></h1>
+    <p>A ledger for predictions and the people who make them. Every citation is opened
+    and read before a verdict sticks.</p>
+  </div>
+  <div class="card">
+    <div class="who">Popops &middot; Nov 2, 2025</div>
+    <p class="q">&ldquo;They&rsquo;ll never finish that bridge on time.&rdquo;</p>
+    <div class="line">
+      <span class="due">Called for Mar 1</span>
+      <span class="tag">Busted</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
