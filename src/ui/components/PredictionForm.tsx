@@ -291,7 +291,9 @@ export function PredictionForm({
             Settle these first
           </h2>
           <p className="mt-1 text-[12px] text-ink-faint">
-            Deciding after you know the answer is how timeframes slip.
+            The model could not decide these. Answer each one by editing the fields below, then
+            tick it. Nothing goes on the record until every question is ticked. Deciding after
+            you know the answer is how timeframes slip.
           </p>
           <ul className="mt-2 space-y-2">
             {ambiguities.map((question, index) => (

@@ -259,6 +259,18 @@ with its own close control, no download prompt), the tokens line in Settings,
 the absent searches line, no "It happened anyway" on Anacortes, and the Dodgers
 sample replaced by a real hit.
 
+**Build "Say which build this is" (10:10 UTC), verified on device:** the
+corrected drone seed checks as no_change with a correct summary; the Settings
+build label reads as intended; a hand-typed "Apple will release a foldable
+iPhone by June" produced a review card that kept "release" as a question
+rather than softening it (carry-the-qualifiers working on a real intake) but
+wrote a hedge into a criterion ("on or before June 30, 2027 (or June 1, 2027
+depending on interpretation)"). The intake prompt now forbids hedges inside
+criteria. A no_change check no longer marks criteria unmet, since "not yet"
+was drawing red crosses on open claims. The "Settle these first" copy now
+says what the checkboxes are: an acknowledgement gate on confirming, storing
+nothing.
+
 Three more things PR #3 adds to look for: Anacortes settling itself as a miss
 with no approval card; a "Not right? Reopen it" link under "Settled by the
 app"; source links opening in a browser sheet that closes back to the app.

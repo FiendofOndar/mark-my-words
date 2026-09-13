@@ -111,6 +111,25 @@ describe('a decisive, well-sourced check', () => {
     expect(already.freeze).toBe(false);
   });
 
+  it('does not mark a criterion unmet on a check that resolved nothing', async () => {
+    // "Not yet" is not "not met". A no_change check used to write false on
+    // every criterion, which drew a red cross beside each one on an open
+    // claim. A criterion it found already met is still recorded.
+    const plan = await runCheck(
+      deps(
+        result({
+          verdict: 'no_change',
+          criteriaStatus: [
+            { index: 0, satisfied: true, why: 'already happened' },
+            { index: 1, satisfied: false, why: 'not yet' },
+          ],
+        }),
+      ),
+      ctx(makePrediction(), ['First thing', 'Second thing']),
+    );
+    expect(plan.criteriaUpdates).toEqual([{ id: 'c-0', satisfied: true }]);
+  });
+
   it('records which criteria the evidence satisfied', async () => {
     const plan = await runCheck(
       deps(

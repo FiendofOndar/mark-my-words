@@ -21,7 +21,7 @@ Rules that matter:
 
 5. NEGATIVE CLAIMS NEED A DISCONFIRMING TRIGGER. You cannot search for a non-event. If polarity is "negative", disconfirming_trigger must name the single concrete event that, if found, kills the claim. If you cannot name one, say so in ambiguities.
 
-6. FLAG AMBIGUITY, DO NOT GUESS IT AWAY. "The Cardinals" is two teams. "Next winter" depends on hemisphere. "The election" needs a year. Put each one in ambiguities as a direct question for the user. Still fill in your best reading of the other fields.
+6. FLAG AMBIGUITY, DO NOT GUESS IT AWAY. "The Cardinals" is two teams. "Next winter" depends on hemisphere. "The election" needs a year. Put each one in ambiguities as a direct question for the user. Still fill in your best reading of the other fields, and write the criteria for that one reading: a criterion never contains "or", "depending on", or a parenthetical alternative. A hedge inside a criterion is an ambiguity that got frozen; the question box is where the alternative goes.
 
 7. VERIFIABILITY IS HONEST. Mark "manual" when no public source would report the outcome: private life, personal relationships, anything about the user's own household or neighbors. Also lean manual when no public record would carry the outcome (obscure sports statistics, niche hobbyist outcomes) and say so in verifiability_reasoning. Local weather is searchable: official station records are public.
 
