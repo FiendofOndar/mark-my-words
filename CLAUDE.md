@@ -142,9 +142,15 @@ capability by adding a port, not a branch.
   once beat `text-ground` on every button in the app.
 - **Never rasterize a `position: fixed` element.** html-to-image clones into an
   SVG `foreignObject`, where a fixed root is out of flow and renders nothing.
-- **Fonts are self-hosted** (`public/fonts`). Not only for offline launch: a
-  `foreignObject` cannot reach an external font, so receipts rasterized with
-  remote faces silently come out in a fallback.
+- **Fonts are self-hosted** (`public/fonts`), and the receipt inlines them.
+  Not only for offline launch: a `foreignObject` cannot reach an external font,
+  so receipts rasterized with remote faces silently come out in a fallback.
+  Self-hosting alone was not enough: `useReceipt` once handed html-to-image the
+  stylesheet text as `fontEmbedCSS`, which the library inserts verbatim, and a
+  `url(./face.woff2)` cannot load inside the SVG image either. Every card
+  rendered in a system face for months and nobody could tell, until the
+  condensed display face arrived and the stamp overflowed its own box.
+  `getFontEmbedCSS` is what turns each face into a data URL.
 - **Timestamps tie.** Two rows written in one transaction routinely share a
   millisecond. Order by `ran_at DESC, rowid DESC`, never by the timestamp alone.
 - **A failed check must not consume the cadence slot**, or one bad key pushes
