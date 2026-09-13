@@ -103,25 +103,38 @@ function tierPoints(sources: SourceAssessment[]): number {
  * source is fake. `unreachable` means the URL did not resolve at all, which is
  * the signature of a model inventing a citation.
  */
+/**
+ * How much confirmed corroboration the app found for itself.
+ *
+ * Counted, not averaged. This was a ratio, which punished a model for showing
+ * its work: four citations with two confirmed scored 8, where the same two
+ * cited alone scored 20. Adding a source that later went stale could only ever
+ * lower the score, which is the opposite of what citing more sources means.
+ *
+ * Volume is already paid for by `independentSources`. What this line is for is
+ * whether the app could stand up any of it without taking the model's word,
+ * and two independent publishers confirmed on the page is a real answer to
+ * that however many extra links came along.
+ */
 function validationPoints(sources: SourceAssessment[]): number {
   if (sources.length === 0) return 0;
+
+  // A URL that does not resolve is the signature of an invented citation, and
+  // it poisons the set: nothing here is trustworthy if one of them is fiction.
   if (sources.some((s) => s.fetchStatus === 'unreachable')) return 0;
 
-  const ok = sources.filter((s) => s.fetchStatus === 'ok').length;
-  if (ok === sources.length) return 20;
-  if (ok * 2 > sources.length) return 12;
-  if (ok > 0) return 8;
+  const confirmed = countIndependentSources(sources.filter((s) => s.fetchStatus === 'ok'));
+  if (confirmed >= 2) return 20;
+  if (confirmed === 1) return 12;
 
   /*
-   * Nothing confirmed, but every page was read. That is weak evidence, not no
-   * evidence: the signature of an invented citation is a URL that does not
-   * exist, and these all served content. Live pages rewrite themselves between
-   * the model reading them and the app fetching them minutes later, so a
-   * forecast page that has rolled over to tomorrow should not score the same as
-   * a fabrication.
+   * Nothing confirmed, but every page was read. Weak evidence, not no evidence:
+   * these all served content. Live pages rewrite themselves between the model
+   * reading them and the app fetching them minutes later, so a forecast page
+   * that has rolled over should not score the same as a fabrication.
    *
-   * `blocked` earns nothing even here, because it means the page was never
-   * read at all, and in the browser it cannot be told apart from a dead host.
+   * `blocked` earns nothing even here, because the page was never read at all,
+   * and in the browser it cannot be told apart from a dead host.
    */
   if (sources.every((s) => s.fetchStatus === 'quote_not_found')) return 4;
   return 0;

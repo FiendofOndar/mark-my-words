@@ -176,8 +176,12 @@ describe('url validation', () => {
     expect(result.decision).not.toBe('auto_resolve');
   });
 
-  it('gives half credit when most sources validated', () => {
-    const result = scoreCheck(
+  it('pays for confirmed corroboration, not for the ratio', () => {
+    // Two publishers confirmed on the page is the same answer to "could the app
+    // stand any of this up itself" whether or not a third link went stale. As a
+    // ratio this scored less than the same two cited alone, which punished the
+    // model for showing its work.
+    const twoOfThree = scoreCheck(
       input({
         sources: [
           source({ publisher: 'AP' }),
@@ -186,7 +190,38 @@ describe('url validation', () => {
         ],
       }),
     );
+    const twoAlone = scoreCheck(
+      input({ sources: [source({ publisher: 'AP' }), source({ publisher: 'Reuters' })] }),
+    );
+    expect(twoOfThree.breakdown.urlValidation).toBe(20);
+    expect(twoOfThree.breakdown.urlValidation).toBe(twoAlone.breakdown.urlValidation);
+  });
+
+  it('does not count one publisher twice as corroboration', () => {
+    // Two NWS pages are one source confirmed, not two, the same way the
+    // independent-source count treats them.
+    const result = scoreCheck(
+      input({
+        sources: [
+          source({ publisher: 'National Weather Service', url: 'https://weather.gov/a' }),
+          source({ publisher: 'National Weather Service', url: 'https://weather.gov/b' }),
+        ],
+      }),
+    );
     expect(result.breakdown.urlValidation).toBe(12);
+  });
+
+  it('still refuses everything when one citation did not resolve', () => {
+    const result = scoreCheck(
+      input({
+        sources: [
+          source({ publisher: 'AP' }),
+          source({ publisher: 'Reuters' }),
+          source({ publisher: 'Nowhere', fetchStatus: 'unreachable' }),
+        ],
+      }),
+    );
+    expect(result.breakdown.urlValidation).toBe(0);
   });
 
   it('gives a little credit when every page was read but nothing was quoted back', () => {
