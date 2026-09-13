@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { MIN_SCORED_TO_RANK, formatHeadline, formatRate, formatRecord, tallyRecord } from './scoring';
+import {
+  MIN_SCORED_TO_RANK,
+  compareStandings,
+  emptyRecord,
+  formatHeadline,
+  formatRate,
+  formatRecord,
+  tallyRecord,
+  type AuthorRecord,
+} from './scoring';
 import { makePrediction } from './fixtures';
 
 const of = (status: Parameters<typeof makePrediction>[0] extends never ? never : string, extra = {}) =>
@@ -79,5 +88,31 @@ describe('author record', () => {
 
   it('headlines a record rather than "--" when nothing has settled', () => {
     expect(formatHeadline(tallyRecord([of('open')]))).toBe('0-0');
+  });
+});
+
+describe('standings order', () => {
+  const rec = (over: Partial<AuthorRecord>): AuthorRecord => ({ ...emptyRecord(), ...over });
+
+  it('orders the unranked by progress toward a rank, never by rate', () => {
+    // 1-0 is a perfect rate and one settled call; 1-1-1 is three. The
+    // five-call rule refuses to print the rate; the order must not imply it.
+    const rows = [
+      { name: 'Popops', record: rec({ hit: 1, scored: 1, rate: 1 }) },
+      { name: 'Me', record: rec({ hit: 1, miss: 1, partial: 1, scored: 3, rate: 0.5 }) },
+      { name: 'CNN', record: rec({ open: 1 }) },
+      { name: 'Liz', record: rec({ open: 3 }) },
+    ].sort(compareStandings);
+    expect(rows.map((r) => r.name)).toEqual(['Me', 'Popops', 'Liz', 'CNN']);
+  });
+
+  it('orders the ranked by rate, then by how much the rate rests on', () => {
+    const rows = [
+      { name: 'A', record: rec({ scored: 6, rate: 0.5, ranked: true }) },
+      { name: 'B', record: rec({ scored: 12, rate: 0.5, ranked: true }) },
+      { name: 'C', record: rec({ scored: 5, rate: 0.8, ranked: true }) },
+      { name: 'D', record: rec({ scored: 2, rate: 1 }) },
+    ].sort(compareStandings);
+    expect(rows.map((r) => r.name)).toEqual(['C', 'B', 'A', 'D']);
   });
 });

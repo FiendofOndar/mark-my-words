@@ -7,7 +7,7 @@ import { sortByHeat, type HeatInput } from '../domain/heat';
 import { checkedButUnsettled, isPastDeadline, criteriaMarksFor } from '../domain/prediction';
 import type { PredictionPatch } from '../domain/prediction';
 import type { NewPrediction } from '../data/repositories/predictionRepo';
-import { tallyRecord, type AuthorRecord } from '../domain/scoring';
+import { compareStandings, tallyRecord, type AuthorRecord } from '../domain/scoring';
 import { confirmDraft, markLateHit, resolve } from '../domain/prediction';
 import { snoozePrompt } from '../domain/notifications';
 import { createVerifier } from '../verification/registry';
@@ -250,10 +250,12 @@ export function useStandings() {
         // after deleting someone's only prediction.
         .filter(({ predictions }) => predictions.length > 0)
         .map(({ author, predictions }) => ({ author, record: tallyRecord(predictions) }))
-        .sort((a, b) => {
-          if (a.record.ranked !== b.record.ranked) return a.record.ranked ? -1 : 1;
-          return (b.record.rate ?? -1) - (a.record.rate ?? -1);
-        });
+        .sort((a, b) =>
+          compareStandings(
+            { name: a.author.displayName, record: a.record },
+            { name: b.author.displayName, record: b.record },
+          ),
+        );
     },
   });
 }
