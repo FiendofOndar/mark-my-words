@@ -910,6 +910,38 @@ Apple's own pages fetched unless marked).
 | TestFlight | Internal up to 100, external up to 10,000; the first external build goes through Beta App Review; builds expire after 90 days | Hoop | fetched |
 | Age rating | New tiers 4+, 9+, 13+, 16+, 18+; questionnaire mandatory since 2026-01-31; see 2.10 for how this app should answer | Risk, see 2.10 | fetched |
 
+**Apple enrollment, in order.** The owner decided on 2026-09-13 to start
+now, ahead of the app being ready, because of the reported delays. Every
+step here is personal (legal name, ID, card, SSN, bank) and can only be
+done by the owner; the project's part is to have the pieces ready when the
+account opens. Sources are the rows above.
+
+1. **The account.** A personal Apple Account, in the legal name (an alias
+   is a documented delay), two-factor on, a personal credit card, a street
+   address (not a P.O. box). Nothing Encompass-associated anywhere: the
+   legal name becomes the public seller name.
+2. **Enroll** at developer.apple.com/programs/enroll as an Individual, or
+   through the Apple Developer app on the phone if Apple asks for a photo
+   ID. $99. If no confirmation in 24 hours, Apple says contact them; the
+   2026 forum pattern is that a stalled enrollment moves when you ask Apple
+   to call you.
+3. **While it is pending, gather the EU trader details.** A P.O. box
+   (Apple accepts one for display, with "a receipt or bill" showing the
+   association), a phone number that can receive a verification code, and
+   an email, all three of which will be published on the EU product page.
+   Whether a virtual-mailbox receipt is accepted could not be verified;
+   a USPS box is the safe answer. Price not researched.
+4. **Once approved:** sign the Paid Apps Agreement; complete the W-9
+   (Social Security Number); enter banking in the enrolled name exactly;
+   enroll in the Small Business Program (15 percent is not automatic);
+   enter the Digital Services Act trader information; create an App Store
+   Connect API team key for the CI runner.
+5. **Play, in parallel.** $25, identity verification, and the closed test
+   (12 testers, 14 days) can all start before the iOS build exists. Play
+   has a Digital Services Act trader declaration of its own for the EU;
+   the requirement is from memory and the search this session, and its
+   exact fields should be read in the Play Console when the account opens.
+
 **Capacitor plugins on iOS** (plugin documentation, fetched from the
 plugins' repositories).
 
@@ -1301,10 +1333,17 @@ Ordered by how much of the plan rests on them.
    the current guidelines. This app should never be classified that way
    (2.10), so the question only matters if a reviewer disagrees.
 0d. **Whether the `stakes` field stays in the store build, and under what
-   label.** Owner's call (2.10).
-0e. **EU availability.** Declare trader status (publishing a P.O. box, a
-   phone and an email) or exclude the EU storefronts. Owner's call; either
-   is allowed.
+   label.** Recommendation: keep it as free text, relabel the form field
+   from "Stakes" to "Riding on it" (the detail screen's own phrasing), use
+   the same words on the receipt, and give the field a placeholder that
+   steers to a sentence rather than an amount. The field is already free
+   text with no currency formatting, shown as a pill on the feed, a line
+   on the detail screen and a line on the receipt; dropping it would lose a
+   spec feature for little gain, and the label change is three lines on
+   the main branch. Awaiting the owner's yes.
+0e. **EU availability.** Decided 2026-09-13: declare trader status and
+   release to the EU storefronts from the start (section 10). The open
+   part is which address to publish; see the enrollment steps in 4.1a.
 0f. **The outcome of the one documented BYOK rejection under 3.1.1.** Apple
    said it was investigating; nothing further was posted. No case was found
    of a BYOK app rejected under 3.1.1 and then approved after a specific
@@ -1430,3 +1469,5 @@ new evidence; section 8 items 0 and 0a are the evidence that would.
 | Paid download | No | Kills discovery and the receipt loop; invites the "paid and it wants a Google key" review |
 | The one purchase | A one-time supporter unlock around $4.99 for non-core features | One-time, keeps the app free to try, converts better than a subscription paywall by benchmark, covers fixed costs at a few dozen a year |
 | Comfort with cost | Watch the pool monthly; act deliberately when it runs out early | Section 6, monthly |
+| Apple enrollment timing | Start now, before the iOS build exists | 2026 forum reports of individual enrollments stuck for weeks to months; the account, the agreements and the trader details are on the critical path and none of them need the app |
+| EU storefronts | Declare trader status and release to the EU from the start | Owner's call on 2026-09-13; the cost is a published P.O. box, phone and email |

@@ -47,9 +47,11 @@ the chat; the durable version is `VIABILITY.md`.
 
 ## Open questions the owner has to answer (collect, do not decide)
 
-- `stakes` field in the store build: keep, rename, or drop (2.10, 8.0d).
-- EU: declare trader status or exclude the EU storefronts (8.0e).
-- Whether to start the Apple enrollment now, given the reported delays.
+- `stakes` field in the store build: the recommendation (keep, relabel to
+  "Riding on it", sentence placeholder) is in `VIABILITY.md` 8.0d and
+  awaits a yes. Decided on 2026-09-13: EU trader status yes; Apple
+  enrollment starts now (`VIABILITY.md` section 10; the ordered steps are
+  in 4.1a).
 
 ## What is next on this branch after the Apple work
 
