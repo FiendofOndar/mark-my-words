@@ -56,6 +56,14 @@ export interface RubricResult {
 export const AUTO_RESOLVE_AT = 95;
 export const QUEUE_AT = 80;
 
+/**
+ * Below this the model is telling you it is torn, and the prompt's own anchors
+ * say so: 70-89 is "the verdict is right as far as you can tell", 40-69 is
+ * "genuinely torn". Being told the answer is uncertain is a reason to ask a
+ * person, which is the one place self-reported confidence is worth acting on.
+ */
+export const CONFIDENT_AT = 70;
+
 const TIER_POINTS: Record<SourceTier, number> = {
   primary: 25,
   major_outlet: 18,
@@ -192,31 +200,33 @@ export function scoreCheck(input: RubricInput): RubricResult {
   const gates = collectGates(input, independent);
 
   /*
-   * The cap governs automation, not whether the user hears about it.
+   * The verdict decides. The score describes.
    *
-   * Model confidence can only ever lower the score, which is right. But the
-   * band is twenty points, so a model reporting 43 caps everything at 63, and
-   * nothing can reach the approval queue below 80. That let a model's own
-   * humility silently bury evidence the app had verified for itself: four
-   * sources, three publishers, two quotes confirmed on the page, a primary
-   * outlet, an unambiguous observed value well outside the claim, filed as "no
-   * change" because the model was unsure of itself.
+   * This used to require the score to clear 95 before acting, which meant the
+   * app could get the right answer and refuse to use it: a correct miss was
+   * filed as "no change" because two cited pages had been rewritten since the
+   * model read them and a third URL 404'd. That score measures whether the
+   * citations check out. It was being read as though it measured whether the
+   * answer is right, and those are different questions.
    *
-   * A model that is unsure is exactly when a person should be asked. So the
-   * capped score still gates auto-resolution, and the evidence the app checked
-   * itself is enough to put it in front of someone.
+   * So the score is now information on the check log, and two things still
+   * stand between a verdict and the record:
+   *
+   *   - a gate, which is something the app actively noticed was wrong (a dead
+   *     link, a source older than the claim, one lone source, a verdict that is
+   *     not decisive, or the user asking to judge this one themselves)
+   *   - the model saying it is unsure
+   *
+   * Either of those asks the user rather than acting. Neither buries the
+   * finding: `hold` is now reachable only for a check that resolved nothing.
    */
-  const canQueue = breakdown.score >= QUEUE_AT || breakdown.evidenceTotal >= QUEUE_AT;
+  const unsure = input.modelConfidence !== null && input.modelConfidence < CONFIDENT_AT;
   const decision =
-    gates.length > 0
-      ? canQueue
+    input.proposedVerdict === 'no_change'
+      ? 'hold'
+      : gates.length > 0 || unsure
         ? 'queue'
-        : 'hold'
-      : breakdown.score >= AUTO_RESOLVE_AT
-        ? 'auto_resolve'
-        : canQueue
-          ? 'queue'
-          : 'hold';
+        : 'auto_resolve';
 
   return { score: breakdown.score, breakdown, gates, decision };
 }

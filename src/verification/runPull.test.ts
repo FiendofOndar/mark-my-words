@@ -198,9 +198,9 @@ describe('a pull', () => {
     expect(retry.resolved).toBe(1);
   });
 
-  it('queues a verdict the rubric will not settle on its own', async () => {
+  it('queues a verdict the model itself is unsure of', async () => {
     const prediction = addPrediction();
-    const verifier = new ScriptedVerifier(() => hitResult(70));
+    const verifier = new ScriptedVerifier(() => hitResult(55));
 
     const summary = await runPull(db, { verifier, fetcher: echoFetcher }, { minGapMs: 0 });
 

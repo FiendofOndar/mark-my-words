@@ -155,13 +155,13 @@ describe('a check that should not decide anything', () => {
     expect(plan.predictionPatch!.status).toBeUndefined();
   });
 
-  it('holds a verdict propped up by one thin source', async () => {
+  it('asks about a verdict propped up by one thin source rather than burying it', async () => {
     const plan = await runCheck(
       deps(result({ sources: [citedSource({ tier: 'social' })], modelConfidence: 30 })),
       ctx(makePrediction()),
     );
-    expect(plan.outcome).toBe('no_change');
-    expect(plan.message).toMatch(/thin/i);
+    expect(plan.outcome).toBe('queued');
+    expect(plan.rubric!.gates.join(' ')).toMatch(/one independent source/i);
   });
 
   it('never auto-resolves a prediction the user reserved for themselves', async () => {
@@ -174,13 +174,19 @@ describe('a check that should not decide anything', () => {
 });
 
 describe('source validation feeds the decision', () => {
-  it('refuses to auto-resolve when a cited page does not carry the quote', async () => {
+  it('still resolves when the quote has moved but the pages are real', async () => {
+    // The live-page case, and the one that drove this change. A forecast page
+    // rewrites itself between the model reading it and the app fetching it
+    // minutes later, so the quote is genuinely gone. That says nothing about
+    // whether the verdict is right, and it used to block it anyway.
     const plan = await runCheck(
       deps(result(), new StubFetcher(() => ({ kind: 'ok', text: 'Unrelated page content.' }))),
       ctx(makePrediction()),
     );
     expect(plan.sources.every((s) => s.fetchStatus === 'quote_not_found')).toBe(true);
-    expect(plan.outcome).not.toBe('resolved');
+    expect(plan.outcome).toBe('resolved');
+    // It still costs points, so the log says the app could not stand it up.
+    expect(plan.rubric!.breakdown.urlValidation).toBe(4);
   });
 
   it('treats an unreachable citation as a reason to stop', async () => {
@@ -192,15 +198,27 @@ describe('source validation feeds the decision', () => {
     expect(plan.rubric!.gates.join(' ')).toMatch(/invented/i);
   });
 
-  it('queues rather than resolves when sources could not be read at all', async () => {
-    // The browser case. Blocked is not proof of a bad citation, so the check
-    // still counts, it just never decides on its own.
-    const plan = await runCheck(
+  it('resolves when sources could not be read at all, since that accuses nobody', () => {
+    // The browser case: CORS stops the app reading the page. Blocked is not
+    // proof of a bad citation, so it scores nothing and gates nothing.
+    return runCheck(
       deps(result({ modelConfidence: 100 }), new StubFetcher(() => ({ kind: 'blocked' }))),
+      ctx(makePrediction()),
+    ).then((plan) => {
+      expect(plan.outcome).toBe('resolved');
+      expect(plan.rubric!.gates).toEqual([]);
+    });
+  });
+
+  it('never resolves on a citation that did not resolve', async () => {
+    // The one guard that survives: a dead URL is the signature of an invented
+    // source, and no amount of confidence gets past it.
+    const plan = await runCheck(
+      deps(result({ modelConfidence: 100 }), new StubFetcher(() => ({ kind: 'unreachable' }))),
       ctx(makePrediction()),
     );
     expect(plan.outcome).toBe('queued');
-    expect(plan.rubric!.gates).toEqual([]);
+    expect(plan.rubric!.gates.join(' ')).toMatch(/invented citations/i);
   });
 });
 

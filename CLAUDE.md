@@ -8,7 +8,7 @@ reasoning, including the ones that look arbitrary.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 300 tests, all of them fast
+npm test           # 312 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -97,14 +97,23 @@ is for.
   the same eight predictions came back in a different order on every load.
 - **A late hit never changes the verdict.** The timeframe was part of the claim,
   so a miss stays a miss and earns a badge instead.
+- **The verdict decides. The score describes.** The rubric measures whether the
+  citations check out, and it was being read as though it measured whether the
+  answer is right. Those are different questions, and requiring 95/100 of the
+  first meant the app could get a correct miss and file it as "no change"
+  because two pages had been rewritten since the model read them. The score is
+  information on the check log now. Only two things stand between a verdict and
+  the record: a gate, and the model reporting confidence under `CONFIDENT_AT`.
+  Both ask the user; neither buries the finding.
+- **A dead citation is the one guard that still blocks.** A URL that does not
+  resolve is the signature of an invented source. `quote_not_found` and
+  `blocked` cost points and gate nothing, because a live page rewriting itself
+  between the model reading it and the app fetching it says nothing about
+  whether the verdict is right. Watched that happen three times out of three.
+- **`hold` is only for a check that resolved nothing.** A verdict the app cannot
+  act on is still a verdict somebody should see.
 - **Model confidence can only lower the score, never raise it.** The score is
   computed by the app from evidence the app verified itself.
-- **The confidence cap governs automation, not whether the user is told.** The
-  band is twenty points, so a model reporting 43 caps everything at 63 and
-  nothing under 80 reaches the queue. That let a model's own humility bury a
-  finding the app had verified: four sources, two quotes confirmed, an observed
-  value nowhere near the claim, filed as "no change". `canQueue` reads the
-  uncapped `evidenceTotal` as well. An unsure model still cannot auto-resolve.
 - **The seed writes checks that look exactly like real ones.** `provider:
   'demo'`, example.com URLs under real wire-service names, `fetchStatus: 'ok'`
   hardcoded so the app says "quote verified" for a page it never fetched, and a

@@ -112,7 +112,9 @@ describe('model confidence is a cap, not a bonus', () => {
       }),
     );
     expect(result.score).toBeLessThan(QUEUE_AT);
-    expect(result.decision).toBe('hold');
+    // A thin score no longer buries the finding. One lone social source is a
+    // gate, so this asks rather than acting.
+    expect(result.decision).toBe('queue');
   });
 
   it('pulls a perfect evidence score down when the model is unsure', () => {
@@ -157,7 +159,7 @@ describe('model confidence is a cap, not a bonus', () => {
       }),
     );
     expect(result.breakdown.evidenceTotal).toBeLessThan(QUEUE_AT);
-    expect(result.decision).toBe('hold');
+    expect(result.decision).toBe('queue');
   });
 });
 
@@ -257,9 +259,12 @@ describe('url validation', () => {
       input({ sources: input().sources.map((s) => ({ ...s, fetchStatus: 'blocked' as const })) }),
     );
     expect(result.breakdown.urlValidation).toBe(0);
+    // Nothing the app noticed contradicts the verdict: the pages simply would
+    // not open. A bot wall is not evidence that a citation was invented, so it
+    // costs points on the log without standing in the way of a clear answer.
     expect(result.gates).toEqual([]);
     expect(result.score).toBe(80);
-    expect(result.decision).toBe('queue');
+    expect(result.decision).toBe('auto_resolve');
   });
 });
 
@@ -325,11 +330,14 @@ describe('hard gates', () => {
     expect(result.gates.join(' ')).toMatch(/yourself/i);
   });
 
-  it('holds rather than queues a gated result that also scored badly', () => {
+  it('asks rather than burying a gated result that also scored badly', () => {
+    // `hold` used to swallow this entirely. A verdict the app cannot act on is
+    // still a verdict somebody should see.
     const result = scoreCheck(
       input({ sources: [source({ tier: 'social' })], coverage: 'inferred', modelConfidence: 40 }),
     );
-    expect(result.decision).toBe('hold');
+    expect(result.decision).toBe('queue');
+    expect(result.gates.length).toBeGreaterThan(0);
   });
 
   it('treats no_change as nothing to decide', () => {
@@ -341,7 +349,7 @@ describe('hard gates', () => {
   it('scores zero across the board when nothing was cited', () => {
     const result = scoreCheck(input({ sources: [], coverage: 'none' }));
     expect(result.score).toBe(0);
-    expect(result.decision).toBe('hold');
+    expect(result.decision).toBe('queue');
     expect(result.gates.join(' ')).toMatch(/no sources/i);
   });
 });
