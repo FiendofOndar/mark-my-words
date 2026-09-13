@@ -257,6 +257,32 @@ describe('check', () => {
       'super bowl lix final score',
       'eagles chiefs 2025',
     ]);
+    expect(result.providerNote).toBeNull();
+  });
+
+  it('puts the raw grounding metadata on the record when no search count arrives', async () => {
+    // Every real check so far came back without webSearchQueries, and the
+    // field name was guessed once already. Show what arrived instead.
+    const fetchImpl = vi.fn(async (..._args: FetchArgs) =>
+      new Response(
+        JSON.stringify({
+          candidates: [
+            {
+              content: { parts: [{ text: CHECK_JSON }] },
+              finishReason: 'STOP',
+              groundingMetadata: { groundingChunks: [{ web: { uri: 'https://x' } }] },
+            },
+          ],
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      ),
+    );
+
+    const result = await verifier(fetchImpl as never).check(CHECK_INPUT);
+    expect(result.searchQueries).toBeNull();
+    expect(result.providerNote).toMatch(/No webSearchQueries/);
+    expect(result.providerNote).toMatch(/Candidate keys: content, finishReason, groundingMetadata/);
+    expect(result.providerNote).toMatch(/groundingChunks/);
   });
 
   it('reports nothing rather than none when the provider does not say', async () => {

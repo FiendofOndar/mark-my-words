@@ -55,7 +55,7 @@ interface GeminiResponse {
   candidates?: {
     content?: { parts?: { text?: string }[] };
     finishReason?: string;
-    groundingMetadata?: { webSearchQueries?: string[] };
+    groundingMetadata?: { webSearchQueries?: string[] } & Record<string, unknown>;
   }[];
   usageMetadata?: { totalTokenCount?: number };
   promptFeedback?: { blockReason?: string };
@@ -169,12 +169,15 @@ export class GeminiVerifier implements Verifier {
       );
     }
 
+    const queries = response.candidates?.[0]?.groundingMetadata?.webSearchQueries;
+
     return {
       ...parsed.value,
       provider: this.providerId,
       model: this.modelId,
       tokensUsed: response.usageMetadata?.totalTokenCount ?? null,
-      searchQueries: response.candidates?.[0]?.groundingMetadata?.webSearchQueries ?? null,
+      searchQueries: queries?.length ? queries : null,
+      providerNote: queries?.length ? null : describeMissingGrounding(response),
     };
   }
 
@@ -313,6 +316,30 @@ export class GeminiVerifier implements Verifier {
 
     return (await response.json()) as GeminiResponse;
   }
+}
+
+/**
+ * What came back instead of a search count.
+ *
+ * Every real check so far has reported no `webSearchQueries`, and the shape
+ * this reads was written from memory. Rather than guess a second time, the
+ * response's own structure goes on the check log: which keys the candidate
+ * carries, and the grounding metadata as served, trimmed. One look at a real
+ * one is worth more than another round of the documentation.
+ */
+function describeMissingGrounding(response: GeminiResponse): string {
+  const candidate = response.candidates?.[0];
+  const metadata = candidate?.groundingMetadata;
+  const trimmed = (value: unknown, max = 3000) => {
+    const text = JSON.stringify(value) ?? 'undefined';
+    return text.length > max ? `${text.slice(0, max)}… (${text.length} chars)` : text;
+  };
+  return [
+    'No webSearchQueries in the grounding metadata, so this check is not counted against the search budget.',
+    `Response keys: ${Object.keys(response).join(', ') || 'none'}.`,
+    `Candidate keys: ${candidate ? Object.keys(candidate).join(', ') : 'no candidate'}.`,
+    `groundingMetadata: ${metadata === undefined ? 'absent' : trimmed(metadata)}`,
+  ].join('\n');
 }
 
 function kindForStatus(status: number): VerifierError['kind'] {

@@ -144,6 +144,7 @@ export async function runCheck(deps: CheckDeps, ctx: CheckContext): Promise<Chec
     outcome,
     tokensUsed: result.tokensUsed,
     searchQueries: result.searchQueries ?? null,
+    errorMessage: result.providerNote ?? null,
     evidence: sources.map((s) => ({
       url: s.url,
       title: s.title,
