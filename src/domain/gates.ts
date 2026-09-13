@@ -129,13 +129,23 @@ function collectGates(input: AssessmentInput): string[] {
     gates.push('No cited source resolved, which is how invented citations look.');
   }
 
-  // A name the host cannot support. Dressing a blog up as a wire service is the
-  // cheapest way to make weak evidence look strong, and it costs nothing to
-  // check against a domain the app already recognises.
+  /*
+   * A name the host cannot support, and the same rule as the dead links: the
+   * gate fires when nothing else stands, not when one thing does not.
+   *
+   * This used to fire on any single mislabelled citation. The one time it
+   * fired for real, the model had cited a YouTube page as ESPN beside two
+   * confirmed pages on mlb.com and Wikipedia, and a correct verdict carried by
+   * those two was held for the label on the third. The label cannot make weak
+   * evidence look strong any more, since the tier and the independence count
+   * both come from the domain; what it can still do is mislead the person
+   * reading the row, and the row now says so beside it.
+   */
   const misnamed = input.sources.filter((s) => publisherMismatch(s.url, s.publisher));
-  if (misnamed.length > 0) {
+  const cleanAndReachable = resolved.filter((s) => !publisherMismatch(s.url, s.publisher));
+  if (misnamed.length > 0 && cleanAndReachable.length === 0) {
     gates.push(
-      `A source is credited to ${misnamed[0]!.publisher}, which is not whose site it is on.`,
+      `A source is credited to ${misnamed[0]!.publisher}, which is not whose site it is on, and nothing else stands.`,
     );
   }
 

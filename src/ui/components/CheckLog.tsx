@@ -1,7 +1,7 @@
 import type { Check, Evidence, FetchStatus, PredictionStatus } from '../../domain/types';
 import type { CheckLogEntry } from '../queries';
 import { STATUS_LABEL, formatDate } from '../../domain/format';
-import { registrableDomain } from '../../domain/sources';
+import { publisherMismatch, registrableDomain } from '../../domain/sources';
 import { Pill } from './Stamp';
 import { Bullets } from './Bullets';
 
@@ -258,7 +258,16 @@ function EvidenceRow({ source }: { source: Evidence }) {
             layer exists to catch: a citation labelled "AP" sitting on
             example.com read as a real wire report. */}
         {host(source.url) && (
-          <p className="text-[11px] text-ink-faint">{host(source.url)}</p>
+          <p className="text-[11px] text-ink-faint">
+            {host(source.url)}
+            {/* The one thing the label can still do is mislead the reader. */}
+            {publisherMismatch(source.url, source.publisher) && (
+              <span className="text-partial">
+                {' '}
+                &middot; credited to {source.publisher}, which is not whose site this is
+              </span>
+            )}
+          </p>
         )}
         {source.quotedText && (
           <p className="mt-0.5 line-clamp-2 font-display text-[13px] text-ink-faint italic">

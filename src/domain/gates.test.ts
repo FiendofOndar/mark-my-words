@@ -170,8 +170,10 @@ describe('gates', () => {
     expect(result.gates).toEqual([]);
   });
 
-  it('flags a publisher name the host cannot support', () => {
-    const result = assessCheck(
+  it('gates on a publisher name the host cannot support only when nothing else stands', () => {
+    // The Dodgers check: a YouTube page labelled ESPN beside two real,
+    // reachable pages. The two carry the verdict; the label is noted, not gated.
+    const carried = assessCheck(
       input({
         sources: [
           source({ url: 'https://m.youtube.com/watch?v=1', publisher: 'ESPN' }),
@@ -180,7 +182,22 @@ describe('gates', () => {
         ],
       }),
     );
-    expect(result.gates.join(' ')).toMatch(/credited to ESPN/);
+    expect(carried.gates).toEqual([]);
+
+    const alone = assessCheck(
+      input({ sources: [source({ url: 'https://m.youtube.com/watch?v=1', publisher: 'ESPN' })] }),
+    );
+    expect(alone.gates.join(' ')).toMatch(/credited to ESPN/);
+
+    const withDeadCompany = assessCheck(
+      input({
+        sources: [
+          source({ url: 'https://m.youtube.com/watch?v=1', publisher: 'ESPN' }),
+          source({ url: 'https://reuters.com/a', publisher: 'Reuters', fetchStatus: 'unreachable' }),
+        ],
+      }),
+    );
+    expect(withDeadCompany.gates.join(' ')).toMatch(/credited to ESPN/);
   });
 
   it('gates when nothing cited postdates the prediction, and only then', () => {
