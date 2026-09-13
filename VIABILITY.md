@@ -425,6 +425,57 @@ business rests on, and today its value is "two, both caught by hand".
 
 ---
 
+### 2.10 The word "bet", and the individual-account gambling rule
+
+Researched 2026-09-13 (Apple pages fetched unless marked). This is the one
+App Store risk found so far that could stop the listing outright rather
+than cost a round of review.
+
+**The rule.** Guideline 5.3 as published covers real-money gaming,
+sweepstakes and lotteries, and says nothing about apps that record a wager
+between friends. But Apple's age-rating questionnaire (fetched) defines
+"Simulated Gambling" as "betting or wagering without using real money",
+rates it 13+ when infrequent and 18+ when frequent, and a notice Apple sent
+developers in 2018, quoted in its own forums and applied to a dice app with
+no currency in 2020 (both threads fetched), said gambling apps, "including
+apps that simulate a gambling experience", would only be accepted from
+"verified accounts from incorporated business entities", not individual
+developers. That sentence is not in the current guidelines and its 2026
+status could not be verified. WagerLab, the closest live comparable, is
+rated 18+ for "Frequent Simulated Gambling" (snippet).
+
+**Where this app stands.** The product is a ledger of predictions, and the
+code says so: "prediction" throughout, "stakes" as an optional free-text
+field, and the word "bet" eight times in `src/`, all but one in comments
+(the one is a seeded statement; counted this session). No money is handled,
+no odds, no counterparties, no payout. The honest age-rating answer is
+"Contests" (users compete for rankings, per Apple's definition), infrequent
+or frequent, which rates 4+ or 13+, and "Simulated Gambling: none".
+
+**What to do about it.**
+- Keep gambling vocabulary out of the listing, the screenshots, the
+  keywords and the review notes: predictions, claims, verdicts, standings,
+  receipts. Never "bet", "wager", "odds", "betting" in store copy.
+- Rate honestly as Contests, not Simulated Gambling, and say in the review
+  notes that the app handles no money and no odds and that "stakes" is a
+  free-text note. Guideline 2.3.6 (fetched) says to answer the rating
+  questions honestly, so this is the true answer, not a dodge.
+- Consider whether the `stakes` field earns its place in a store build. It
+  is the only thing on screen a reviewer could point to. Keeping it is
+  defensible; renaming the label ("What's riding on it") changes nothing
+  in substance. Owner's call; recorded as open in section 8.
+- The seeded gutters statement ("I bet the neighbors...") is fine as a
+  user's own words but is the first thing a reviewer sees on a fresh
+  install. Reword the seed or make sure the review build's first screen is
+  the consent flow.
+
+If App Review nonetheless classifies the app as simulated gambling on an
+individual account, the options are an appeal with the definitions above,
+or an LLC, which is a real cost and paperwork the owner has not signed up
+for. It is the reason this item is in section 2 and not section 4.
+
+---
+
 ## 3. Cost structure
 
 ### 3.1 What one check costs
@@ -782,6 +833,26 @@ and must be read on `support.google.com` before it decides anything.
 | AI-generated content labelling | No Apple rule found beyond the 5.1.2(i) consent sentence. Blogs claiming one did not cite Apple text | fetched |
 | Small Business Program | 15 percent for developers under $1M in the prior year; new developers qualify | fetched |
 
+**Apple, the developer side, for a US individual** (researched 2026-09-13;
+Apple's own pages fetched unless marked).
+
+| Requirement | What is needed | Hoop or blocker | Basis |
+|---|---|---|---|
+| Enrollment | $99 a year on a personal credit card; an Apple Account with two-factor on, in the legal name (an alias delays approval); legal name, phone and a street address (no P.O. box); Apple may ask for a photo of government ID | Hoop | fetched |
+| Approval time | Apple publishes none; forum threads from 2026 report individual enrollments pending two weeks to three months, some resolved only by asking Apple to call | Blocker in time, not preventable; start it early | fetched (forum threads) |
+| D-U-N-S number | Organizations only | None | fetched |
+| Public seller name | The individual's legal name is displayed as the seller on every listing; no alias | Hoop; personal account only, never anything work-associated | fetched |
+| Paid Apps Agreement | Must be signed and Active before any in-app purchase can be submitted; Active requires tax and banking complete | Blocker for the unlock until done | fetched |
+| Tax form | W-9 with a Social Security Number for a US individual | Hoop | fetched |
+| Banking | Routing and account number in the enrolled individual's name, entered exactly | Hoop | fetched |
+| Payouts | Within 45 days of the end of the fiscal month; Apple's own threshold page says $0.02 for a US dollar account (the widely repeated $150 was not found on any Apple page) | None | fetched |
+| Small Business Program | 15 percent, but not automatic: enroll after the agreement is Active | Hoop; money left behind if skipped | fetched |
+| EU trader status | Since 2025-02-17 an app with no declared status is removed in the EU. An in-app purchase is Apple's first listed indicator of being a trader. A trader's address or P.O. box, phone and email are published on the EU product page and verified. "Not a trader" keeps the app listed with a consumer-rights notice. | Hoop with a privacy cost; the alternative is to exclude the 27 EU storefronts | fetched |
+| A Mac | Building needs Xcode 26 on macOS 15.6 or 26; since 2026-04-28 uploads must be built with Xcode 26. A rented runner qualifies (GitHub `macos-15`/`macos-26`, Codemagic); upload can go through the App Store Connect API with a team key | Blocker without a Mac or a macOS runner | fetched (Apple, GitHub); Codemagic snippet |
+| A physical iPhone | Not stated as mandatory; Share Extensions run in the Simulator, with device-only failures reported in forums | Hoop | forum threads, fetched |
+| TestFlight | Internal up to 100, external up to 10,000; the first external build goes through Beta App Review; builds expire after 90 days | Hoop | fetched |
+| Age rating | New tiers 4+, 9+, 13+, 16+, 18+; questionnaire mandatory since 2026-01-31; see 2.10 for how this app should answer | Risk, see 2.10 | fetched |
+
 **Capacitor plugins on iOS** (plugin documentation, fetched from the
 plugins' repositories).
 
@@ -1063,6 +1134,8 @@ way `CLAUDE.md` asks for partial work to be reported.
 - The kill switch works (trip it in staging, confirm the client's message).
 - The pool caps in the proxy match what the listing and the key flow say.
 - No key, token or credential in the built APK (grep the bundle).
+- Store copy, screenshots and keywords carry no gambling vocabulary (2.10);
+  the age rating still answers Contests, not Simulated Gambling.
 - Crash reporting reports nothing that identifies a person or quotes a
   prediction.
 - Section 7 updated with the month's numbers.
@@ -1157,6 +1230,15 @@ Ordered by how much of the plan rests on them.
 0b. **Whether a non-consumable in-app purchase for cosmetic and convenience
    features raises any review question on either store.** No rule found
    against it; Apple 3.1.1 requires IAP for it, which the plan uses.
+0c. **Whether Apple still refuses "simulated gambling" apps from individual
+   accounts.** A 2018 notice, applied in 2020, says so; it is absent from
+   the current guidelines. This app should never be classified that way
+   (2.10), so the question only matters if a reviewer disagrees.
+0d. **Whether the `stakes` field stays in the store build, and under what
+   label.** Owner's call (2.10).
+0e. **EU availability.** Declare trader status (publishing a P.O. box, a
+   phone and an email) or exclude the EU storefronts. Owner's call; either
+   is allowed.
 
 1. **Which model family `gemini-flash-latest` resolves to today.** The
    billing schemes themselves are now sourced (3.1, fetched): the 3.x
