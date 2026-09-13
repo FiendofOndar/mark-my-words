@@ -111,7 +111,7 @@ export async function runCheck(deps: CheckDeps, ctx: CheckContext): Promise<Chec
 
   const rubric = scoreCheck({
     sources,
-    coverage: coverageFrom(result.criteriaStatus, ctx.criteria.length),
+    coverage: coverageFrom(result.criteriaStatus, ctx.criteria.length, result.verdict),
     modelConfidence: result.modelConfidence,
     statementDate: p.statementDate,
     // A late-watch check is looking for evidence that by definition postdates

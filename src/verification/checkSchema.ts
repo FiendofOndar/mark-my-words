@@ -146,19 +146,42 @@ export function parseCheckResponse(raw: unknown, criteriaCount: number): CheckPa
 }
 
 /** How well the criteria were actually evidenced, for the rubric. */
+/**
+ * How completely the criteria were actually established, one way or the other.
+ *
+ * This used to count only *satisfied* criteria, which meant a correct miss
+ * could never earn a point of it: a miss is precisely the case where nothing is
+ * satisfied. Fifteen of the hundred were structurally unavailable to every
+ * negative verdict, so misses were systematically harder to settle than hits
+ * on identical evidence. Three real weather checks scored 0 here while
+ * correctly reporting that a 65F day did not reach 85F.
+ *
+ * Establishing that a criterion was NOT met is the same work as establishing
+ * that it was. What matters is whether every criterion got an answer, and
+ * whether those answers rest on something quoted rather than inferred.
+ *
+ * `no_change` keeps the old reading. Nothing has been established yet by
+ * definition, and a check that found nothing should not score as though it had.
+ */
 export function coverageFrom(
   criteriaStatus: CriterionStatus[],
   criteriaCount: number,
+  verdict: CheckVerdict = 'no_change',
 ): 'all_quoted' | 'partial' | 'inferred' | 'none' {
   if (criteriaStatus.length === 0 || criteriaCount === 0) return 'none';
 
-  const satisfied = criteriaStatus.filter((c) => c.satisfied);
-  if (satisfied.length === 0) return 'none';
+  if (verdict === 'no_change') {
+    const satisfied = criteriaStatus.filter((c) => c.satisfied);
+    if (satisfied.length === 0) return 'none';
+    const allSatisfied = satisfied.length === criteriaCount;
+    const allQuoted = satisfied.every((c) => c.basis === 'quoted');
+    if (allSatisfied && allQuoted) return 'all_quoted';
+    if (allSatisfied) return 'inferred';
+    return 'partial';
+  }
 
-  const allSatisfied = satisfied.length === criteriaCount;
-  const allQuoted = satisfied.every((c) => c.basis === 'quoted');
-
-  if (allSatisfied && allQuoted) return 'all_quoted';
-  if (allSatisfied) return 'inferred';
-  return 'partial';
+  const answered = criteriaStatus.filter((c) => c.basis !== 'none');
+  if (answered.length === 0) return 'none';
+  if (answered.length < criteriaCount) return 'partial';
+  return answered.every((c) => c.basis === 'quoted') ? 'all_quoted' : 'inferred';
 }
