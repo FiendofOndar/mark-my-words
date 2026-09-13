@@ -5,7 +5,20 @@
     { "file": "GrainGlass.dc.html", "x": 0, "y": 0, "w": 400, "h": 460 },
     { "file": "EditorialQuote.dc.html", "x": 480, "y": 0, "w": 400, "h": 460 },
     { "file": "CitationNetwork.dc.html", "x": 960, "y": 0, "w": 400, "h": 460 },
-    { "file": "MeshDepth.dc.html", "x": 1440, "y": 0, "w": 400, "h": 460 }
+    { "file": "MeshDepth.dc.html", "x": 1440, "y": 0, "w": 400, "h": 460 },
+
+    { "file": "CombinedSpotlight.dc.html", "x": 0, "y": 0, "w": 360, "h": 680, "page": "page-2" },
+    { "file": "CombinedFullWash.dc.html", "x": 440, "y": 0, "w": 360, "h": 680, "page": "page-2" },
+    { "file": "CombinedFramed.dc.html", "x": 880, "y": 0, "w": 360, "h": 680, "page": "page-2" }
   ],
-  "launch": { "view": "canvas" }
+  "annotations": [
+    { "id": "label-spotlight", "x": 0, "y": -50, "w": 340, "text": "Spotlight — glow only behind the glass panel", "page": "page-2" },
+    { "id": "label-fullwash", "x": 440, "y": -50, "w": 340, "text": "Full Wash — gradient covers the whole card", "page": "page-2" },
+    { "id": "label-framed", "x": 880, "y": -50, "w": 340, "text": "Framed — vignette + grain + gradient-line border", "page": "page-2" }
+  ],
+  "pages": [
+    { "id": "page-1", "name": "Individual motifs" },
+    { "id": "page-2", "name": "Combined options" }
+  ],
+  "launch": { "view": "canvas", "page": "page-2" }
 }
