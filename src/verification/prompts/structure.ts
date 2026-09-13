@@ -9,25 +9,27 @@ Rules that matter:
 
 1. CRITERIA MUST BE CHECKABLE. Each element is one thing a search could confirm or refute, with a threshold where the original was vague. "The AI bubble will crash" is not checkable. "An AI-weighted equity index falls 30% or more from its peak" is. Never restate an adjective as a criterion.
 
-2. PIN THE PLACE AS TIGHTLY AS THE NUMBER. A claim about somewhere specific is only checkable if the criterion says where the reading has to come from. "A National Weather Service station serving Anacortes, WA" has no edge to it: the nearest airport with a climate record is seventy miles away and can be argued to serve anywhere. Name the station, the municipality, or a distance ("within 25 miles of Anacortes, WA"). A local claim settled by a reading from a different city is not settled. The same goes for any claim whose subject is a place: a city, a county, a park, a stadium.
+2. CARRY THE QUALIFIERS. Any word in the statement that narrows the claim has to survive into the criteria or be raised in ambiguities: "rogue" (acting against its orders or programming, not merely autonomous), "first", "officially", "unanimously", "again", "record". Softening a qualifier makes the claim easier than the one that was made, and the person who made it would object to being scored on the easier one. If a qualifier cannot be made checkable, say so in ambiguities rather than dropping it.
 
-3. EVERY CLAIM GETS A HARD DEADLINE, in one of three shapes:
+3. PIN THE PLACE AS TIGHTLY AS THE NUMBER. A claim about somewhere specific is only checkable if the criterion says where the reading has to come from. "A National Weather Service station serving Anacortes, WA" has no edge to it: the nearest airport with a climate record is seventy miles away and can be argued to serve anywhere. Name the station, the municipality, or a distance ("within 25 miles of Anacortes, WA"). A local claim settled by a reading from a different city is not settled. The same goes for any claim whose subject is a place: a city, a county, a park, a stadium.
+
+4. EVERY CLAIM GETS A HARD DEADLINE, in one of three shapes:
    - fixed_date: a single date it must happen by.
    - window: a start and an end, for seasonal or period claims where a hit anywhere inside counts as on time.
    - event: it resolves when some other event occurs rather than on a date. Use this when the claim has no timeframe of its own, and for races ("X before Y"), where race_event_b holds the competing event. Event claims also need a stale_out_date, the point at which an unresolved claim is abandoned. Default five years out.
    Say why you chose that shape and those dates in deadline_reasoning. The user reads it and will often override you.
 
-4. NEGATIVE CLAIMS NEED A DISCONFIRMING TRIGGER. You cannot search for a non-event. If polarity is "negative", disconfirming_trigger must name the single concrete event that, if found, kills the claim. If you cannot name one, say so in ambiguities.
+5. NEGATIVE CLAIMS NEED A DISCONFIRMING TRIGGER. You cannot search for a non-event. If polarity is "negative", disconfirming_trigger must name the single concrete event that, if found, kills the claim. If you cannot name one, say so in ambiguities.
 
-5. FLAG AMBIGUITY, DO NOT GUESS IT AWAY. "The Cardinals" is two teams. "Next winter" depends on hemisphere. "The election" needs a year. Put each one in ambiguities as a direct question for the user. Still fill in your best reading of the other fields.
+6. FLAG AMBIGUITY, DO NOT GUESS IT AWAY. "The Cardinals" is two teams. "Next winter" depends on hemisphere. "The election" needs a year. Put each one in ambiguities as a direct question for the user. Still fill in your best reading of the other fields.
 
-6. VERIFIABILITY IS HONEST. Mark "manual" when no public source would report the outcome: private life, personal relationships, anything about the user's own household or neighbors. Also lean manual when no public record would carry the outcome (obscure sports statistics, niche hobbyist outcomes) and say so in verifiability_reasoning. Local weather is searchable: official station records are public.
+7. VERIFIABILITY IS HONEST. Mark "manual" when no public source would report the outcome: private life, personal relationships, anything about the user's own household or neighbors. Also lean manual when no public record would carry the outcome (obscure sports statistics, niche hobbyist outcomes) and say so in verifiability_reasoning. Local weather is searchable: official station records are public.
 
-7. DATES ARE YYYY-MM-DD. Relative phrases resolve against the given date of today. "In 6 months" from 2026-09-12 is 2027-03-12.
+8. DATES ARE YYYY-MM-DD. Relative phrases resolve against the given date of today. "In 6 months" from 2026-09-12 is 2027-03-12.
 
-8. no_check_before is the earliest date the claim could plausibly resolve. It saves pointless searching. Leave it null when the claim could resolve at any time.
+9. no_check_before is the earliest date the claim could plausibly resolve. It saves pointless searching. Leave it null when the claim could resolve at any time.
 
-9. can_happen_late is whether the claim could still come true AFTER its deadline. "Bitcoin passes $100k before the end of 2024" can happen in 2025, later than promised but still the thing that was called: true. "Anacortes reaches 85F on September 12" and "the Eagles win Super Bowl LIX" are pinned to one day or one event and can never happen on another: false. Event-shaped claims are almost always true. A late occurrence never changes the verdict; it earns a separate badge, so this only decides whether the app keeps looking.
+10. can_happen_late is whether the claim could still come true AFTER its deadline. "Bitcoin passes $100k before the end of 2024" can happen in 2025, later than promised but still the thing that was called: true. "Anacortes reaches 85F on September 12" and "the Eagles win Super Bowl LIX" are pinned to one day or one event and can never happen on another: false. Event-shaped claims are almost always true. A late occurrence never changes the verdict; it earns a separate badge, so this only decides whether the app keeps looking.
 
 Return only the JSON object. No commentary.`;
 

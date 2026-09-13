@@ -227,6 +227,14 @@ is for.
   period's start explicitly and tells the model that reporting dates are not
   event dates. The intake criteria for a "will happen" claim should carry the
   start too; that is prompt-level and worth re-testing when it drifts.
+- **Carry the qualifiers.** The same verdict was wrong a second way: the
+  claim said "rogue" (against its orders or programming) and the seeded
+  criteria tested "autonomous" (no human in the loop), which is a far easier
+  claim. The testable version is where meaning gets lost, and once confirmed
+  it is what every check judges, faithfully. The intake prompt now requires
+  narrowing words to survive into the criteria or be raised as ambiguities.
+  The owner caught this one from the raw statement; the review card is the
+  only place a person can.
 - **Reporting comes after the event, so a late publication date is not a
   problem.** A rule once required every source to be published before the
   deadline the claim named. A Sunday night game is written up on Monday
