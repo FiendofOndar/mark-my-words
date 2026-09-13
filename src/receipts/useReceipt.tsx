@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
-import { toBlob } from 'html-to-image';
+import { getFontEmbedCSS, toBlob } from 'html-to-image';
 import { CARD_HEIGHT, CARD_WIDTH } from './ReceiptCard';
 import { BrowserImageSharer, receiptFilename, type ImageSharer } from './share';
 import { CapacitorImageSharer } from '../platform/CapacitorImageSharer';
@@ -9,14 +9,27 @@ import { isNative } from '../platform';
 
 const sharer: ImageSharer = isNative() ? new CapacitorImageSharer() : new BrowserImageSharer();
 
-let fontCss: Promise<string> | null = null;
-
-/** Fetched once, then reused for every card. */
-function loadFontCss(): Promise<string> {
-  fontCss ??= fetch('/fonts/fonts.css')
-    .then((r) => (r.ok ? r.text() : ''))
-    .catch(() => '');
-  return fontCss;
+/**
+ * The card's faces, inlined as data URLs so the SVG the card is drawn through
+ * can use them.
+ *
+ * Handing html-to-image the stylesheet text itself is not enough: it inserts
+ * `fontEmbedCSS` verbatim, and a `url(./face.woff2)` cannot be fetched from
+ * inside an SVG image, so every card silently rasterized in a system face.
+ * That went unnoticed while the fallback was a similar width; the condensed
+ * display face made the stamp overflow its own box.
+ *
+ * Not cached: the library only embeds the families the given node uses, so a
+ * result kept from one card could be missing a face the next one needs. The
+ * files come from this origin and the browser cache; the cost is a few base64
+ * conversions per card.
+ */
+async function loadFontCss(target: HTMLElement): Promise<string> {
+  try {
+    return await getFontEmbedCSS(target);
+  } catch {
+    return '';
+  }
 }
 
 export type ReceiptState = 'idle' | 'rendering' | 'shared' | 'downloaded' | 'failed';
@@ -63,10 +76,7 @@ export function useReceipt() {
           height: CARD_HEIGHT,
           pixelRatio: 1,
           backgroundColor: '#111014',
-          // The faces are served from this origin, so html-to-image can read
-          // and inline them. Without that the card rasterizes in a fallback
-          // face, because an SVG foreignObject cannot reach an external font.
-          fontEmbedCSS: await loadFontCss(),
+          fontEmbedCSS: await loadFontCss(target),
         });
         if (!blob) throw new Error('The card came back empty.');
 
