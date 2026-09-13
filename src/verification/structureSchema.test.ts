@@ -48,6 +48,26 @@ describe('extractJson', () => {
 });
 
 describe('parseStructuredPrediction', () => {
+  it('reads whether the claim can still happen late, and falls back to the shape', () => {
+    const today = { today: '2026-09-12' };
+    const said = parseStructuredPrediction(good({ can_happen_late: true }), today);
+    expect(said.ok && said.value.canHappenLate).toBe(true);
+
+    const dated = parseStructuredPrediction(good({ can_happen_late: undefined }), today);
+    expect(dated.ok && dated.value.canHappenLate).toBe(false);
+
+    const event = parseStructuredPrediction(
+      good({
+        can_happen_late: undefined,
+        deadline_type: 'event',
+        trigger_event: 'The film releases',
+        resolution_date: null,
+      }),
+      today,
+    );
+    expect(event.ok && event.value.canHappenLate).toBe(true);
+  });
+
   it('accepts a well-formed response', () => {
     const result = parseStructuredPrediction(good(), ctx);
     expect(result.ok).toBe(true);

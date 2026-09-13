@@ -26,12 +26,6 @@ const BASE = 'https://generativelanguage.googleapis.com/v1beta';
  */
 export const DEFAULT_GEMINI_MODEL = 'gemini-flash-latest';
 
-/**
- * Free-tier daily request cap. Published limits move, so this is only the
- * default for the quota meter; the real number belongs in settings.
- */
-export const GEMINI_FREE_DAILY_REQUESTS = 200;
-
 /** Longer than this and waiting inline is worse than reporting it. */
 const MAX_AUTO_RETRY_SECONDS = 70;
 
@@ -53,17 +47,19 @@ interface GeminiModel {
 
 interface GeminiResponse {
   candidates?: {
-    content?: { parts?: { text?: string }[] };
+    content?: { parts?: ({ text?: string } & Record<string, unknown>)[] };
     finishReason?: string;
+    groundingMetadata?: { webSearchQueries?: string[] } & Record<string, unknown>;
   }[];
   usageMetadata?: { totalTokenCount?: number };
   promptFeedback?: { blockReason?: string };
+  /** Which model an alias like gemini-flash-latest actually resolved to. */
+  modelVersion?: string;
 }
 
 export class GeminiVerifier implements Verifier {
   readonly providerId = 'gemini';
   readonly modelId: string;
-  readonly dailyQuota = GEMINI_FREE_DAILY_REQUESTS;
 
   private readonly apiKey: string;
   private readonly fetchImpl: typeof fetch;
@@ -76,7 +72,12 @@ export class GeminiVerifier implements Verifier {
     this.apiKey = opts.apiKey.trim();
     this.modelId = opts.model?.trim() || DEFAULT_GEMINI_MODEL;
     this.fetchImpl = opts.fetchImpl ?? globalThis.fetch.bind(globalThis);
-    this.timeoutMs = opts.timeoutMs ?? 45_000;
+    // Ninety seconds, up from forty-five. A grounded check on gemini-3.8-flash
+    // searches, thinks and writes, and the first six-check pull on the live
+    // fixtures had one run past forty-five and get filed as failed. A call
+    // that times out is still a call the provider ran, so the wait is cheaper
+    // than the retry.
+    this.timeoutMs = opts.timeoutMs ?? 90_000;
   }
 
   async structure(input: StructureInput): Promise<StructureResult> {
@@ -168,11 +169,15 @@ export class GeminiVerifier implements Verifier {
       );
     }
 
+    const queries = response.candidates?.[0]?.groundingMetadata?.webSearchQueries;
+
     return {
       ...parsed.value,
       provider: this.providerId,
       model: this.modelId,
       tokensUsed: response.usageMetadata?.totalTokenCount ?? null,
+      searchQueries: queries?.length ? queries : null,
+      providerNote: queries?.length ? null : describeMissingGrounding(response),
     };
   }
 
@@ -311,6 +316,43 @@ export class GeminiVerifier implements Verifier {
 
     return (await response.json()) as GeminiResponse;
   }
+}
+
+/**
+ * What came back instead of a search count.
+ *
+ * Every real check so far has reported no `webSearchQueries`, and the shape
+ * this reads was written from memory. Rather than guess a second time, the
+ * response's own structure goes on the check log: which keys the candidate
+ * carries, and the grounding metadata as served, trimmed. One look at a real
+ * one is worth more than another round of the documentation.
+ */
+function describeMissingGrounding(response: GeminiResponse): string {
+  const candidate = response.candidates?.[0];
+  const metadata = candidate?.groundingMetadata;
+  const trimmed = (value: unknown, max = 3000) => {
+    const text = JSON.stringify(value) ?? 'undefined';
+    return text.length > max ? `${text.slice(0, max)}… (${text.length} chars)` : text;
+  };
+  // The first real look showed groundingMetadata absent outright, on a check
+  // whose citations carried readings the model could only have searched for.
+  // So the next questions are which model the alias resolved to, and what the
+  // answer's parts look like: whether the search happened as a tool call the
+  // response records somewhere other than the metadata.
+  const parts = candidate?.content?.parts ?? [];
+  const partShapes = parts.map((part) => {
+    const keys = Object.keys(part).filter((k) => k !== 'text');
+    const text = typeof part.text === 'string' ? `text(${part.text.length})` : null;
+    return [text, ...keys].filter(Boolean).join('+') || 'empty';
+  });
+  return [
+    'No webSearchQueries in the grounding metadata, so this check is not counted against the search budget.',
+    `Model version: ${response.modelVersion ?? 'not reported'}.`,
+    `Response keys: ${Object.keys(response).join(', ') || 'none'}.`,
+    `Candidate keys: ${candidate ? Object.keys(candidate).join(', ') : 'no candidate'}.`,
+    `Parts: ${partShapes.join(', ') || 'none'}.`,
+    `groundingMetadata: ${metadata === undefined ? 'absent' : trimmed(metadata)}`,
+  ].join('\n');
 }
 
 function kindForStatus(status: number): VerifierError['kind'] {

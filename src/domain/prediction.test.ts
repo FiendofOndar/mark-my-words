@@ -9,6 +9,7 @@ import {
   endOfLocalDay,
   isUnderLateWatch,
   isWithinClaimPeriod,
+  criteriaMarksFor,
   lateByMonths,
   lateWatchUntil,
   markLateHit,
@@ -48,17 +49,26 @@ describe('transitions', () => {
 describe('resolving', () => {
   it('records who resolved it and clears the trend', () => {
     const p = makePrediction();
-    const patch = resolve(p, 'hit', 'auto', NOW, { confidenceScore: 97 });
+    const patch = resolve(p, 'hit', 'auto', NOW);
     expect(patch.status).toBe('hit');
     expect(patch.resolvedBy).toBe('auto');
-    expect(patch.confidenceScore).toBe(97);
     expect(patch.trend).toBeNull();
   });
 
-  it('starts a late watch on a miss and not on a hit', () => {
-    const p = makePrediction();
+  it('starts a late watch on a miss that could still come true, and not on a hit', () => {
+    // "Bitcoin above $100k by the end of 2024" is a fixed date and can still
+    // happen in 2025. The flag, not the deadline type, is what decides.
+    const p = makePrediction({ canHappenLate: true, resolutionDate: isoDaysFrom(NOW, -1) });
     expect(resolve(p, 'miss', 'auto', NOW).lateWatchUntil).toBeTruthy();
     expect(resolve(p, 'hit', 'auto', NOW).lateWatchUntil).toBeNull();
+  });
+
+  it('does not watch a miss that cannot come true later', () => {
+    // Every miss used to get three years of monthly checks, each a paid call
+    // asking whether a day's high temperature had changed.
+    const p = makePrediction({ canHappenLate: false, resolutionDate: isoDaysFrom(NOW, -1) });
+    expect(resolve(p, 'miss', 'auto', NOW).lateWatchUntil).toBeNull();
+    expect(resolve(p, 'miss', 'auto', NOW, { lateWatch: '1y' }).lateWatchUntil).toBeTruthy();
   });
 
   it('honors a late watch period of never', () => {
@@ -77,6 +87,35 @@ describe('resolving', () => {
   it('confirming a draft starts the clock', () => {
     const p = makePrediction({ status: 'draft', trend: null });
     expect(confirmDraft(p, NOW).status).toBe('open');
+  });
+});
+
+describe('criteria marks for a verdict called by hand', () => {
+  const criteria = [
+    { id: 'a', satisfied: null },
+    { id: 'b', satisfied: true },
+    { id: 'c', satisfied: false },
+  ];
+
+  it('ticks everything on a hit', () => {
+    expect(criteriaMarksFor('hit', criteria)).toEqual([
+      { id: 'a', satisfied: true },
+      { id: 'b', satisfied: true },
+      { id: 'c', satisfied: true },
+    ]);
+  });
+
+  it('crosses what was not already met on a miss', () => {
+    expect(criteriaMarksFor('miss', criteria)).toEqual([
+      { id: 'a', satisfied: false },
+      { id: 'c', satisfied: false },
+    ]);
+  });
+
+  it('leaves a partial or ambiguous call alone', () => {
+    expect(criteriaMarksFor('partial', criteria)).toEqual([]);
+    expect(criteriaMarksFor('ambiguous', criteria)).toEqual([]);
+    expect(criteriaMarksFor('void', criteria)).toEqual([]);
   });
 });
 

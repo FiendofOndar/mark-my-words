@@ -291,6 +291,30 @@ export function SettingsScreen() {
                     </span>
                   )}
                 </p>
+                {/* The one cost figure the app can state exactly. Not a bill:
+                    the provider prices input and output differently and only
+                    reports the sum, and search queries are billed separately
+                    and not reported at all. The billing page is the truth;
+                    this says how much of it this app accounts for. */}
+                {!!quotaUsed.data?.tokens.allTime && (
+                  <p className="text-[12px] text-ink-faint">
+                    {quotaUsed.data.tokens.thisMonth.toLocaleString()} tokens this month,{' '}
+                    {quotaUsed.data.tokens.allTime.toLocaleString()} since the first check. Checks
+                    only; not a dollar figure, since the provider does not tell the app what it
+                    charges for search.
+                  </p>
+                )}
+                {/* The billed unit, on the newer model families: a grounded
+                    check is charged per search query there (older ones bill
+                    per grounded prompt), so the same twenty checks can cost
+                    twenty searches or two hundred depending on whether the
+                    model stayed under the ceiling the prompt asks for. */}
+                {!!quotaUsed.data?.searchesThisMonth && (
+                  <p className="text-[12px] text-ink-faint">
+                    {quotaUsed.data.searchesThisMonth} searches run this month, which is what
+                    grounded checks are billed for.
+                  </p>
+                )}
 
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -460,9 +484,14 @@ export function SettingsScreen() {
           </div>
         </section>
 
+        {/* Which build this is, in the words of the change that made it. The
+            release page on GitHub carries the same line, so telling whether
+            the phone is on the latest build is reading two lines, not
+            remembering a hash. */}
         <p className="text-[12px] text-ink-faint">
-          Phase 0.6 on {platformName()}. None of the native adapters have been run on a device
-          yet.
+          {import.meta.env.VITE_BUILD_LABEL
+            ? `Installed build: ${import.meta.env.VITE_BUILD_LABEL}. Built ${import.meta.env.VITE_BUILD_TIME}. The latest release on GitHub shows the same line for what is available.`
+            : `Development build on ${platformName()}.`}
         </p>
       </div>
     </Screen>

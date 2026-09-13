@@ -43,6 +43,8 @@ export interface StructuredPrediction {
   verifiabilityReasoning: string;
   searchQueries: string[];
   noCheckBefore: string | null;
+  /** Whether the claim could still come true after its deadline. */
+  canHappenLate: boolean;
 
   category: Category;
   tags: string[];
@@ -96,7 +98,6 @@ export interface CitedSource {
 export interface CriterionStatus {
   index: number;
   satisfied: boolean;
-  basis: 'quoted' | 'inferred' | 'none';
   why: string;
 }
 
@@ -111,6 +112,25 @@ export interface CheckResult {
   provider: string;
   model: string;
   tokensUsed: number | null;
+  /**
+   * The searches the provider actually ran, when it says.
+   *
+   * Grounded checks are billed per search query, not per prompt, so this is
+   * the line item. The prompt asks the model to stop at three agreeing sources
+   * and never exceed twelve searches, and a prompt cannot enforce either: this
+   * is how anyone finds out whether it listened. It is also the clearest record
+   * of why a check went wrong, since a verdict built on the wrong sources
+   * usually started with the wrong query.
+   */
+  searchQueries?: string[] | null;
+  /**
+   * Something the provider returned that the app could not read, verbatim,
+   * so it can be diagnosed from the check log instead of guessed at. Used
+   * today for a grounded response that reports no search queries: the field
+   * name was written from memory once and did not work, and the only way to
+   * see what actually arrives is to show it.
+   */
+  providerNote?: string | null;
 }
 
 export class VerifierError extends Error {
@@ -136,8 +156,6 @@ export class VerifierError extends Error {
 export interface Verifier {
   readonly providerId: string;
   readonly modelId: string;
-  /** null when the provider publishes no daily cap. */
-  readonly dailyQuota: number | null;
   structure(input: StructureInput): Promise<StructureResult>;
   check(input: CheckInput): Promise<CheckResult>;
   /** Cheap round trip to prove the key works. */

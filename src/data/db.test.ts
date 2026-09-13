@@ -82,6 +82,83 @@ describe('migrations', () => {
     expect(after.map((c) => String(c.name))).toContain('intake_notes');
   });
 
+  /*
+   * The evidence table was rebuilt in v5 to widen a CHECK constraint, and a
+   * rebuild is the one migration shape that can silently drop rows.
+   */
+  it('carries evidence rows through the v5 table rebuild', async () => {
+    const driver = await createSqlJsDriver({
+      locateFile: (file) => path.join(wasmDir, file),
+      persistence: new MemoryPersistence(),
+      persistDebounceMs: 0,
+    });
+
+    const run = (sql: string) => {
+      driver.transaction(() => {
+        for (const statement of sql
+          .replace(/^\s*--.*$/gm, '')
+          .split(';')
+          .map((x) => x.trim())
+          .filter(Boolean)) {
+          driver.run(statement);
+        }
+      });
+    };
+
+    for (const m of MIGRATIONS.filter((m) => m.version <= 4)) {
+      run(m.sql);
+      driver.run(`PRAGMA user_version = ${m.version}`);
+    }
+
+    driver.run(
+      `INSERT INTO authors (id, display_name, kind, created_at, updated_at)
+       VALUES ('a1', 'Pop-pops', 'person', '2026-01-01', '2026-01-01')`,
+    );
+    driver.run(
+      `INSERT INTO predictions (id, author_id, raw_statement, normalized_claim, polarity,
+                                statement_date, deadline_type, verification_mode, status,
+                                category, created_at, updated_at)
+       VALUES ('p1', 'a1', 'raw', 'claim', 'positive', '2026-01-01', 'fixed_date',
+               'searchable', 'open', 'Weather', '2026-01-01', '2026-01-01')`,
+    );
+    driver.run(
+      `INSERT INTO checks (id, prediction_id, ran_at, trigger, provider, summary, outcome,
+                           created_at, updated_at)
+       VALUES ('c1', 'p1', '2026-01-01', 'pull', 'demo', 's', 'no_change', '2026-01-01', '2026-01-01')`,
+    );
+    driver.run(
+      `INSERT INTO evidence (id, check_id, url, fetch_status, created_at, updated_at)
+       VALUES ('e1', 'c1', 'https://weather.gov/x', 'quote_not_found', '2026-01-01', '2026-01-01')`,
+    );
+
+    expect(migrate(driver)).toBe(MIGRATIONS[MIGRATIONS.length - 1]!.version);
+
+    const rows = driver.select<{ id: string; url: string; fetch_status: string }>(
+      'SELECT id, url, fetch_status FROM evidence',
+    );
+    expect(rows).toHaveLength(1);
+    expect(String(rows[0]!.url)).toBe('https://weather.gov/x');
+    // A page that loaded but did not carry the quote was still a page that
+    // loaded. The quote check is gone; the link check is what remains.
+    expect(String(rows[0]!.fetch_status)).toBe('ok');
+
+    driver.run(
+      `INSERT INTO evidence (id, check_id, url, fetch_status, created_at, updated_at)
+       VALUES ('e3', 'c1', 'https://weather.gov/z', 'not_checked', '2026-01-01', '2026-01-01')`,
+    );
+    driver.run(
+      `INSERT INTO evidence (id, check_id, url, fetch_status, created_at, updated_at)
+       VALUES ('e5', 'c1', 'https://weather.gov/v', 'missing', '2026-01-01', '2026-01-01')`,
+    );
+    expect(driver.select('SELECT id FROM evidence')).toHaveLength(3);
+    expect(() =>
+      driver.run(
+        `INSERT INTO evidence (id, check_id, url, fetch_status, created_at, updated_at)
+         VALUES ('e4', 'c1', 'https://weather.gov/w', 'facts_found', '2026-01-01', '2026-01-01')`,
+      ),
+    ).toThrow();
+  });
+
   it('is idempotent', async () => {
     const persistence = new MemoryPersistence();
     const locateFile = (file: string) => path.join(wasmDir, file);
@@ -281,6 +358,121 @@ describe('prediction repository', () => {
   });
 });
 
+describe('what a check cost', () => {
+  function predictionFor(): string {
+    const author = db.authors.create({ displayName: 'X' });
+    return db.predictions.create({
+      authorId: author.id,
+      rawStatement: 'A thing.',
+      statementDate: '2026-01-01T00:00:00.000Z',
+      deadlineType: 'fixed_date',
+      resolutionDate: '2027-01-01T00:00:00.000Z',
+      verificationMode: 'searchable',
+      category: 'Other',
+      criteria: ['A thing happens'],
+    }).id;
+  }
+
+  function write(searchQueries: string[] | null | undefined): string[] | null {
+    const check = db.checks.create({
+      predictionId: predictionFor(),
+      trigger: 'pull',
+      provider: 'gemini',
+      model: 'g',
+      proposedVerdict: 'no_change',
+      proposedTrend: null,
+      modelConfidence: null,
+      summary: 's',
+      outcome: 'no_change',
+      searchQueries,
+    });
+    return db.checks.listFor(check.predictionId)[0]!.searchQueries;
+  }
+
+  it('keeps the searches a grounded check ran', () => {
+    expect(write(['a query', 'another query'])).toEqual(['a query', 'another query']);
+  });
+
+  it('totals the month by instant, not by a local date prefix', () => {
+    const id = predictionFor();
+    const write = (ranAt: string, queries: string[]) => {
+      const c = db.checks.create({
+        predictionId: id,
+        trigger: 'pull',
+        provider: 'gemini',
+        model: 'g',
+        proposedVerdict: 'no_change',
+        proposedTrend: null,
+        modelConfidence: null,
+        summary: 's',
+        outcome: 'no_change',
+        searchQueries: queries,
+      });
+      db.driver.run('UPDATE checks SET ran_at = ? WHERE id = ?', [ranAt, c.id]);
+    };
+
+    const at = new Date(2026, 8, 15, 12, 0, 0);
+    const inside = new Date(2026, 8, 2, 9, 0, 0).toISOString();
+    const before = new Date(2026, 7, 20, 9, 0, 0).toISOString();
+    write(inside, ['a', 'b', 'c']);
+    write(before, ['d', 'e']);
+
+    expect(db.quota.searchesThisMonth(at)).toBe(3);
+  });
+
+  it('does not count a seeded sample as spend', () => {
+    const id = predictionFor();
+    db.checks.create({
+      predictionId: id,
+      trigger: 'pull',
+      provider: 'demo',
+      model: 'demo',
+      proposedVerdict: 'no_change',
+      proposedTrend: null,
+      modelConfidence: null,
+      summary: 's',
+      outcome: 'no_change',
+      tokensUsed: 999,
+      searchQueries: ['a', 'b'],
+    });
+    expect(db.quota.searchesThisMonth()).toBe(0);
+    expect(db.quota.tokensUsed()).toEqual({ allTime: 0, thisMonth: 0 });
+  });
+
+  it('totals the tokens the provider reported, by instant for the month', () => {
+    const id = predictionFor();
+    const write = (ranAt: string, tokens: number | null) => {
+      const c = db.checks.create({
+        predictionId: id,
+        trigger: 'pull',
+        provider: 'gemini',
+        model: 'g',
+        proposedVerdict: 'no_change',
+        proposedTrend: null,
+        modelConfidence: null,
+        summary: 's',
+        outcome: 'no_change',
+        tokensUsed: tokens,
+      });
+      db.driver.run('UPDATE checks SET ran_at = ? WHERE id = ?', [ranAt, c.id]);
+    };
+    const at = new Date(2026, 8, 15, 12, 0, 0);
+    write(new Date(2026, 8, 2, 9, 0, 0).toISOString(), 1200);
+    write(new Date(2026, 7, 20, 9, 0, 0).toISOString(), 800);
+    write(new Date(2026, 8, 3, 9, 0, 0).toISOString(), null);
+
+    expect(db.quota.tokensUsed(at)).toEqual({ allTime: 2000, thisMonth: 1200 });
+  });
+
+  it('separates not being told from being told none', () => {
+    // A provider that does not report searches, and a check written before the
+    // column existed, both read as null. Neither is a claim that none ran.
+    expect(write(null)).toBeNull();
+    expect(write(undefined)).toBeNull();
+    expect(write([])).toBeNull();
+  });
+});
+
 describe('checks written in the same millisecond', () => {
   function withCheck(predictionId: string, summary: string, outcome: 'queued' | 'no_change') {
     db.checks.create({
@@ -290,8 +482,6 @@ describe('checks written in the same millisecond', () => {
       model: null,
       proposedVerdict: outcome === 'queued' ? 'hit' : 'no_change',
       proposedTrend: null,
-      rubricScore: null,
-      rubricBreakdown: null,
       modelConfidence: null,
       summary,
       outcome,
@@ -394,13 +584,15 @@ describe('demo seed', () => {
     seedDemoData(db);
 
     const all = db.predictions.list();
-    expect(all.length).toBe(8);
-    expect(all.filter((p) => p.status === 'open').length).toBe(6);
+    expect(all.length).toBe(12);
+    expect(all.filter((p) => p.status === 'open').length).toBe(10);
     expect(all.filter((p) => p.lateHitAt).length).toBe(1);
     expect(all.filter((p) => p.status === 'hit').length).toBe(1);
     expect(all.filter((p) => p.verificationMode === 'manual').length).toBe(1);
     expect(all.filter((p) => p.deadlineType === 'window').length).toBe(1);
-    expect(all.filter((p) => p.deadlineType === 'event').length).toBe(1);
+    // The live fixtures: one negative claim, one that can still happen late.
+    expect(all.filter((p) => p.polarity === 'negative').length).toBe(1);
+    expect(all.filter((p) => p.status === 'open' && p.canHappenLate).length).toBe(1);
   });
 
   it('produces a usable author record', () => {
@@ -408,7 +600,7 @@ describe('demo seed', () => {
     const me = db.authors.findByName('Me')!;
     const record = tallyRecord(db.predictions.list({ authorId: me.id }));
     expect(record.hit).toBe(1);
-    expect(record.open).toBe(2);
+    expect(record.open).toBe(3);
   });
 
   it('seeds a weather claim that is already past its deadline, ready to check', () => {
@@ -425,6 +617,25 @@ describe('demo seed', () => {
     expect(new Date(weather.resolutionDate!).getTime()).toBeLessThan(Date.now());
     expect(isDueForCheck(weather).due).toBe(true);
     expect(weather.searchQueries.length).toBeGreaterThan(0);
+  });
+
+  it('seeds a second live fixture that tests what the weather one cannot', () => {
+    // Deliberately the opposite case on every axis that matters: a hit rather
+    // than a miss, two discrete criteria rather than one numeric threshold, no
+    // geography, and static recap pages rather than a forecast that rewrites
+    // itself. It is the only fair test of quote matching in the app.
+    seedDemoData(db);
+    const bowl = db.predictions.list().find((p) => p.normalizedClaim.includes('Super Bowl LIX'))!;
+
+    expect(bowl).toBeDefined();
+    expect(bowl.status).toBe('open');
+    expect(bowl.verificationMode).toBe('searchable');
+    expect(isDueForCheck(bowl).due).toBe(true);
+    expect(db.predictions.criteriaFor(bowl.id)).toHaveLength(2);
+    // Said before the game, so sources published after it are temporally sane.
+    expect(new Date(bowl.statementDate).getTime()).toBeLessThan(
+      new Date(bowl.resolutionDate!).getTime(),
+    );
   });
 
   it('writes the same day into the deadline, the claim and the criteria', () => {

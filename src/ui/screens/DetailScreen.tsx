@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Screen } from '../components/Screen';
 import { Icon } from '../components/Icon';
+import { primaryButton } from '../components/Field';
 import { Stamp, LateBadge, Pill, STATUS_TONE } from '../components/Stamp';
 import { TrendMark } from '../components/TrendMark';
+import { ExternalLink } from '../components/ExternalLink';
 import {
   useAmendCriterion,
   useAmendPrediction,
@@ -15,7 +17,6 @@ import {
   useQueuedVerdicts,
   useRejectVerdict,
   useResolveManually,
-  useSetCriterionSatisfied,
   useSnoozePrompt,
   useUpdatePrediction,
 } from '../queries';
@@ -60,7 +61,6 @@ export function DetailScreen() {
   const amend = useAmendPrediction();
   const amendCriterion = useAmendCriterion();
   const remove = useDeletePrediction();
-  const setSatisfied = useSetCriterionSatisfied();
 
   const [showResolve, setShowResolve] = useState(false);
   const [amending, setAmending] = useState(false);
@@ -111,9 +111,9 @@ export function DetailScreen() {
   /**
    * The check that settled this, and the single source worth linking from it.
    *
-   * Preferring a source the app actually confirmed: linking someone to a page
-   * that has since been rewritten, from a verdict that says it was checked, is
-   * the worst version of this. Highest tier wins among equals.
+   * Preferring a link the app saw answer: sending someone to a dead address
+   * from a verdict that says it was checked is the worst version of this.
+   * Highest tier wins among equals.
    */
   const settledBy = isResolved(p.status)
     ? log.find((entry) => entry.check.outcome === 'auto_resolved') ?? null
@@ -124,9 +124,16 @@ export function DetailScreen() {
 
   // Either nothing can search it, or something did and could not settle it.
   // Both end in the same place: the answer has to come from the person.
+  //
+  // Not when a verdict is already queued, though. That card asks the same
+  // question with an answer attached, and stacking a bare "Did it happen?
+  // Yes / No" above it makes the screen ask twice and contradict itself about
+  // whether the app found anything. Answer the verdict or reject it; rejecting
+  // brings this back.
   const searchedInVain = checkedButUnsettled(p);
   const awaitingAnswer =
     p.status === 'open' &&
+    queuedVerdict === null &&
     ((p.verificationMode === 'manual' && isPastDeadline(p)) || searchedInVain);
 
   const onResolve = (verdict: PredictionStatus) => {
@@ -167,24 +174,20 @@ export function DetailScreen() {
         {(p.sourceUrl || p.archiveUrl) && (
           <div className="mt-3 flex flex-wrap gap-2">
             {p.sourceUrl && (
-              <a
+              <ExternalLink
                 href={p.sourceUrl}
-                target="_blank"
-                rel="noreferrer noopener"
                 className="rounded-full border border-rule px-2.5 py-0.5 text-[11px] text-ink-dim underline-offset-2 hover:underline"
               >
                 Source
-              </a>
+              </ExternalLink>
             )}
             {p.archiveUrl ? (
-              <a
+              <ExternalLink
                 href={p.archiveUrl}
-                target="_blank"
-                rel="noreferrer noopener"
                 className="rounded-full border border-rule px-2.5 py-0.5 text-[11px] text-ink-dim underline-offset-2 hover:underline"
               >
                 Archived copy
-              </a>
+              </ExternalLink>
             ) : (
               p.sourceUrl && <Pill tone="muted">Archive {p.archiveStatus}</Pill>
             )}
@@ -224,9 +227,24 @@ export function DetailScreen() {
                   : p.resolvedBy === 'user'
                     ? 'You called it'
                     : p.resolvedBy === 'auto'
-                      ? `Settled automatically${settledBy ? ` · ${describeSources(settledBy.evidence)}` : ''}`
+                      ? `Settled by the app${settledBy ? ` · ${describeSources(settledBy.evidence)}` : ''}`
                       : 'Settled'}
               </p>
+              {/* The app decided this one without asking. The way to disagree
+                  is Reopen, which sat at the bottom of the screen among six
+                  other buttons, so nothing near the stamp said the verdict
+                  could be challenged at all. Reopening puts it back to open,
+                  on the record as overridden, and the next check or a manual
+                  resolve settles it again. */}
+              {p.resolvedBy === 'auto' && (
+                <button
+                  type="button"
+                  onClick={() => update.mutate({ id: p.id, patch: reopen(p) })}
+                  className="mt-2 text-[13px] text-partial underline-offset-2 hover:underline"
+                >
+                  Not right? Reopen it
+                </button>
+              )}
 
             </>
           ) : (
@@ -266,15 +284,13 @@ export function DetailScreen() {
           <div className="mt-4">
             <p className="text-[15px] leading-snug text-ink-dim">{settledBy.check.summary}</p>
             {settledSource && (
-              <a
+              <ExternalLink
                 href={settledSource.url}
-                target="_blank"
-                rel="noreferrer noopener"
                 className="mt-2 inline-flex items-center gap-1 text-[13px] text-ink-dim underline-offset-2 hover:underline"
               >
                 {settledSource.publisher ?? hostOf(settledSource.url) ?? 'Source'}
                 <Icon name="chevron" size={14} className="text-ink-faint" />
-              </a>
+              </ExternalLink>
             )}
           </div>
         )}
@@ -338,10 +354,11 @@ export function DetailScreen() {
             <h2 className="text-[11px] font-semibold tracking-wide text-partial uppercase">
               Verdict ready for you
             </h2>
-            {/* The seeded demo verdict says the Cardinals took a World Series
-                that has not been played, citing example.com under real wire
-                service names. Presented on this card it is indistinguishable
-                from a real finding, and it was believed. */}
+            {/* A seeded verdict is indistinguishable from a real finding on
+                this card, and one was believed: the seed used to assert a
+                World Series that had not been played, on example.com under
+                real wire service names. The sample now carries a verified
+                result on real addresses, and the badge stays either way. */}
             {queuedVerdict.provider === 'demo' && <Pill tone="warn">Sample</Pill>}
           </div>
           <p className="mt-2 font-display text-[17px] leading-snug text-ink">
@@ -396,31 +413,21 @@ export function DetailScreen() {
         <ul className="mt-3 space-y-2">
           {criteria.map((c) => (
             <li key={c.id} className="flex items-start gap-4 py-1.5">
-              {/* The padding is the tap target; the border is the mark. Putting
-                  both on one element drew a 36px box around a 12px glyph. */}
-              <button
-                type="button"
-                aria-label={`Mark element ${c.position + 1} as ${c.satisfied ? 'unknown' : 'satisfied'}`}
-                onClick={() =>
-                  setSatisfied.mutate({
-                    id: c.id,
-                    satisfied: c.satisfied === true ? false : c.satisfied === false ? null : true,
-                  })
+              {/* The mark follows the verdict: a check writes it, and a
+                  verdict called by hand writes it. It used to be a button that
+                  cycled the mark and stored a flag nothing read, first on every
+                  prediction, then only on ones the person settles. Same dead
+                  control either way. */}
+              <span
+                className="shrink-0"
+                title={
+                  c.satisfied === null
+                    ? 'Not settled yet'
+                    : `Found ${c.satisfied ? 'met' : 'not met'}`
                 }
-                className="-m-2 shrink-0 p-2"
               >
-                <span
-                  className={`flex h-5 w-5 items-center justify-center rounded border text-[12px] ${
-                    c.satisfied === true
-                      ? 'border-hit text-hit'
-                      : c.satisfied === false
-                        ? 'border-miss text-miss'
-                        : 'border-rule text-ink-faint'
-                  }`}
-                >
-                  {c.satisfied === true ? '✓' : c.satisfied === false ? '✕' : '?'}
-                </span>
-              </button>
+                <CriterionMark satisfied={c.satisfied} />
+              </span>
               {amendingCriterion === c.id ? (
                 <AmendForm
                   className="min-w-0 flex-1"
@@ -493,9 +500,28 @@ export function DetailScreen() {
           Check log
         </h2>
         {p.verificationMode === 'manual' ? (
-          <p className="mt-3 text-[14px] text-ink-faint italic">
-            This one is yours to settle. Nothing is searched.
-          </p>
+          p.status === 'open' && !awaitingAnswer ? (
+            /* A "you decide" bet has no check log, so this slot used to hold a
+               sentence and the way to settle it sat four buttons down in grey.
+               The sentence is now the button. Past the deadline the Yes / No
+               card above takes over, so this only shows while it is running. */
+            <div className="mt-3 rounded border border-rule bg-surface p-3">
+              <p className="text-[14px] text-ink-dim">
+                Nothing is searched for this one. When you know how it turned out, call it.
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowResolve(true)}
+                className={`${primaryButton} mt-3 min-h-11 w-full px-4 text-[15px]`}
+              >
+                Settle it
+              </button>
+            </div>
+          ) : (
+            <p className="mt-3 text-[14px] text-ink-faint italic">
+              This one was yours to settle. Nothing was searched.
+            </p>
+          )
         ) : (
           <CheckLog entries={log} summaryShownAbove={queuedVerdict?.id} />
         )}
@@ -539,7 +565,12 @@ export function DetailScreen() {
             </ActionButton>
           )}
           {!isResolved(p.status) && (
-            <ActionButton onClick={() => setShowResolve((v) => !v)}>Resolve manually</ActionButton>
+            <ActionButton
+              onClick={() => setShowResolve((v) => !v)}
+              tone={p.verificationMode === 'manual' ? 'primary' : 'normal'}
+            >
+              {p.verificationMode === 'manual' ? 'Settle it' : 'Resolve manually'}
+            </ActionButton>
           )}
           {isResolved(p.status) && (
             <ActionButton onClick={() => update.mutate({ id: p.id, patch: reopen(p) })}>
@@ -598,7 +629,10 @@ export function DetailScreen() {
           </div>
         )}
 
-        {p.status === 'miss' && !p.lateHitAt && (
+        {/* Only where the claim could still come true. A day's high temperature
+            cannot happen later, and offering to log that it did was the app
+            asking a question with no possible answer. */}
+        {p.status === 'miss' && !p.lateHitAt && p.canHappenLate && (
           <div className="mt-4 rounded border border-late/40 bg-late/5 p-3">
             <p className="text-[13px] text-ink-dim">It happened anyway. When?</p>
             <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -641,6 +675,24 @@ export function DetailScreen() {
   );
 }
 
+/** The padding around this is the tap target; the border is the mark.
+ *  Putting both on one element drew a 36px box around a 12px glyph. */
+function CriterionMark({ satisfied }: { satisfied: boolean | null }) {
+  return (
+    <span
+      className={`flex h-5 w-5 items-center justify-center rounded border text-[12px] ${
+        satisfied === true
+          ? 'border-hit text-hit'
+          : satisfied === false
+            ? 'border-miss text-miss'
+            : 'border-rule text-ink-faint'
+      }`}
+    >
+      {satisfied === true ? '✓' : satisfied === false ? '✕' : '?'}
+    </span>
+  );
+}
+
 function ActionButton({
   children,
   onClick,
@@ -649,7 +701,7 @@ function ActionButton({
 }: {
   children: React.ReactNode;
   onClick: () => void;
-  tone?: 'normal' | 'danger';
+  tone?: 'normal' | 'danger' | 'primary';
   disabled?: boolean;
 }) {
   return (
@@ -657,9 +709,13 @@ function ActionButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`min-h-11 rounded border px-4 text-[13px] active:bg-surface-raised disabled:opacity-40 ${
-        tone === 'danger' ? 'border-miss/40 text-miss/90' : 'border-rule/70 text-ink-faint'
-      }`}
+      className={
+        tone === 'primary'
+          ? `${primaryButton} min-h-11 px-4 text-[13px]`
+          : `min-h-11 rounded border px-4 text-[13px] active:bg-surface-raised disabled:opacity-40 ${
+              tone === 'danger' ? 'border-miss/40 text-miss/90' : 'border-rule/70 text-ink-faint'
+            }`
+      }
     >
       {children}
     </button>
@@ -676,7 +732,8 @@ const TIER_RANK: Record<string, number> = {
 /** The one citation to put a verdict's name on: confirmed first, then tier. */
 function bestSource(evidence: Evidence[]): Evidence | null {
   const ranked = [...evidence].sort((a, b) => {
-    const confirmed = Number(b.fetchStatus === 'ok') - Number(a.fetchStatus === 'ok');
+    const opens = (e: Evidence) => e.fetchStatus === 'ok' || e.fetchStatus === 'blocked';
+    const confirmed = Number(opens(b)) - Number(opens(a));
     if (confirmed !== 0) return confirmed;
     return (TIER_RANK[a.tier ?? 'social'] ?? 3) - (TIER_RANK[b.tier ?? 'social'] ?? 3);
   });

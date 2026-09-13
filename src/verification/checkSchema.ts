@@ -10,6 +10,15 @@ export type CheckParseResult =
   | { ok: true; value: Omit<CheckResult, 'provider' | 'model' | 'tokensUsed'>; warnings: string[] }
   | { ok: false; problems: string[] };
 
+/**
+ * Everything past this is stored, fetched and rendered for nothing. Three
+ * independent sources is already full marks, so eight leaves room for
+ * duplicates and near-misses without letting a runaway response turn into
+ * dozens of page fetches. The prompt asks for restraint; this is the part that
+ * does not depend on the model agreeing.
+ */
+const MAX_SOURCES = 8;
+
 const VERDICTS: CheckVerdict[] = ['hit', 'miss', 'partial', 'ambiguous', 'no_change'];
 const TRENDS: Trend[] = ['toward_yes', 'toward_no', 'flat', 'unknown'];
 const TIERS: SourceTier[] = ['primary', 'major_outlet', 'secondary', 'social'];
@@ -72,7 +81,12 @@ export function parseCheckResponse(raw: unknown, criteriaCount: number): CheckPa
 
   const sources: CitedSource[] = [];
   const rawSources = Array.isArray(input.sources) ? input.sources : [];
-  for (const entry of rawSources) {
+  if (rawSources.length > MAX_SOURCES) {
+    warnings.push(
+      `${rawSources.length} sources came back; only the first ${MAX_SOURCES} were kept.`,
+    );
+  }
+  for (const entry of rawSources.slice(0, MAX_SOURCES)) {
     if (typeof entry !== 'object' || entry === null) continue;
     const s = entry as Record<string, unknown>;
 
@@ -101,10 +115,24 @@ export function parseCheckResponse(raw: unknown, criteriaCount: number): CheckPa
   const rawStatus = Array.isArray(input.criteria_status ?? input.criteriaStatus)
     ? ((input.criteria_status ?? input.criteriaStatus) as unknown[])
     : [];
-  for (const entry of rawStatus) {
-    if (typeof entry !== 'object' || entry === null) continue;
-    const c = entry as Record<string, unknown>;
-    const index = Number(c.index);
+  /*
+   * The prompt lists the criteria as 1., 2., 3. and asks for them back by
+   * number, so the wire format is 1-based. This parsed it as 0-based for as
+   * long as the feature existed: on a one-criterion prediction the model's 1
+   * was out of range and dropped, so coverage read 0/15 on correct checks, and
+   * on a two-criterion one its 1 marked the second criterion and its 2 was
+   * discarded, so a HIT showed its headline criterion unticked.
+   *
+   * A response that uses 0 anywhere is 0-based whatever the prompt said, and
+   * is taken as it is rather than shifted off the end.
+   */
+  const entries = rawStatus.filter(
+    (entry): entry is Record<string, unknown> => typeof entry === 'object' && entry !== null,
+  );
+  const zeroBased = entries.some((c) => Number(c.index) === 0);
+  for (const c of entries) {
+    const raw = Number(c.index);
+    const index = zeroBased ? raw : raw - 1;
     if (!Number.isInteger(index) || index < 0 || index >= criteriaCount) {
       warnings.push(`Ignored a criterion status pointing at element ${String(c.index)}.`);
       continue;
@@ -112,7 +140,6 @@ export function parseCheckResponse(raw: unknown, criteriaCount: number): CheckPa
     criteriaStatus.push({
       index,
       satisfied: c.satisfied === true,
-      basis: asEnum(c.basis, ['quoted', 'inferred', 'none'] as const) ?? 'none',
       why: asString(c.why) ?? '',
     });
   }
@@ -143,45 +170,4 @@ export function parseCheckResponse(raw: unknown, criteriaCount: number): CheckPa
       modelConfidence,
     },
   };
-}
-
-/** How well the criteria were actually evidenced, for the rubric. */
-/**
- * How completely the criteria were actually established, one way or the other.
- *
- * This used to count only *satisfied* criteria, which meant a correct miss
- * could never earn a point of it: a miss is precisely the case where nothing is
- * satisfied. Fifteen of the hundred were structurally unavailable to every
- * negative verdict, so misses were systematically harder to settle than hits
- * on identical evidence. Three real weather checks scored 0 here while
- * correctly reporting that a 65F day did not reach 85F.
- *
- * Establishing that a criterion was NOT met is the same work as establishing
- * that it was. What matters is whether every criterion got an answer, and
- * whether those answers rest on something quoted rather than inferred.
- *
- * `no_change` keeps the old reading. Nothing has been established yet by
- * definition, and a check that found nothing should not score as though it had.
- */
-export function coverageFrom(
-  criteriaStatus: CriterionStatus[],
-  criteriaCount: number,
-  verdict: CheckVerdict = 'no_change',
-): 'all_quoted' | 'partial' | 'inferred' | 'none' {
-  if (criteriaStatus.length === 0 || criteriaCount === 0) return 'none';
-
-  if (verdict === 'no_change') {
-    const satisfied = criteriaStatus.filter((c) => c.satisfied);
-    if (satisfied.length === 0) return 'none';
-    const allSatisfied = satisfied.length === criteriaCount;
-    const allQuoted = satisfied.every((c) => c.basis === 'quoted');
-    if (allSatisfied && allQuoted) return 'all_quoted';
-    if (allSatisfied) return 'inferred';
-    return 'partial';
-  }
-
-  const answered = criteriaStatus.filter((c) => c.basis !== 'none');
-  if (answered.length === 0) return 'none';
-  if (answered.length < criteriaCount) return 'partial';
-  return answered.every((c) => c.basis === 'quoted') ? 'all_quoted' : 'inferred';
 }

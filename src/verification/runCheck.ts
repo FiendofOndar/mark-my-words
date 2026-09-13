@@ -11,7 +11,7 @@ import {
   describeDeadline,
 } from '../domain/format';
 import {
-  effectiveDeadline,
+  isPastDeadline,
   isResolved,
   isUnderLateWatch,
   markLateHit,
@@ -20,8 +20,7 @@ import {
   toLocalDateInput,
   type PredictionPatch,
 } from '../domain/prediction';
-import { scoreCheck, type RubricResult } from '../domain/rubric';
-import { coverageFrom } from './checkSchema';
+import { assessCheck, type Assessment } from '../domain/gates';
 import { validateSources, type PageFetcher, type ValidatedSource } from './validateSources';
 import { VerifierError, type CheckInput, type CheckTriggerKind, type Verifier } from './types';
 import type { NewCheck } from '../data/repositories/checkRepo';
@@ -48,7 +47,7 @@ export interface CheckPlan {
   freeze: boolean;
   /** False for an error, so the prediction stays due for the next pull. */
   countsAsChecked: boolean;
-  rubric: RubricResult | null;
+  assessment: Assessment | null;
   sources: ValidatedSource[];
   /** Present on a failure, so callers can react to why rather than to text. */
   error?: Error;
@@ -109,23 +108,26 @@ export async function runCheck(deps: CheckDeps, ctx: CheckContext): Promise<Chec
 
   const sources = await validateSources(result.sources, deps.fetcher);
 
-  const rubric = scoreCheck({
+  const assessment = assessCheck({
     sources,
-    coverage: coverageFrom(result.criteriaStatus, ctx.criteria.length, result.verdict),
     modelConfidence: result.modelConfidence,
     statementDate: p.statementDate,
-    // A late-watch check is looking for evidence that by definition postdates
-    // the deadline, so it gets no upper bound. Sources must still postdate the
-    // prediction itself.
-    claimPeriodEnd: isUnderLateWatch(p, now) ? null : effectiveDeadline(p),
     proposedVerdict: result.verdict,
     forceManual: p.forceManual,
     isRetroactive: p.isRetroactive,
   });
 
+  // A check that resolved nothing has not established that a criterion was
+  // NOT met; it has established that it is not met yet, which is the same
+  // mark the criterion already carries. Writing false there drew a red cross
+  // beside every criterion of an open claim, which reads as a miss in
+  // progress. A criterion the check found already met is still worth
+  // recording, since that is progress the next check can build on.
   const criteriaUpdates = result.criteriaStatus.flatMap((status) => {
     const element = ctx.criteria[status.index];
-    return element ? [{ id: element.id, satisfied: status.satisfied }] : [];
+    if (!element) return [];
+    if (result.verdict === 'no_change' && !status.satisfied) return [];
+    return [{ id: element.id, satisfied: status.satisfied }];
   });
 
   const base = {
@@ -133,7 +135,7 @@ export async function runCheck(deps: CheckDeps, ctx: CheckContext): Promise<Chec
     criteriaUpdates,
     freeze: p.criteriaFrozenAt === null,
     countsAsChecked: true,
-    rubric,
+    assessment,
     sources,
   };
 
@@ -144,12 +146,13 @@ export async function runCheck(deps: CheckDeps, ctx: CheckContext): Promise<Chec
     model: result.model,
     proposedVerdict: result.verdict,
     proposedTrend: result.trend,
-    rubricScore: rubric.score,
-    rubricBreakdown: { ...rubric.breakdown, gates: rubric.gates },
+    gates: assessment.gates,
     modelConfidence: result.modelConfidence,
     summary: result.summary,
     outcome,
     tokensUsed: result.tokensUsed,
+    searchQueries: result.searchQueries ?? null,
+    errorMessage: result.providerNote ?? null,
     evidence: sources.map((s) => ({
       url: s.url,
       title: s.title,
@@ -161,6 +164,44 @@ export async function runCheck(deps: CheckDeps, ctx: CheckContext): Promise<Chec
       fetchedAt: s.fetchedAt,
     })),
   });
+
+  /*
+   * A claim that something will NOT happen is settled by the deadline passing
+   * with the disconfirming event never found. That is an absence, and an
+   * absence has no sources, so it can never come back from the model as a
+   * verdict: the parser holds a sourceless verdict open, correctly. The app
+   * reads the absence itself, and asks rather than applying it, because "the
+   * search found nothing" and "nothing happened" are not the same claim.
+   */
+  if (
+    p.polarity === 'negative' &&
+    p.status === 'open' &&
+    isPastDeadline(p, now) &&
+    result.verdict === 'no_change'
+  ) {
+    // The trigger is a sentence of its own, so it is quoted rather than
+    // spliced into one: "nothing showed that A spacecraft lands ... happened"
+    // is what splicing read like on the first real run.
+    const trigger = p.disconfirmingTrigger
+      ? `"${p.disconfirmingTrigger.replace(/\.$/, '')}"`
+      : 'the event that would have disproved it';
+    return {
+      ...base,
+      outcome: 'queued',
+      message: 'Deadline passed with nothing found, needs you',
+      check: {
+        ...checkRow('queued'),
+        proposedVerdict: 'hit',
+        gates: ['The deadline passed and the search found nothing; only you can say nothing happened.'],
+        summary: `${result.summary} The deadline has passed with no sign of ${trigger}. That reads as a hit.`,
+      },
+      predictionPatch: {
+        lastCheckedAt: now.toISOString(),
+        checkCount: p.checkCount + 1,
+        updatedAt: now.toISOString(),
+      },
+    };
+  }
 
   // Nothing decisive. Record the finding and move the trend.
   if (result.verdict === 'no_change') {
@@ -179,8 +220,27 @@ export async function runCheck(deps: CheckDeps, ctx: CheckContext): Promise<Chec
   }
 
   // A miss that came true later keeps its verdict and earns the badge instead.
+  //
+  // Anything else under late watch is the model confirming a verdict the
+  // prediction already carries, and there is nothing to apply. This used to
+  // fall through to `resolve`, which refuses a miss-to-miss transition and
+  // threw out of the whole pull. Every miss got a three-year watch by default,
+  // so every miss became that thirty days after it settled.
+  if (isUnderLateWatch(p, now) && result.verdict !== 'hit') {
+    return {
+      ...base,
+      outcome: 'no_change',
+      message: 'Still a miss',
+      check: checkRow('no_change'),
+      predictionPatch: {
+        lastCheckedAt: now.toISOString(),
+        checkCount: p.checkCount + 1,
+        updatedAt: now.toISOString(),
+      },
+    };
+  }
   if (isUnderLateWatch(p, now) && result.verdict === 'hit') {
-    if (rubric.decision === 'auto_resolve') {
+    if (assessment.decision === 'auto_resolve') {
       return {
         ...base,
         outcome: 'late_hit',
@@ -206,21 +266,21 @@ export async function runCheck(deps: CheckDeps, ctx: CheckContext): Promise<Chec
     };
   }
 
-  if (rubric.decision === 'auto_resolve') {
+  if (assessment.decision === 'auto_resolve') {
     return {
       ...base,
       outcome: 'resolved',
       message: `Resolved ${result.verdict}`,
       check: checkRow('auto_resolved'),
       predictionPatch: {
-        ...resolve(p, result.verdict, 'auto', now, { confidenceScore: rubric.score }),
+        ...resolve(p, result.verdict, 'auto', now),
         lastCheckedAt: now.toISOString(),
         checkCount: p.checkCount + 1,
       },
     };
   }
 
-  if (rubric.decision === 'queue') {
+  if (assessment.decision === 'queue') {
     return {
       ...base,
       outcome: 'queued',
@@ -235,18 +295,8 @@ export async function runCheck(deps: CheckDeps, ctx: CheckContext): Promise<Chec
     };
   }
 
-  return {
-    ...base,
-    outcome: 'no_change',
-    message: 'Evidence too thin',
-    check: checkRow('no_change'),
-    predictionPatch: {
-      trend: p.status === 'open' ? result.trend : p.trend,
-      lastCheckedAt: now.toISOString(),
-      checkCount: p.checkCount + 1,
-      updatedAt: now.toISOString(),
-    },
-  };
+  // Unreachable: a verdict other than no_change is always applied or queued.
+  throw new Error(`Unhandled decision "${assessment.decision}" for verdict "${result.verdict}"`);
 }
 
 /** The earliest validated source date is the best evidence of when it happened. */
@@ -269,7 +319,7 @@ function skippedPlan(p: Prediction, message: string): CheckPlan {
     criteriaUpdates: [],
     freeze: false,
     countsAsChecked: false,
-    rubric: null,
+    assessment: null,
     sources: [],
   };
 }
@@ -281,7 +331,7 @@ function staleOutPlan(p: Prediction, now: Date, trigger: CheckTriggerKind): Chec
     message: 'Gave up waiting',
     freeze: false,
     countsAsChecked: true,
-    rubric: null,
+    assessment: null,
     sources: [],
     criteriaUpdates: [],
     check: {
@@ -291,8 +341,7 @@ function staleOutPlan(p: Prediction, now: Date, trigger: CheckTriggerKind): Chec
       model: null,
       proposedVerdict: 'void',
       proposedTrend: null,
-      rubricScore: null,
-      rubricBreakdown: null,
+      gates: null,
       modelConfidence: null,
       summary: 'Passed its stale-out date without resolving, so it was voided.',
       outcome: 'auto_resolved',
@@ -305,7 +354,7 @@ function staleOutPlan(p: Prediction, now: Date, trigger: CheckTriggerKind): Chec
   };
 }
 
-function errorPlan(
+export function errorPlan(
   p: Prediction,
   trigger: CheckTriggerKind,
   verifier: Verifier,
@@ -320,7 +369,7 @@ function errorPlan(
     // An error must not consume the cadence slot, or a broken key would quietly
     // push every prediction a full interval into the future.
     countsAsChecked: false,
-    rubric: null,
+    assessment: null,
     sources: [],
     criteriaUpdates: [],
     predictionPatch: null,
@@ -332,8 +381,7 @@ function errorPlan(
       model: verifier.modelId,
       proposedVerdict: null,
       proposedTrend: null,
-      rubricScore: null,
-      rubricBreakdown: null,
+      gates: null,
       modelConfidence: null,
       summary: err.message,
       outcome: 'error',

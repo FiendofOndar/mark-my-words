@@ -119,11 +119,19 @@ export interface Prediction {
   forceManual: boolean;
   searchQueries: string[];
   noCheckBefore: Iso | null;
+  /**
+   * Whether the claim could still come true after its deadline. "Bitcoin
+   * above $100k by the end of 2024" can happen in 2025 and earn the late
+   * badge; "85F in Anacortes on September 12" cannot happen on any other day.
+   * The deadline type does not tell these apart: both are fixed dates. The
+   * intake model sets it, the review card can flip it, and both late watch and
+   * the "it happened anyway" control read it.
+   */
+  canHappenLate: boolean;
 
   // state
   status: PredictionStatus;
   trend: Trend | null;
-  confidenceScore: number | null;
   resolvedAt: Iso | null;
   resolvedBy: ResolvedBy | null;
   lateHitAt: Iso | null;
@@ -179,20 +187,40 @@ export interface Check {
   model: string | null;
   proposedVerdict: PredictionStatus | 'no_change' | null;
   proposedTrend: Trend | null;
-  rubricScore: number | null;
-  rubricBreakdown: string | null;
+  /** What the app noticed about the citations that kept it from acting alone. */
+  gates: string[];
   modelConfidence: number | null;
   summary: string;
   outcome: CheckOutcome;
   errorMessage: string | null;
   tokensUsed: number | null;
+  /** The searches the provider ran, when it reported them. */
+  searchQueries: string[] | null;
   createdAt: Iso;
   updatedAt: Iso;
   deletedAt: Iso | null;
 }
 
 export type SourceTier = 'primary' | 'major_outlet' | 'secondary' | 'social';
-export type FetchStatus = 'ok' | 'unreachable' | 'quote_not_found' | 'blocked';
+/**
+ * What the app learned by opening a cited link itself: whether it goes
+ * anywhere. `ok` means the page answered, `blocked` means the host answered
+ * but refused the app (a bot wall, a paywall, a timeout), `missing` means the
+ * host answered that there is no page at that address, `unreachable` means
+ * there is no such host. Only the last is evidence of an invented citation:
+ * a real publisher with a rotted or misremembered deep link is `missing`,
+ * and it still counts as a publisher the model found, which is what
+ * corroboration is counting.
+ *
+ * There used to be two more, for a page that loaded but did not carry the
+ * quoted sentence, or carried its figures without its wording. Neither reached
+ * a decision, and telling drift from invention was never something a text
+ * match could do. The verdict is the model's; the link is the app's.
+ *
+ * `not_checked` is for evidence that never went through the fetch stage at all
+ * - seeded samples, imported records. It is not `blocked`: nobody tried.
+ */
+export type FetchStatus = 'ok' | 'blocked' | 'missing' | 'unreachable' | 'not_checked';
 
 export interface Evidence {
   id: Uuid;

@@ -54,17 +54,14 @@ class StubFetcher implements PageFetcher {
   }
 }
 
-const quotesBack: PageFetcher = new StubFetcher(() => ({
-  kind: 'ok',
-  text: 'the thing definitively happened on Tuesday in front of everyone',
-}));
+const pageAnswers: PageFetcher = new StubFetcher(() => ({ kind: 'ok' }));
 
 function result(overrides: Partial<CheckResult> = {}): CheckResult {
   return {
     verdict: 'hit',
     trend: 'toward_yes',
     summary: 'It happened.',
-    criteriaStatus: [{ index: 0, satisfied: true, basis: 'quoted', why: 'Reported.' }],
+    criteriaStatus: [{ index: 0, satisfied: true, why: 'Reported.' }],
     sources: [
       citedSource(),
       citedSource({ url: 'https://reuters.com/a', publisher: 'Reuters' }),
@@ -78,7 +75,7 @@ function result(overrides: Partial<CheckResult> = {}): CheckResult {
   };
 }
 
-function deps(verifierResult: CheckResult | Error, fetcher: PageFetcher = quotesBack): CheckDeps {
+function deps(verifierResult: CheckResult | Error, fetcher: PageFetcher = pageAnswers): CheckDeps {
   return { verifier: new StubVerifier(verifierResult), fetcher, now: () => NOW };
 }
 
@@ -92,13 +89,12 @@ function ctx(prediction: Prediction, texts = ['The thing happens']) {
 }
 
 describe('a decisive, well-sourced check', () => {
-  it('auto-resolves and stamps the score', async () => {
+  it('auto-resolves', async () => {
     const plan = await runCheck(deps(result()), ctx(makePrediction()));
 
     expect(plan.outcome).toBe('resolved');
     expect(plan.predictionPatch).toMatchObject({ status: 'hit', resolvedBy: 'auto' });
-    // No threshold here any more: the verdict decides and the score describes.
-    expect(plan.predictionPatch!.confidenceScore).toBeGreaterThan(0);
+    expect(plan.check!.gates).toEqual([]);
     expect(plan.check!.outcome).toBe('auto_resolved');
     expect(plan.check!.evidence).toHaveLength(3);
     expect(plan.countsAsChecked).toBe(true);
@@ -115,13 +111,32 @@ describe('a decisive, well-sourced check', () => {
     expect(already.freeze).toBe(false);
   });
 
+  it('does not mark a criterion unmet on a check that resolved nothing', async () => {
+    // "Not yet" is not "not met". A no_change check used to write false on
+    // every criterion, which drew a red cross beside each one on an open
+    // claim. A criterion it found already met is still recorded.
+    const plan = await runCheck(
+      deps(
+        result({
+          verdict: 'no_change',
+          criteriaStatus: [
+            { index: 0, satisfied: true, why: 'already happened' },
+            { index: 1, satisfied: false, why: 'not yet' },
+          ],
+        }),
+      ),
+      ctx(makePrediction(), ['First thing', 'Second thing']),
+    );
+    expect(plan.criteriaUpdates).toEqual([{ id: 'c-0', satisfied: true }]);
+  });
+
   it('records which criteria the evidence satisfied', async () => {
     const plan = await runCheck(
       deps(
         result({
           criteriaStatus: [
-            { index: 0, satisfied: true, basis: 'quoted', why: '' },
-            { index: 1, satisfied: false, basis: 'none', why: '' },
+            { index: 0, satisfied: true, why: '' },
+            { index: 1, satisfied: false, why: '' },
           ],
         }),
       ),
@@ -145,7 +160,7 @@ describe('a check that should not decide anything', () => {
     expect(plan.predictionPatch!.status).toBeUndefined();
   });
 
-  it('queues a verdict the rubric will not auto-resolve', async () => {
+  it('queues a verdict the model is not sure of', async () => {
     const plan = await runCheck(
       deps(result({ modelConfidence: 60 })),
       ctx(makePrediction()),
@@ -162,7 +177,7 @@ describe('a check that should not decide anything', () => {
       ctx(makePrediction()),
     );
     expect(plan.outcome).toBe('queued');
-    expect(plan.rubric!.gates.join(' ')).toMatch(/one independent source/i);
+    expect(plan.assessment!.gates.join(' ')).toMatch(/one independent source/i);
   });
 
   it('never auto-resolves a prediction the user reserved for themselves', async () => {
@@ -175,19 +190,10 @@ describe('a check that should not decide anything', () => {
 });
 
 describe('source validation feeds the decision', () => {
-  it('still resolves when the quote has moved but the pages are real', async () => {
-    // The live-page case, and the one that drove this change. A forecast page
-    // rewrites itself between the model reading it and the app fetching it
-    // minutes later, so the quote is genuinely gone. That says nothing about
-    // whether the verdict is right, and it used to block it anyway.
-    const plan = await runCheck(
-      deps(result(), new StubFetcher(() => ({ kind: 'ok', text: 'Unrelated page content.' }))),
-      ctx(makePrediction()),
-    );
-    expect(plan.sources.every((s) => s.fetchStatus === 'quote_not_found')).toBe(true);
+  it('resolves on real pages whatever their wording, since the app no longer reads it', async () => {
+    const plan = await runCheck(deps(result(), new StubFetcher(() => ({ kind: 'ok' }))), ctx(makePrediction()));
+    expect(plan.sources.every((s) => s.fetchStatus === 'ok')).toBe(true);
     expect(plan.outcome).toBe('resolved');
-    // It still costs points, so the log says the app could not stand it up.
-    expect(plan.rubric!.breakdown.urlValidation).toBe(4);
   });
 
   it('treats an unreachable citation as a reason to stop', async () => {
@@ -196,7 +202,7 @@ describe('source validation feeds the decision', () => {
       ctx(makePrediction()),
     );
     expect(plan.outcome).not.toBe('resolved');
-    expect(plan.rubric!.gates.join(' ')).toMatch(/invented/i);
+    expect(plan.assessment!.gates.join(' ')).toMatch(/invented/i);
   });
 
   it('resolves when sources could not be read at all, since that accuses nobody', () => {
@@ -207,7 +213,7 @@ describe('source validation feeds the decision', () => {
       ctx(makePrediction()),
     ).then((plan) => {
       expect(plan.outcome).toBe('resolved');
-      expect(plan.rubric!.gates).toEqual([]);
+      expect(plan.assessment!.gates).toEqual([]);
     });
   });
 
@@ -219,7 +225,41 @@ describe('source validation feeds the decision', () => {
       ctx(makePrediction()),
     );
     expect(plan.outcome).toBe('queued');
-    expect(plan.rubric!.gates.join(' ')).toMatch(/invented citations/i);
+    expect(plan.assessment!.gates.join(' ')).toMatch(/invented citations/i);
+  });
+});
+
+describe('a claim that something will not happen', () => {
+  const negative = (daysToDeadline: number) =>
+    makePrediction({
+      polarity: 'negative',
+      disconfirmingTrigger: 'The neighbors raise the gutters again',
+      resolutionDate: isoDaysFrom(NOW, daysToDeadline),
+    });
+  const nothingFound = () =>
+    result({ verdict: 'no_change', trend: 'flat', summary: 'No mention found.', sources: [] });
+
+  it('queues a hit for approval once the deadline passes with nothing found', async () => {
+    // An absence has no sources, so it can never arrive as a verdict. Before
+    // this, negative claims sat open until the person noticed.
+    const plan = await runCheck(deps(nothingFound()), ctx(negative(-2)));
+    expect(plan.outcome).toBe('queued');
+    expect(plan.check!.proposedVerdict).toBe('hit');
+    expect(plan.check!.outcome).toBe('queued');
+    expect(plan.check!.summary).toMatch(/gutters/);
+    expect(plan.predictionPatch!.status).toBeUndefined();
+  });
+
+  it('is still just no_change before the deadline', async () => {
+    const plan = await runCheck(deps(nothingFound()), ctx(negative(30)));
+    expect(plan.outcome).toBe('no_change');
+    expect(plan.check!.proposedVerdict).toBe('no_change');
+  });
+
+  it('applies a miss when the disconfirming event was found', async () => {
+    const plan = await runCheck(deps(result({ verdict: 'miss' })), ctx(negative(-2)));
+    expect(plan.outcome).toBe('resolved');
+    expect(plan.predictionPatch!.status).toBe('miss');
   });
 });
 
@@ -258,6 +298,28 @@ describe('late hits', () => {
   it('queues a weakly evidenced late hit rather than badging it', async () => {
     const plan = await runCheck(deps(result({ modelConfidence: 50 })), ctx(lateWatched()));
     expect(plan.outcome).toBe('queued');
+  });
+
+  it('records a re-check that confirms the miss without touching the verdict', async () => {
+    // The likeliest answer on a settled miss is "still a miss", and it used to
+    // throw on the miss-to-miss transition and take the whole pull down.
+    const plan = await runCheck(
+      deps(result({ verdict: 'miss', summary: 'Still has not happened.' })),
+      ctx(lateWatched()),
+    );
+    expect(plan.outcome).toBe('no_change');
+    expect(plan.check!.outcome).toBe('no_change');
+    expect(plan.check!.proposedVerdict).toBe('miss');
+    expect(plan.predictionPatch!.status).toBeUndefined();
+    expect(plan.predictionPatch!.lateHitAt).toBeUndefined();
+    expect(plan.predictionPatch!.lastCheckedAt).toBeTruthy();
+    expect(plan.countsAsChecked).toBe(true);
+  });
+
+  it('holds a late-watch partial or ambiguous answer the same way', async () => {
+    const plan = await runCheck(deps(result({ verdict: 'ambiguous' })), ctx(lateWatched()));
+    expect(plan.outcome).toBe('no_change');
+    expect(plan.predictionPatch!.status).toBeUndefined();
   });
 });
 
@@ -308,7 +370,6 @@ describe('what the model is told', () => {
     const spy: Verifier = {
       providerId: verifier.providerId,
       modelId: verifier.modelId,
-      dailyQuota: verifier.dailyQuota,
       structure: (input) => verifier.structure(input),
       testConnection: () => verifier.testConnection(),
       check: async (input) => {
@@ -318,7 +379,7 @@ describe('what the model is told', () => {
     };
 
     await runCheck(
-      { verifier: spy, fetcher: quotesBack, now: () => NOW },
+      { verifier: spy, fetcher: pageAnswers, now: () => NOW },
       ctx(
         makePrediction({
           polarity: 'negative',
@@ -346,7 +407,6 @@ describe('what the model is told', () => {
     const spy: Verifier = {
       providerId: verifier.providerId,
       modelId: verifier.modelId,
-      dailyQuota: verifier.dailyQuota,
       structure: (input) => verifier.structure(input),
       testConnection: () => verifier.testConnection(),
       check: async (input) => {
@@ -356,7 +416,7 @@ describe('what the model is told', () => {
     };
 
     await runCheck(
-      { verifier: spy, fetcher: quotesBack, now: () => evening },
+      { verifier: spy, fetcher: pageAnswers, now: () => evening },
       ctx(makePrediction()),
     );
 

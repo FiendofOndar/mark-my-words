@@ -2,7 +2,7 @@
  * Prediction state machine and deadline math. Pure functions over plain objects.
  * Nothing here touches the database, the network, or React.
  */
-import type { Iso, Prediction, PredictionStatus, ResolvedBy, Trend } from './types';
+import type { CriteriaElement, Iso, Prediction, PredictionStatus, ResolvedBy, Trend } from './types';
 
 export const RESOLVED_STATUSES: readonly PredictionStatus[] = [
   'hit',
@@ -144,6 +144,20 @@ export type LateWatchPeriod = 'never' | '1y' | '3y' | 'forever';
 export const DEFAULT_LATE_WATCH: LateWatchPeriod = '3y';
 
 /**
+ * Whether a miss should keep being checked for a late hit.
+ *
+ * Late watch is for "X will happen by Y" claims that land after Y. A claim
+ * pinned to a date, like the high temperature on a given day, cannot come true
+ * later, and every miss used to get three years of monthly checks anyway,
+ * each one a paid call asking the same question. `canHappenLate` is set at
+ * intake and editable on the review card; the deadline type alone could not
+ * tell "Bitcoin by the end of 2024" from "85F on September 12".
+ */
+export function defaultLateWatch(p: Pick<Prediction, 'canHappenLate'>): LateWatchPeriod {
+  return p.canHappenLate ? DEFAULT_LATE_WATCH : 'never';
+}
+
+/**
  * How long we keep looking after a miss. The verdict never changes, but a late
  * occurrence earns a "Better Late Than Never" badge.
  */
@@ -182,7 +196,7 @@ export function resolve(
   verdict: PredictionStatus,
   by: ResolvedBy,
   now: Date = new Date(),
-  opts: { confidenceScore?: number; lateWatch?: LateWatchPeriod } = {},
+  opts: { lateWatch?: LateWatchPeriod } = {},
 ): PredictionPatch {
   if (!isResolved(verdict)) throw new InvalidTransitionError(p.status, verdict);
   if (!canTransition(p.status, verdict)) throw new InvalidTransitionError(p.status, verdict);
@@ -193,20 +207,42 @@ export function resolve(
     resolvedAt: iso,
     resolvedBy: by,
     trend: null,
-    confidenceScore: opts.confidenceScore ?? null,
     updatedAt: iso,
   };
 
   if (verdict === 'miss') {
     const deadline = effectiveDeadline(p);
     patch.lateWatchUntil = deadline
-      ? lateWatchUntil(deadline, opts.lateWatch ?? DEFAULT_LATE_WATCH)
+      ? lateWatchUntil(deadline, opts.lateWatch ?? defaultLateWatch(p))
       : null;
   } else {
     patch.lateWatchUntil = null;
   }
 
   return patch;
+}
+
+/**
+ * What a verdict called by hand says about each criterion.
+ *
+ * A check writes the marks itself. A person resolving by hand did not, so the
+ * stamp said HIT while every criterion still showed a question mark. A hit
+ * means every criterion was met. A miss means at least one was not; the ones
+ * already found met keep their tick and the rest are crossed. Partial,
+ * ambiguous and void say nothing about individual criteria, so they are left
+ * as they were.
+ */
+export function criteriaMarksFor(
+  verdict: PredictionStatus,
+  criteria: Pick<CriteriaElement, 'id' | 'satisfied'>[],
+): { id: string; satisfied: boolean }[] {
+  if (verdict === 'hit') return criteria.map((c) => ({ id: c.id, satisfied: true }));
+  if (verdict === 'miss') {
+    return criteria
+      .filter((c) => c.satisfied !== true)
+      .map((c) => ({ id: c.id, satisfied: false }));
+  }
+  return [];
 }
 
 /** Reopen a resolved prediction. Always recorded as a user override. */
@@ -217,7 +253,6 @@ export function reopen(p: Prediction, now: Date = new Date()): PredictionPatch {
     status: 'open',
     resolvedAt: null,
     resolvedBy: 'user_override',
-    confidenceScore: null,
     lateWatchUntil: null,
     trend: 'unknown',
     updatedAt: iso,

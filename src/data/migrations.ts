@@ -199,6 +199,160 @@ ALTER TABLE predictions ADD COLUMN prompt_next_at TEXT;
 ALTER TABLE predictions ADD COLUMN archive_attempts INTEGER NOT NULL DEFAULT 0;
 `,
   },
+  /*
+   * SQLite cannot widen a CHECK constraint in place, so the table is rebuilt.
+   * Rows carry over untouched: `facts_found` is a new outcome the matcher can
+   * now reach, not a reinterpretation of anything already recorded.
+   */
+  {
+    version: 5,
+    name: 'facts_found fetch status',
+    sql: `
+CREATE TABLE evidence_new (
+  id             TEXT PRIMARY KEY,
+  check_id       TEXT NOT NULL REFERENCES checks(id) ON DELETE CASCADE,
+  url            TEXT NOT NULL,
+  title          TEXT,
+  publisher      TEXT,
+  published_at   TEXT,
+  quoted_text    TEXT,
+  tier           TEXT CHECK (tier IN ('primary','major_outlet','secondary','social')),
+  fetch_status   TEXT NOT NULL
+                   CHECK (fetch_status IN ('ok','facts_found','unreachable','quote_not_found','blocked')),
+  fetched_at     TEXT,
+  created_at     TEXT NOT NULL,
+  updated_at     TEXT NOT NULL,
+  deleted_at     TEXT
+);
+INSERT INTO evidence_new SELECT * FROM evidence;
+DROP TABLE evidence;
+ALTER TABLE evidence_new RENAME TO evidence;
+CREATE INDEX idx_evidence_check ON evidence(check_id);
+`,
+  },
+  /*
+   * Grounded checks are billed per search query, so this is the line item the
+   * owner of the key actually pays. Stored as the queries themselves rather
+   * than a count: a verdict built on the wrong sources almost always started
+   * with the wrong query, and the count alone cannot show that.
+   */
+  {
+    version: 6,
+    name: 'recorded search queries',
+    sql: `
+ALTER TABLE checks ADD COLUMN search_queries TEXT;
+`,
+  },
+  /*
+   * Another CHECK widened, another rebuild: SQLite cannot alter one in place
+   * and v5 spelled its list out. `not_checked` is what a seeded or imported
+   * citation actually is, as against `blocked`, which claims a fetch was tried.
+   */
+  {
+    version: 7,
+    name: 'not_checked fetch status',
+    sql: `
+CREATE TABLE evidence_v7 (
+  id             TEXT PRIMARY KEY,
+  check_id       TEXT NOT NULL REFERENCES checks(id) ON DELETE CASCADE,
+  url            TEXT NOT NULL,
+  title          TEXT,
+  publisher      TEXT,
+  published_at   TEXT,
+  quoted_text    TEXT,
+  tier           TEXT CHECK (tier IN ('primary','major_outlet','secondary','social')),
+  fetch_status   TEXT NOT NULL
+                   CHECK (fetch_status IN
+                     ('ok','facts_found','unreachable','quote_not_found','blocked','not_checked')),
+  fetched_at     TEXT,
+  created_at     TEXT NOT NULL,
+  updated_at     TEXT NOT NULL,
+  deleted_at     TEXT
+);
+INSERT INTO evidence_v7 SELECT * FROM evidence;
+DROP TABLE evidence;
+ALTER TABLE evidence_v7 RENAME TO evidence;
+CREATE INDEX idx_evidence_check ON evidence(check_id);
+`,
+  },
+  /*
+   * The evidence score is gone. It decided nothing, and the gates were the
+   * only part of its breakdown anything read. The column is renamed rather
+   * than replaced so existing rows keep their gates (parseGates reads the old
+   * object shape). rubric_score and predictions.confidence_score stay in
+   * place, unwritten: dropping a column is a table rebuild for no gain.
+   */
+  {
+    version: 8,
+    name: 'gates instead of a score, links instead of quotes',
+    sql: `
+ALTER TABLE checks RENAME COLUMN rubric_breakdown TO gates;
+UPDATE evidence SET fetch_status = 'ok' WHERE fetch_status IN ('facts_found', 'quote_not_found');
+CREATE TABLE evidence_v8 (
+  id             TEXT PRIMARY KEY,
+  check_id       TEXT NOT NULL REFERENCES checks(id) ON DELETE CASCADE,
+  url            TEXT NOT NULL,
+  title          TEXT,
+  publisher      TEXT,
+  published_at   TEXT,
+  quoted_text    TEXT,
+  tier           TEXT CHECK (tier IN ('primary','major_outlet','secondary','social')),
+  fetch_status   TEXT NOT NULL CHECK (fetch_status IN ('ok','unreachable','blocked','not_checked')),
+  fetched_at     TEXT,
+  created_at     TEXT NOT NULL,
+  updated_at     TEXT NOT NULL,
+  deleted_at     TEXT
+);
+INSERT INTO evidence_v8 SELECT * FROM evidence;
+DROP TABLE evidence;
+ALTER TABLE evidence_v8 RENAME TO evidence;
+CREATE INDEX idx_evidence_check ON evidence(check_id);
+`,
+  },
+  /*
+   * Whether a claim can still come true after its deadline. Backfilled from
+   * the rule it replaces: event-shaped claims could, dated ones could not.
+   */
+  {
+    version: 9,
+    name: 'can_happen_late',
+    sql: `
+ALTER TABLE predictions ADD COLUMN can_happen_late INTEGER NOT NULL DEFAULT 0;
+UPDATE predictions SET can_happen_late = 1 WHERE deadline_type = 'event';
+`,
+  },
+  /*
+   * `missing` splits off from `unreachable`: a host that answered "no page
+   * here" against a host that does not exist. Only the second is what an
+   * invented citation looks like. Rows already marked unreachable cannot be
+   * told apart after the fact and stay as they are.
+   */
+  {
+    version: 10,
+    name: 'missing fetch status',
+    sql: `
+CREATE TABLE evidence_v10 (
+  id             TEXT PRIMARY KEY,
+  check_id       TEXT NOT NULL REFERENCES checks(id) ON DELETE CASCADE,
+  url            TEXT NOT NULL,
+  title          TEXT,
+  publisher      TEXT,
+  published_at   TEXT,
+  quoted_text    TEXT,
+  tier           TEXT CHECK (tier IN ('primary','major_outlet','secondary','social')),
+  fetch_status   TEXT NOT NULL
+                   CHECK (fetch_status IN ('ok','blocked','missing','unreachable','not_checked')),
+  fetched_at     TEXT,
+  created_at     TEXT NOT NULL,
+  updated_at     TEXT NOT NULL,
+  deleted_at     TEXT
+);
+INSERT INTO evidence_v10 SELECT * FROM evidence;
+DROP TABLE evidence;
+ALTER TABLE evidence_v10 RENAME TO evidence;
+CREATE INDEX idx_evidence_check ON evidence(check_id);
+`,
+  },
 ];
 
 export function currentVersion(driver: SqlDriver): number {

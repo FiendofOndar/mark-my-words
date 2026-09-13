@@ -1,12 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  normalizeForMatch,
-  pageContainsQuote,
-  stripHtml,
-  validateSources,
-  type PageFetchOutcome,
-  type PageFetcher,
-} from './validateSources';
+import { validateSources, type PageFetchOutcome, type PageFetcher } from './validateSources';
 import type { CitedSource } from './types';
 
 function source(overrides: Partial<CitedSource> = {}): CitedSource {
@@ -29,93 +22,23 @@ class FakeFetcher implements PageFetcher {
   }
 }
 
-describe('stripHtml', () => {
-  it('drops tags and the contents of script and style', () => {
-    const text = stripHtml(
-      '<p>Hello <b>world</b></p><script>var x = "secret";</script><style>.a{}</style>',
-    );
-    expect(text).toContain('Hello');
-    expect(text).toContain('world');
-    expect(text).not.toContain('secret');
-    expect(text).not.toContain('.a{}');
-  });
-
-  it('decodes the entities that show up in quoted passages', () => {
-    expect(stripHtml('it&#39;s &quot;on&quot; &amp; done')).toBe('it\'s "on" & done');
-  });
-});
-
-describe('normalizeForMatch', () => {
-  it('flattens smart quotes, dashes and whitespace', () => {
-    expect(normalizeForMatch('  The “Cardinals” — won \n\n it’s over ')).toBe(
-      'the "cardinals" - won it\'s over',
-    );
-  });
-});
-
-describe('pageContainsQuote', () => {
-  const page =
-    'Late Sunday in St. Louis, the Cardinals took the series in six games on Sunday night, ending a long drought.';
-
-  it('matches an exact quote', () => {
-    expect(pageContainsQuote(page, 'The Cardinals took the series in six games')).toBe(true);
-  });
-
-  it('matches across typographic differences', () => {
-    expect(
-      pageContainsQuote(
-        'The team said it’s “the best season” they have had — ever.',
-        'it\'s "the best season" they have had - ever',
-      ),
-    ).toBe(true);
-  });
-
-  it('matches a quote trimmed with an ellipsis', () => {
-    expect(
-      pageContainsQuote(page, 'the Cardinals took the series ... on Sunday night'),
-    ).toBe(true);
-  });
-
-  it('rejects a passage the page does not contain', () => {
-    expect(
-      pageContainsQuote(page, 'The Cardinals were eliminated in the division series in four games'),
-    ).toBe(false);
-  });
-
-  it('will not match a short quote fuzzily', () => {
-    // Every word is on the page, but five words is not distinctive enough to
-    // treat a scattered match as a real citation.
-    expect(pageContainsQuote(page, 'Cardinals drought games series Sunday')).toBe(false);
-  });
-
-  it('rejects an empty quote', () => {
-    expect(pageContainsQuote(page, '   ')).toBe(false);
-  });
-});
-
 describe('validateSources', () => {
-  it('marks a source ok when the page carries the quote', async () => {
+  it('marks a source ok when the link goes somewhere', async () => {
     const s = source();
-    const result = await validateSources(
-      [s],
-      new FakeFetcher({ [s.url]: { kind: 'ok', text: `<p>${s.quotedText}</p>` } }),
-    );
+    const result = await validateSources([s], new FakeFetcher({ [s.url]: { kind: 'ok' } }));
     expect(result[0]!.fetchStatus).toBe('ok');
     expect(result[0]!.fetchedAt).toBeTruthy();
-  });
-
-  it('marks a source quote_not_found when the page exists but says otherwise', async () => {
-    const s = source();
-    const result = await validateSources(
-      [s],
-      new FakeFetcher({ [s.url]: { kind: 'ok', text: '<p>Something entirely different.</p>' } }),
-    );
-    expect(result[0]!.fetchStatus).toBe('quote_not_found');
   });
 
   it('marks a source unreachable when the fetcher says so', async () => {
     const result = await validateSources([source()], new FakeFetcher({}));
     expect(result[0]!.fetchStatus).toBe('unreachable');
+  });
+
+  it('marks a source missing when the host answered that there is no page', async () => {
+    const s = source();
+    const result = await validateSources([s], new FakeFetcher({ [s.url]: { kind: 'missing' } }));
+    expect(result[0]!.fetchStatus).toBe('missing');
   });
 
   it('marks a source blocked rather than unreachable when it was refused', async () => {
@@ -124,17 +47,22 @@ describe('validateSources', () => {
     expect(result[0]!.fetchStatus).toBe('blocked');
   });
 
-  it('validates every source, not just the first', async () => {
+  it('checks every source, not just the first', async () => {
     const a = source({ url: 'https://a.com/1' });
     const b = source({ url: 'https://b.com/1' });
     const result = await validateSources(
       [a, b],
-      new FakeFetcher({
-        [a.url]: { kind: 'ok', text: a.quotedText },
-        [b.url]: { kind: 'blocked' },
-      }),
+      new FakeFetcher({ [a.url]: { kind: 'ok' }, [b.url]: { kind: 'blocked' } }),
     );
     expect(result.map((r) => r.fetchStatus)).toEqual(['ok', 'blocked']);
+  });
+
+  it('keeps the quoted passage as the model gave it', async () => {
+    // The quote is shown on the row as the citation. Nothing checks it against
+    // the page any more, and nothing should rewrite it either.
+    const s = source();
+    const [validated] = await validateSources([s], new FakeFetcher({ [s.url]: { kind: 'ok' } }));
+    expect(validated!.quotedText).toBe(s.quotedText);
   });
 });
 
@@ -149,21 +77,16 @@ describe('grounding redirects', () => {
       canProveUnreachable: true,
       fetchPage: async () => ({
         kind: 'ok',
-        text: 'the thing definitively happened on Tuesday in front of everyone',
         finalUrl: 'https://www.weather.gov/sew/climate-report',
       }),
     };
 
     const [validated] = await validateSources(
       [
-        {
+        source({
           url: 'https://vertexaisearch.cloud.google.com/grounding-api-redirect/abc123',
-          title: null,
           publisher: 'National Weather Service',
-          publishedAt: '2026-09-11',
-          quotedText: 'the thing definitively happened on Tuesday in front of everyone',
-          tier: 'primary',
-        },
+        }),
       ],
       fetcher,
     );
@@ -177,19 +100,7 @@ describe('grounding redirects', () => {
       canProveUnreachable: true,
       fetchPage: async () => ({ kind: 'blocked' }),
     };
-    const [validated] = await validateSources(
-      [
-        {
-          url: 'https://example.com/a',
-          title: null,
-          publisher: 'Someone',
-          publishedAt: null,
-          quotedText: 'x',
-          tier: 'secondary',
-        },
-      ],
-      fetcher,
-    );
+    const [validated] = await validateSources([source({ url: 'https://example.com/a' })], fetcher);
     expect(validated!.url).toBe('https://example.com/a');
   });
 });

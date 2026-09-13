@@ -34,6 +34,7 @@ export interface PredictionFormValues {
   staleOutDate: string;
   verificationMode: VerificationMode;
   forceManual: boolean;
+  canHappenLate: boolean;
   category: Category;
   stakes: string;
   criteria: string[];
@@ -69,6 +70,7 @@ export function emptyFormValues(): PredictionFormValues {
     staleOutDate: yearsFromToday(5),
     verificationMode: 'searchable',
     forceManual: false,
+    canHappenLate: false,
     category: 'Other',
     stakes: '',
     criteria: [''],
@@ -102,6 +104,7 @@ export function toFormValues(
     staleOutDate: date(p.staleOutDate) || yearsFromToday(5),
     verificationMode: p.verificationMode,
     forceManual: p.forceManual,
+    canHappenLate: p.canHappenLate,
     category: p.category,
     stakes: p.stakes ?? '',
     criteria: criteria.length > 0 ? criteria.map((c) => c.text) : [''],
@@ -222,6 +225,9 @@ export function toNewPrediction(
     staleOutDate: isEvent ? endOfLocalDay(v.staleOutDate) : null,
     verificationMode: v.verificationMode,
     forceManual: v.forceManual,
+    // An event-shaped claim can by definition still occur; only dated ones
+    // need the person to say.
+    canHappenLate: isEvent ? true : v.canHappenLate,
     searchQueries: v.searchQueries,
     noCheckBefore: v.noCheckBefore ? startOfLocalDay(v.noCheckBefore) : null,
     category: v.category,
@@ -242,6 +248,8 @@ export function PredictionForm({
   verifiabilityNote,
   ambiguities = [],
   lockStatement = false,
+  onRedraft,
+  redrafting = false,
 }: {
   initial: PredictionFormValues;
   authors: Author[];
@@ -251,12 +259,18 @@ export function PredictionForm({
   banner?: ReactNode;
   deadlineNote?: string;
   verifiabilityNote?: string;
-  /** Questions that must be ticked off before the clock can start. */
+  /** Questions the model could not decide. Shown, not gated on. */
   ambiguities?: string[];
   lockStatement?: boolean;
+  /**
+   * Draft the testable version, questions and criteria again from the
+   * statement as it now reads. One model call. Absent on a form that has no
+   * model behind it.
+   */
+  onRedraft?: (rawStatement: string) => void;
+  redrafting?: boolean;
 }) {
   const [v, setV] = useState<PredictionFormValues>(initial);
-  const [settled, setSettled] = useState<boolean[]>(() => ambiguities.map(() => false));
 
   const set = <K extends keyof PredictionFormValues>(key: K, value: PredictionFormValues[K]) =>
     setV((prev) => ({ ...prev, [key]: value }));
@@ -264,48 +278,38 @@ export function PredictionForm({
   const deadline = deadlineInstant(v);
   const isRetroactive = deadline !== null && new Date(deadline).getTime() < Date.now();
 
-  const problems = useMemo(() => {
-    const list = validateFormValues(v);
-    const unsettled = settled.filter((s) => !s).length;
-    if (unsettled > 0) {
-      list.push(
-        `${unsettled} open question${unsettled === 1 ? '' : 's'} to settle before the clock starts.`,
-      );
-    }
-    return list;
-  }, [v, settled]);
+  const problems = useMemo(() => validateFormValues(v), [v]);
+  const canRedraft = onRedraft !== undefined && !lockStatement;
 
   return (
     <div className="space-y-5 px-5 py-5">
       {banner}
 
+      {/* Questions, not a gate. These used to be checkboxes that blocked the
+          confirm button until each was ticked, and ticking recorded nothing.
+          The questions are the useful part; the way to answer one is to
+          sharpen the fields, or the statement itself and redraft. */}
       {ambiguities.length > 0 && (
         <section className="rounded border border-partial/40 bg-partial/5 p-3">
           <h2 className="text-[11px] font-semibold tracking-wide text-partial uppercase">
-            Settle these first
+            Worth settling first
           </h2>
           <p className="mt-1 text-[12px] text-ink-faint">
-            Deciding after you know the answer is how timeframes slip.
+            The model could not decide these from what was said. Deciding after you know the
+            answer is how timeframes slip.
           </p>
-          <ul className="mt-2 space-y-2">
-            {ambiguities.map((question, index) => (
-              <li key={question}>
-                <label className="flex items-start gap-2.5">
-                  <input
-                    type="checkbox"
-                    checked={settled[index] ?? false}
-                    onChange={(e) =>
-                      setSettled((prev) =>
-                        prev.map((s, i) => (i === index ? e.target.checked : s)),
-                      )
-                    }
-                    className="checkbox checkbox-warn mt-0.5"
-                  />
-                  <span className="text-[14px] text-ink-dim">{question}</span>
-                </label>
+          <ul className="mt-2 space-y-1.5">
+            {ambiguities.map((question) => (
+              <li key={question} className="text-[14px] text-ink-dim">
+                {question}
               </li>
             ))}
           </ul>
+          <p className="mt-2 text-[12px] text-ink-faint">
+            {canRedraft
+              ? 'Answer by editing the fields below, or sharpen the wording of what was said and redraft; the testable version, these questions and the criteria are drawn again from it.'
+              : 'Answer by editing the fields below.'}
+          </p>
         </section>
       )}
 
@@ -318,6 +322,22 @@ export function PredictionForm({
           placeholder="Mark my words, ..."
           className={`${inputClass} font-display text-[17px] ${lockStatement ? 'text-ink-dim' : ''}`}
         />
+        {canRedraft && (
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <button
+              type="button"
+              onClick={() => onRedraft(v.rawStatement)}
+              disabled={redrafting || busy || v.rawStatement.trim().length === 0}
+              className="rounded border border-rule px-3 py-1.5 text-[13px] text-ink-dim disabled:opacity-40"
+            >
+              {redrafting ? 'Redrafting...' : 'Redraft from this'}
+            </button>
+            <span className="text-[12px] text-ink-faint">
+              Not specific enough? Sharpen the wording above, then redraft. The fields below are
+              drawn again from it. One model call.
+            </span>
+          </div>
+        )}
       </Field>
 
       <Field
@@ -518,6 +538,21 @@ export function PredictionForm({
           />
           <span className="text-[13px] text-ink-dim">
             Never auto-resolve this one. Show me the evidence and let me call it.
+          </span>
+        </label>
+      )}
+
+      {v.deadlineType !== 'event' && (
+        <label className="flex items-start gap-2.5">
+          <input
+            type="checkbox"
+            checked={v.canHappenLate}
+            onChange={(e) => set('canHappenLate', e.target.checked)}
+            className="checkbox mt-0.5"
+          />
+          <span className="text-[13px] text-ink-dim">
+            It could still happen after the deadline. Keep watching for a late hit; a miss stays
+            a miss, but earns the badge.
           </span>
         </label>
       )}

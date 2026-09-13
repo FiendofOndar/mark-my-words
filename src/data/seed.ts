@@ -53,8 +53,17 @@ export function seedDemoData(db: Db): void {
       authorId: liz.id,
       rawStatement:
         'Mark my words, we will see the first rogue AI drone strikes in the next 6 months.',
+      /*
+       * "Rogue" is the load-bearing word and the first version of this seed
+       * dropped it, testing "autonomous" instead. A drone striking without a
+       * human in the loop is doing what it was built to do; a rogue one acts
+       * against its orders or its programming. The easier reading settled as
+       * a hit on a July strike the model found in August reporting, which was
+       * the app's first wrong verdict on a real claim. The owner caught the
+       * dropped word; the criteria now carry it.
+       */
       normalizedClaim:
-        'A drone strike carried out autonomously by an AI system without human authorization is publicly reported.',
+        'An AI-controlled drone carries out a strike against its orders or its programming, and the incident is publicly reported.',
       statementDate: daysFromNow(-20),
       sourceUrl: 'https://www.instagram.com/p/example-rogue-drone',
       sourceContext: 'Instagram story',
@@ -63,123 +72,223 @@ export function seedDemoData(db: Db): void {
       verificationMode: 'searchable',
       category: 'Tech/AI',
       criteria: [
-        'A drone strike occurs that was authorized by an autonomous system, not a human operator',
+        'An AI-controlled drone carries out a strike against its orders or its programming (rogue), not merely without a human in the loop',
         'The incident is reported by at least two established news outlets',
-        'It occurs on or before the deadline',
+        'The strike happens after the claim was made and on or before the deadline',
       ],
-      searchQueries: ['autonomous drone strike no human authorization', 'rogue AI drone attack reported'],
+      searchQueries: ['rogue AI drone strike against orders', 'AI drone attacked wrong target against programming reported'],
     });
 
+    /*
+     * Live API test fixtures, chosen so one pull covers six different shapes
+     * of check. Each is settled by public record and was verified against
+     * live sources before it was written here (see the commit). The two
+     * below plus the four further down are the whole live set; the budget
+     * of six per pull is why there are not more.
+     *
+     * A film plot point. A different kind of fact from a score or a reading:
+     * nothing is measured, it is simply what happens in the story, and every
+     * synopsis on the web says so. Released December 17, 2003; the One Ring
+     * goes into the fire at Mount Doom.
+     */
     db.predictions.create({
       authorId: reddit.id,
-      rawStatement: 'Thor will lose his arm in Avengers: Doomsday.',
-      normalizedClaim: 'Thor loses an arm on screen in Avengers: Doomsday.',
-      statementDate: daysFromNow(-95),
-      sourceUrl: 'https://www.reddit.com/r/MarvelStudios/comments/example',
-      sourceContext: 'Reddit fan theory thread',
-      deadlineType: 'event',
-      triggerEvent: 'Avengers: Doomsday releases in theaters',
-      triggerExpectedDate: monthsFromNow(14),
-      staleOutDate: monthsFromNow(60),
+      rawStatement: 'Mark my words, the hobbits actually destroy the ring in Return of the King. No fake-out.',
+      normalizedClaim:
+        'In The Lord of the Rings: The Return of the King (2003), the One Ring is destroyed at Mount Doom.',
+      statementDate: '2003-11-01T12:00:00.000Z',
+      sourceContext: 'Forum thread, before the film opened',
+      deadlineType: 'fixed_date',
+      resolutionDate: endOfLocalDay('2003-12-31'),
       verificationMode: 'searchable',
       category: 'Entertainment',
-      criteria: ['Avengers: Doomsday is released', 'Thor loses an arm during the film'],
+      criteria: [
+        'The Lord of the Rings: The Return of the King is released in theaters in 2003',
+        'In the film, the One Ring is destroyed in the fire of Mount Doom',
+      ],
+      searchQueries: [
+        'Return of the King 2003 plot Mount Doom ring destroyed',
+        'Return of the King release date December 2003',
+      ],
     });
 
-    const cardinals = db.predictions.create({
+    /*
+     * A partial. Oppenheimer won Best Picture at the 96th Academy Awards on
+     * March 10, 2024; Best Actress went to Emma Stone for Poor Things, and no
+     * Oppenheimer performer was nominated in that category. One criterion
+     * holds and one fails, which is the one verdict the app never applies on
+     * its own, so this exercises the approval card and the mixed ticks.
+     */
+    db.predictions.create({
+      authorId: liz.id,
+      rawStatement: 'Oppenheimer sweeps. Best Picture AND Best Actress. Mark my words.',
+      normalizedClaim:
+        'Oppenheimer wins both Best Picture and Best Actress at the 96th Academy Awards on March 10, 2024.',
+      statementDate: '2024-01-24T12:00:00.000Z',
+      sourceContext: 'Group chat, the day after nominations',
+      deadlineType: 'fixed_date',
+      resolutionDate: endOfLocalDay('2024-03-10'),
+      verificationMode: 'searchable',
+      category: 'Entertainment',
+      stakes: 'Loser buys popcorn',
+      criteria: [
+        'Oppenheimer wins Best Picture at the 96th Academy Awards, held March 10, 2024',
+        'A performer from Oppenheimer wins Best Actress at the same ceremony',
+      ],
+      searchQueries: [
+        '96th Academy Awards Best Picture winner',
+        '2024 Oscars Best Actress winner',
+      ],
+    });
+
+    /*
+     * A negative claim that came true by absence. No crewed spacecraft has
+     * landed on the Moon since Apollo 17 in 1972; Artemis II (April 2026) was
+     * a flyby, and the first Artemis landing is targeted for 2028. The model
+     * can only report that it found nothing; past the deadline the app turns
+     * that into a hit for the owner to approve, which is the path this tests.
+     */
+    db.predictions.create({
+      authorId: self.id,
+      rawStatement: 'Nobody is landing on the Moon again before the end of 2025. Mark my words.',
+      normalizedClaim: 'No spacecraft with people aboard lands on the Moon before December 31, 2025.',
+      polarity: 'negative',
+      disconfirmingTrigger:
+        'A spacecraft with people aboard lands on the surface of the Moon between January 1, 2024 and December 31, 2025',
+      statementDate: '2024-01-01T12:00:00.000Z',
+      sourceContext: 'New Year\'s Day, arguing about Artemis',
+      deadlineType: 'fixed_date',
+      resolutionDate: endOfLocalDay('2025-12-31'),
+      verificationMode: 'searchable',
+      category: 'Tech/AI',
+      criteria: [
+        'No spacecraft with people aboard lands on the lunar surface between January 1, 2024 and December 31, 2025',
+      ],
+      searchQueries: [
+        'crewed Moon landing 2025',
+        'Artemis III landing date',
+        'first crewed lunar landing since Apollo 17',
+      ],
+    });
+
+    /*
+     * Still open. Rockstar moved Grand Theft Auto VI to November 19, 2026 on
+     * November 6, 2025, so at the time of writing this cannot resolve either
+     * way: the right answer is no_change with a trend, and it stays in the
+     * feed as a countdown. It can happen late, so a miss would keep watching.
+     */
+    db.predictions.create({
+      authorId: liz.id,
+      rawStatement: 'GTA 6 is finally out before the end of 2026. Mark my words.',
+      normalizedClaim: 'Grand Theft Auto VI is released to the public before December 31, 2026.',
+      statementDate: '2025-11-07T12:00:00.000Z',
+      sourceContext: 'The day after the second delay',
+      deadlineType: 'fixed_date',
+      resolutionDate: endOfLocalDay('2026-12-31'),
+      canHappenLate: true,
+      verificationMode: 'searchable',
+      category: 'Entertainment',
+      criteria: ['Grand Theft Auto VI is released to the public on or before December 31, 2026'],
+      searchQueries: ['Grand Theft Auto VI release date', 'GTA VI released'],
+    });
+
+    /*
+     * A settled bet with a real, checkable answer.
+     *
+     * This slot used to hold a fabricated World Series win for a season that
+     * had not been played, on example.com URLs dressed in wire-service names,
+     * with fetchStatus hardcoded to "ok" so the app reported a quote verified
+     * on pages it had never opened. A Sample badge was not enough: the first
+     * thing anyone reads is the verdict, and the verdict was false.
+     *
+     * The result below was verified against live sources before it was written
+     * here: the Dodgers beat the Blue Jays 5-4 in eleven innings in Game 7 on
+     * November 1, 2025, taking the series 4-3 and repeating as champions.
+     */
+    const dodgers = db.predictions.create({
       authorId: popops.id,
-      rawStatement: 'The Cardinals will win the World Series this year.',
-      normalizedClaim: 'The St. Louis Cardinals win the 2026 World Series.',
-      statementDate: daysFromNow(-160),
+      rawStatement: 'The Dodgers are going back-to-back. Mark my words.',
+      normalizedClaim: 'The Los Angeles Dodgers win the 2025 World Series.',
+      statementDate: '2025-10-20T02:00:00.000Z',
       sourceContext: 'Said at dinner, twice',
       deadlineType: 'fixed_date',
-      resolutionDate: daysFromNow(45),
+      resolutionDate: '2025-11-30T23:59:59.999Z',
       verificationMode: 'searchable',
       category: 'Sports',
       stakes: '$20',
-      criteria: ['The St. Louis Cardinals win the 2026 World Series'],
+      criteria: ['The Los Angeles Dodgers win the 2025 World Series'],
     });
 
     // A check log with a queued verdict, so the evidence trail and the approval
     // step are visible without waiting for a real check to land.
     db.checks.create({
-      predictionId: cardinals.id,
+      predictionId: dodgers.id,
       trigger: 'pull',
       provider: 'demo',
       model: 'demo',
       proposedVerdict: 'no_change',
       proposedTrend: 'flat',
-      rubricScore: 12,
-      rubricBreakdown: {
-        independentSources: 0,
-        sourceTier: 0,
-        urlValidation: 0,
-        criteriaCoverage: 0,
-        temporalSanity: 0,
-        capApplied: false,
-        gates: ['No sources were cited.'],
-      },
+      gates: ['No sources were cited.'],
       modelConfidence: 12,
-      summary: 'The postseason has not started. Nothing to report yet.',
+      summary: 'The series is tied at three. Nothing settled yet.',
       outcome: 'no_change',
       evidence: [],
     });
 
+    /*
+     * Queued rather than resolved because the model reported 68, under the 70
+     * the app treats as sure, which is the honest reason this sits waiting
+     * for a person. The evidence carries no quoted text and no fetch result,
+     * because nothing here was fetched: these are real addresses the app has
+     * never opened, and saying otherwise is what went wrong last time.
+     */
     db.checks.create({
-      predictionId: cardinals.id,
+      predictionId: dodgers.id,
       trigger: 'pull',
       provider: 'demo',
       model: 'demo',
       proposedVerdict: 'hit',
       proposedTrend: 'toward_yes',
-      rubricScore: 98,
-      rubricBreakdown: {
-        independentSources: 30,
-        sourceTier: 25,
-        urlValidation: 20,
-        criteriaCoverage: 15,
-        temporalSanity: 10,
-        capApplied: true,
-        gates: [],
-      },
+      gates: [],
       modelConfidence: 68,
       summary:
-        'St. Louis took the series in six games, closing it out at home on Sunday night.',
+        'Los Angeles won Game 7 in Toronto 5-4 in eleven innings on November 1, taking the series 4-3.',
       outcome: 'queued',
+      searchQueries: ['2025 world series result', 'dodgers blue jays game 7 final score'],
       evidence: [
         {
-          url: 'https://apnews.com/article/cardinals-win-2026-world-series',
-          title: 'Cardinals take the series',
-          publisher: 'AP',
-          publishedAt: dayOf(daysFromNow(-1)),
-          quotedText: 'The Cardinals took the series in six games on Sunday night.',
-          tier: 'major_outlet',
-          fetchStatus: 'ok',
-          fetchedAt: nowIso(),
+          url: 'https://www.espn.com/mlb/story/_/id/46796786/world-series-2025-los-angeles-dodgers-champions-repeat-dynasty',
+          title: 'Game 7 win cements Dodgers dynasty',
+          publisher: 'ESPN',
+          publishedAt: '2025-11-02',
+          quotedText: null,
+          tier: 'secondary',
+          fetchStatus: 'not_checked',
+          fetchedAt: null,
         },
         {
-          url: 'https://www.reuters.com/sports/baseball/cardinals-win-2026',
-          title: 'St. Louis wins it all',
-          publisher: 'Reuters',
-          publishedAt: dayOf(daysFromNow(-1)),
-          quotedText: 'St. Louis closed out the series at home.',
-          tier: 'major_outlet',
-          fetchStatus: 'ok',
-          fetchedAt: nowIso(),
+          url: 'https://www.baseball-reference.com/boxes/TOR/TOR202511010.shtml',
+          title: 'Dodgers at Blue Jays box score, November 1, 2025',
+          publisher: 'Baseball-Reference',
+          publishedAt: '2025-11-01',
+          quotedText: null,
+          tier: 'secondary',
+          fetchStatus: 'not_checked',
+          fetchedAt: null,
         },
         {
-          url: 'https://www.mlb.com/news/2026-world-series-recap',
-          title: 'Series recap',
-          publisher: 'MLB.com',
-          publishedAt: dayOf(daysFromNow(-1)),
-          quotedText: 'A championship six years in the making.',
-          tier: 'primary',
-          fetchStatus: 'blocked',
-          fetchedAt: nowIso(),
+          url: 'https://www.foxsports.com/mlb/world-series-game-7-los-angeles-dodgers-vs-toronto-blue-jays-nov-01-2025-game-boxscore-94232',
+          title: 'World Series Game 7 box score',
+          publisher: 'FOX Sports',
+          publishedAt: '2025-11-01',
+          quotedText: null,
+          tier: 'secondary',
+          fetchStatus: 'not_checked',
+          fetchedAt: null,
         },
       ],
     });
-    db.predictions.update(cardinals.id, {
+    db.predictions.update(dodgers.id, {
       lastCheckedAt: nowIso(),
       checkCount: 2,
       trend: 'toward_yes',
@@ -256,10 +365,49 @@ export function seedDemoData(db: Db): void {
     });
     db.predictions.update(weather.id, { trend: 'unknown', updatedAt: nowIso() });
 
+    /*
+     * The second live test fixture, chosen to exercise what the weather one
+     * cannot. That claim is a miss on a numeric threshold, pinned to a place,
+     * settled by a .gov page that rewrites itself hourly. This one is a hit on
+     * two discrete facts, with no geography, settled by static recaps that have
+     * not changed since the night they were published.
+     *
+     * Which makes it the only fair test of quote matching in the whole app: if
+     * it cannot confirm a sentence in an ESPN recap from February 2025, it
+     * cannot confirm anything, and the page-fetching layer should go.
+     *
+     * The result is real and was checked against live sources before seeding.
+     * A fabricated demo verdict about a real team has already misled someone
+     * once in this app's short life; do not do it again.
+     */
+    const superBowl = db.predictions.create({
+      authorId: popops.id,
+      rawStatement: 'Mark my words, the Eagles are going to win it all this year.',
+      normalizedClaim: 'The Philadelphia Eagles win Super Bowl LIX.',
+      statementDate: '2025-01-20T12:00:00.000Z',
+      sourceContext: 'Said at dinner, loudly',
+      deadlineType: 'fixed_date',
+      resolutionDate: '2025-02-09T23:59:59.999Z',
+      verificationMode: 'searchable',
+      category: 'Sports',
+      stakes: 'A steak dinner',
+      criteria: [
+        'The Philadelphia Eagles win Super Bowl LIX, played on February 9, 2025',
+        'The team they defeat in that game is the Kansas City Chiefs',
+      ],
+      searchQueries: [
+        'Super Bowl LIX final score Eagles Chiefs',
+        'Super Bowl LIX February 9 2025 result recap',
+        'Eagles win Super Bowl LIX box score',
+      ],
+    });
+    db.predictions.update(superBowl.id, { trend: 'unknown', updatedAt: nowIso() });
+
     // A resolved miss that came true two years later. Demonstrates the badge.
     const late = db.predictions.create({
       authorId: economist.id,
       rawStatement: 'The AI bubble will crash within 6 months.',
+      canHappenLate: true,
       normalizedClaim:
         'An AI-weighted equity index falls 30% or more from its peak within six months.',
       statementDate: '2024-01-15T12:00:00.000Z',
@@ -290,6 +438,7 @@ export function seedDemoData(db: Db): void {
     const hit = db.predictions.create({
       authorId: self.id,
       rawStatement: 'Bitcoin passes $100k before the end of 2024.',
+      canHappenLate: true,
       normalizedClaim: 'Bitcoin trades above $100,000 USD before December 31, 2024.',
       statementDate: '2024-03-01T12:00:00.000Z',
       deadlineType: 'fixed_date',
@@ -304,7 +453,6 @@ export function seedDemoData(db: Db): void {
       resolvedAt: '2024-12-05T18:00:00.000Z',
       resolvedBy: 'user',
       trend: null,
-      confidenceScore: 97,
       lastCheckedAt: '2024-12-05T18:00:00.000Z',
       checkCount: 6,
       updatedAt: nowIso(),
