@@ -4,7 +4,7 @@ import type { Db } from '../data/db';
 import { useDb } from './DbProvider';
 import type { Author, Category, Prediction, PredictionStatus } from '../domain/types';
 import { sortByHeat, type HeatInput } from '../domain/heat';
-import { checkedButUnsettled, isPastDeadline } from '../domain/prediction';
+import { checkedButUnsettled, isPastDeadline, criteriaMarksFor } from '../domain/prediction';
 import type { PredictionPatch } from '../domain/prediction';
 import type { NewPrediction } from '../data/repositories/predictionRepo';
 import { tallyRecord, type AuthorRecord } from '../domain/scoring';
@@ -471,6 +471,14 @@ export function useResolveManually() {
       if (!prediction) throw new Error(`No prediction ${args.id}`);
 
       db.predictions.update(args.id, resolve(prediction, args.verdict, args.by ?? 'user'));
+
+      // The stamp and the criterion marks must agree. A check writes the
+      // marks itself; a person calling it by hand did not, and the marks are
+      // read-only on a searchable claim, so a manual HIT sat above three
+      // question marks.
+      for (const mark of criteriaMarksFor(args.verdict, db.predictions.criteriaFor(args.id))) {
+        db.predictions.setCriterionSatisfied(mark.id, mark.satisfied);
+      }
 
       const pending = db.checks.queuedVerdicts().get(args.id);
       if (pending) db.checks.markActedOn(pending.id, 'no_change');

@@ -9,6 +9,7 @@ import {
   endOfLocalDay,
   isUnderLateWatch,
   isWithinClaimPeriod,
+  criteriaMarksFor,
   lateByMonths,
   lateWatchUntil,
   markLateHit,
@@ -86,6 +87,35 @@ describe('resolving', () => {
   it('confirming a draft starts the clock', () => {
     const p = makePrediction({ status: 'draft', trend: null });
     expect(confirmDraft(p, NOW).status).toBe('open');
+  });
+});
+
+describe('criteria marks for a verdict called by hand', () => {
+  const criteria = [
+    { id: 'a', satisfied: null },
+    { id: 'b', satisfied: true },
+    { id: 'c', satisfied: false },
+  ];
+
+  it('ticks everything on a hit', () => {
+    expect(criteriaMarksFor('hit', criteria)).toEqual([
+      { id: 'a', satisfied: true },
+      { id: 'b', satisfied: true },
+      { id: 'c', satisfied: true },
+    ]);
+  });
+
+  it('crosses what was not already met on a miss', () => {
+    expect(criteriaMarksFor('miss', criteria)).toEqual([
+      { id: 'a', satisfied: false },
+      { id: 'c', satisfied: false },
+    ]);
+  });
+
+  it('leaves a partial or ambiguous call alone', () => {
+    expect(criteriaMarksFor('partial', criteria)).toEqual([]);
+    expect(criteriaMarksFor('ambiguous', criteria)).toEqual([]);
+    expect(criteriaMarksFor('void', criteria)).toEqual([]);
   });
 });
 
