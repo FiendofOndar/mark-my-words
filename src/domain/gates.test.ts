@@ -158,6 +158,46 @@ describe('gates', () => {
     expect(oneDead.gates).toEqual([]);
   });
 
+  it('counts a real publisher whose deep link is gone, and gates when no page opened', () => {
+    // The Return of the King re-run: three agreeing sources, two deep links
+    // rotted. The publishers exist; the pages do not. That is two more
+    // publishers, not two fewer.
+    const rotted = assessCheck(
+      input({
+        sources: [
+          source({ url: 'https://the-numbers.com/a', publisher: 'The Numbers' }),
+          source({ url: 'https://history.com/a', publisher: 'History', fetchStatus: 'missing' }),
+          source({ url: 'https://filmsite.org/a', publisher: 'Filmsite', fetchStatus: 'missing' }),
+        ],
+      }),
+    );
+    expect(rotted.gates).toEqual([]);
+    expect(rotted.decision).toBe('auto_resolve');
+
+    // Every page gone is a different picture: nothing was read.
+    const nothingOpened = assessCheck(
+      input({
+        sources: [
+          source({ url: 'https://history.com/a', publisher: 'History', fetchStatus: 'missing' }),
+          source({ url: 'https://filmsite.org/a', publisher: 'Filmsite', fetchStatus: 'missing' }),
+          source({ url: 'https://no-such-outlet.example/a', publisher: 'X', fetchStatus: 'unreachable' }),
+        ],
+      }),
+    );
+    expect(nothingOpened.gates.join(' ')).toMatch(/invented citations/i);
+
+    // A host that does not exist still counts for nothing.
+    const invented = assessCheck(
+      input({
+        sources: [
+          source({ url: 'https://the-numbers.com/a', publisher: 'The Numbers' }),
+          source({ url: 'https://no-such-outlet.example/a', publisher: 'X', fetchStatus: 'unreachable' }),
+        ],
+      }),
+    );
+    expect(invented.gates.join(' ')).toMatch(/one independent source/i);
+  });
+
   it('treats a blocked page as unread rather than as a fake citation', () => {
     const result = assessCheck(
       input({

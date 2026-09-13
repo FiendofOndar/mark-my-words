@@ -321,6 +321,38 @@ ALTER TABLE predictions ADD COLUMN can_happen_late INTEGER NOT NULL DEFAULT 0;
 UPDATE predictions SET can_happen_late = 1 WHERE deadline_type = 'event';
 `,
   },
+  /*
+   * `missing` splits off from `unreachable`: a host that answered "no page
+   * here" against a host that does not exist. Only the second is what an
+   * invented citation looks like. Rows already marked unreachable cannot be
+   * told apart after the fact and stay as they are.
+   */
+  {
+    version: 10,
+    name: 'missing fetch status',
+    sql: `
+CREATE TABLE evidence_v10 (
+  id             TEXT PRIMARY KEY,
+  check_id       TEXT NOT NULL REFERENCES checks(id) ON DELETE CASCADE,
+  url            TEXT NOT NULL,
+  title          TEXT,
+  publisher      TEXT,
+  published_at   TEXT,
+  quoted_text    TEXT,
+  tier           TEXT CHECK (tier IN ('primary','major_outlet','secondary','social')),
+  fetch_status   TEXT NOT NULL
+                   CHECK (fetch_status IN ('ok','blocked','missing','unreachable','not_checked')),
+  fetched_at     TEXT,
+  created_at     TEXT NOT NULL,
+  updated_at     TEXT NOT NULL,
+  deleted_at     TEXT
+);
+INSERT INTO evidence_v10 SELECT * FROM evidence;
+DROP TABLE evidence;
+ALTER TABLE evidence_v10 RENAME TO evidence;
+CREATE INDEX idx_evidence_check ON evidence(check_id);
+`,
+  },
 ];
 
 export function currentVersion(driver: SqlDriver): number {

@@ -23,10 +23,16 @@ const FETCH_LABEL: Record<FetchStatus, { glyph: string; short: string; label: st
     label: 'The host answered but would not show the app the page',
     tone: 'text-hit',
   },
+  missing: {
+    glyph: '!',
+    short: 'page not found',
+    label: 'The site exists, but there is no page at this address',
+    tone: 'text-partial',
+  },
   unreachable: {
     glyph: '!',
-    short: 'link does not work',
-    label: 'There is no page at this address',
+    short: 'site not found',
+    label: 'There is no site at this address',
     tone: 'text-partial',
   },
   not_checked: {
@@ -82,7 +88,7 @@ export function describeSources(evidence: Evidence[]): string {
   }
 
   const working = new Set(
-    evidence.filter((e) => e.fetchStatus !== 'unreachable').map(domainOf),
+    evidence.filter((e) => e.fetchStatus === 'ok' || e.fetchStatus === 'blocked').map(domainOf),
   );
   if (working.size === 0) return `${cited.size} ${plural}, no link works`;
   if (working.size === cited.size) {

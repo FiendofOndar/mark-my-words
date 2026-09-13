@@ -23,6 +23,9 @@ export type PageFetchOutcome =
    * can be true - was being made about Google.
    */
   | { kind: 'ok'; finalUrl?: string }
+  /** The host answered; there is no page at that address. */
+  | { kind: 'missing' }
+  /** There is no such host. */
   | { kind: 'unreachable' }
   | { kind: 'blocked' };
 
@@ -52,6 +55,7 @@ export async function validateSources(
       const outcome = await fetcher.fetchPage(source.url);
 
       if (outcome.kind === 'blocked') return { ...source, fetchStatus: 'blocked', fetchedAt };
+      if (outcome.kind === 'missing') return { ...source, fetchStatus: 'missing', fetchedAt };
       if (outcome.kind === 'unreachable') {
         return { ...source, fetchStatus: 'unreachable', fetchedAt };
       }
@@ -89,7 +93,7 @@ export class BrowserPageFetcher implements PageFetcher {
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
       const response = await fetch(url, { signal: controller.signal, redirect: 'follow' });
-      if (response.status === 404 || response.status === 410) return { kind: 'unreachable' };
+      if (response.status === 404 || response.status === 410) return { kind: 'missing' };
       if (!response.ok) return { kind: 'blocked' };
       return { kind: 'ok', finalUrl: response.url };
     } catch {

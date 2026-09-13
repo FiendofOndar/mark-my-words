@@ -229,6 +229,16 @@ appeared. The prose-answer experiment in the desktop script remains the
 cheapest way to find out whether grounding metadata depends on the output
 format.
 
+**Owner-observed, PR #4 build:** re-running Return of the King with two of
+three deep links returning 404 queued the verdict instead of settling it,
+because a 404 counted the same as a non-existent host and left one non-primary
+publisher. `missing` (host answered, page gone) now splits from `unreachable`
+(no such host); only the second stops counting as a publisher, and the
+fabrication gate fires when no page opened at all. Also fixed: seeded sample
+checks (`provider: 'demo'`) counted toward the searches and tokens lines in
+Settings. And note that the Dodgers sample is an open, overdue prediction, so
+it takes a slot on the first pull and pushes GTA VI to the second.
+
 Three more things PR #3 adds to look for: Anacortes settling itself as a miss
 with no approval card; a "Not right? Reopen it" link under "Settled by the
 app"; source links opening in a browser sheet that closes back to the app.
