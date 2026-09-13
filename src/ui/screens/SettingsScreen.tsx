@@ -19,6 +19,7 @@ import {
   useScheduledNotifications,
 } from '../useNotifications';
 import { formatDate } from '../../domain/format';
+import { useQuotaUsed } from '../queries';
 import { platformName } from '../../platform';
 
 export function SettingsScreen() {
@@ -41,6 +42,7 @@ export function SettingsScreen() {
   const { prefs, update: updatePrefs } = useNotificationPrefs();
   const { permission, request, canScheduleWhileClosed } = useNotificationPermission();
   const { plan, next } = useScheduledNotifications();
+  const quotaUsed = useQuotaUsed();
 
   const chooseTheme = (next: Theme) => {
     applyTheme(next);
@@ -262,7 +264,7 @@ export function SettingsScreen() {
                 <Field
                   label="Checks per day"
                   hint={
-                    "A free key gets about 20 grounded checks a day. With billing enabled it is far higher, so raise this or leave it blank for no ceiling. The app stops at this number rather than letting the provider refuse."
+                    "A free key gets about 20 grounded checks a day. With billing enabled it is far higher, but this is the only thing standing between a stuck loop and your card, so leave a number here. Blank means no ceiling. The app stops at this number rather than letting the provider refuse."
                   }
                 >
                   <input
@@ -273,6 +275,22 @@ export function SettingsScreen() {
                     className={inputClass}
                   />
                 </Field>
+
+                {/* The daily number answers "can I check again now". This one
+                    answers "am I spending more than I meant to", which is the
+                    question with money attached, and the only number here that
+                    can be compared against a provider's billing page. */}
+                <p className="text-[12px] text-ink-faint">
+                  {quotaUsed.data
+                    ? `${quotaUsed.data.used} checks today, ${quotaUsed.data.thisMonth} this month.`
+                    : 'No checks recorded yet.'}
+                  {quota.trim() === '' && (
+                    <span className="text-partial">
+                      {' '}
+                      No daily ceiling is set.
+                    </span>
+                  )}
+                </p>
 
                 <div className="flex flex-wrap gap-2">
                   <button

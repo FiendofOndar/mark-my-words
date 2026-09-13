@@ -210,6 +210,21 @@ export class QuotaRepo {
     return Number(rows[0]?.calls ?? 0);
   }
 
+  /**
+   * Calls so far this calendar month, for comparing against a provider's
+   * billing page. The daily number answers "can I check again now"; this one
+   * answers "am I spending more than I meant to", which is a different
+   * question and the one that costs money.
+   */
+  usedThisMonth(provider: string, at = new Date()): number {
+    const prefix = `${at.getFullYear()}-${String(at.getMonth() + 1).padStart(2, '0')}-`;
+    const rows = this.db.select<{ calls: number }>(
+      'SELECT COALESCE(SUM(calls), 0) AS calls FROM quota_log WHERE provider = ? AND day LIKE ?',
+      [provider, `${prefix}%`],
+    );
+    return Number(rows[0]?.calls ?? 0);
+  }
+
   record(provider: string, calls = 1, at = new Date()): void {
     this.db.run(
       `INSERT INTO quota_log (id, provider, day, calls) VALUES (?, ?, ?, ?)
