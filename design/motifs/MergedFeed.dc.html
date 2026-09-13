@@ -18,8 +18,10 @@
       --ink: oklch(0.96 0.01 90);
       --ink-dim: oklch(0.68 0.01 90);
       --ink-faint: oklch(0.52 0.01 270);
-      --accent: #dba456;
-      --glow: color-mix(in srgb, #dba456 20%, transparent);
+      --accent: #8a8cd8;
+      /* Fixed. "Needs you" is semantic, so it never follows the chosen accent. */
+      --attention: #dba456;
+      --glow: color-mix(in srgb, #8a8cd8 20%, transparent);
       /* verdict colors are fixed and never follow the accent */
       --hit: #5aa87a;
       --miss: oklch(0.66 0.15 27);
@@ -38,14 +40,14 @@
     .chips { display: flex; gap: 7px; padding: 0 20px 14px 20px; }
     .chip { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 12.5px; padding: 4px 12px;
       border-radius: 3px; background: oklch(0.96 0.01 90 / 0.07); color: var(--ink-dim); white-space: nowrap; }
-    .chip.on { background: var(--accent); color: oklch(0.17 0.02 72); }
+    .chip.on { background: var(--accent); color: oklch(0.18 0.02 270); }
 
     .featured { margin: 4px 16px 16px 16px; padding: 16px 16px 14px 16px; border-radius: 14px;
       background: oklch(0.94 0.01 90 / 0.07);
       backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
       border: 1px solid oklch(0.9 0.01 90 / 0.13);
       box-shadow: 0 16px 34px oklch(0 0 0 / 0.3); }
-    .featured .flag { font-size: 10px; letter-spacing: 1.6px; color: var(--accent); font-weight: 600; margin-bottom: 9px; }
+    .featured .flag { font-size: 10px; letter-spacing: 1.6px; color: var(--attention); font-weight: 600; margin-bottom: 9px; }
     .claim-lg { font-family: 'Cormorant', serif; font-weight: 600; font-size: 23px; line-height: 1.24; margin: 0 0 10px 0; }
     .featured .foot { display: flex; align-items: center; justify-content: space-between; }
     .featured .meta { font-size: 10.5px; color: var(--ink-dim); letter-spacing: 0.4px; }

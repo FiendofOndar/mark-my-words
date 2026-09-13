@@ -63,17 +63,12 @@
    * text on a light ground; use it instead of --color-accent under
    * data-theme='light' wherever the accent is text rather than fill.
    *
-   * THE ACCENT MEANS "THIS NEEDS YOU". It is not a decoration and not an
-   * emphasis colour: it marks the places where the app is asking for
-   * something. "Waiting on you", the verdict-ready flag on the feed, the mark
-   * beside a dead link, the Sample badge, a source credited to the wrong
-   * outlet. A label saying "auto-resolved" is not asking for anything, and
-   * neither is the prose explaining why a check was held, so both are neutral
-   * ink. Reading text takes the accent nowhere: a colour the user can change
-   * is a promise about legibility that cannot be kept, and saturated yellow
-   * text on a dark ground glares worse than any other hue at equal chroma.
-   * Keeping it off prose also leaves green and red as the only coloured text
-   * in the app, which is what makes a verdict land.
+   * The accent carries the glow, fills and active states. It never carries
+   * reading text: a colour the user can change is a promise about legibility
+   * that cannot be kept, and saturated yellow text on a dark ground glares
+   * worse than any other hue at equal chroma. Keeping it off prose also
+   * leaves the verdict colours as the only coloured text in the app, which
+   * is what makes a verdict land.
    */
   --color-accent: #dba456;                                          /* NEW */
   --color-accent-ink: oklch(0.52 0.12 68);                          /* NEW */
@@ -86,6 +81,24 @@
    */
   --color-glow: color-mix(in srgb, var(--color-accent) 20%, transparent); /* NEW */
   --color-glow-soft: color-mix(in srgb, var(--color-accent) 12%, transparent); /* NEW */
+
+  /* ---- Attention -------------------------------------------------------
+   * "THIS NEEDS YOU", and fixed for the same reason the verdicts are. It
+   * marks the places the app is asking for something: "Waiting on you", the
+   * verdict-ready flag on the feed, the mark beside a dead link, the Sample
+   * badge, a source credited to the wrong outlet. It deliberately does NOT
+   * follow the accent - someone who picks Steel would otherwise get a grey
+   * attention signal that stops reading as urgent, which is the same failure
+   * as letting a verdict follow the accent.
+   *
+   * A label saying "auto-resolved" is not an ask, and neither is the prose
+   * explaining why a check was held. Those are neutral ink.
+   *
+   * Separate from --color-partial despite sharing a hue: partial is the Split
+   * verdict, and painting gate prose with it once already read as "this
+   * partially came true".
+   */
+  --color-attention: #dba456;                                       /* NEW */
 
   /* Curated accent presets for the Settings picker. Deliberately no reds and
    * no greens: those hues are reserved for verdicts, so no choice a user

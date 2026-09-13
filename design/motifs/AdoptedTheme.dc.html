@@ -48,10 +48,10 @@
   </div>
 </div>
 </x-dc>
-<script data-dc-script data-props='{"accent":{"editor":"color","default":"#dba456","options":["#dba456","#5b8fd0","#3f9cb8","#b968a0"]}}'>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#8a8cd8","options":["#8a8cd8","#dba456","#3f9cb8","#b968a0"]}}'>
 class Component extends DCLogic {
   renderVals() {
-    const accent = this.props.accent ?? '#dba456';
+    const accent = this.props.accent ?? '#8a8cd8';
     return {
       accent,
       glow: `color-mix(in srgb, ${accent} 42%, transparent)`,

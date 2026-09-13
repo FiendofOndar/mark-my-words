@@ -14,6 +14,8 @@
       --ground: oklch(0.145 0.012 270);
       --ink: oklch(0.96 0.01 90);
       --hit: #5aa87a;
+      /* Fixed across every column: the ask never follows the chosen accent. */
+      --attention: #dba456;
       width: 1360px; height: 820px; box-sizing: border-box; overflow: hidden;
       background: var(--ground); color: var(--ink);
       font-family: 'IBM Plex Mono', monospace;
@@ -43,9 +45,9 @@
       backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
       border: 1px solid oklch(0.9 0.01 90 / 0.13); }
 
-    /* The ask keeps the accent in both treatments. Only the neutral text moves. */
+    /* The ask is fixed amber in every column. Only the glow and the neutral text move. */
     .tag { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600;
-      color: var(--accent); margin-bottom: 7px; }
+      color: var(--attention); margin-bottom: 7px; }
     .verdict { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 19px; margin: 0 0 8px 0;
       color: var(--hit); letter-spacing: 0.4px; }
     .lab { font-size: 8.5px; letter-spacing: 1.4px; text-transform: uppercase; margin-bottom: 5px; }
@@ -67,7 +69,7 @@
 </helmet>
 <div class="sheet">
   <h1>Alpha text across four accents</h1>
-  <p class="sub">Top panel in each column is treatment 1, flat neutral ink &mdash; identical in all four by definition. Bottom is treatment 2, warm white at 42&ndash;82% opacity, which takes a tint from whatever glow sits behind it. The accent-coloured tag and the green verdict are the same in both rows; only the neutral text changes.</p>
+  <p class="sub">Top panel in each column is treatment 1, flat neutral ink &mdash; identical in all four by definition. Bottom is treatment 2, warm white at 42&ndash;82% opacity, which takes a tint from whatever glow sits behind it. The amber "waiting on you" tag and the green verdict are fixed in every column &mdash; only the glow behind and the neutral text change.</p>
 
   <div class="cols">
     <div class="col amber">

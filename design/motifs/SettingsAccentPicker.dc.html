@@ -73,7 +73,7 @@ const PRESETS = [
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { selected: 'amber' };
+    this.state = { selected: 'dusk' };
   }
   renderVals() {
     const selected = PRESETS.find((p) => p.id === this.state.selected) ?? PRESETS[0];
