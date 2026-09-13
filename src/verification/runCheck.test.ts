@@ -54,10 +54,7 @@ class StubFetcher implements PageFetcher {
   }
 }
 
-const quotesBack: PageFetcher = new StubFetcher(() => ({
-  kind: 'ok',
-  text: 'the thing definitively happened on Tuesday in front of everyone',
-}));
+const pageAnswers: PageFetcher = new StubFetcher(() => ({ kind: 'ok' }));
 
 function result(overrides: Partial<CheckResult> = {}): CheckResult {
   return {
@@ -78,7 +75,7 @@ function result(overrides: Partial<CheckResult> = {}): CheckResult {
   };
 }
 
-function deps(verifierResult: CheckResult | Error, fetcher: PageFetcher = quotesBack): CheckDeps {
+function deps(verifierResult: CheckResult | Error, fetcher: PageFetcher = pageAnswers): CheckDeps {
   return { verifier: new StubVerifier(verifierResult), fetcher, now: () => NOW };
 }
 
@@ -174,44 +171,9 @@ describe('a check that should not decide anything', () => {
 });
 
 describe('source validation feeds the decision', () => {
-  it('still resolves when the quote has moved but the pages are real', async () => {
-    // The live-page case, and the one that drove this change. A forecast page
-    // rewrites itself between the model reading it and the app fetching it
-    // minutes later, so the quote is genuinely gone. That says nothing about
-    // whether the verdict is right, and it used to block it anyway.
-    const plan = await runCheck(
-      deps(result(), new StubFetcher(() => ({ kind: 'ok', text: 'Unrelated page content.' }))),
-      ctx(makePrediction()),
-    );
-    expect(plan.sources.every((s) => s.fetchStatus === 'quote_not_found')).toBe(true);
-    expect(plan.outcome).toBe('resolved');
-  });
-
-  it('stands the check up on the figures when the wording has moved', async () => {
-    /*
-     * The realistic version of the case above, end to end. The pages are the
-     * record the model actually read; they have been reworded since, and they
-     * still carry the date and the detail the verdict turns on. This used to
-     * report that nothing had been confirmed.
-     */
-    const quoted = 'The Eagles beat the Chiefs 40-22 on February 9, 2025.';
-    const plan = await runCheck(
-      deps(
-        result({
-          sources: [
-            citedSource({ quotedText: quoted }),
-            citedSource({ url: 'https://reuters.com/a', publisher: 'Reuters', quotedText: quoted }),
-            citedSource({ url: 'https://bbc.co.uk/a', publisher: 'BBC', quotedText: quoted }),
-          ],
-        }),
-        new StubFetcher(() => ({
-          kind: 'ok',
-          text: 'Final, Feb 9 2025: Philadelphia 40, Kansas City 22. Eagles over Chiefs, 40-22.',
-        })),
-      ),
-      ctx(makePrediction()),
-    );
-    expect(plan.sources.every((s) => s.fetchStatus === 'facts_found')).toBe(true);
+  it('resolves on real pages whatever their wording, since the app no longer reads it', async () => {
+    const plan = await runCheck(deps(result(), new StubFetcher(() => ({ kind: 'ok' }))), ctx(makePrediction()));
+    expect(plan.sources.every((s) => s.fetchStatus === 'ok')).toBe(true);
     expect(plan.outcome).toBe('resolved');
   });
 
@@ -365,7 +327,7 @@ describe('what the model is told', () => {
     };
 
     await runCheck(
-      { verifier: spy, fetcher: quotesBack, now: () => NOW },
+      { verifier: spy, fetcher: pageAnswers, now: () => NOW },
       ctx(
         makePrediction({
           polarity: 'negative',
@@ -403,7 +365,7 @@ describe('what the model is told', () => {
     };
 
     await runCheck(
-      { verifier: spy, fetcher: quotesBack, now: () => evening },
+      { verifier: spy, fetcher: pageAnswers, now: () => evening },
       ctx(makePrediction()),
     );
 

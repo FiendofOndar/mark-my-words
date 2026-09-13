@@ -6,43 +6,33 @@ import { Pill } from './Stamp';
 import { Bullets } from './Bullets';
 
 /**
- * What the app found when it opened the cited page itself.
+ * Whether the cited link goes anywhere, which is the one thing about a citation
+ * the app checks for itself. A green check means you can tap it and land on a
+ * page; a yellow mark means there is no page there.
  *
- * `short` is printed on the row. The glyph alone was read as "does this source
- * agree with the claim", which is not what it means at all, and there is no
- * hover on a phone to correct it.
+ * `short` is printed on the row. A glyph alone was read as "does this source
+ * agree with the claim", which is not what it means, and there is no hover on
+ * a phone to correct it.
  */
 const FETCH_LABEL: Record<FetchStatus, { glyph: string; short: string; label: string; tone: string }> = {
-  ok: { glyph: '✓', short: 'quote verified', label: 'Quote found on the page', tone: 'text-hit' },
-  facts_found: {
-    glyph: '≈',
-    short: 'figures match the page',
-    label: 'Page loaded; its figures and names match the quote, its wording does not',
+  ok: { glyph: '✓', short: 'link works', label: 'The page answered', tone: 'text-hit' },
+  blocked: {
+    glyph: '✓',
+    short: 'link works',
+    label: 'The host answered but would not show the app the page',
     tone: 'text-hit',
   },
-  quote_not_found: {
+  unreachable: {
     glyph: '!',
-    short: 'quote not found on page',
-    label: 'Page loaded, quote not found',
+    short: 'link does not work',
+    label: 'There is no page at this address',
     tone: 'text-partial',
-  },
-  blocked: {
-    glyph: '–',
-    short: 'page would not open',
-    label: 'Could not read the page',
-    tone: 'text-ink-faint',
   },
   not_checked: {
     glyph: '·',
     short: 'not checked',
-    label: 'The app has not opened this page',
+    label: 'The app has not tried this link',
     tone: 'text-ink-faint',
-  },
-  unreachable: {
-    glyph: '✕',
-    short: 'link did not resolve',
-    label: 'Link did not resolve',
-    tone: 'text-miss',
   },
 };
 
@@ -71,54 +61,33 @@ function outcomeLabel(check: Check): string {
 }
 
 /**
- * What the app actually established, as a count.
- *
- * This slot used to read "88/100", a composite of five weighted dimensions
- * describing the citation paperwork. It decided nothing and read as a
- * probability that the verdict was right, so it is gone. Sources confirmed is
- * the part the app knows first-hand: it fetched those pages itself.
+ * What the app stood behind, as a count of independent sources whose links
+ * work. Counted by domain, the way the gates count, or the two disagree on
+ * screen: this once read "2 sources" beside a gate saying only one had been
+ * cited, because it was counting a dead link and a duplicate domain.
  */
 export function describeSources(evidence: Evidence[]): string {
   if (evidence.length === 0) return 'no sources';
 
-  // Counted the way the scoring counts, or the two disagree on screen: this
-  // read "2 sources" beside a gate saying only one had been cited, because it
-  // was counting a dead link and a duplicate domain that the rubric was not.
-  const domains = new Set(
-    evidence
-      .filter((e) => e.fetchStatus !== 'unreachable')
-      .map((e) => registrableDomain(e.url) ?? e.url),
-  );
-  if (domains.size === 0) return 'no source reachable';
+  const domainOf = (e: Evidence) => registrableDomain(e.url) ?? e.url;
+  const cited = new Set(evidence.map(domainOf));
+  const plural = cited.size === 1 ? 'source' : 'sources';
 
-  const confirmed = new Set(
-    evidence.filter((e) => e.fetchStatus === 'ok').map((e) => registrableDomain(e.url) ?? e.url),
-  );
-  const plural = domains.size === 1 ? 'source' : 'sources';
-  if (confirmed.size === domains.size) {
-    return domains.size === 1 ? '1 source, confirmed' : `${domains.size} sources, all confirmed`;
-  }
-  if (confirmed.size > 0) return `${confirmed.size} confirmed of ${domains.size} ${plural}`;
-
-  /*
-   * A page that still carries the quote's figures is not a source that failed
-   * to check out, and reading "none quoted back" over an evidence list that
-   * matched on every number was the panel calling a correct verdict unsupported.
-   */
-  const supported = new Set(
-    evidence
-      .filter((e) => e.fetchStatus === 'facts_found')
-      .map((e) => registrableDomain(e.url) ?? e.url),
-  );
-  if (supported.size > 0) return `${supported.size} of ${domains.size} match on the figures`;
-
-  // "None quoted back" implies the app looked. On a seeded or imported check
-  // it never did, and saying otherwise is the same small lie as marking those
+  // "None working" implies the app looked. On a seeded or imported check it
+  // never did, and saying otherwise is the same small lie as marking those
   // rows "page would not open".
   if (evidence.every((e) => e.fetchStatus === 'not_checked')) {
-    return `${domains.size} ${plural}, none checked`;
+    return `${cited.size} ${plural}, links not checked`;
   }
-  return `${domains.size} ${plural}, none quoted back`;
+
+  const working = new Set(
+    evidence.filter((e) => e.fetchStatus !== 'unreachable').map(domainOf),
+  );
+  if (working.size === 0) return `${cited.size} ${plural}, no link works`;
+  if (working.size === cited.size) {
+    return cited.size === 1 ? '1 source, link works' : `${cited.size} sources, links work`;
+  }
+  return `${working.size} of ${cited.size} ${plural} with working links`;
 }
 
 export function CheckLog({

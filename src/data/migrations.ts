@@ -284,9 +284,29 @@ CREATE INDEX idx_evidence_check ON evidence(check_id);
    */
   {
     version: 8,
-    name: 'gates instead of a score',
+    name: 'gates instead of a score, links instead of quotes',
     sql: `
 ALTER TABLE checks RENAME COLUMN rubric_breakdown TO gates;
+UPDATE evidence SET fetch_status = 'ok' WHERE fetch_status IN ('facts_found', 'quote_not_found');
+CREATE TABLE evidence_v8 (
+  id             TEXT PRIMARY KEY,
+  check_id       TEXT NOT NULL REFERENCES checks(id) ON DELETE CASCADE,
+  url            TEXT NOT NULL,
+  title          TEXT,
+  publisher      TEXT,
+  published_at   TEXT,
+  quoted_text    TEXT,
+  tier           TEXT CHECK (tier IN ('primary','major_outlet','secondary','social')),
+  fetch_status   TEXT NOT NULL CHECK (fetch_status IN ('ok','unreachable','blocked','not_checked')),
+  fetched_at     TEXT,
+  created_at     TEXT NOT NULL,
+  updated_at     TEXT NOT NULL,
+  deleted_at     TEXT
+);
+INSERT INTO evidence_v8 SELECT * FROM evidence;
+DROP TABLE evidence;
+ALTER TABLE evidence_v8 RENAME TO evidence;
+CREATE INDEX idx_evidence_check ON evidence(check_id);
 `,
   },
 ];

@@ -33,7 +33,7 @@ class ScriptedVerifier implements Verifier {
 const echoFetcher: PageFetcher = {
   canProveUnreachable: true,
   async fetchPage(): Promise<PageFetchOutcome> {
-    return { kind: 'ok', text: QUOTE };
+    return { kind: 'ok' };
   },
 };
 
