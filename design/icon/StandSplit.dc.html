@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; }
+    .icon { width: 480px; height: 480px; border-radius: 104px; box-sizing: border-box;
+      position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .split { background: oklch(0.145 0.012 270); }
+    .split .wedge { position: absolute; inset: 0;
+      background: #e0644a;
+      clip-path: polygon(58% 0, 100% 0, 100% 100%, 26% 100%); }
+    .split svg { position: absolute; left: 60px; top: 60px; }
+    .split .over { clip-path: polygon(58% 0, 100% 0, 100% 100%, 26% 100%); }
+  </style>
+</helmet>
+<div class="icon split">
+  <!-- Layer order: deep ground, cream mark, red wedge, deep mark clipped to the
+       wedge. The mark reads as one shape that changes colour across the edge. -->
+  <svg width="360" height="360" viewBox="0 0 240 240"><g transform="translate(9 6)" fill="none" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M 40.6 143.9 A 86 86 0 1 1 71 180.6 L 10 212 Z" stroke="oklch(0.95 0.014 88)" stroke-width="13"/>
+      <line x1="120" y1="106" x2="120" y2="50" stroke="oklch(0.95 0.014 88)" stroke-width="12"/>
+      <line x1="120" y1="106" x2="155" y2="126" stroke="oklch(0.95 0.014 88)" stroke-width="12"/>
+      <circle cx="120" cy="106" r="7" fill="oklch(0.95 0.014 88)" stroke="none"/>
+    </g></svg>
+  <div class="wedge"></div>
+  <svg class="over" width="360" height="360" viewBox="0 0 240 240"><g transform="translate(9 6)" fill="none" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M 40.6 143.9 A 86 86 0 1 1 71 180.6 L 10 212 Z" stroke="oklch(0.145 0.012 270)" stroke-width="13"/>
+      <line x1="120" y1="106" x2="120" y2="50" stroke="oklch(0.145 0.012 270)" stroke-width="12"/>
+      <line x1="120" y1="106" x2="155" y2="126" stroke="oklch(0.145 0.012 270)" stroke-width="12"/>
+      <circle cx="120" cy="106" r="7" fill="oklch(0.145 0.012 270)" stroke="none"/>
+    </g></svg>
+</div>
+</x-dc>
+</body>
+</html>
