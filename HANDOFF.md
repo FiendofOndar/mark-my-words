@@ -271,6 +271,14 @@ was drawing red crosses on open claims. The "Settle these first" copy now
 says what the checkboxes are: an acknowledgement gate on confirming, storing
 nothing.
 
+**Review card, at the owner's request:** the "Settle these first" checkboxes
+are gone (they gated the confirm button and stored nothing). The questions
+stay as a list, and the card gained "Redraft from this": sharpen the wording
+of what was said, tap it, and the model draws the testable version, questions
+and criteria again from it. One cheap ungrounded call; the row keeps its id,
+author and provenance. The criterion marks are now read-only on every
+prediction, manual ones included, since a verdict called by hand writes them.
+
 Three more things PR #3 adds to look for: Anacortes settling itself as a miss
 with no approval card; a "Not right? Reopen it" link under "Settled by the
 app"; source links opening in a browser sheet that closes back to the app.

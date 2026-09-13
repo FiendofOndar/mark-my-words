@@ -499,8 +499,3 @@ export function useSnoozePrompt() {
   });
 }
 
-export function useSetCriterionSatisfied() {
-  return useDbMutation((db, args: { id: string; satisfied: boolean | null }) =>
-    db.predictions.setCriterionSatisfied(args.id, args.satisfied),
-  );
-}

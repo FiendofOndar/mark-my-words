@@ -16,7 +16,6 @@ import {
   useQueuedVerdicts,
   useRejectVerdict,
   useResolveManually,
-  useSetCriterionSatisfied,
   useSnoozePrompt,
   useUpdatePrediction,
 } from '../queries';
@@ -61,7 +60,6 @@ export function DetailScreen() {
   const amend = useAmendPrediction();
   const amendCriterion = useAmendCriterion();
   const remove = useDeletePrediction();
-  const setSatisfied = useSetCriterionSatisfied();
 
   const [showResolve, setShowResolve] = useState(false);
   const [amending, setAmending] = useState(false);
@@ -414,38 +412,21 @@ export function DetailScreen() {
         <ul className="mt-3 space-y-2">
           {criteria.map((c) => (
             <li key={c.id} className="flex items-start gap-4 py-1.5">
-              {/* The mark is what the last check found, or unknown. It used to
-                  be a button on every prediction that cycled the mark and wrote
-                  it to the row, which nothing else read: a silent edit to a
-                  frozen criterion's outcome with no record, on a screen whose
-                  whole point is that edits are on the record. It stays tappable
-                  only where the person is the verifier. */}
-              {p.verificationMode === 'manual' ? (
-                <button
-                  type="button"
-                  aria-label={`Mark element ${c.position + 1} as ${c.satisfied ? 'unknown' : 'satisfied'}`}
-                  onClick={() =>
-                    setSatisfied.mutate({
-                      id: c.id,
-                      satisfied: c.satisfied === true ? false : c.satisfied === false ? null : true,
-                    })
-                  }
-                  className="-m-2 shrink-0 p-2"
-                >
-                  <CriterionMark satisfied={c.satisfied} />
-                </button>
-              ) : (
-                <span
-                  className="shrink-0"
-                  title={
-                    c.satisfied === null
-                      ? 'No check has answered this yet'
-                      : `The last check found this ${c.satisfied ? 'met' : 'not met'}`
-                  }
-                >
-                  <CriterionMark satisfied={c.satisfied} />
-                </span>
-              )}
+              {/* The mark follows the verdict: a check writes it, and a
+                  verdict called by hand writes it. It used to be a button that
+                  cycled the mark and stored a flag nothing read, first on every
+                  prediction, then only on ones the person settles. Same dead
+                  control either way. */}
+              <span
+                className="shrink-0"
+                title={
+                  c.satisfied === null
+                    ? 'Not settled yet'
+                    : `Found ${c.satisfied ? 'met' : 'not met'}`
+                }
+              >
+                <CriterionMark satisfied={c.satisfied} />
+              </span>
               {amendingCriterion === c.id ? (
                 <AmendForm
                   className="min-w-0 flex-1"
