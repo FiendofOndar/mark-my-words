@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Mono:wght@500;600&family=Barlow+Condensed:wght@600&display=swap">
+  <style>
+    body { margin: 0; }
+    .swatch {
+      width: 400px; height: 460px; box-sizing: border-box; position: relative;
+      background: oklch(0.15 0.012 270); color: oklch(0.96 0.01 90);
+      font-family: 'IBM Plex Mono', monospace;
+      padding: 24px;
+    }
+    .label { font-size: 11px; letter-spacing: 2px; color: oklch(0.5 0.01 270); text-transform: uppercase; margin-bottom: 40px; }
+    .quote { font-family: 'Cormorant', serif; font-weight: 500; font-style: italic; font-size: 38px; line-height: 1.22;
+      color: oklch(0.95 0.01 90); margin: 0 0 22px 0; }
+    .quote::before, .quote::after { color: oklch(0.76 0.13 72); }
+    .who { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 16px; letter-spacing: 0.3px; color: oklch(0.8 0.01 90); }
+    .meta { font-size: 11px; color: oklch(0.55 0.01 90); margin-top: 4px; letter-spacing: 0.5px; }
+    .stamp { position: absolute; bottom: 28px; left: 24px; font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+      font-size: 13px; letter-spacing: 2px; background: oklch(0.76 0.13 72); color: oklch(0.17 0.02 72); padding: 5px 14px; border-radius: 3px; }
+  </style>
+</helmet>
+<div class="swatch">
+  <div class="label">Editorial serif for the claim itself</div>
+  <p class="quote">&ldquo;The Cardinals win it all this year.&rdquo;</p>
+  <div class="who">@popops</div>
+  <div class="meta">SAID MAR 12 &middot; SPORTS</div>
+  <div class="stamp">HIT</div>
+</div>
+</x-dc>
+</body>
+</html>

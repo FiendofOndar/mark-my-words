@@ -1,0 +1,11 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": -300, "w": 1400, "h": 230 },
+
+    { "file": "GrainGlass.dc.html", "x": 0, "y": 0, "w": 400, "h": 460 },
+    { "file": "EditorialQuote.dc.html", "x": 480, "y": 0, "w": 400, "h": 460 },
+    { "file": "CitationNetwork.dc.html", "x": 960, "y": 0, "w": 400, "h": 460 },
+    { "file": "MeshDepth.dc.html", "x": 1440, "y": 0, "w": 400, "h": 460 }
+  ],
+  "launch": { "view": "canvas" }
+}
