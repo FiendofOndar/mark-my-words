@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { Field, SegmentedControl, inputClass, primaryButton } from './Field';
 import { Bullets } from './Bullets';
 import {
@@ -281,6 +281,23 @@ export function PredictionForm({
   const problems = useMemo(() => validateFormValues(v), [v]);
   const canRedraft = onRedraft !== undefined && !lockStatement;
 
+  /*
+   * Redraft when the statement is left after being changed, not on a button.
+   * Guarded two ways: nothing fires if the wording is what the current draft
+   * was drawn from, since every blur would otherwise spend a model call and
+   * overwrite hand-edited criteria; and a blur caused by tapping the confirm
+   * button is ignored, since the tap is about to put the record down as it
+   * stands. Enter commits the field rather than adding a line.
+   */
+  const draftedFrom = initial.rawStatement.trim();
+  const submitting = useRef(false);
+  const statementLeft = () => {
+    if (!canRedraft || redrafting || busy || submitting.current) return;
+    const now = v.rawStatement.trim();
+    if (now.length === 0 || now === draftedFrom) return;
+    onRedraft(now);
+  };
+
   return (
     <div className="space-y-5 px-5 py-5">
       {banner}
@@ -307,7 +324,7 @@ export function PredictionForm({
           </ul>
           <p className="mt-2 text-[12px] text-ink-faint">
             {canRedraft
-              ? 'Answer by editing the fields below, or sharpen the wording of what was said and redraft; the testable version, these questions and the criteria are drawn again from it.'
+              ? 'Answer by editing the fields below, or sharpen the wording of what was said; the testable version, these questions and the criteria are drawn again from it.'
               : 'Answer by editing the fields below.'}
           </p>
         </section>
@@ -327,23 +344,21 @@ export function PredictionForm({
           rows={3}
           readOnly={lockStatement}
           placeholder="Mark my words, ..."
+          onBlur={statementLeft}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey && canRedraft) {
+              e.preventDefault();
+              e.currentTarget.blur();
+            }
+          }}
           className={`${inputClass} font-display text-[17px] ${lockStatement ? 'text-ink-dim' : ''}`}
         />
         {canRedraft && (
-          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-            <button
-              type="button"
-              onClick={() => onRedraft(v.rawStatement)}
-              disabled={redrafting || busy || v.rawStatement.trim().length === 0}
-              className="rounded border border-rule px-3 py-1.5 text-[13px] text-ink-dim disabled:opacity-40"
-            >
-              {redrafting ? 'Redrafting...' : 'Redraft from this'}
-            </button>
-            <span className="text-[12px] text-ink-faint">
-              Not specific enough? Sharpen the wording above, then redraft. The fields below are
-              drawn again from it. One model call.
-            </span>
-          </div>
+          <p className={`mt-2 text-[12px] ${redrafting ? 'text-partial' : 'text-ink-faint'}`}>
+            {redrafting
+              ? 'Redrafting from the new wording...'
+              : 'Not specific enough? Sharpen the wording above. When you leave the box, the fields below are drawn again from it. One model call, only if the wording changed.'}
+          </p>
         )}
       </Field>
 
@@ -647,8 +662,14 @@ export function PredictionForm({
 
       <button
         type="button"
+        // Pressing this blurs whatever had focus first. Mark the intent before
+        // the blur handler runs so a changed statement is not redrafted out
+        // from under a record that is about to be confirmed.
+        onPointerDown={() => {
+          submitting.current = true;
+        }}
         onClick={() => onSubmit(v, isRetroactive)}
-        disabled={problems.length > 0 || busy}
+        disabled={problems.length > 0 || busy || redrafting}
         className={`${primaryButton} w-full py-3 font-display text-[17px]`}
       >
         {busy ? 'Working...' : submitLabel}
