@@ -3,7 +3,6 @@ import { describeDeadline, formatDate, formatLateBadge, STATUS_LABEL } from '../
 import {
   MIN_SCORED_TO_RANK,
   formatHeadline,
-  formatRecord,
   type AuthorRecord,
 } from '../domain/scoring';
 
@@ -133,6 +132,24 @@ export function ReceiptCard({
   );
 }
 
+/** The record with each number in its verdict's colour, the stamp's own inks. */
+function RecordInk({ record }: { record: AuthorRecord }) {
+  const dash = { color: '#6f675c' };
+  return (
+    <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+      <span style={{ color: TONE.hit }}>{record.hit}</span>
+      <span style={dash}>-</span>
+      <span style={{ color: TONE.miss }}>{record.miss}</span>
+      {record.partial > 0 && (
+        <>
+          <span style={dash}>-</span>
+          <span style={{ color: TONE.partial }}>{record.partial}</span>
+        </>
+      )}
+    </span>
+  );
+}
+
 export function ScorecardCard({
   author,
   record,
@@ -176,11 +193,15 @@ export function ScorecardCard({
           fontVariantNumeric: 'tabular-nums',
         }}
       >
-        {formatHeadline(record)}
+        {record.ranked ? formatHeadline(record) : <RecordInk record={record} />}
       </p>
       <p style={{ ...meta, fontSize: 40, marginTop: 16 }}>
         {record.ranked
-          ? `${formatRecord(record)} on ${record.scored} settled calls`
+          ? (
+            <>
+              <RecordInk record={record} /> on {record.scored} settled calls
+            </>
+          )
           : record.scored === 0
             ? 'Nothing settled yet'
             : `${record.scored} settled call${record.scored === 1 ? '' : 's'}. A rate needs ${MIN_SCORED_TO_RANK}.`}
