@@ -414,31 +414,38 @@ export function DetailScreen() {
         <ul className="mt-3 space-y-2">
           {criteria.map((c) => (
             <li key={c.id} className="flex items-start gap-4 py-1.5">
-              {/* The padding is the tap target; the border is the mark. Putting
-                  both on one element drew a 36px box around a 12px glyph. */}
-              <button
-                type="button"
-                aria-label={`Mark element ${c.position + 1} as ${c.satisfied ? 'unknown' : 'satisfied'}`}
-                onClick={() =>
-                  setSatisfied.mutate({
-                    id: c.id,
-                    satisfied: c.satisfied === true ? false : c.satisfied === false ? null : true,
-                  })
-                }
-                className="-m-2 shrink-0 p-2"
-              >
-                <span
-                  className={`flex h-5 w-5 items-center justify-center rounded border text-[12px] ${
-                    c.satisfied === true
-                      ? 'border-hit text-hit'
-                      : c.satisfied === false
-                        ? 'border-miss text-miss'
-                        : 'border-rule text-ink-faint'
-                  }`}
+              {/* The mark is what the last check found, or unknown. It used to
+                  be a button on every prediction that cycled the mark and wrote
+                  it to the row, which nothing else read: a silent edit to a
+                  frozen criterion's outcome with no record, on a screen whose
+                  whole point is that edits are on the record. It stays tappable
+                  only where the person is the verifier. */}
+              {p.verificationMode === 'manual' ? (
+                <button
+                  type="button"
+                  aria-label={`Mark element ${c.position + 1} as ${c.satisfied ? 'unknown' : 'satisfied'}`}
+                  onClick={() =>
+                    setSatisfied.mutate({
+                      id: c.id,
+                      satisfied: c.satisfied === true ? false : c.satisfied === false ? null : true,
+                    })
+                  }
+                  className="-m-2 shrink-0 p-2"
                 >
-                  {c.satisfied === true ? '✓' : c.satisfied === false ? '✕' : '?'}
+                  <CriterionMark satisfied={c.satisfied} />
+                </button>
+              ) : (
+                <span
+                  className="shrink-0"
+                  title={
+                    c.satisfied === null
+                      ? 'No check has answered this yet'
+                      : `The last check found this ${c.satisfied ? 'met' : 'not met'}`
+                  }
+                >
+                  <CriterionMark satisfied={c.satisfied} />
                 </span>
-              </button>
+              )}
               {amendingCriterion === c.id ? (
                 <AmendForm
                   className="min-w-0 flex-1"
@@ -616,7 +623,10 @@ export function DetailScreen() {
           </div>
         )}
 
-        {p.status === 'miss' && !p.lateHitAt && (
+        {/* Only where the claim could still come true. A day's high temperature
+            cannot happen later, and offering to log that it did was the app
+            asking a question with no possible answer. */}
+        {p.status === 'miss' && !p.lateHitAt && p.canHappenLate && (
           <div className="mt-4 rounded border border-late/40 bg-late/5 p-3">
             <p className="text-[13px] text-ink-dim">It happened anyway. When?</p>
             <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -656,6 +666,24 @@ export function DetailScreen() {
         )}
       </section>
     </Screen>
+  );
+}
+
+/** The padding around this is the tap target; the border is the mark.
+ *  Putting both on one element drew a 36px box around a 12px glyph. */
+function CriterionMark({ satisfied }: { satisfied: boolean | null }) {
+  return (
+    <span
+      className={`flex h-5 w-5 items-center justify-center rounded border text-[12px] ${
+        satisfied === true
+          ? 'border-hit text-hit'
+          : satisfied === false
+            ? 'border-miss text-miss'
+            : 'border-rule text-ink-faint'
+      }`}
+    >
+      {satisfied === true ? '✓' : satisfied === false ? '✕' : '?'}
+    </span>
   );
 }
 

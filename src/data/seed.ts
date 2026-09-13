@@ -70,20 +70,117 @@ export function seedDemoData(db: Db): void {
       searchQueries: ['autonomous drone strike no human authorization', 'rogue AI drone attack reported'],
     });
 
+    /*
+     * Live API test fixtures, chosen so one pull covers six different shapes
+     * of check. Each is settled by public record and was verified against
+     * live sources before it was written here (see the commit). The two
+     * below plus the four further down are the whole live set; the budget
+     * of six per pull is why there are not more.
+     *
+     * A film plot point. A different kind of fact from a score or a reading:
+     * nothing is measured, it is simply what happens in the story, and every
+     * synopsis on the web says so. Released December 17, 2003; the One Ring
+     * goes into the fire at Mount Doom.
+     */
     db.predictions.create({
       authorId: reddit.id,
-      rawStatement: 'Thor will lose his arm in Avengers: Doomsday.',
-      normalizedClaim: 'Thor loses an arm on screen in Avengers: Doomsday.',
-      statementDate: daysFromNow(-95),
-      sourceUrl: 'https://www.reddit.com/r/MarvelStudios/comments/example',
-      sourceContext: 'Reddit fan theory thread',
-      deadlineType: 'event',
-      triggerEvent: 'Avengers: Doomsday releases in theaters',
-      triggerExpectedDate: monthsFromNow(14),
-      staleOutDate: monthsFromNow(60),
+      rawStatement: 'Mark my words, the hobbits actually destroy the ring in Return of the King. No fake-out.',
+      normalizedClaim:
+        'In The Lord of the Rings: The Return of the King (2003), the One Ring is destroyed at Mount Doom.',
+      statementDate: '2003-11-01T12:00:00.000Z',
+      sourceContext: 'Forum thread, before the film opened',
+      deadlineType: 'fixed_date',
+      resolutionDate: endOfLocalDay('2003-12-31'),
       verificationMode: 'searchable',
       category: 'Entertainment',
-      criteria: ['Avengers: Doomsday is released', 'Thor loses an arm during the film'],
+      criteria: [
+        'The Lord of the Rings: The Return of the King is released in theaters in 2003',
+        'In the film, the One Ring is destroyed in the fire of Mount Doom',
+      ],
+      searchQueries: [
+        'Return of the King 2003 plot Mount Doom ring destroyed',
+        'Return of the King release date December 2003',
+      ],
+    });
+
+    /*
+     * A partial. Oppenheimer won Best Picture at the 96th Academy Awards on
+     * March 10, 2024; Best Actress went to Emma Stone for Poor Things, and no
+     * Oppenheimer performer was nominated in that category. One criterion
+     * holds and one fails, which is the one verdict the app never applies on
+     * its own, so this exercises the approval card and the mixed ticks.
+     */
+    db.predictions.create({
+      authorId: liz.id,
+      rawStatement: 'Oppenheimer sweeps. Best Picture AND Best Actress. Mark my words.',
+      normalizedClaim:
+        'Oppenheimer wins both Best Picture and Best Actress at the 96th Academy Awards on March 10, 2024.',
+      statementDate: '2024-01-24T12:00:00.000Z',
+      sourceContext: 'Group chat, the day after nominations',
+      deadlineType: 'fixed_date',
+      resolutionDate: endOfLocalDay('2024-03-10'),
+      verificationMode: 'searchable',
+      category: 'Entertainment',
+      stakes: 'Loser buys popcorn',
+      criteria: [
+        'Oppenheimer wins Best Picture at the 96th Academy Awards, held March 10, 2024',
+        'A performer from Oppenheimer wins Best Actress at the same ceremony',
+      ],
+      searchQueries: [
+        '96th Academy Awards Best Picture winner',
+        '2024 Oscars Best Actress winner',
+      ],
+    });
+
+    /*
+     * A negative claim that came true by absence. No crewed spacecraft has
+     * landed on the Moon since Apollo 17 in 1972; Artemis II (April 2026) was
+     * a flyby, and the first Artemis landing is targeted for 2028. The model
+     * can only report that it found nothing; past the deadline the app turns
+     * that into a hit for the owner to approve, which is the path this tests.
+     */
+    db.predictions.create({
+      authorId: self.id,
+      rawStatement: 'Nobody is landing on the Moon again before the end of 2025. Mark my words.',
+      normalizedClaim: 'No spacecraft with people aboard lands on the Moon before December 31, 2025.',
+      polarity: 'negative',
+      disconfirmingTrigger:
+        'A spacecraft with people aboard lands on the surface of the Moon between January 1, 2024 and December 31, 2025',
+      statementDate: '2024-01-01T12:00:00.000Z',
+      sourceContext: 'New Year\'s Day, arguing about Artemis',
+      deadlineType: 'fixed_date',
+      resolutionDate: endOfLocalDay('2025-12-31'),
+      verificationMode: 'searchable',
+      category: 'Tech/AI',
+      criteria: [
+        'No spacecraft with people aboard lands on the lunar surface between January 1, 2024 and December 31, 2025',
+      ],
+      searchQueries: [
+        'crewed Moon landing 2025',
+        'Artemis III landing date',
+        'first crewed lunar landing since Apollo 17',
+      ],
+    });
+
+    /*
+     * Still open. Rockstar moved Grand Theft Auto VI to November 19, 2026 on
+     * November 6, 2025, so at the time of writing this cannot resolve either
+     * way: the right answer is no_change with a trend, and it stays in the
+     * feed as a countdown. It can happen late, so a miss would keep watching.
+     */
+    db.predictions.create({
+      authorId: liz.id,
+      rawStatement: 'GTA 6 is finally out before the end of 2026. Mark my words.',
+      normalizedClaim: 'Grand Theft Auto VI is released to the public before December 31, 2026.',
+      statementDate: '2025-11-07T12:00:00.000Z',
+      sourceContext: 'The day after the second delay',
+      deadlineType: 'fixed_date',
+      resolutionDate: endOfLocalDay('2026-12-31'),
+      canHappenLate: true,
+      verificationMode: 'searchable',
+      category: 'Entertainment',
+      criteria: ['Grand Theft Auto VI is released to the public on or before December 31, 2026'],
+      searchQueries: ['Grand Theft Auto VI release date', 'GTA VI released'],
     });
 
     /*
@@ -301,6 +398,7 @@ export function seedDemoData(db: Db): void {
     const late = db.predictions.create({
       authorId: economist.id,
       rawStatement: 'The AI bubble will crash within 6 months.',
+      canHappenLate: true,
       normalizedClaim:
         'An AI-weighted equity index falls 30% or more from its peak within six months.',
       statementDate: '2024-01-15T12:00:00.000Z',
@@ -331,6 +429,7 @@ export function seedDemoData(db: Db): void {
     const hit = db.predictions.create({
       authorId: self.id,
       rawStatement: 'Bitcoin passes $100k before the end of 2024.',
+      canHappenLate: true,
       normalizedClaim: 'Bitcoin trades above $100,000 USD before December 31, 2024.',
       statementDate: '2024-03-01T12:00:00.000Z',
       deadlineType: 'fixed_date',

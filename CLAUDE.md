@@ -98,7 +98,7 @@ summarized context, read this before acting.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 320 tests, all of them fast
+npm test           # 323 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -308,8 +308,17 @@ is for.
   check that finds nothing queues a hit for approval. The prompt tells the
   model never to return hit on a negative claim.
 - **Late watch is for claims that can still happen.** Every miss used to get
-  three years of monthly paid checks, including a day's high temperature.
-  `defaultLateWatch` gives it to event-shaped claims only; dated ones opt in.
+  three years of monthly paid checks, including a day's high temperature. The
+  deadline type cannot tell "Bitcoin by the end of 2024" from "85F on
+  September 12", so the intake model answers `can_happen_late`, the review
+  card shows it as a checkbox on dated claims, and `defaultLateWatch` and the
+  "it happened anyway" control both read it.
+- **A cost figure the app cannot see is a cost figure it does not show.**
+  Settings reports tokens (the provider reports a total per check) and says
+  in the same sentence that it is not a bill: input and output are priced
+  differently and only the sum arrives, and search queries are billed
+  separately and not reported at all. Do not add a dollar estimate from a
+  price table in memory.
 - **`groundingMetadata.webSearchQueries` has never arrived on a real check.**
   The field name is from the published docs (verified by search this session,
   not fetched), and the first real diagnostic showed the whole
@@ -325,27 +334,26 @@ is for.
 - **The API key never touches the database**, because Settings exports the whole
   database file.
 
-## The two live test fixtures
+## The six live test fixtures
 
-The seed carries two predictions that exist to be checked against a real key,
-chosen to be opposites on every axis that matters. Running one pull settles both
-and produces two independent data points per attempt.
+The seed carries six predictions that exist to be checked against a real key,
+each testing a different shape of check. One pull covers all six, which is why
+the per-pull budget is six and why there are not more.
 
-| | Anacortes weather | Super Bowl LIX |
+| fixture | expected | what it tests |
 |---|---|---|
-| verdict | miss | hit |
-| criteria | one numeric threshold | two discrete facts |
-| place | pinned to a locality | none |
-| sources | a .gov page that rewrites hourly | static recaps from Feb 2025 |
-| tier | primary | major outlet, plus nfl.com |
+| Anacortes weather | miss, settled | numeric threshold, pinned place, a .gov page that rewrites hourly |
+| Super Bowl LIX | hit, settled | two discrete facts, static recaps; caught the criterion index bug |
+| Return of the King | hit, settled | a film plot point: nothing measured, only what happens in the story |
+| Oppenheimer Oscars | partial, queued | one criterion holds and one fails; the mixed ticks and the approval card |
+| Moon landing (negative) | hit, queued | an absence: the model finds nothing, the app queues the hit past the deadline |
+| GTA VI | no_change, open | an unresolved claim: trend, countdown, and `canHappenLate` |
 
-The Super Bowl one is the two-criterion fixture, which is what caught the
-criterion index being off by one: its headline criterion showed unticked on a
-HIT. Its recap pages are static, so its links should always come back green.
-
-Its result was verified against live sources before seeding. A fabricated demo
-verdict about a real team has already misled someone once here; do not do it
-again.
+Every fact in them was verified against live sources before seeding, and the
+commit that added each says so. A fabricated demo verdict about a real team has
+already misled someone once here; do not do it again. Two other open seeds (the
+rogue-drone claim and the CNN winter forecast) are also searchable and will be
+checked when the budget allows; neither can resolve yet.
 
 ## Unverified
 

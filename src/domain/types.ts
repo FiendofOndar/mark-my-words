@@ -119,6 +119,15 @@ export interface Prediction {
   forceManual: boolean;
   searchQueries: string[];
   noCheckBefore: Iso | null;
+  /**
+   * Whether the claim could still come true after its deadline. "Bitcoin
+   * above $100k by the end of 2024" can happen in 2025 and earn the late
+   * badge; "85F in Anacortes on September 12" cannot happen on any other day.
+   * The deadline type does not tell these apart: both are fixed dates. The
+   * intake model sets it, the review card can flip it, and both late watch and
+   * the "it happened anyway" control read it.
+   */
+  canHappenLate: boolean;
 
   // state
   status: PredictionStatus;

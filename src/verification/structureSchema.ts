@@ -174,6 +174,17 @@ export function parseStructuredPrediction(
 
   const noCheckBefore = asDate(input.no_check_before ?? input.noCheckBefore);
 
+  // Whether the claim can still come true after its deadline. When the model
+  // does not say, fall back to the shape: event-shaped claims can, dated ones
+  // usually cannot.
+  const lateRaw = input.can_happen_late ?? input.canHappenLate;
+  const canHappenLate =
+    typeof lateRaw === 'boolean'
+      ? lateRaw
+      : typeof lateRaw === 'string'
+        ? lateRaw.trim().toLowerCase() === 'true'
+        : deadlineType === 'event';
+
   if (problems.length > 0) return { ok: false, problems };
 
   return {
@@ -198,6 +209,7 @@ export function parseStructuredPrediction(
         asString(input.verifiability_reasoning ?? input.verifiabilityReasoning) ?? '',
       searchQueries: asStringArray(input.search_queries ?? input.searchQueries),
       noCheckBefore,
+      canHappenLate,
       category,
       tags: asStringArray(input.tags),
       authorGuess: asString(input.author_guess ?? input.authorGuess),

@@ -193,6 +193,22 @@ download: a target=_blank anchor hands the URL to the user's own Chrome, which
 restores its last tab, which was the release download. Links now open in a
 Custom Tab (PR #3, unverified on device).
 
+PR #3 was verified on device: Anacortes settled itself as a miss, the Reopen
+link is there, and the provider panel names the model as `gemini-3.8-flash`
+with `Parts: text+thoughtSignature` and `groundingMetadata: absent`. After it,
+on the same branch: the criterion mark made read-only on searchable
+predictions (it was a silent edit nothing read); `can_happen_late` asked at
+intake and stored, replacing the deadline-type proxy for late watch and
+gating the "it happened anyway" control; tokens spent shown in Settings,
+labelled as not a bill.
+
+The seed now carries six live fixtures instead of two (CLAUDE.md has the
+table): Return of the King (hit), Oppenheimer at the 2024 Oscars (partial),
+no crewed Moon landing before the end of 2025 (a negative claim, queued hit by
+absence) and GTA VI before the end of 2026 (open, no_change). Thor's arm is
+gone; the film has not come out. All four facts were verified by web search
+before seeding. One pull now spends six grounded calls.
+
 Three more things PR #3 adds to look for: Anacortes settling itself as a miss
 with no approval card; a "Not right? Reopen it" link under "Settled by the
 app"; source links opening in a browser sheet that closes back to the app.

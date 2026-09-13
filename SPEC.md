@@ -569,11 +569,13 @@ it only makes the trail visible.
 
 The verdict never changes. A miss is a miss permanently, because the timeframe was part of the claim.
 
-When an event-shaped prediction resolves `miss`, the app sets `late_watch_until` to
-`resolution_date + late_watch_period` (default 3 years, configurable per prediction: never, 1 year,
-3 years, forever) and the prediction stays on the 30-day cadence. A dated claim (fixed date or
-window) defaults to no watch: a day's high temperature cannot come true later, and every check under
-watch is a paid call. A person can turn the watch on for a particular prediction.
+Every prediction carries `can_happen_late`: whether the claim could still come true after its
+deadline. The intake model sets it (event-shaped claims almost always, dated ones rarely: "Bitcoin
+by the end of 2024" yes, "85F on September 12" no) and the review card shows it as a checkbox on
+dated claims. When a prediction that can happen late resolves `miss`, the app sets
+`late_watch_until` to `resolution_date + late_watch_period` (default 3 years) and the prediction
+stays on the 30-day cadence. One that cannot gets no watch and no "it happened anyway" control:
+every check under watch is a paid call, and a day's high temperature cannot change.
 
 A late-watch check that confirms the miss records the check and changes nothing. It must never try
 to re-apply the verdict; that once threw on the miss-to-miss transition and ended the whole pull.

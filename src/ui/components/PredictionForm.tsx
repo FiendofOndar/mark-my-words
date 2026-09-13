@@ -34,6 +34,7 @@ export interface PredictionFormValues {
   staleOutDate: string;
   verificationMode: VerificationMode;
   forceManual: boolean;
+  canHappenLate: boolean;
   category: Category;
   stakes: string;
   criteria: string[];
@@ -69,6 +70,7 @@ export function emptyFormValues(): PredictionFormValues {
     staleOutDate: yearsFromToday(5),
     verificationMode: 'searchable',
     forceManual: false,
+    canHappenLate: false,
     category: 'Other',
     stakes: '',
     criteria: [''],
@@ -102,6 +104,7 @@ export function toFormValues(
     staleOutDate: date(p.staleOutDate) || yearsFromToday(5),
     verificationMode: p.verificationMode,
     forceManual: p.forceManual,
+    canHappenLate: p.canHappenLate,
     category: p.category,
     stakes: p.stakes ?? '',
     criteria: criteria.length > 0 ? criteria.map((c) => c.text) : [''],
@@ -222,6 +225,9 @@ export function toNewPrediction(
     staleOutDate: isEvent ? endOfLocalDay(v.staleOutDate) : null,
     verificationMode: v.verificationMode,
     forceManual: v.forceManual,
+    // An event-shaped claim can by definition still occur; only dated ones
+    // need the person to say.
+    canHappenLate: isEvent ? true : v.canHappenLate,
     searchQueries: v.searchQueries,
     noCheckBefore: v.noCheckBefore ? startOfLocalDay(v.noCheckBefore) : null,
     category: v.category,
@@ -518,6 +524,21 @@ export function PredictionForm({
           />
           <span className="text-[13px] text-ink-dim">
             Never auto-resolve this one. Show me the evidence and let me call it.
+          </span>
+        </label>
+      )}
+
+      {v.deadlineType !== 'event' && (
+        <label className="flex items-start gap-2.5">
+          <input
+            type="checkbox"
+            checked={v.canHappenLate}
+            onChange={(e) => set('canHappenLate', e.target.checked)}
+            className="checkbox mt-0.5"
+          />
+          <span className="text-[13px] text-ink-dim">
+            It could still happen after the deadline. Keep watching for a late hit; a miss stays
+            a miss, but earns the badge.
           </span>
         </label>
       )}

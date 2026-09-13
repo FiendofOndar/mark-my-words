@@ -43,6 +43,7 @@ export class MockVerifier implements Verifier {
           ? 'Mentions private life, so no public source would report the outcome.'
           : 'Assumed public. Offline drafting cannot judge this properly.',
         search_queries: [],
+        can_happen_late: false,
         category,
         tags: [],
         // Where the draft came from is the banner's job to say. This is the

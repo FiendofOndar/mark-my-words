@@ -54,21 +54,18 @@ describe('resolving', () => {
     expect(patch.trend).toBeNull();
   });
 
-  it('starts a late watch on an event-shaped miss and not on a hit', () => {
-    const p = makePrediction({
-      deadlineType: 'event',
-      triggerEvent: 'The film releases',
-      triggerExpectedDate: isoDaysFrom(NOW, -1),
-      staleOutDate: isoDaysFrom(NOW, 365),
-    });
+  it('starts a late watch on a miss that could still come true, and not on a hit', () => {
+    // "Bitcoin above $100k by the end of 2024" is a fixed date and can still
+    // happen in 2025. The flag, not the deadline type, is what decides.
+    const p = makePrediction({ canHappenLate: true, resolutionDate: isoDaysFrom(NOW, -1) });
     expect(resolve(p, 'miss', 'auto', NOW).lateWatchUntil).toBeTruthy();
     expect(resolve(p, 'hit', 'auto', NOW).lateWatchUntil).toBeNull();
   });
 
-  it('does not watch a dated miss, which cannot come true later', () => {
+  it('does not watch a miss that cannot come true later', () => {
     // Every miss used to get three years of monthly checks, each a paid call
     // asking whether a day's high temperature had changed.
-    const p = makePrediction({ deadlineType: 'fixed_date', resolutionDate: isoDaysFrom(NOW, -1) });
+    const p = makePrediction({ canHappenLate: false, resolutionDate: isoDaysFrom(NOW, -1) });
     expect(resolve(p, 'miss', 'auto', NOW).lateWatchUntil).toBeNull();
     expect(resolve(p, 'miss', 'auto', NOW, { lateWatch: '1y' }).lateWatchUntil).toBeTruthy();
   });
