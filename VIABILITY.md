@@ -937,10 +937,12 @@ account opens. Sources are the rows above.
    enter the Digital Services Act trader information; create an App Store
    Connect API team key for the CI runner.
 5. **Play, in parallel.** $25, identity verification, and the closed test
-   (12 testers, 14 days) can all start before the iOS build exists. Play
-   has a Digital Services Act trader declaration of its own for the EU;
-   the requirement is from memory and the search this session, and its
-   exact fields should be read in the Play Console when the account opens.
+   (12 testers, 14 days) can all start before the iOS build exists.
+   Whether Play has a Digital Services Act trader declaration of its own
+   is unsettled here: memory says the Play Console asks for one, and the
+   third-party pages seen in search this session say Play had no
+   equivalent to Apple's requirement. Read the console when the account
+   opens and record the answer in section 8.
 
 **Capacitor plugins on iOS** (plugin documentation, fetched from the
 plugins' repositories).
