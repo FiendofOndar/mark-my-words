@@ -165,8 +165,9 @@ history; the history is in `git log`, one explanation per commit.
 carry every narrowing word, a deadline shape, a disconfirming trigger for
 negative claims, `can_happen_late`, and questions for the person where it
 could not decide. The review card shows the questions as a list and redrafts
-everything below the statement when the wording is changed and the box is
-left. A check asks the model for a verdict against the frozen criteria, with
+everything below the statement when the wording or the date is changed and
+the field is left; the date is what the model reads the claim as of, and a
+changed date blocks confirming until the redraft has run. A check asks the model for a verdict against the frozen criteria, with
 the period stated explicitly from the recorded date to the deadline. The app
 opens every cited link (`ok`, `blocked`, `missing`, `unreachable`), judges
 tier and independence from the domain, and applies the verdict unless a gate

@@ -268,7 +268,8 @@ export function PredictionForm({
    * statement as it now reads. One model call. Absent on a form that has no
    * model behind it.
    */
-  onRedraft?: (rawStatement: string) => void;
+  /** Draft again from the wording and the date it was said, as they now read. */
+  onRedraft?: (rawStatement: string, statementDate: string) => void;
   redrafting?: boolean;
 }) {
   const [v, setV] = useState<PredictionFormValues>(initial);
@@ -279,25 +280,42 @@ export function PredictionForm({
   const deadline = deadlineInstant(v);
   const isRetroactive = deadline !== null && new Date(deadline).getTime() < Date.now();
 
-  const problems = useMemo(() => validateFormValues(v), [v]);
   const canRedraft = onRedraft !== undefined && !lockStatement;
 
   /*
-   * Redraft when the statement is left after being changed, not on a button.
-   * Guarded two ways: nothing fires if the wording is what the current draft
-   * was drawn from, since every blur would otherwise spend a model call and
-   * overwrite hand-edited criteria; and a blur caused by tapping the confirm
-   * button is ignored, since the tap is about to put the record down as it
-   * stands. Enter commits the field rather than adding a line.
+   * Redraft when the statement or the date is left after being changed, not
+   * on a button. The date is as much an input as the wording: the model reads
+   * the claim as of the day it was said, so "this election" drafted against
+   * the wrong year is a different claim with a different clock. Guarded two
+   * ways: nothing fires if both are what the current draft was drawn from,
+   * since every blur would otherwise spend a model call and overwrite
+   * hand-edited criteria; and a blur caused by tapping the confirm button is
+   * ignored, since the tap is about to put the record down as it stands.
+   * Enter commits the statement field rather than adding a line.
    */
-  const draftedFrom = initial.rawStatement.trim();
+  const draftedFrom = { statement: initial.rawStatement.trim(), date: initial.statementDate };
   const submitting = useRef(false);
-  const statementLeft = () => {
+  const draftInputsLeft = () => {
     if (!canRedraft || redrafting || busy || submitting.current) return;
-    const now = v.rawStatement.trim();
-    if (now.length === 0 || now === draftedFrom) return;
-    onRedraft(now);
+    const statement = v.rawStatement.trim();
+    if (statement.length === 0) return;
+    if (statement === draftedFrom.statement && v.statementDate === draftedFrom.date) return;
+    onRedraft(statement, v.statementDate);
   };
+
+  // A changed date is not confirmable until the draft has been drawn from
+  // it. A changed statement is (the wording may have been sharpened without
+  // wanting new criteria), but criteria carry dates the eye cannot check
+  // against the field above, and a review card drafted against today for a
+  // two-year-old post once built a 2028 clock around a 2024 claim.
+  const dateMoved = canRedraft && v.statementDate !== draftedFrom.date;
+  const problems = useMemo(() => {
+    const found = validateFormValues(v);
+    if (dateMoved) {
+      found.push('The date changed. Leave the field and the draft is drawn again as of that day.');
+    }
+    return found;
+  }, [v, dateMoved]);
 
   return (
     <div className="space-y-5 px-5 py-5">
@@ -345,7 +363,7 @@ export function PredictionForm({
           rows={3}
           readOnly={lockStatement}
           placeholder="Mark my words, ..."
-          onBlur={statementLeft}
+          onBlur={draftInputsLeft}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey && canRedraft) {
               e.preventDefault();
@@ -358,7 +376,7 @@ export function PredictionForm({
           <p className={`mt-2 text-[12px] ${redrafting ? 'text-attention' : 'text-ink-faint'}`}>
             {redrafting
               ? <Busy>Redrafting from the new wording...</Busy>
-              : 'Not specific enough? Sharpen the wording above. When you leave the box, the fields below are drawn again from it. One model call, only if the wording changed.'}
+              : 'Not specific enough? Sharpen the wording above. When you leave the box, the fields below are drawn again from it, as of the date it was said. One model call, only if the wording or the date changed.'}
           </p>
         )}
       </Field>
@@ -396,6 +414,7 @@ export function PredictionForm({
             type="date"
             value={v.statementDate}
             onChange={(e) => set('statementDate', e.target.value)}
+            onBlur={draftInputsLeft}
             className={inputClass}
           />
         </Field>

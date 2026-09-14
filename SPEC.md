@@ -427,7 +427,11 @@ The user sees a single scrollable card:
 
 - The raw statement, quoted, with the archive status badge.
 - Author field, prefilled from `author_guess`, with autocomplete against existing authors.
-- Statement date, defaulting to today or `statement_date_guess`.
+- Statement date, defaulting to today or `statement_date_guess`. The wording and this date are the
+  two inputs the draft is drawn from: the model reads the claim as of the day it was said, so
+  leaving either field changed redrafts everything below, and a changed date cannot be confirmed
+  until that has happened (a two-year-old Reddit post drafted against today once built a 2028
+  clock around a 2024 claim). A changed statement can be confirmed as it stands.
 - The normalized claim, editable.
 - The criteria elements as a list, each editable, add and remove allowed.
 - The deadline, with its reasoning shown underneath and a picker to override.
