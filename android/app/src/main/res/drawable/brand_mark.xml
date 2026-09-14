@@ -32,10 +32,11 @@
       safe zone; the owner found it read small. So the mark stays full size
       and the tail's tip is pulled in about 2dp instead (the L point of the
       dial path), which lands it inside the 66dp safe circle every mask keeps.
+      Then lifted 1.2dp on the owner's eye: dead centre sat a hair low.
     -->
     <group
         android:translateX="-3.72"
-        android:translateY="1.6">
+        android:translateY="0.4">
 
     <path
         android:fillColor="#00000000"
