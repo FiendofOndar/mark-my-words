@@ -662,7 +662,11 @@ thing is always on top. Two things sit beside the rule without replacing it: a r
 from its press-and-hold menu (pinned rows hold the top, in the order pinned, and the rest of the feed
 keeps its order beneath them), and the header's order button opens a sheet with the other orders a
 long ledger wants (deadline soonest, newest, oldest, by author) as a per-device preference; when one
-is in force a line under the chips names it, with a reset. Filters live only in the chip strip. Drag-to-reorder was asked for and declined: a hand-sorted ledger lets a bad call be
+is in force a line under the chips names it, with a reset. Filters live only in the strip: status
+chips scroll on the left, and the topic sits on its own past a rule on the right as one pinned chip
+that opens a sheet and reads as the chosen topic. The two combine (Open under Politics); they used to
+be one exclusive row of identical chips, and Politics beside Needs you read as one list of unrelated
+things. Drag-to-reorder was asked for and declined: a hand-sorted ledger lets a bad call be
 buried under a good one, which is what the heat sort exists to prevent.
 
 ```
@@ -677,7 +681,8 @@ heat = 0
 ```
 
 **Filter chips** across the top, horizontally scrollable:
-`All` · `Open` · `Needs you` · `Resolved` · `Late hits` · `Void` · `By author` · category chips.
+`All` · `Open` · `Needs you` · `Resolved` · `Late hits` · `Void`, then a rule and the pinned
+`Topic` chip. `By author` is the author screen's list, not a chip.
 
 **Row anatomy:**
 - Author name and avatar, small.

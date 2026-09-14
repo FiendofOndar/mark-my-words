@@ -26,7 +26,6 @@ export type FeedFilter =
   | { kind: 'resolved' }
   | { kind: 'late' }
   | { kind: 'void' }
-  | { kind: 'category'; category: Category }
   | { kind: 'author'; authorId: string };
 
 export interface FeedItem extends HeatInput {
@@ -67,14 +66,17 @@ function matches(
       return p.lateHitAt !== null;
     case 'void':
       return p.status === 'void';
-    case 'category':
-      return p.category === filter.category;
     case 'author':
       return p.authorId === filter.authorId;
   }
 }
 
-function buildFeed(db: Db, filter: FeedFilter, sort: FeedSort): FeedItem[] {
+/**
+ * What a prediction is about is a second axis, not another status. The two
+ * used to share one exclusive chip strip, so picking Politics silently
+ * dropped Open; now a topic narrows whatever status filter is in force.
+ */
+function buildFeed(db: Db, filter: FeedFilter, sort: FeedSort, topic: Category | null): FeedItem[] {
   const now = new Date();
   const authors = new Map(db.authors.list().map((a) => [a.id, a]));
   const amendmentCounts = db.predictions.amendmentCounts();
@@ -83,6 +85,7 @@ function buildFeed(db: Db, filter: FeedFilter, sort: FeedSort): FeedItem[] {
   const items = db.predictions
     .list()
     .filter((p) => matches(p, filter, now, queued))
+    .filter((p) => topic === null || p.category === topic)
     .flatMap<FeedItem>((prediction) => {
       const author = authors.get(prediction.authorId);
       if (!author) return [];
@@ -101,7 +104,8 @@ function buildFeed(db: Db, filter: FeedFilter, sort: FeedSort): FeedItem[] {
 }
 
 export const keys = {
-  feed: (filter: FeedFilter, sort: FeedSort) => ['feed', filter, sort] as const,
+  feed: (filter: FeedFilter, sort: FeedSort, topic: Category | null) =>
+    ['feed', filter, sort, topic] as const,
   prediction: (id: string) => ['prediction', id] as const,
   authors: () => ['authors'] as const,
   standings: () => ['standings'] as const,
@@ -110,11 +114,11 @@ export const keys = {
   quota: () => ['quota'] as const,
 };
 
-export function useFeed(filter: FeedFilter, sort: FeedSort = 'heat') {
+export function useFeed(filter: FeedFilter, sort: FeedSort = 'heat', topic: Category | null = null) {
   const db = useDb();
   return useQuery({
-    queryKey: keys.feed(filter, sort),
-    queryFn: () => buildFeed(db, filter, sort),
+    queryKey: keys.feed(filter, sort, topic),
+    queryFn: () => buildFeed(db, filter, sort, topic),
   });
 }
 
