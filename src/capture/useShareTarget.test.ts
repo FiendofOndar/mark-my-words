@@ -10,6 +10,8 @@ describe('a share from another app', () => {
     ).toEqual({
       text: 'Mark my words, the bubble pops by spring',
       url: 'https://example.com/post',
+      imageUri: null,
+      mimeType: null,
     });
   });
 
@@ -26,6 +28,8 @@ describe('a share from another app', () => {
     expect(normalizeIntent({ description: 'https://example.com/post' })).toEqual({
       text: '',
       url: 'https://example.com/post',
+      imageUri: null,
+      mimeType: null,
     });
   });
 
@@ -44,6 +48,22 @@ describe('a share from another app', () => {
   });
 
   it('reports nothing usable when nothing was shared', () => {
-    expect(normalizeIntent({})).toEqual({ text: '', url: null });
+    expect(normalizeIntent({})).toEqual({ text: '', url: null, imageUri: null, mimeType: null });
+  });
+
+  it('keeps a shared image as an image, not as a link', () => {
+    // A screenshot arrives with its MIME type and a content:// URI in the
+    // same field a web link uses. It used to be ignored entirely.
+    expect(
+      normalizeIntent({
+        type: 'image/png',
+        url: 'content://media/external/images/media/1234',
+      }),
+    ).toEqual({
+      text: '',
+      url: null,
+      imageUri: 'content://media/external/images/media/1234',
+      mimeType: 'image/png',
+    });
   });
 });

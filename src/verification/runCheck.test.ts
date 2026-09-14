@@ -36,6 +36,9 @@ class StubVerifier implements Verifier {
   readonly modelId = 'stub-1';
   readonly dailyQuota = null;
   constructor(private result: CheckResult | Error) {}
+  async extract(): Promise<never> {
+    throw new Error('not used');
+  }
   async structure(_input: StructureInput): Promise<StructureResult> {
     throw new Error('not used');
   }
@@ -371,6 +374,7 @@ describe('what the model is told', () => {
       providerId: verifier.providerId,
       modelId: verifier.modelId,
       structure: (input) => verifier.structure(input),
+      extract: () => verifier.extract(),
       testConnection: () => verifier.testConnection(),
       check: async (input) => {
         seen = input;
@@ -408,6 +412,7 @@ describe('what the model is told', () => {
       providerId: verifier.providerId,
       modelId: verifier.modelId,
       structure: (input) => verifier.structure(input),
+      extract: () => verifier.extract(),
       testConnection: () => verifier.testConnection(),
       check: async (input) => {
         seen = input;

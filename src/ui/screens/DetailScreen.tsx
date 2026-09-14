@@ -25,6 +25,7 @@ import { ReceiptCard } from '../../receipts/ReceiptCard';
 import { useReceipt } from '../../receipts/useReceipt';
 import { describeProgress } from '../../verification/runPull';
 import { ConfirmDialog } from '../components/Modal';
+import { SourceScreenshot } from '../components/SourceScreenshot';
 import { Busy } from '../components/Spinner';
 import {
   describeDeadline,
@@ -198,6 +199,7 @@ export function DetailScreen() {
             )}
           </div>
         )}
+        <SourceScreenshot path={p.screenshotPath} />
       </section>
 
       {p.status === 'draft' && (

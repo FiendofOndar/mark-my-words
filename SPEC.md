@@ -338,7 +338,18 @@ CREATE INDEX idx_evidence_check       ON evidence(check_id);
 ### 5.1 Capture surfaces
 
 1. **Android share sheet** (primary). Intent filters for `ACTION_SEND` with `text/plain` and `image/*`.
-   Sharing an Instagram or Reddit post hands the app a URL and sometimes a text blob.
+   Sharing an Instagram or Reddit post hands the app a URL and sometimes a text blob. What the app
+   does with it, as of 2026-09-14:
+   - **A screenshot** is read by the model for the post's words, the poster's handle, the platform and
+     the date if visible (one image call, no search), and kept in app storage as the source: for
+     Instagram, X, TikTok and Threads it is the only archive there will be. "No prediction here" is a
+     normal answer and leaves the form empty with a note.
+   - **A link from X or Reddit** is asked for the post's text through the platform's public endpoint
+     (X's embed, Reddit's `.json`). Both response shapes are from memory and unverified from the build
+     container; a miss falls through to the note below.
+   - **A link from a platform that gives nothing** (Instagram, TikTok, Threads, Facebook) opens the form
+     with the link filled and a note: screenshot the post and share the picture instead.
+   - **Video is out of scope.** A reel's claim lives in its caption or a comment; screenshot that.
 2. **Manual entry.** Big "+" on the feed. For things said out loud.
 3. **Paste.** Clipboard detection when the app opens with a URL on the clipboard, offered as a dismissible bar.
 

@@ -153,10 +153,47 @@ export class VerifierError extends Error {
   }
 }
 
+/** A screenshot of a post, to be read for the prediction in it. */
+export interface ExtractInput {
+  /** Raw base64, no data: prefix. */
+  imageBase64: string;
+  mimeType: string;
+  /** ISO date (YYYY-MM-DD), so a relative timestamp on the post can resolve. */
+  today: string;
+}
+
+/**
+ * What the model read off the image. Everything is nullable because a
+ * screenshot of a joke, a meme or a scoreboard is a normal input, and "no
+ * prediction here" has to be an answer rather than an invention.
+ */
+export interface ExtractedPost {
+  isPrediction: boolean;
+  /** The post's own words, verbatim. */
+  statement: string | null;
+  /** Who posted them, as shown: an @handle where there is one. */
+  author: string | null;
+  /** The platform the interface belongs to: "X", "Instagram", "Reddit"... */
+  platform: string | null;
+  /** YYYY-MM-DD, only when a date is visible. */
+  postedOn: string | null;
+  /** Why it is not a prediction, or what the model was unsure about. */
+  note: string | null;
+}
+
+export interface ExtractResult {
+  value: ExtractedPost;
+  provider: string;
+  model: string;
+  tokensUsed: number | null;
+}
+
 export interface Verifier {
   readonly providerId: string;
   readonly modelId: string;
   structure(input: StructureInput): Promise<StructureResult>;
+  /** Read a shared screenshot for the post in it. Costs one image call. */
+  extract(input: ExtractInput): Promise<ExtractResult>;
   check(input: CheckInput): Promise<CheckResult>;
   /** Cheap round trip to prove the key works. */
   testConnection(): Promise<void>;
