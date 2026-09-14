@@ -22,13 +22,14 @@ import {
 import { formatDate } from '../../domain/format';
 import { useQuotaUsed } from '../queries';
 import { platformName } from '../../platform';
-import { readLastShare } from '../../lib/shareLog';
+import { readLastExtraction, readLastShare } from '../../lib/shareLog';
 
 export function SettingsScreen() {
   const db = useDb();
   const [theme, setTheme] = useState<Theme>(readTheme);
   const [busy, setBusy] = useState(false);
   const [lastShare] = useState(readLastShare);
+  const [lastExtraction] = useState(readLastExtraction);
 
   const [stored, setStored] = useState(loadVerifierConfig);
   const [provider, setProvider] = useState<ProviderId>(stored.provider);
@@ -503,6 +504,14 @@ export function SettingsScreen() {
           <p className="text-[12px] text-ink-faint">
             Last share received {new Date(lastShare.at).toLocaleString()}: {lastShare.what}
           </p>
+        )}
+        {lastExtraction && (
+          <details className="text-[12px] text-ink-faint">
+            <summary className="cursor-pointer">What the model said about the last screenshot</summary>
+            <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-words rounded-lg bg-surface-raised p-3 text-[11px]">
+              {lastExtraction}
+            </pre>
+          </details>
         )}
       </div>
     </Screen>

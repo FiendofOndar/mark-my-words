@@ -106,6 +106,7 @@ export class MockVerifier implements Verifier {
         postedHint: null,
         note: 'Offline drafting cannot read a screenshot. Add a Gemini key in Settings, or type what the post said.',
       },
+      rawText: '',
       provider: this.providerId,
       model: this.modelId,
       tokensUsed: null,

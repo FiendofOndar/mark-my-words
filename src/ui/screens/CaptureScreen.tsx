@@ -12,6 +12,7 @@ import {
   useStructureStatement,
 } from '../queries';
 import { keepScreenshot, takeSharedImage } from '../../platform/sharedImage';
+import { recordExtraction } from '../../lib/shareLog';
 import { fetchPostText, postTextSupported } from '../../capture/postText';
 import { archiveHttp } from '../../capture/http';
 import { isHostileHost } from '../../capture/archive';
@@ -96,6 +97,16 @@ export function CaptureScreen() {
       setReadNote(null);
       setError(null);
       if (shared?.imageToken) {
+        // A share that lands while this screen is already open is a new
+        // post; nothing from the last one may survive into its form. Two
+        // Reddit posts with their authors plainly on screen once came in
+        // as "u/[deleted]", the author of the share before them.
+        setRawStatement('');
+        setAuthorName('');
+        setStatementDate(today());
+        setSourceUrl('');
+        setSourceContext('');
+        setScreenshotPath(null);
         setReading('screenshot');
         try {
           const image = takeSharedImage(shared.imageToken);
@@ -103,6 +114,7 @@ export function CaptureScreen() {
             extract.mutateAsync({ imageBase64: image.data, mimeType: image.mimeType, today: today() }),
             keepScreenshot(image),
           ]);
+          recordExtraction(result.rawText);
           setScreenshotPath(path);
           const post = result.value;
           if (post.isPrediction && post.statement) {

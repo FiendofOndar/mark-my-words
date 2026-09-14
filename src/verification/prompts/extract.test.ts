@@ -25,3 +25,17 @@ describe('the screenshot prompt', () => {
     expect(EXTRACT_SYSTEM_PROMPT).toMatch(/a forum's member name shown beside the post/);
   });
 });
+
+describe('the screenshot prompt, second device run', () => {
+  it('names the Reddit cues for author and age', () => {
+    // u/digitalamish and "1y" were beside the post; the author came back
+    // empty and the note said no date was visible.
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/On Reddit the u\/name beside the post is the author/);
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/On Reddit the age sits beside the username/);
+  });
+
+  it('handles a post cut off with "...more"', () => {
+    // "...more" was copied into the statement as if it were the post's words.
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/A POST CUT OFF with "\.\.\.more"/);
+  });
+});
