@@ -350,6 +350,15 @@ CREATE INDEX idx_evidence_check       ON evidence(check_id);
    - **A link from a platform that gives nothing** (Instagram, TikTok, Threads, Facebook) opens the form
      with the link filled and a note: screenshot the post and share the picture instead.
    - **Video is out of scope.** A reel's claim lives in its caption or a comment; screenshot that.
+
+   The intent filters sit on `MainActivity` (`singleTask`), so a share into a running app arrives
+   through `onNewIntent`. The app's own `ShareIntentPlugin` reads the activity's current intent and
+   hands the web side the text and, for a picture, the bytes as base64; `MainActivity` sets the new
+   intent as current and fires a `shareReceived` window event, and the web side forgets the share
+   once taken so a WebView reload does not deliver it twice. It replaced the `send-intent` package
+   on 2026-09-14: that plugin read the launch intent (stale once the app was open, so a share into a
+   running app did nothing) and its `finish()` closed the hosting activity, which here is the app.
+   Settings prints what the last share carried and what was done with it.
 2. **Manual entry.** Big "+" on the feed. For things said out loud.
 3. **Paste.** Clipboard detection when the app opens with a URL on the clipboard, offered as a dismissible bar.
 
@@ -794,7 +803,7 @@ make every leaderboard number meaningless. They still show on the author's page 
 | Styling | Tailwind + CSS variables for theming | Fast, and the design system in 12 is mostly typography and color tokens |
 | Notifications | `@capacitor/local-notifications` | On-device scheduling, no push service |
 | Secure storage | `capacitor-secure-storage-plugin` | Android Keystore-backed key storage |
-| Share target | Android intent filter + `send-intent` plugin | Receives shared text and images |
+| Share target | Android intent filters on `MainActivity` + the app's own `ShareIntentPlugin` | Receives shared text and images, into a running app as well as a cold one |
 | Receipt images | Offscreen DOM rendered via `html-to-image`, saved with `@capacitor/filesystem`, shared via `@capacitor/share` | No server render needed |
 
 ### 11.2 Project structure

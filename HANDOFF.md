@@ -230,6 +230,18 @@ The build container cannot reach Google.
 
 Still open, smaller:
 
+- **The share sheet, rebuilt 2026-09-14 and untested on a device.** The
+  owner's recording showed an image share opening the app on the feed. Root
+  cause in the plugin source, not guessed: `send-intent` read the activity's
+  launch intent, which is stale once the app is open, and nothing on Android
+  fired its window event; on a cold share its `finish()` would have closed
+  the app. Replaced with `ShareIntentPlugin` in the app's own Java plus an
+  `onNewIntent` override in `MainActivity`. Predicted outcome: sharing a
+  screenshot opens the capture screen with "Reading the screenshot"; Settings
+  shows "Last share received" with the picture's type and size. If the feed
+  opens instead, read that Settings line first: present means the read ran
+  and says what it saw, absent means the JS never heard about the share. The
+  Java was written without a compiler; CI's APK job is the first compile.
 - **Pricing unit is unverified.** From secondary pages (the official docs are
   blocked from the build container): the 2.5 family bills grounding per prompt,
   the 3.x family per search query, with a free allowance on both that this

@@ -11,7 +11,7 @@ import {
   useFindOrCreateAuthor,
   useStructureStatement,
 } from '../queries';
-import { keepScreenshot, readSharedImage } from '../../platform/sharedImage';
+import { keepScreenshot, takeSharedImage } from '../../platform/sharedImage';
 import { fetchPostText, postTextSupported } from '../../capture/postText';
 import { archiveHttp } from '../../capture/http';
 import { isHostileHost } from '../../capture/archive';
@@ -31,8 +31,8 @@ export function CaptureScreen() {
   const shared = location.state as {
     text?: string;
     url?: string | null;
-    imageUri?: string | null;
-    mimeType?: string | null;
+    imageToken?: string | null;
+    note?: string | null;
   } | null;
   const { data: authors = [] } = useAuthors();
   const config = loadVerifierConfig();
@@ -58,7 +58,8 @@ export function CaptureScreen() {
   useEffect(() => {
     if (shared?.text) setRawStatement(shared.text);
     if (shared?.url) setSourceUrl(shared.url);
-  }, [shared?.text, shared?.url]);
+    if (shared?.note) setReadNote(shared.note);
+  }, [shared?.text, shared?.url, shared?.note]);
 
   /**
    * What a share can fill in for itself.
@@ -74,17 +75,17 @@ export function CaptureScreen() {
    */
   const handled = useRef<string | null>(null);
   useEffect(() => {
-    const key = shared?.imageUri ?? (shared?.url && !shared.text ? shared.url : null);
+    const key = shared?.imageToken ?? (shared?.url && !shared.text ? shared.url : null);
     if (!key || handled.current === key) return;
     handled.current = key;
 
     const run = async () => {
       setReadNote(null);
       setError(null);
-      if (shared?.imageUri) {
+      if (shared?.imageToken) {
         setReading('screenshot');
         try {
-          const image = await readSharedImage(shared.imageUri, shared.mimeType);
+          const image = takeSharedImage(shared.imageToken);
           const [result, path] = await Promise.all([
             extract.mutateAsync({ imageBase64: image.data, mimeType: image.mimeType, today: today() }),
             keepScreenshot(image),
@@ -140,7 +141,7 @@ export function CaptureScreen() {
     // The share payload is the trigger; the mutation object is stable enough
     // and listing it would re-run a paid call on every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shared?.imageUri, shared?.url, shared?.text, shared?.mimeType]);
+  }, [shared?.imageToken, shared?.url, shared?.text]);
 
   const ready = rawStatement.trim().length > 0 && authorName.trim().length > 0;
 
