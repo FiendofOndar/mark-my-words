@@ -18,12 +18,16 @@ export function parseExtractedPost(raw: unknown): ExtractedPost {
   const statement = text(r.statement);
   const isPrediction = r.is_prediction === true && statement !== null;
   const postedOn = text(r.posted_on);
+  const dated = postedOn !== null && DATE_RE.test(postedOn);
   return {
     isPrediction,
     statement: isPrediction ? statement : null,
     author: text(r.author),
     platform: text(r.platform),
-    postedOn: postedOn && DATE_RE.test(postedOn) ? postedOn : null,
+    postedOn: dated ? postedOn : null,
+    // A posted_on that is not a full date ("Sep 9", "2y") is still worth
+    // showing as the reason the date was not filled in.
+    postedHint: text(r.posted_hint) ?? (postedOn && !dated ? postedOn : null),
     note: text(r.note),
   };
 }

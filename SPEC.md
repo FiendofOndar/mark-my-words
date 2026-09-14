@@ -343,7 +343,9 @@ CREATE INDEX idx_evidence_check       ON evidence(check_id);
    - **A screenshot** is read by the model for the post's words, the poster's handle, the platform and
      the date if visible (one image call, no search), and kept in app storage as the source: for
      Instagram, X, TikTok and Threads it is the only archive there will be. "No prediction here" is a
-     normal answer and leaves the form empty with a note.
+     normal answer and leaves the form empty with a note. The date is filled in only from a date on
+     the screen; otherwise the form says it defaulted to today and shows whatever age the post did
+     carry ("2y"), because the statement date is where the claim's period starts.
    - **A link from X or Reddit** is asked for the post's text through the platform's public endpoint
      (X's embed, Reddit's `.json`). Both response shapes are from memory and unverified from the build
      container; a miss falls through to the note below.
@@ -425,7 +427,11 @@ The user sees a single scrollable card:
 
 - The raw statement, quoted, with the archive status badge.
 - Author field, prefilled from `author_guess`, with autocomplete against existing authors.
-- Statement date, defaulting to today or `statement_date_guess`.
+- Statement date, defaulting to today or `statement_date_guess`. The wording and this date are the
+  two inputs the draft is drawn from: the model reads the claim as of the day it was said, so
+  leaving either field changed redrafts everything below, and a changed date cannot be confirmed
+  until that has happened (a two-year-old Reddit post drafted against today once built a 2028
+  clock around a 2024 claim). A changed statement can be confirmed as it stands.
 - The normalized claim, editable.
 - The criteria elements as a list, each editable, add and remove allowed.
 - The deadline, with its reasoning shown underneath and a picker to override.

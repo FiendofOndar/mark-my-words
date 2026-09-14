@@ -18,7 +18,7 @@ import {
   useUpdateDraft,
 } from '../queries';
 import { formatDate } from '../../domain/format';
-import { toLocalDateInput } from '../../domain/prediction';
+import { startOfLocalDay } from '../../domain/prediction';
 import type { IntakeNotes } from '../../domain/types';
 import { structuredToDraft } from '../../verification/toPrediction';
 import { VerifierError } from '../../verification/types';
@@ -82,14 +82,16 @@ export function ReviewScreen() {
    * everything the model wrote is replaced, and the form remounts on the new
    * draft time so it shows the new values rather than its own stale state.
    */
-  const redraft = async (rawStatement: string) => {
+  const redraft = async (rawStatement: string, statementDate: string) => {
     setRedraftError(null);
     try {
       const result = await structure.mutateAsync({
         rawStatement: rawStatement.trim(),
         sourceUrl: p.sourceUrl,
         sourceContext: p.sourceContext,
-        today: toLocalDateInput(p.statementDate),
+        // The model reads the claim as of the day it was said: "this
+        // election" means one thing in 2024 and another in 2026.
+        today: statementDate,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
       await updateDraft.mutateAsync({
@@ -97,7 +99,7 @@ export function ReviewScreen() {
         input: structuredToDraft(result, {
           authorId: p.authorId,
           rawStatement: rawStatement.trim(),
-          statementDate: p.statementDate,
+          statementDate: startOfLocalDay(statementDate),
           sourceUrl: p.sourceUrl,
           sourceContext: p.sourceContext,
         }),

@@ -445,18 +445,21 @@ world.
   a decision. What is still unverified is the search-count instrumentation,
   which came back empty; the next build prints the raw grounding metadata on
   the check log when that happens (see HANDOFF.md, bug 4).
-- **The share target has not been exercised on a device since it was rebuilt.**
-  The recording of 2026-09-13 showed an image share opening the app on the
-  feed with nothing captured. Diagnosis from the plugin and Capacitor sources:
-  the `send-intent` package read `getIntent()`, which Capacitor never updates
-  on `onNewIntent`, so a share into a running app read the stale launch intent;
-  nothing fired its window event on Android; and its `finish()` closed
-  `MainActivity`, the whole app, on a cold share. Replaced by the app's own
-  `ShareIntentPlugin` (Java, compiled only in CI: the container has no SDK).
-  If it works, sharing a screenshot opens the capture screen with "Reading the
-  screenshot" and Settings shows a "Last share received" line naming the
-  picture. If it does not, that same line in Settings is the first thing to
-  read; its absence means the read never ran.
+- **The share target works on a device, as of build ddde03d (2026-09-13).**
+  Five screenshots shared from the gallery each opened the capture screen with
+  the statement read off the image and the picture kept as the source. Before
+  that, a share opened the app on the feed: the `send-intent` package read
+  `getIntent()`, which Capacitor never updates on `onNewIntent`, so a share
+  into a running app read the stale launch intent; nothing fired its window
+  event on Android; and its `finish()` would have closed `MainActivity`, the
+  whole app, on a cold share. The app's own `ShareIntentPlugin` replaced it.
+  What the five shares showed about the extraction prompt: every date came
+  back empty and the form silently filled in today, including two visible
+  datelines and a "2y"; a forum member name and a reported prediction's
+  subject were both dropped as author. The prompt now carries rules for each
+  and the capture screen says when the date defaulted; those are prompt-level
+  and unverified until the next device run. Settings prints what the last
+  share carried, which is where to look if a share ever opens the feed again.
 - **The X embed and Reddit `.json` shapes are from memory.** The build
   container cannot reach either host, so `postText.ts` pins the parsers with
   fixtures written from memory, not from a captured response. A real
