@@ -29,7 +29,6 @@
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-router-dom": "^7.18.3",
-    "send-intent": "^7.0.0",
     "sql.js": "^1.14.2"
   },
   "devDependencies": {

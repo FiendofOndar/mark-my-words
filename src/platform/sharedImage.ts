@@ -4,10 +4,13 @@ import { uuid } from '../lib/ids';
 /**
  * The screenshot that came in through the share sheet.
  *
- * Android hands over a content:// URI that is only valid for the moment of
- * the share, so the bytes are read once and kept in the app's own storage:
- * the model reads them now, and the detail screen shows them later as the
- * source, which for Instagram and X is the only archive there will be.
+ * The native side reads the bytes off the share intent and hands them over
+ * as base64; they are held here, in memory, for the capture screen to take.
+ * Not in router state, which lives in history.state and has a size cap that
+ * a phone screenshot can reach; not on disk, because keepScreenshot writes
+ * the copy that outlives the capture. One share is held at a time: the next
+ * replaces it, and a token says whether the one asked for is still the one
+ * held.
  */
 export interface SharedImage {
   /** Raw base64, no data: prefix. */
@@ -15,11 +18,19 @@ export interface SharedImage {
   mimeType: string;
 }
 
-export async function readSharedImage(uri: string, mimeHint?: string | null): Promise<SharedImage> {
-  const { data } = await Filesystem.readFile({ path: uri });
-  const mimeType =
-    mimeHint && mimeHint.startsWith('image/') && !mimeHint.endsWith('*') ? mimeHint : 'image/jpeg';
-  return { data: typeof data === 'string' ? data : await blobToBase64(data), mimeType };
+let held: { token: string; image: SharedImage } | null = null;
+
+export function holdSharedImage(image: SharedImage): string {
+  const token = uuid();
+  held = { token, image };
+  return token;
+}
+
+export function takeSharedImage(token: string): SharedImage {
+  if (!held || held.token !== token) {
+    throw new Error('The shared picture is no longer in memory. Share it again.');
+  }
+  return held.image;
 }
 
 const CAPTURES = 'captures';

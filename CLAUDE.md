@@ -445,6 +445,18 @@ world.
   a decision. What is still unverified is the search-count instrumentation,
   which came back empty; the next build prints the raw grounding metadata on
   the check log when that happens (see HANDOFF.md, bug 4).
+- **The share target has not been exercised on a device since it was rebuilt.**
+  The recording of 2026-09-13 showed an image share opening the app on the
+  feed with nothing captured. Diagnosis from the plugin and Capacitor sources:
+  the `send-intent` package read `getIntent()`, which Capacitor never updates
+  on `onNewIntent`, so a share into a running app read the stale launch intent;
+  nothing fired its window event on Android; and its `finish()` closed
+  `MainActivity`, the whole app, on a cold share. Replaced by the app's own
+  `ShareIntentPlugin` (Java, compiled only in CI: the container has no SDK).
+  If it works, sharing a screenshot opens the capture screen with "Reading the
+  screenshot" and Settings shows a "Last share received" line naming the
+  picture. If it does not, that same line in Settings is the first thing to
+  read; its absence means the read never ran.
 - **The X embed and Reddit `.json` shapes are from memory.** The build
   container cannot reach either host, so `postText.ts` pins the parsers with
   fixtures written from memory, not from a captured response. A real

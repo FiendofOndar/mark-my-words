@@ -22,11 +22,13 @@ import {
 import { formatDate } from '../../domain/format';
 import { useQuotaUsed } from '../queries';
 import { platformName } from '../../platform';
+import { readLastShare } from '../../lib/shareLog';
 
 export function SettingsScreen() {
   const db = useDb();
   const [theme, setTheme] = useState<Theme>(readTheme);
   const [busy, setBusy] = useState(false);
+  const [lastShare] = useState(readLastShare);
 
   const [stored, setStored] = useState(loadVerifierConfig);
   const [provider, setProvider] = useState<ProviderId>(stored.provider);
@@ -494,6 +496,14 @@ export function SettingsScreen() {
             ? `Installed build: ${import.meta.env.VITE_BUILD_LABEL}. Built ${import.meta.env.VITE_BUILD_TIME}. The latest release on GitHub shows the same line for what is available.`
             : `Development build on ${platformName()}.`}
         </p>
+        {/* The share path cannot be watched from a browser and fails by
+            opening the feed as if nothing happened, so this is the one
+            place that says what the last share carried. */}
+        {lastShare && (
+          <p className="text-[12px] text-ink-faint">
+            Last share received {new Date(lastShare.at).toLocaleString()}: {lastShare.what}
+          </p>
+        )}
       </div>
     </Screen>
   );

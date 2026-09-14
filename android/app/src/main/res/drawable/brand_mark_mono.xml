@@ -26,7 +26,7 @@
     -->
     <group
         android:translateX="-3.72"
-        android:translateY="0.4">
+        android:translateY="-0.1">
 
     <path
         android:fillColor="#00000000"
