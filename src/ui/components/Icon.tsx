@@ -25,12 +25,15 @@ const PATHS: Record<IconName, React.ReactNode> = {
       <path d="M19 4v4h-4" />
     </>
   ),
-  // Ranked bars, shortest last, so it reads as a table rather than a menu.
+  // A podium: first place in the middle and tallest. The three ranked bars
+  // this replaces read as a hamburger menu, which is the one thing a
+  // standings button must not look like.
   standings: (
     <>
-      <path d="M4 6h16" />
-      <path d="M4 12h11" />
-      <path d="M4 18h7" />
+      <path d="M9 20V5h6v15" />
+      <path d="M3 20v-9h6" />
+      <path d="M15 13h6v7" />
+      <path d="M2 20h20" />
     </>
   ),
   // Sliders rather than a gear: far clearer at 20px.
