@@ -1,0 +1,40 @@
+name: Prompt eval
+
+# Manual only. Every run spends real model calls on the owner's key, and the
+# rule for this app is that nothing spends a check without a deliberate tap.
+# So no push trigger, no schedule; the Run workflow button is the tap.
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: 'Gemini model id (blank uses the app default, gemini-flash-latest)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  extract:
+    name: Extraction
+    runs-on: ubuntu-latest
+    env:
+      # The phone is on Pacific time and so is the test suite; "today" in the
+      # prompt should be the same day the owner would see.
+      TZ: America/Los_Angeles
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # The table lands in the job summary, which is readable on a phone from
+      # the Actions tab. The script writes it there itself.
+      - run: npm run eval:extract
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ inputs.model }}

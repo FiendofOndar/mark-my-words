@@ -17,10 +17,11 @@ on a phone and what has not.
 ## 1. Hard constraints
 
 **Never use the owner's work email on this project.** Not in a commit, not in a
-config, not anywhere. This repository is **public**. The repo-local
-`git config user.email` is already set to the correct personal address; leave it
-alone and never override it with `--global` values or a `-c` flag. If you find
-yourself about to write an email address anywhere, stop and check which one.
+config, not anywhere. This repository is **public**. A fresh container's
+repo-local `git config user.email` is Anthropic's no-reply address, which is
+what every Claude commit on `main` carries; leave it alone and never override
+it with `--global` values or a `-c` flag. If you find yourself about to write
+an email address anywhere, stop and check which one.
 
 **Never seed, fixture, or demo a fabricated factual claim.** This has misled the
 owner once already, in a way that cost real debugging time: the seed asserted a
@@ -255,7 +256,10 @@ mean these checks are not billed for search at all; that is a hypothesis from
 a secondary page, not a verified fact. Fastest way to settle it:
 `GEMINI_API_KEY=... node scripts/validate-gemini.mjs` on the owner's desktop
 prints the model version and shape and saves the raw response beside itself.
-The build container cannot reach Google.
+Whether the build container can reach Google varies by session: on 2026-09-14
+`generativelanguage.googleapis.com` answered with its own 403 for a missing
+key while reddit.com and x.com were refused by the proxy. The Actions runner
+always can, which is what the prompt eval loop (section 8) is for.
 
 Still open, smaller:
 
@@ -376,6 +380,25 @@ Errors made across sessions, recorded so they are not repeated:
   egress policy, and so is `ai.google.dev`. `WebSearch` works; `WebFetch` works
   on some hosts. Real page behavior can only be observed through the owner's
   phone.
+- **The prompt eval loop (added 2026-09-14).** Prompt changes used to need a
+  phone round trip per screenshot. Now `evals/screenshots/` holds the phone
+  screenshots, `evals/extract.json` holds what the model must read off each
+  one, and `scripts/eval-extract.ts` runs the app's real extract path
+  (`GeminiVerifier.extract`, same prompt, same schema, same parser) over all
+  of them. The workflow `Prompt eval` (`.github/workflows/eval.yml`) is
+  manual only, takes the key from the `GEMINI_API_KEY` repository secret, and
+  writes a pass/fail table to the job summary with the model's raw JSON under
+  every row that did not pass. Read it on the phone from the Actions tab, or
+  from a session with the GitHub tools (`actions_get`, `get_job_logs`), and
+  trigger it from either place. A screenshot with no entry in `extract.json`
+  runs anyway and is reported as unconfirmed; that is how expected values get
+  written: run, read, the owner confirms or corrects in chat, then the JSON
+  is written. Never write an expected value the owner has not confirmed. Each
+  run costs one image call per screenshot on the app's model, no search, so
+  a few thousand tokens. Locally, `EVAL_PROVIDER=mock npm run eval:extract`
+  proves the plumbing without spending anything. `evals/README.md` has the
+  file shape. The intake (structuring prompt) eval is the next piece, same
+  shape, not yet built.
 - **`npm ci` first.** The container starts without `node_modules`, and vitest
   fails with a config error that looks like a Tailwind problem until it is
   installed.
