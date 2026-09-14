@@ -28,3 +28,18 @@ describe('reading the model\'s view of a screenshot', () => {
     expect(post.note).toBe('a photo');
   });
 });
+
+describe('cleaning what the model returned', () => {
+  it('decodes a literal escape and drops control and zero-width characters', () => {
+    // A statement reached the form on the device with "002" and a foreign
+    // glyph stuck to its last word; whatever the model emitted, none of
+    // these belong in a quote.
+    const post = parseExtractedPost({
+      is_prediction: true,
+      statement: 'passing\\u002E\u0000\u200B done',
+      author: '\u200Bu/Tenchi2020\u0007',
+    });
+    expect(post.statement).toBe('passing. done');
+    expect(post.author).toBe('u/Tenchi2020');
+  });
+});

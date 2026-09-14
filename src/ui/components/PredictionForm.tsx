@@ -138,7 +138,7 @@ export function validateFormValues(v: PredictionFormValues): string[] {
         ? v.windowEnd
         : v.triggerExpectedDate;
   if (deadlineDate && deadlineDate < v.statementDate) {
-    problems.push('The deadline falls before the claim was made.');
+    problems.push('The deadline falls before the claim was made. Check When: a shared post defaults to today.');
   }
   if (v.deadlineType === 'window' && v.windowEnd && v.windowEnd < v.statementDate) {
     problems.push('The window closes before the claim was made.');

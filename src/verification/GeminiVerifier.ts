@@ -159,6 +159,7 @@ export class GeminiVerifier implements Verifier {
 
     return {
       value: parseExtractedPost(raw),
+      rawText: text,
       provider: this.providerId,
       model: this.modelId,
       tokensUsed: response.usageMetadata?.totalTokenCount ?? null,

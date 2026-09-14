@@ -457,9 +457,13 @@ world.
   back empty and the form silently filled in today, including two visible
   datelines and a "2y"; a forum member name and a reported prediction's
   subject were both dropped as author. The prompt now carries rules for each
-  and the capture screen says when the date defaulted; those are prompt-level
-  and unverified until the next device run. Settings prints what the last
-  share carried, which is where to look if a share ever opens the feed again.
+  and the capture screen says when the date defaulted. A second run of seven
+  showed the hint and the note working where the model returned them, and
+  turned up a form that kept the previous share's author when a share landed
+  on an open capture screen (now reset per share) and a statement with stray
+  characters on its last word (the parser cleans; Settings keeps the raw
+  response). Settings prints what the last share carried and what the model
+  said about the last screenshot; both are where to look first.
 - **The X embed and Reddit `.json` shapes are from memory.** The build
   container cannot reach either host, so `postText.ts` pins the parsers with
   fixtures written from memory, not from a captured response. A real

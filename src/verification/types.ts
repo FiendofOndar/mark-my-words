@@ -185,6 +185,8 @@ export interface ExtractedPost {
 
 export interface ExtractResult {
   value: ExtractedPost;
+  /** What the model said, verbatim, for the diagnostic line in Settings. */
+  rawText: string;
   provider: string;
   model: string;
   tokensUsed: number | null;

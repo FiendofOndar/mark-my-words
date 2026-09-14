@@ -21,6 +21,30 @@ export function recordShare(what: string): void {
   }
 }
 
+const EXTRACT_KEY = 'mmw-last-extract';
+const EXTRACT_LIMIT = 4000;
+
+/**
+ * What the model said about the last screenshot, verbatim. A statement that
+ * came back with a stray tail of characters once had nothing to diagnose it
+ * from; the response is the only place the answer could be.
+ */
+export function recordExtraction(rawText: string): void {
+  try {
+    localStorage.setItem(EXTRACT_KEY, rawText.slice(0, EXTRACT_LIMIT));
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+export function readLastExtraction(): string | null {
+  try {
+    return localStorage.getItem(EXTRACT_KEY);
+  } catch {
+    return null;
+  }
+}
+
 export function readLastShare(): ShareRecord | null {
   try {
     const raw = localStorage.getItem(KEY);

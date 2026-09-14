@@ -2,11 +2,24 @@ import type { ExtractedPost } from './types';
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-function text(value: unknown): string | null {
+/**
+ * A string as the model returned it, made safe to put in a form. A statement
+ * once arrived on the device with a stray "002" and a foreign glyph stuck to
+ * its last word, which no post contained; whatever the model emitted, control
+ * characters, zero-width characters and a literal \uXXXX escape that survived
+ * the JSON layer are never part of a quote.
+ */
+export function cleanText(value: unknown): string | null {
   if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
+  const cleaned = value
+    .replace(/\\u([0-9a-fA-F]{4})/g, (_, hex: string) => String.fromCharCode(parseInt(hex, 16)))
+    // eslint-disable-next-line no-control-regex
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F\u200B-\u200D\uFEFF]/g, '')
+    .trim();
+  return cleaned.length > 0 ? cleaned : null;
 }
+
+const text = cleanText;
 
 /**
  * The model's reading of a screenshot, made safe to show. A statement that

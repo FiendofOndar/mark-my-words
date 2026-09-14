@@ -242,9 +242,17 @@ Still open, smaller:
   the capture screen now says when the date defaulted. Also added: reported
   predictions belong to the person credited (a Yahoo piece on Kyle Brandt's
   pick came back with no author), and a forum member name counts as the
-  author. All prompt-level; the next device run is the test. The Settings
-  "Last share received" line is the diagnostic if a share ever opens the
-  feed again.
+  author. The second device run (seven Reddit shares, same evening) showed
+  the "2y" hint and the no-date note both working, the review card refusing
+  a 2025 deadline on a claim dated today, and three new faults: a share
+  landing on an already-open capture screen kept the previous post's author
+  (fixed: the form resets per share), a statement came back with "002" and
+  a foreign glyph stuck to its last word (the parser now strips controls and
+  decodes stray escapes, and Settings keeps the model's raw response for the
+  next one), and "...more" was copied as if it were the post's words (prompt
+  rule). The model still misses the u/name and the age on some Reddit posts;
+  the prompt names both cues now. The Settings "Last share received" line
+  and the raw response under it are the diagnostics.
 - **Pricing unit is unverified.** From secondary pages (the official docs are
   blocked from the build container): the 2.5 family bills grounding per prompt,
   the 3.x family per search query, with a free allowance on both that this
