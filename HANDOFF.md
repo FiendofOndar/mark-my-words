@@ -232,6 +232,11 @@ mark being read-only on a you-decide bet (PR #14, owner confirmed the Settle
 flow but not the tap); the Standings screen and the receipt share on a
 device (the receipt's fonts were fixed from a browser render, PR #21).
 
+**Last good build: `6a7c77d`** (`mark-my-words-6a7c77d.apk`, the release the
+owner had installed on 2026-09-14). Until CI publishes tagged releases (see
+BACKLOG.md), this line is the fallback: a bad `latest` is walked back by
+reinstalling this one from the Actions artifacts for that commit.
+
 **Install drill.** Install over the previous APK (every build from f255f7f on
 is signed with the checked-in debug key, so data and the API key survive), wipe
 data in Settings if the seed changed, one pull.
@@ -398,7 +403,7 @@ Errors made across sessions, recorded so they are not repeated:
   a few thousand tokens. Locally, `EVAL_PROVIDER=mock npm run eval:extract`
   proves the plumbing without spending anything. `evals/README.md` has the
   file shape. The intake (structuring prompt) eval is the next piece, same
-  shape, not yet built.
+  shape, not yet built; it is item 1 in BACKLOG.md.
 - **`npm ci` first.** The container starts without `node_modules`, and vitest
   fails with a config error that looks like a Tailwind problem until it is
   installed.
