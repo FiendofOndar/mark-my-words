@@ -16,6 +16,7 @@ export function structuredToDraft(
     statementDate: string;
     sourceUrl?: string | null;
     sourceContext?: string | null;
+    screenshotPath?: string | null;
   },
 ): NewPrediction {
   const s = result.value;
@@ -40,6 +41,7 @@ export function structuredToDraft(
     statementDate: base.statementDate,
     sourceUrl: base.sourceUrl ?? null,
     sourceContext: base.sourceContext ?? null,
+    screenshotPath: base.screenshotPath ?? null,
     deadlineType: s.deadlineType,
     resolutionDate: s.resolutionDate ? endOfLocalDay(s.resolutionDate) : null,
     windowStart: s.windowStart ? startOfLocalDay(s.windowStart) : null,
@@ -68,6 +70,7 @@ export function bareDraft(base: {
   statementDate: string;
   sourceUrl?: string | null;
   sourceContext?: string | null;
+  screenshotPath?: string | null;
 }): NewPrediction {
   return {
     authorId: base.authorId,
@@ -75,6 +78,7 @@ export function bareDraft(base: {
     statementDate: base.statementDate,
     sourceUrl: base.sourceUrl ?? null,
     sourceContext: base.sourceContext ?? null,
+    screenshotPath: base.screenshotPath ?? null,
     deadlineType: 'fixed_date',
     verificationMode: 'searchable',
     category: 'Other',

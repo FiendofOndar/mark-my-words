@@ -12,7 +12,7 @@ import { confirmDraft, markLateHit, resolve } from '../domain/prediction';
 import { snoozePrompt } from '../domain/notifications';
 import { createVerifier } from '../verification/registry';
 import { loadVerifierConfig } from '../lib/keyStore';
-import type { StructureInput, StructureResult } from '../verification/types';
+import type { ExtractInput, ExtractResult, StructureInput, StructureResult } from '../verification/types';
 import type { Check, Evidence } from '../domain/types';
 import { clearCooldown, describePull, readCooldown } from '../verification/runPull';
 import { describeCooldown } from '../verification/cooldown';
@@ -361,6 +361,13 @@ export function useConfirmDraft() {
 export function useStructureStatement() {
   return useMutation<StructureResult, Error, StructureInput>({
     mutationFn: (input) => createVerifier().structure(input),
+  });
+}
+
+/** Read a shared screenshot for the post in it. One image call, no search. */
+export function useExtractPost() {
+  return useMutation<ExtractResult, Error, ExtractInput>({
+    mutationFn: (input) => createVerifier().extract(input),
   });
 }
 

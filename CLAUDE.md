@@ -445,6 +445,12 @@ world.
   a decision. What is still unverified is the search-count instrumentation,
   which came back empty; the next build prints the raw grounding metadata on
   the check log when that happens (see HANDOFF.md, bug 4).
+- **The X embed and Reddit `.json` shapes are from memory.** The build
+  container cannot reach either host, so `postText.ts` pins the parsers with
+  fixtures written from memory, not from a captured response. A real
+  response that differs makes the link path fall through to "screenshot it
+  instead", which is the safe failure; capture the response and replace the
+  fixture rather than guessing again.
 - **The Android build runs on a real device.** Debug APKs from CI have been
   installed and exercised on the owner's phone: notifications, the check
   pipeline, Capacitor HTTP fetching of cited pages. The build container still

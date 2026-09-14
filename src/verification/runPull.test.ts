@@ -18,6 +18,9 @@ class ScriptedVerifier implements Verifier {
   readonly dailyQuota = null;
   calls = 0;
   constructor(private next: (input: CheckInput, call: number) => CheckResult | Error) {}
+  async extract(): Promise<never> {
+    throw new Error('not used');
+  }
   async structure(_i: StructureInput): Promise<StructureResult> {
     throw new Error('not used');
   }
