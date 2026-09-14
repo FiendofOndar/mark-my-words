@@ -156,10 +156,29 @@ are unenforceable by prompt alone, which is why recording the real count matters
 
 ## 4. Where we actually are
 
-Seventeen pull requests landed on 2026-09-13, all on `main`, all built and
-most verified on the owner's phone. The pipeline is correct on every seeded
-fixture and on the first hand-typed claims. What follows is the state, not the
-history; the history is in `git log`, one explanation per commit.
+Thirty-nine pull requests have landed on `main` since 2026-09-12, all built
+and most verified on the owner's phone; the last twenty-two (PRs #18 to #39,
+2026-09-13 and the small hours of the 14th) came from one long session that
+compacted more than once. The pipeline is correct on every seeded fixture,
+including six adversarial ones added on the 13th, and on the first hand-typed
+and shared claims. What follows is the state, not the history; the history is
+in `git log`, one explanation per commit.
+
+**What the long session added, in the order it mattered.** The share sheet
+works (the app's own `ShareIntentPlugin`; twelve screenshots reached the
+capture screen) and the model reads a screenshot for the words, the handle
+and the date, with the picture kept as the source; the capture screen says
+when no date was read and the review card redrafts from a changed date and
+will not confirm until it has. Builds install over each other (checked-in
+debug keystore). Checks keep running across screens (`PullProvider`). The
+feed has a press-and-hold menu (open, pin, amend, delete with confirmation),
+an order sheet, and a status strip with the topic on its own pinned chip that
+combines with the status. Records are colour-coded, the check log collapses
+old entries, everything that generates shows motion, the stamps are slanted
+and heavier, the ground is darker, and the icon is centred on its dial.
+Intake gained three rules from ten typed statements and the extractor gained
+six from twelve shares; all of those are prompt-level and only the phone can
+test them.
 
 **The pipeline, as it runs today.** Intake asks the model for criteria that
 carry every narrowing word, a deadline shape, a disconfirming trigger for
@@ -187,7 +206,12 @@ real hit; the tokens line and no sample spend in Settings; "It happened
 anyway" gone from dated claims; the build label in Settings matching the
 release title; the corrected drone seed reading no_change; a hand-typed
 intake keeping "release" as a question; Settle it on a you-decide bet with
-the mark following the verdict; the redraft affordance.
+the mark following the verdict; the redraft affordance; the six adversarial
+fixtures (Eagles no_change, Bitcoin miss, 60 home runs miss with Raleigh,
+Hurts split with two ticks, Artemis miss then late watch, Starship miss);
+the hold menu opening on release; pin to top; the screenshot share path on
+twelve posts; the "2y" hint and the no-date note; the review card refusing a
+2025 deadline on a claim dated today.
 
 **The one wrong verdict, and what it taught.** The rogue-drone seed settled as
 a hit on a July strike reported in August, on criteria that had softened
@@ -197,11 +221,15 @@ and qualifiers must survive into the criteria. The owner caught both from the
 screenshots. Nothing in the pipeline can check when an event happened; the
 review card is the only place a person can catch a dropped word.
 
-**Not yet verified on device:** the auto-redraft on leaving the statement
-(PR #17, built after the last screenshots); the criterion mark being
-read-only on a you-decide bet (PR #14, owner confirmed the Settle flow but
-not the tap); the Standings screen and the receipt share, which nobody has
-looked at this session.
+**Not yet verified on device:** the review card redrafting from a changed
+date and blocking confirm until it has (PR #37); the per-share form reset,
+the text cleaning and the raw-response line in Settings (PR #38); the topic
+chip (PR #39, checked in a browser at phone width only); the second-run
+extraction rules (Reddit cues, "...more", reported predictions); the X and
+Reddit link path, which the container cannot reach at all; the criterion
+mark being read-only on a you-decide bet (PR #14, owner confirmed the Settle
+flow but not the tap); the Standings screen and the receipt share on a
+device (the receipt's fonts were fixed from a browser render, PR #21).
 
 **Install drill.** Install over the previous APK (every build from f255f7f on
 is signed with the checked-in debug key, so data and the API key survive), wipe
