@@ -18,13 +18,26 @@ import { isHostileHost } from '../../capture/archive';
 import { bareDraft, structuredToDraft } from '../../verification/toPrediction';
 import { loadVerifierConfig } from '../../lib/keyStore';
 import { DEFAULT_GEMINI_MODEL } from '../../verification/GeminiVerifier';
-import { VerifierError } from '../../verification/types';
+import { VerifierError, type ExtractedPost } from '../../verification/types';
 import { startOfLocalDay } from '../../domain/prediction';
 
 /**
  * One screen, one job: get the quote and who said it out of your head and into
  * the app. Everything else is the review card's problem.
  */
+/**
+ * The statement date sets where the claim's period starts and whether it
+ * counts as retroactive, so a screenshot that yielded no full date must not
+ * look as though it did. Today is the default either way; this says so.
+ */
+export function dateNote(post: Pick<ExtractedPost, 'postedOn' | 'postedHint'>): string | null {
+  if (post.postedOn) return null;
+  if (post.postedHint) {
+    return `The post shows "${post.postedHint}" rather than a full date, so When is set to today. Change it if the post is older.`;
+  }
+  return 'No date was visible in the screenshot, so When is set to today. Change it if the post is older.';
+}
+
 export function CaptureScreen() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -96,8 +109,9 @@ export function CaptureScreen() {
             setRawStatement(post.statement);
             if (post.author) setAuthorName(post.author);
             if (post.postedOn) setStatementDate(post.postedOn);
-            setSourceContext(post.platform ? `Screenshot of a ${post.platform} post` : 'Screenshot');
-            if (post.note) setReadNote(post.note);
+            setSourceContext(post.platform ? `Screenshot of a post on ${post.platform}` : 'Screenshot');
+            const notes = [post.note, dateNote(post)].filter((n): n is string => n !== null);
+            if (notes.length > 0) setReadNote(notes.join(' '));
           } else {
             setSourceContext('Screenshot');
             setReadNote(

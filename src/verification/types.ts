@@ -175,8 +175,10 @@ export interface ExtractedPost {
   author: string | null;
   /** The platform the interface belongs to: "X", "Instagram", "Reddit"... */
   platform: string | null;
-  /** YYYY-MM-DD, only when a date is visible. */
+  /** YYYY-MM-DD, only when a full date is visible or a day-level age resolves to one. */
   postedOn: string | null;
+  /** The age or partial date as shown ("2y", "last week") when it cannot give a day. */
+  postedHint: string | null;
   /** Why it is not a prediction, or what the model was unsure about. */
   note: string | null;
 }

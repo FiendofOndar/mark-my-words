@@ -230,18 +230,20 @@ The build container cannot reach Google.
 
 Still open, smaller:
 
-- **The share sheet, rebuilt 2026-09-14 and untested on a device.** The
-  owner's recording showed an image share opening the app on the feed. Root
-  cause in the plugin source, not guessed: `send-intent` read the activity's
-  launch intent, which is stale once the app is open, and nothing on Android
-  fired its window event; on a cold share its `finish()` would have closed
-  the app. Replaced with `ShareIntentPlugin` in the app's own Java plus an
-  `onNewIntent` override in `MainActivity`. Predicted outcome: sharing a
-  screenshot opens the capture screen with "Reading the screenshot"; Settings
-  shows "Last share received" with the picture's type and size. If the feed
-  opens instead, read that Settings line first: present means the read ran
-  and says what it saw, absent means the JS never heard about the share. The
-  Java was written without a compiler; CI's APK job is the first compile.
+- **The screenshot extractor drops dates.** The share sheet itself works
+  (rebuilt 2026-09-14 with the app's own `ShareIntentPlugin`; five device
+  shares reached the capture screen the same evening). What those five
+  showed: the date came back empty every time, twice with a dateline on
+  screen, and the form filled in today without saying so. The statement date
+  sets the period start, so a two-year-old Reddit post recorded as said
+  today is a different claim. Prompt rules added for datelines, partial
+  dates and relative ages, a `posted_hint` field carries what was shown, and
+  the capture screen now says when the date defaulted. Also added: reported
+  predictions belong to the person credited (a Yahoo piece on Kyle Brandt's
+  pick came back with no author), and a forum member name counts as the
+  author. All prompt-level; the next device run is the test. The Settings
+  "Last share received" line is the diagnostic if a share ever opens the
+  feed again.
 - **Pricing unit is unverified.** From secondary pages (the official docs are
   blocked from the build container): the 2.5 family bills grounding per prompt,
   the 3.x family per search query, with a free allowance on both that this

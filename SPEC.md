@@ -343,7 +343,9 @@ CREATE INDEX idx_evidence_check       ON evidence(check_id);
    - **A screenshot** is read by the model for the post's words, the poster's handle, the platform and
      the date if visible (one image call, no search), and kept in app storage as the source: for
      Instagram, X, TikTok and Threads it is the only archive there will be. "No prediction here" is a
-     normal answer and leaves the form empty with a note.
+     normal answer and leaves the form empty with a note. The date is filled in only from a date on
+     the screen; otherwise the form says it defaulted to today and shows whatever age the post did
+     carry ("2y"), because the statement date is where the claim's period starts.
    - **A link from X or Reddit** is asked for the post's text through the platform's public endpoint
      (X's embed, Reddit's `.json`). Both response shapes are from memory and unverified from the build
      container; a miss falls through to the note below.
