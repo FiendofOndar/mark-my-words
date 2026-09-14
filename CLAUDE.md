@@ -94,6 +94,55 @@ had never run.*
 what survives is the task, not the rules. If you are picking up from a
 summarized context, read this before acting.
 
+### How changes ship here
+
+The owner works from a phone, tests on a real device, and merges their own pull
+requests after CI is green. These rules decide what a green build is allowed to
+carry. They came out of a review of the first long session (2026-09-13), in
+which twenty-three pull requests merged with no second reader and two shipped
+bugs a reader would likely have caught.
+
+**Sort every change by risk before it merges.** Risky: anything under
+`android/`, `src/data/` (migrations, repositories, rows), `src/platform/`,
+`src/verification/` (prompts and providers), the CI workflow, and anything that
+spends a check. Safe: `src/ui/` styling and copy, docs, seeds that add no
+facts. A risky change merges only after the pull request body answers "what
+could go wrong, and how would we know"; a safe change merges on green. A risky
+change never shares a build with a cosmetic one, so a bad install can be blamed
+on one thing.
+
+**Batch the cosmetic work.** Visual nits (icon position, stamp weight, spacing,
+copy) are shown as a browser render first, chosen, then shipped together in one
+build. A 0.5dp icon nudge once went through a full CI build and a phone install
+on its own.
+
+**Keep a known-good build to fall back to.** The rolling `latest` release is
+replaced by every merge; a regression takes the last good APK with it. Tag a
+commit the owner has exercised on the device as `v0.x` and have CI publish
+tagged releases alongside `latest`, so a bad build can be walked back by
+reinstalling the tag. (Not yet built; it is on the list. Until it is, note the
+last good hash in HANDOFF.md.)
+
+**Export before a schema change.** The phone holds the only copy of the ledger.
+Any build that adds a migration is preceded by a Settings export, and the pull
+request says so.
+
+**Prompts are tested by the eval loop, not by the phone.** A change to a prompt
+in `src/verification/prompts/` ships with an eval run in CI showing what it
+fixed and what it did not break. The phone is for confirming the app, not the
+model. (The loop is being built; until it runs, a prompt change lists in
+HANDOFF.md what the next device run should show.)
+
+**One job per session, from a ranked list.** A session opens on HANDOFF.md,
+names its one job, and stops at green with the tree clean and HANDOFF.md
+current. New requests that arrive mid-session go to `BACKLOG.md`, ranked, not
+into the session. The feed's filter strip was designed twice in one day because
+it was driven by the last screenshot rather than by a plan.
+
+**Nothing may depend on the owner running a command.** They work from a phone.
+A step that needs a desktop (a local script, a file edit by hand) is a step the
+session does itself, in CI, or says it cannot do.
+
 ## Commands
 
 ```bash
