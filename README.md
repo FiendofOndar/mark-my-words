@@ -66,12 +66,12 @@ Erase them from Settings.
 - Drafts are real rows, so a capture survives a reload or a failed model call
 - Ambiguities the model flags must be ticked off before a prediction can open
 - Gemini adapter with typed errors, plus a keyless offline drafter
-- Criteria freeze on first check or on resolution, amendments after that
+- Criteria freeze when the prediction is confirmed, amendments after that
 - Pull-to-refresh runs checks under a cadence gate, a per-pull budget and a daily quota
-- Every cited URL is fetched and searched for the quoted passage
-- Evidence rubric scores each check; model confidence can only lower that score
-- Auto-resolve at 95+, queue for approval at 80-94, hold below, with hard gates
-- Check log shows every check, its sources, their validation state and the score breakdown
+- Every cited URL is opened to confirm it answers; the app does not read the page
+- The verdict is applied unless a gate fires or the model reports confidence
+  under 70, either of which queues it for you instead
+- Check log shows every check, its sources, their fetch state and any gate that fired
 - Notification plan recomputed from scratch on every change: deadline day,
   questions only you can answer, and a weekly digest
 - Predictions nothing can search ask you directly, with yes / no / not yet and a
@@ -90,23 +90,21 @@ Erase them from Settings.
 ### What is stubbed
 
 - Nothing in the spec's 1.0 scope, but see the two warnings below.
-- **Not one real model call has been made.** Every provider path is covered by
-  tests against injected fakes, and the container this was built in has no API
-  key. Before trusting a verdict, run:
+- Grounded verification works end to end against a live key, and the Android
+  build has been installed and exercised on a real phone: notifications, the
+  check pipeline, the share target, and native fetching of cited pages. See
+  the "Unverified" section of `CLAUDE.md` for what is and is not confirmed,
+  and `HANDOFF.md` for what each build was checked against. The build
+  container still has no Android SDK, so `npm run android:apk` only works in
+  CI. To check a key before trusting a verdict:
 
   ```bash
   GEMINI_API_KEY=... node scripts/validate-gemini.mjs
   ```
 
-  It checks the three things tests cannot: that the model id exists, that the
-  grounding tool is still called `google_search`, and that the model's cited
-  quotes actually appear on the pages it cites. That last one is the assumption
-  the whole anti-hallucination guardrail rests on. Get a free key at
+  It checks what tests cannot: that the model id exists for that key and that
+  the grounding tool is still called `google_search`. Get a free key at
   https://aistudio.google.com/apikey.
-- **No native adapter has been run on a device.** The build container has no
-  Android SDK (`dl.google.com` is blocked by its egress proxy), so
-  `src/platform/` is written to the documented APIs and unverified. It compiles
-  and the web build is unaffected, but expect to debug it on first run.
 - Browser notifications only fire while a tab is open. The Settings screen says
   so rather than implying otherwise.
 - The offline drafter is regex pattern matching, not AI, and its checker returns
@@ -114,8 +112,9 @@ Erase them from Settings.
   such everywhere they appear. Add a Gemini key in Settings for a real reading.
 - **Nothing auto-resolves in the browser.** See the note on source validation
   below. This is correct behavior, not a bug.
-- Export writes a raw `.sqlite` file. The JSON export with screenshots is 0.6.
-- Pull-to-refresh is not wired, because there is nothing to refresh yet.
+- Export writes a raw `.sqlite` file, and there is no import yet. The JSON
+  export and import are still to come; see `VIABILITY.md` 2.2, which explains
+  why backup matters more than it looks.
 
 ## Architecture
 
@@ -161,9 +160,10 @@ learn which one they are talking to.
 - **`sql.js` `export()` closes and reopens the database**, which silently ends
   any open transaction. `SqlJsDriver` never persists mid-transaction. Keep that
   invariant if you touch the driver.
-- **Criteria freeze on the first check**, which cannot happen yet, so 0.1 also
-  treats resolution as a freeze. Once checks exist, `criteria_frozen_at` is the
-  real gate.
+- **Criteria freeze when the prediction is confirmed.** They used to freeze on
+  the first check, which for a claim due months out left a long window of
+  quiet edits. `criteria_frozen_at` is the gate, and `amendCriterion` is the
+  route for a correction after it.
 - **Unlayered CSS beats layered Tailwind utilities.** All custom CSS lives in
   `@layer base` / `@layer components` for this reason.
 - **The API key never touches the database.** Settings exports the whole SQLite
