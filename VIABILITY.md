@@ -10,8 +10,10 @@ cadence gate or the check prompt, any change to where data lives, and at each
 review point in section 6. `CLAUDE.md` holds the engineering rules, `SPEC.md`
 the product, `HANDOFF.md` the state. This holds the business and the scale.
 
-It was written on 2026-09-13 against `main` at PR #21 (schema v11, 334 tests,
-all passing when run this session: 23 files, 334 tests), and revised the same
+It was written on 2026-09-13 against `main` at PR #21 (schema v11, 334
+tests), revised for the monetization decisions, and re-checked against
+`main` on 2026-09-15 after 45 commits landed, at schema v14 with 28 files
+and 359 tests passing. Section 1 says what that re-check changed. Revised the same
 day after the owner decided the shape of the free and paid paths; section 10
 records those decisions and the reasons. Every factual claim
 below says where it came from: a file read in this repository, a page fetched
@@ -110,6 +112,13 @@ Read from the repository this session unless marked otherwise.
 Whole history is one day: 136 commits on 2026-09-13. Single user, single
 device, no account, no server, no analytics, no crash reporting (a grep for
 analytics, telemetry, Sentry and PostHog finds nothing in `src/`).
+
+**Three model calls, not two.** `structure` drafts criteria at intake,
+`extract` reads a shared screenshot for the post in it, and `check` is the
+grounded verification. Only `check` is grounded, so only `check` spends
+search queries; `extract` is an image call and costs input tokens at
+whatever the provider charges for images, which this document has never
+priced. Re-checked 2026-09-15 after 45 commits landed on `main`.
 
 **The model call.** `GeminiVerifier.check` is one `generateContent` request
 with `tools: [{ google_search: {} }]`, a 90 second timeout, temperature 0.1,
@@ -218,7 +227,12 @@ whether Google's API terms permit a third-party app to run on a user's key.
    feature the developer sells is ever conditioned on a key.
 
 3. **A starter pool, funded by the sale.** A small HTTPS service holding
-   one key and exposing the two `Verifier` routes, `structure` and `check`.
+   one key and exposing all three `Verifier` routes: `structure`, `extract`
+   and `check`. It was two when this was written; `extract` arrived on
+   2026-09-15 and a pool that proxies only two would fail for any buyer who
+   captures by sharing a screenshot, which is the primary capture path.
+   Only `check` draws on the grounding allowance, so the per-device
+   allowance still counts checks, but the route has to exist.
    The device sends what it sends Gemini today minus the key; the service
    adds it, forwards, and returns the response unchanged. On the client it
    is a second `Verifier` (`PoolVerifier`) chosen by `registry.ts` when no
@@ -284,7 +298,18 @@ and the hosted tier in 4.4 comes back, with its arithmetic.
   holding application files" on Android (read from the plugin's
   `definitions.d.ts` in `node_modules` this session), which is what Auto
   Backup covers.
-- The image grows at about 94 KiB per prediction over its lifetime.
+- **Screenshots are the bigger half, and they were missed.** Captured
+  screenshots are written full size to `Directory.Data` with no
+  downscaling (`src/platform/sharedImage.ts`, read 2026-09-15). That is the
+  same directory Auto Backup covers, so they count against the same 25 MB.
+  A phone screenshot is commonly one to three megabytes, so on that
+  estimate the cap arrives around a dozen captures rather than 250
+  predictions. The database figure below still holds, because the database
+  stores only `screenshot_path`; it is simply no longer the thing that
+  fills the budget. Two cheap answers, neither built: downscale before
+  saving, or write screenshots to a no-backup directory and include them in
+  the JSON export instead. Measure a real one before choosing.
+- The database image grows at about 94 KiB per prediction over its lifetime.
   Measured this session with sql.js: a synthetic database of 1,000
   predictions, each with 25 checks carrying five evidence rows of realistic
   text lengths, exported to 91.4 MiB (121.8 MiB as the base64 file the app
@@ -763,7 +788,12 @@ this session; every input is labelled there):
 | Regular | $0.16 | $1.28 | $3.52 | $0.77 |
 | Heavy | $0.46 | $3.82 | $10.54 | $2.30 |
 
-(Intake calls priced at $0.005 each on 3.8 Flash and $0.003 on 2.5 Flash.)
+(Intake calls priced at $0.005 each on 3.8 Flash and $0.003 on 2.5 Flash.
+The `extract` call that reads a shared screenshot is not in these figures:
+it is ungrounded, so it spends no search queries, but it is an image call
+and image input has never been priced here. It fires once per screenshot
+capture. Add it to the model when the pool log shows how often that path
+is used.)
 
 These figures are what a hosted paid tier would have had to cover, and they
 are why it was declined (section 10). Read against section 4.3: the research
@@ -1493,10 +1523,11 @@ permission to guess. Each cell says when and how it was measured.
 
 | Metric | Value | Basis | Threshold that triggers action |
 |---|---|---|---|
-| Tests passing | 334 of 334 | `npm test`, 2026-09-13, this session | any failure |
+| Tests passing | 359 of 359 | `npm test`, 2026-09-15, after merging main | any failure |
 | Lifetime checks per prediction, 1 year claim | 22 to 29 | cadence model, 2026-09-13 | change on any cadence edit |
 | Image size per prediction lifetime | about 94 KiB | sql.js measurement, 2026-09-13 | re-measure if evidence shape changes |
-| Predictions at which Auto Backup stops | about 250 | 25 MB cap (search result) over 94 KiB, 1.33x for base64 | at 100, ship JSON backup (2.2) |
+| Captures at which Auto Backup stops | about a dozen, if screenshots run 1 to 3 MB | 25 MB cap (search result) over an unmeasured screenshot size | measure a real screenshot; then downscale or move them out of the backup set (2.2) |
+| Predictions at which the database alone would stop it | about 250 | 25 MB cap over 94 KiB, 1.33x for base64 | no longer the binding constraint |
 | Median ledger size, real users | | client counter, after Stage 1 | 5 MB: schedule 2.3 |
 | Free-tier grounded requests a day | about 20 | observed 429 body (CLAUDE.md) | Stage 0 re-verifies; any change reshapes 2.1 |
 | Starter pool per buyer | 12 checks | decided 2026-09-15 (section 10) | raise only on measured data, never lower |
@@ -1545,7 +1576,9 @@ Ordered by how much of the plan rests on them.
    accounts.** A 2018 notice, applied in 2020, says so; it is absent from
    the current guidelines. This app should never be classified that way
    (2.10), so the question only matters if a reviewer disagrees.
-0d. **The `stakes` field.** Decided 2026-09-13: keep it as free text,
+0d. **The `stakes` field. Shipped.** Verified on `main` 2026-09-15: the
+   form field and the receipt both read "Riding on it" (issue #28).
+   Decided 2026-09-13: keep it as free text,
    relabel the form field and the receipt line to "Riding on it" (the
    detail screen's own phrasing), and give the field a placeholder that
    steers to a sentence rather than an amount. Requested from the main
@@ -1713,5 +1746,5 @@ declined alternatives are kept in 4.2.
 | Privacy | Two paths, both disclosed: the pool on the owner's paid key, and the user's own key on their own terms. Say which is stronger | The pool reportedly carries Google's no-training paid terms, which is a real reason the purchase is worth something (2.6) |
 | Apple enrollment timing | Start now, before the iOS build exists | 2026 forum reports of individual enrollments stuck for weeks to months; none of the paperwork needs the app |
 | EU storefronts | Declare trader status and release to the EU from the start | Owner's call on 2026-09-13; a paid app makes trader status certain rather than arguable, and the cost is a published P.O. box, phone and email |
-| The stakes field | Keep, as free text; relabel to "Riding on it" on the form and the receipt; sentence placeholder; never model money | The only on-screen element a reviewer could read as a wager (2.10) |
+| The stakes field | Keep, as free text; relabelled to "Riding on it" on the form and the receipt. Shipped, verified on `main` 2026-09-15. Never model money | The only on-screen element a reviewer could read as a wager (2.10) |
 | Superseded 2026-09-15 | Free download with a one-time supporter purchase around $4.99 | Kept as the fallback if paid sells nothing; Play's one-way door makes that switch available and the reverse impossible |
