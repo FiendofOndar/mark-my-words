@@ -7,6 +7,11 @@ behavior.
 `CLAUDE.md` holds the engineering rules and why each exists. This file holds
 everything else: how the owner works, what the app is for, where we actually
 are, and the four open bugs with their diagnosis already done.
+`VIABILITY.md` holds the business and the scale: what has to change before a
+store, what a check costs, what the store rules say, and the staged plan.
+Its section 10 records the owner's decisions on distribution, pricing and
+data, so do not re-litigate those without new evidence. `OWNER-TODO.md` is
+the owner's own list, printed into every session by a hook.
 
 State at the time of writing: `main` at PR #17, 332 tests, schema v10. Every
 change this session is merged and built; section 4 says what has been seen
@@ -17,11 +22,12 @@ on a phone and what has not.
 ## 1. Hard constraints
 
 **Never use the owner's work email on this project.** Not in a commit, not in a
-config, not anywhere. This repository is **public**. A fresh container's
-repo-local `git config user.email` is Anthropic's no-reply address, which is
-what every Claude commit on `main` carries; leave it alone and never override
-it with `--global` values or a `-c` flag. If you find yourself about to write
-an email address anywhere, stop and check which one.
+config, not anywhere. This repository is **public**. A fresh container
+identifies as `Claude <noreply@anthropic.com>`, which is what most commits
+here carry and is fine; when the identity is the owner's it must be the
+personal address. Never override either with `--global` values or a `-c`
+flag. If you find
+yourself about to write an email address anywhere, stop and check which one.
 
 **Never seed, fixture, or demo a fabricated factual claim.** This has misled the
 owner once already, in a way that cost real debugging time: the seed asserted a

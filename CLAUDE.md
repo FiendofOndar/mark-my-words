@@ -9,6 +9,21 @@ the owner's working constraints, the reasoning behind the decisions that took
 longest to reach, where the last run actually landed, and the open bugs with
 their diagnosis already done.
 
+**The owner's own to-do list lives in [OWNER-TODO.md](./OWNER-TODO.md), and
+a SessionStart hook prints the unchecked items into every session.** They
+are accounts, paperwork and verifications nobody but the owner can do, and
+several have lead times of weeks. When that list appears in your context,
+relay it briefly near the start of your first reply before getting into
+whatever was asked. Never tick a box yourself; the owner does, or asks you
+to. The hook is `.claude/hooks/session-start.sh`, registered in
+`.claude/settings.json`.
+
+**Before distribution work, or anything that spends money per user, read
+[VIABILITY.md](./VIABILITY.md).** It holds the cost model, the store rules
+as sourced, the staged plan to a store, and the recurring review that keeps
+them true. Its section 6 says when to re-read it; its section 7 is the
+metrics ledger to update.
+
 ## How we work
 
 Process rules, not style rules. Every one of them is here because skipping it
