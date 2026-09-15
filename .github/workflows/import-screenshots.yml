@@ -1,0 +1,103 @@
+name: Import eval screenshots
+
+# The phone cannot commit a file, and a Claude session's GitHub access is
+# scoped to repository API paths, so neither can fetch an image attached to
+# an issue. The Actions runner can. Attach screenshots to an issue comment,
+# run this with the issue number, and it downloads every image the issue's
+# comments carry into evals/screenshots/ and pushes them to a branch for a
+# pull request. Nothing here spends a model call.
+on:
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: 'Issue number whose comments carry the screenshots'
+        required: true
+        default: '41'
+      branch:
+        description: 'Branch to push the screenshots to (created if missing)'
+        required: true
+        default: 'evals/screenshots-from-issue'
+
+permissions:
+  contents: write
+  issues: read
+
+jobs:
+  import:
+    name: Download and commit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download every image attached to the issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ inputs.issue }}
+        run: |
+          set -euo pipefail
+          mkdir -p evals/screenshots
+          # Body and comments, in order. Each image is markdown:
+          #   ![Screenshot_20260913_205614_Reddit.jpg](https://github.com/user-attachments/assets/<uuid>)
+          # The alt text is the file name the phone gave it, so that is what
+          # the file is saved as, lowercased, with anything odd replaced.
+          {
+            gh api "repos/$GITHUB_REPOSITORY/issues/$ISSUE" --jq '.body // ""'
+            gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$ISSUE/comments" --jq '.[].body'
+          } > /tmp/bodies.md
+          grep -oE '!\[[^]]*\]\((https://github\.com/user-attachments/assets/[A-Za-z0-9-]+)\)' /tmp/bodies.md \
+            | sed -E 's/^!\[([^]]*)\]\((.*)\)$/\1\t\2/' > /tmp/images.tsv || true
+          if [ ! -s /tmp/images.tsv ]; then
+            echo "::error::No image attachments found on issue #$ISSUE."
+            exit 1
+          fi
+          n=0
+          while IFS=$'\t' read -r name url; do
+            n=$((n + 1))
+            safe=$(echo "$name" | tr 'A-Z' 'a-z' | sed -E 's/[^a-z0-9._-]+/-/g')
+            case "$safe" in
+              *.png|*.jpg|*.jpeg|*.webp) ;;
+              *) safe="$safe.png" ;;
+            esac
+            [ -n "${safe%%.*}" ] || safe="issue-$ISSUE-$n.png"
+            # Public attachments need no token; a private repository's do.
+            # The redirect target is a signed storage URL, so the header
+            # must not be forwarded past the first hop.
+            curl -sSL --fail -H "Authorization: Bearer $GH_TOKEN" -o "evals/screenshots/$safe" "$url" \
+              || curl -sSL --fail -o "evals/screenshots/$safe" "$url"
+            kind=$(file -b --mime-type "evals/screenshots/$safe")
+            case "$kind" in
+              image/*) echo "saved $safe ($kind, $(stat -c %s "evals/screenshots/$safe") bytes)" ;;
+              *) echo "::error::$url did not download as an image ($kind)"; exit 1 ;;
+            esac
+          done < /tmp/images.tsv
+          ls -l evals/screenshots
+
+      - name: Commit and push
+        env:
+          BRANCH: ${{ inputs.branch }}
+          ISSUE: ${{ inputs.issue }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          git add evals/screenshots
+          if git diff --cached --quiet; then
+            echo "Nothing new: every image is already committed." | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git commit -m "Import eval screenshots from issue #$ISSUE
+
+          Downloaded by the Import eval screenshots workflow from the images
+          attached to the issue's comments. Bytes as the phone produced them;
+          nothing edited."
+          git push --force-with-lease origin "$BRANCH"
+          {
+            echo "## Screenshots imported from issue #$ISSUE"
+            echo
+            echo "Pushed to branch \`$BRANCH\`:"
+            echo
+            git show --stat --format='' HEAD | sed 's/^/    /'
+          } >> "$GITHUB_STEP_SUMMARY"

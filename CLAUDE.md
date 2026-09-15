@@ -435,6 +435,13 @@ is for.
   that, and every check costs the user money now.
 - **The API key never touches the database**, because Settings exports the whole
   database file.
+- **The repository is public and carries the key as an Actions secret.** That
+  is safe on two documented rules: secrets are not passed to a workflow run
+  from a fork, and only someone with write access can press Run workflow.
+  What would break it is a workflow that runs untrusted input with the
+  secret in reach: a `pull_request_target` trigger, or an `issue_comment`
+  trigger on a job that reads the secret. Never add either. The eval job is
+  `workflow_dispatch` only for this reason as well as for cost.
 
 ## The live test fixtures
 

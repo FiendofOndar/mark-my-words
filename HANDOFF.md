@@ -408,8 +408,15 @@ Errors made across sessions, recorded so they are not repeated:
   run costs one image call per screenshot on the app's model, no search, so
   a few thousand tokens. Locally, `EVAL_PROVIDER=mock npm run eval:extract`
   proves the plumbing without spending anything. `evals/README.md` has the
-  file shape. The intake (structuring prompt) eval is the next piece, same
-  shape, not yet built; it is item 1 in BACKLOG.md.
+  file shape. Getting a screenshot off the phone: attach it to an issue
+  comment from the GitHub app (issue #41 is the drop box), then run the
+  `Import eval screenshots` workflow with the issue number; it downloads
+  every image the issue carries into `evals/screenshots/` and pushes a
+  branch. A session cannot do that download itself: its GitHub token is
+  scoped to repository API paths, and `github.com/user-attachments` is
+  refused with a message saying so (observed 2026-09-15). The intake
+  (structuring prompt) eval is the next piece, same shape, not yet built;
+  it is item 1 in BACKLOG.md.
 - **`npm ci` first.** The container starts without `node_modules`, and vitest
   fails with a config error that looks like a Tailwind problem until it is
   installed.
