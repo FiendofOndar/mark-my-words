@@ -39,8 +39,12 @@ here. No value in this file is a guess.
 Decided from real results, in chat, on 2026-09-15. New expected values follow
 them; a prompt change that makes the model follow them is in scope.
 
-- **The preamble is not part of the statement.** "MMW:", "MMW,", "Mark my
-  words" and the like are dropped; the statement is the bet itself.
+- **Framing that is not part of the sentence is dropped.** Not only "MMW:"
+  and "Mark my words": any tag, unrecognisable acronym or stray symbol that
+  cannot be read as part of a coherent statement goes ("MMW:", a flair
+  label, a leading emoji, a glyph stuck to a word). Acronyms that are part
+  of the sentence stay ("the GOP", "the CEO"). The statement is the bet
+  itself, as a sentence a person would say.
 - **The title is the bet.** When a post has a title and a body that both
   carry the prediction, the most prominent one (the title) is the statement.
 - **Nothing that is not on the screen.** A statement with invented words is
