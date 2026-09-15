@@ -1,8 +1,67 @@
 {
-  "reddit-carter-flags.jpg": { "today": "2026-09-13" },
-  "reddit-mangione-execution.jpg": { "today": "2026-09-13" },
-  "reddit-gop-tax-cuts.jpg": { "today": "2026-09-13" },
-  "reddit-melania-divorce.jpg": { "today": "2026-09-13" },
-  "reddit-silent-march-cutoff.jpg": { "today": "2026-09-13" },
-  "reddit-gop-defections.jpg": { "today": "2026-09-13" }
+  "reddit-carter-flags.jpg": {
+    "today": "2026-09-13",
+    "expect": {
+      "is_prediction": true,
+      "statement": "The new administration will order the flags to be raised fully before the 30 days of half staff are over for President Carter's passing.",
+      "author": "u/Tenchi2020",
+      "platform": "Reddit",
+      "posted_on": null,
+      "posted_hint": null
+    }
+  },
+  "reddit-mangione-execution.jpg": {
+    "today": "2026-09-13",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Donald will push to make Luigi Mangione his first state execution",
+      "author": "u/digitalamish",
+      "platform": "Reddit",
+      "posted_on": null,
+      "posted_hint": "1y"
+    }
+  },
+  "reddit-gop-tax-cuts.jpg": {
+    "today": "2026-09-13",
+    "expect": {
+      "is_prediction": true,
+      "statement": "The first legislation passed in 2025 by the GOP will be tax cuts for the richest",
+      "author": "u/Logical_Parameters",
+      "platform": "Reddit",
+      "posted_on": null,
+      "posted_hint": null
+    }
+  },
+  "reddit-melania-divorce.jpg": {
+    "today": "2026-09-13",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Melania will file for divorce in 2025",
+      "author": "u/[deleted]",
+      "platform": "Reddit",
+      "posted_on": null,
+      "posted_hint": "2y"
+    }
+  },
+  "reddit-silent-march-cutoff.jpg": {
+    "today": "2026-09-13",
+    "expect": {
+      "is_prediction": true,
+      "author": "u/GraceHuntsman",
+      "platform": "Reddit",
+      "posted_on": null,
+      "posted_hint": null
+    }
+  },
+  "reddit-gop-defections.jpg": {
+    "today": "2026-09-13",
+    "expect": {
+      "is_prediction": true,
+      "statement": "As November approaches, we will see mass defections from the GOP to Kamala Harris.",
+      "author": "u/ScienceOverFalsehood",
+      "platform": "Reddit",
+      "posted_on": null,
+      "posted_hint": "2y"
+    }
+  }
 }

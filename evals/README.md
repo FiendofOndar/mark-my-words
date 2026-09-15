@@ -33,3 +33,19 @@ model's raw JSON, so the expected values can be written from a real result.
 
 Expected values are confirmed by the owner in chat before they are written
 here. No value in this file is a guess.
+
+## Conventions the owner has set
+
+Decided from real results, in chat, on 2026-09-15. New expected values follow
+them; a prompt change that makes the model follow them is in scope.
+
+- **The preamble is not part of the statement.** "MMW:", "MMW,", "Mark my
+  words" and the like are dropped; the statement is the bet itself.
+- **The title is the bet.** When a post has a title and a body that both
+  carry the prediction, the most prominent one (the title) is the statement.
+- **Nothing that is not on the screen.** A statement with invented words is
+  wrong however plausible. For a post cut off with "...more", the rule on
+  where the statement ends is still to be decided; until then that case
+  checks every field except the statement.
+- **The author is the u/name beside the post**, including `u/[deleted]`.
+
