@@ -34,6 +34,8 @@ export interface NewPrediction {
   statementDate: string;
   sourceUrl?: string | null;
   sourceContext?: string | null;
+  /** A kept screenshot of the source, relative to the app's data directory. */
+  screenshotPath?: string | null;
 
   deadlineType: DeadlineType;
   resolutionDate?: string | null;
@@ -172,7 +174,7 @@ export class PredictionRepo {
       archiveUrl: null,
       archiveStatus: input.sourceUrl ? 'pending' : 'not_applicable',
       archiveAttempts: 0,
-      screenshotPath: null,
+      screenshotPath: input.screenshotPath ?? null,
       sourceContext: input.sourceContext ?? null,
       deadlineType: input.deadlineType,
       resolutionDate: input.resolutionDate ?? null,
@@ -187,6 +189,7 @@ export class PredictionRepo {
       searchQueries: input.searchQueries ?? [],
       noCheckBefore: input.noCheckBefore ?? null,
       canHappenLate: input.canHappenLate ?? input.deadlineType === 'event',
+      pinnedAt: null,
       status: input.status ?? 'open',
       trend: (input.status ?? 'open') === 'open' ? 'unknown' : null,
       resolvedAt: null,
@@ -441,6 +444,7 @@ export class PredictionRepo {
         searchQueries: input.searchQueries ?? [],
         noCheckBefore: input.noCheckBefore ?? null,
         canHappenLate: input.canHappenLate ?? input.deadlineType === 'event',
+      pinnedAt: null,
         category: input.category,
         isRetroactive: input.isRetroactive ?? false,
         stakes: input.stakes ?? null,

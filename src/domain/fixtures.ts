@@ -33,6 +33,7 @@ export function makePrediction(overrides: Partial<Prediction> = {}): Prediction 
     searchQueries: [],
     noCheckBefore: null,
     canHappenLate: false,
+    pinnedAt: null,
     status: 'open',
     trend: 'unknown',
     resolvedAt: null,

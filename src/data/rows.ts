@@ -107,6 +107,7 @@ export function toPrediction(r: Row): Prediction {
     searchQueries: jsonArray(r.search_queries),
     noCheckBefore: nstr(r.no_check_before),
     canHappenLate: bool(r.can_happen_late),
+    pinnedAt: nstr(r.pinned_at),
 
     status: str(r.status) as PredictionStatus,
     trend: (nstr(r.trend) as Trend | null) ?? null,
@@ -228,6 +229,7 @@ export const PREDICTION_COLUMNS: Record<keyof Prediction, string> = {
   searchQueries: 'search_queries',
   noCheckBefore: 'no_check_before',
   canHappenLate: 'can_happen_late',
+  pinnedAt: 'pinned_at',
   status: 'status',
   trend: 'trend',
   resolvedAt: 'resolved_at',

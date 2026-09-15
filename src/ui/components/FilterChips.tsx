@@ -55,7 +55,7 @@ export function FilterChips({
 
   return (
     <div
-      className="-mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="-ml-4 overflow-x-auto pl-4 pr-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       ref={scroller}
       onScroll={measure}
       style={{

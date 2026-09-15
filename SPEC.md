@@ -230,7 +230,7 @@ CREATE TABLE predictions (
   -- bookkeeping
   category              TEXT NOT NULL,    -- closed taxonomy, see 9.4
   is_retroactive        INTEGER NOT NULL DEFAULT 0,
-  stakes                TEXT,             -- freeform: "$20", "a beer", "bragging rights"
+  stakes                TEXT,             -- freeform: "a beer", "loser buys lunch", "bragging rights"
   criteria_frozen_at    TEXT,             -- null until first check runs
   last_checked_at       TEXT,
   check_count           INTEGER NOT NULL DEFAULT 0,
@@ -338,7 +338,29 @@ CREATE INDEX idx_evidence_check       ON evidence(check_id);
 ### 5.1 Capture surfaces
 
 1. **Android share sheet** (primary). Intent filters for `ACTION_SEND` with `text/plain` and `image/*`.
-   Sharing an Instagram or Reddit post hands the app a URL and sometimes a text blob.
+   Sharing an Instagram or Reddit post hands the app a URL and sometimes a text blob. What the app
+   does with it, as of 2026-09-14:
+   - **A screenshot** is read by the model for the post's words, the poster's handle, the platform and
+     the date if visible (one image call, no search), and kept in app storage as the source: for
+     Instagram, X, TikTok and Threads it is the only archive there will be. "No prediction here" is a
+     normal answer and leaves the form empty with a note. The date is filled in only from a date on
+     the screen; otherwise the form says it defaulted to today and shows whatever age the post did
+     carry ("2y"), because the statement date is where the claim's period starts.
+   - **A link from X or Reddit** is asked for the post's text through the platform's public endpoint
+     (X's embed, Reddit's `.json`). Both response shapes are from memory and unverified from the build
+     container; a miss falls through to the note below.
+   - **A link from a platform that gives nothing** (Instagram, TikTok, Threads, Facebook) opens the form
+     with the link filled and a note: screenshot the post and share the picture instead.
+   - **Video is out of scope.** A reel's claim lives in its caption or a comment; screenshot that.
+
+   The intent filters sit on `MainActivity` (`singleTask`), so a share into a running app arrives
+   through `onNewIntent`. The app's own `ShareIntentPlugin` reads the activity's current intent and
+   hands the web side the text and, for a picture, the bytes as base64; `MainActivity` sets the new
+   intent as current and fires a `shareReceived` window event, and the web side forgets the share
+   once taken so a WebView reload does not deliver it twice. It replaced the `send-intent` package
+   on 2026-09-14: that plugin read the launch intent (stale once the app was open, so a share into a
+   running app did nothing) and its `finish()` closed the hosting activity, which here is the app.
+   Settings prints what the last share carried and what was done with it.
 2. **Manual entry.** Big "+" on the feed. For things said out loud.
 3. **Paste.** Clipboard detection when the app opens with a URL on the clipboard, offered as a dismissible bar.
 
@@ -405,7 +427,11 @@ The user sees a single scrollable card:
 
 - The raw statement, quoted, with the archive status badge.
 - Author field, prefilled from `author_guess`, with autocomplete against existing authors.
-- Statement date, defaulting to today or `statement_date_guess`.
+- Statement date, defaulting to today or `statement_date_guess`. The wording and this date are the
+  two inputs the draft is drawn from: the model reads the claim as of the day it was said, so
+  leaving either field changed redrafts everything below, and a changed date cannot be confirmed
+  until that has happened (a two-year-old Reddit post drafted against today once built a 2028
+  clock around a 2024 claim). A changed statement can be confirmed as it stands.
 - The normalized claim, editable.
 - The criteria elements as a list, each editable, add and remove allowed.
 - The deadline, with its reasoning shown underneath and a picker to override.
@@ -632,7 +658,16 @@ pending notifications on every app open to recover from any that the OS dropped.
 One scrolling list. No tabs. Pull-to-refresh at the top triggers verification.
 
 **Heat sort.** Default ordering is by a computed heat score, not by date, so the most interesting
-thing is always on top:
+thing is always on top. Two things sit beside the rule without replacing it: a row can be **pinned**
+from its press-and-hold menu (pinned rows hold the top, in the order pinned, and the rest of the feed
+keeps its order beneath them), and the header's order button opens a sheet with the other orders a
+long ledger wants (deadline soonest, newest, oldest, by author) as a per-device preference; when one
+is in force a line under the chips names it, with a reset. Filters live only in the strip: status
+chips scroll on the left, and the topic sits on its own past a rule on the right as one pinned chip
+that opens a sheet and reads as the chosen topic. The two combine (Open under Politics); they used to
+be one exclusive row of identical chips, and Politics beside Needs you read as one list of unrelated
+things. Drag-to-reorder was asked for and declined: a hand-sorted ledger lets a bad call be
+buried under a good one, which is what the heat sort exists to prevent.
 
 ```
 heat = 0
@@ -646,7 +681,8 @@ heat = 0
 ```
 
 **Filter chips** across the top, horizontally scrollable:
-`All` · `Open` · `Needs you` · `Resolved` · `Late hits` · `Void` · `By author` · category chips.
+`All` · `Open` · `Needs you` · `Resolved` · `Late hits` · `Void`, then a rule and the pinned
+`Topic` chip. `By author` is the author screen's list, not a chip.
 
 **Row anatomy:**
 - Author name and avatar, small.
@@ -778,7 +814,7 @@ make every leaderboard number meaningless. They still show on the author's page 
 | Styling | Tailwind + CSS variables for theming | Fast, and the design system in 12 is mostly typography and color tokens |
 | Notifications | `@capacitor/local-notifications` | On-device scheduling, no push service |
 | Secure storage | `capacitor-secure-storage-plugin` | Android Keystore-backed key storage |
-| Share target | Android intent filter + `send-intent` plugin | Receives shared text and images |
+| Share target | Android intent filters on `MainActivity` + the app's own `ShareIntentPlugin` | Receives shared text and images, into a running app as well as a cold one |
 | Receipt images | Offscreen DOM rendered via `html-to-image`, saved with `@capacitor/filesystem`, shared via `@capacitor/share` | No server render needed |
 
 ### 11.2 Project structure

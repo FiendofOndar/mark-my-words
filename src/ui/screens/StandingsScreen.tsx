@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Screen } from '../components/Screen';
 import { useStandings, type Standing } from '../queries';
-import { MIN_SCORED_TO_RANK, formatRate, formatRecord } from '../../domain/scoring';
+import { MIN_SCORED_TO_RANK, formatRate } from '../../domain/scoring';
+import { RecordMark } from '../components/RecordMark';
 
 /**
  * What an unranked author has so far.
@@ -10,11 +11,16 @@ import { MIN_SCORED_TO_RANK, formatRate, formatRecord } from '../../domain/scori
  * number the ranking threshold exists to refuse, and putting it on the row said
  * the opposite of what the paragraph above the list says.
  */
-function describeProgress(standing: Standing): string {
-  const parts = [formatRecord(standing.record)];
+function describeProgress(standing: Standing) {
+  const parts: string[] = [];
   if (standing.record.open > 0) parts.push(`${standing.record.open} running`);
   if (standing.record.lateHits > 0) parts.push(`${standing.record.lateHits} late`);
-  return parts.join(' · ');
+  return (
+    <>
+      <RecordMark record={standing.record} />
+      {parts.map((part) => ` · ${part}`).join('')}
+    </>
+  );
 }
 
 /**
@@ -82,7 +88,7 @@ export function StandingsScreen() {
                   </Link>
                 </td>
                 <td className="py-3 text-right tabular-nums text-ink-dim">
-                  {formatRecord(standing.record)}
+                  <RecordMark record={standing.record} />
                 </td>
                 <td className="px-5 py-3 text-right font-display text-[18px] font-semibold tabular-nums">
                   {formatRate(standing.record)}

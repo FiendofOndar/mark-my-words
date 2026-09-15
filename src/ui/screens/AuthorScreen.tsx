@@ -4,7 +4,8 @@ import { Icon } from '../components/Icon';
 import { secondaryButton } from '../components/Field';
 import { PredictionRow } from '../components/PredictionRow';
 import { useAuthorPage } from '../queries';
-import { MIN_SCORED_TO_RANK, formatHeadline, formatRate, formatRecord } from '../../domain/scoring';
+import { MIN_SCORED_TO_RANK, formatRate } from '../../domain/scoring';
+import { RecordMark } from '../components/RecordMark';
 import { ScorecardCard } from '../../receipts/ReceiptCard';
 import { useReceipt } from '../../receipts/useReceipt';
 
@@ -26,7 +27,15 @@ export function AuthorScreen() {
   return (
     <Screen
       title={author.displayName}
-      subtitle={record.ranked ? `${formatRecord(record)} · ${formatRate(record)}` : formatRecord(record)}
+      subtitle={
+        record.ranked ? (
+          <>
+            <RecordMark record={record} /> · {formatRate(record)}
+          </>
+        ) : (
+          <RecordMark record={record} />
+        )
+      }
       back
     >
       <section className="border-b border-rule px-5 py-5">
@@ -36,7 +45,7 @@ export function AuthorScreen() {
               five-call threshold exists to refuse, printed directly above the
               sentence explaining the threshold. */}
           <span className="font-display text-[52px] leading-none font-semibold tabular-nums">
-            {formatHeadline(record)}
+            {record.ranked ? formatRate(record) : <RecordMark record={record} />}
           </span>
           <span className="text-[14px] text-ink-dim">
             {record.scored} settled

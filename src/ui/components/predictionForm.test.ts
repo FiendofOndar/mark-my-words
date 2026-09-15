@@ -41,7 +41,9 @@ describe('dates that do not make sense', () => {
     const problems = validateFormValues(
       form({ statementDate: '2026-09-10', resolutionDate: '2026-09-01' }),
     );
-    expect(problems).toContain('The deadline falls before the claim was made.');
+    expect(problems).toContain(
+      'The deadline falls before the claim was made. Check When: a shared post defaults to today.',
+    );
   });
 
   it('still allows a genuine after-the-fact entry', () => {

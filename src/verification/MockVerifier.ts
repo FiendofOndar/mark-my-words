@@ -1,4 +1,12 @@
-import type { CheckInput, CheckResult, StructureInput, StructureResult, Verifier } from './types';
+import type {
+  CheckInput,
+  CheckResult,
+  ExtractInput,
+  ExtractResult,
+  StructureInput,
+  StructureResult,
+  Verifier,
+} from './types';
 import { parseStructuredPrediction } from './structureSchema';
 import { CATEGORIES, type Category } from '../domain/types';
 
@@ -80,6 +88,25 @@ export class MockVerifier implements Verifier {
       criteriaStatus: [],
       sources: [],
       modelConfidence: 0,
+      provider: this.providerId,
+      model: this.modelId,
+      tokensUsed: null,
+    };
+  }
+
+  /** No model, so no eyes. Says so instead of pretending. */
+  async extract(_input: ExtractInput): Promise<ExtractResult> {
+    return {
+      value: {
+        isPrediction: false,
+        statement: null,
+        author: null,
+        platform: null,
+        postedOn: null,
+        postedHint: null,
+        note: 'Offline drafting cannot read a screenshot. Add a Gemini key in Settings, or type what the post said.',
+      },
+      rawText: '',
       provider: this.providerId,
       model: this.modelId,
       tokensUsed: null,

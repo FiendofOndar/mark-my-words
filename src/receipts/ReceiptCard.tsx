@@ -3,7 +3,6 @@ import { describeDeadline, formatDate, formatLateBadge, STATUS_LABEL } from '../
 import {
   MIN_SCORED_TO_RANK,
   formatHeadline,
-  formatRecord,
   type AuthorRecord,
 } from '../domain/scoring';
 
@@ -81,8 +80,10 @@ export function ReceiptCard({
       <p style={{ ...label, marginTop: 48 }}>Called for</p>
       <p style={{ ...meta, marginTop: 8 }}>{describeDeadline(prediction)}</p>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 28, marginTop: 44 }}>
-        <span style={{ ...stamp, background: tone }}>
+      {/* The stamp is rotated, so its corners reach past its box: the gaps
+          around it are wider than the rest of the card's rhythm on purpose. */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 56, marginTop: 64 }}>
+        <span style={{ ...stamp, color: tone, borderColor: tone }}>
           {STATUS_LABEL[prediction.status]}
         </span>
         {prediction.resolvedAt && (
@@ -93,7 +94,7 @@ export function ReceiptCard({
       </div>
 
       {late && (
-        <p style={{ ...meta, color: '#c9a227', marginTop: 28, fontSize: 30 }}>★ {late}</p>
+        <p style={{ ...meta, color: '#c9a227', marginTop: 52, fontSize: 30 }}>★ {late}</p>
       )}
 
       <div style={{ flex: 1 }} />
@@ -118,13 +119,34 @@ export function ReceiptCard({
           <Mark size={46} />
           Mark My Words
         </span>
-        <span style={{ color: '#6f675c' }}>
-          {prediction.stakes ? `Stakes: ${prediction.stakes}` : ''}
+        {/* The label grew from "Stakes" to "Riding on it" (#28), and this line
+            also carries the retroactive note and the amendment count, so it
+            wraps under the wordmark's row rather than running off the card. */}
+        <span style={{ color: '#6f675c', flex: 1, textAlign: 'right', marginLeft: 32, lineHeight: 1.35 }}>
+          {prediction.stakes ? `Riding on it: ${prediction.stakes}` : ''}
           {prediction.isRetroactive ? '  ·  entered after the fact' : ''}
           {amendmentCount > 0 ? `  ·  amended ${amendmentCount}×` : ''}
         </span>
       </div>
     </div>
+  );
+}
+
+/** The record with each number in its verdict's colour, the stamp's own inks. */
+function RecordInk({ record }: { record: AuthorRecord }) {
+  const dash = { color: '#6f675c' };
+  return (
+    <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+      <span style={{ color: TONE.hit }}>{record.hit}</span>
+      <span style={dash}>-</span>
+      <span style={{ color: TONE.miss }}>{record.miss}</span>
+      {record.partial > 0 && (
+        <>
+          <span style={dash}>-</span>
+          <span style={{ color: TONE.partial }}>{record.partial}</span>
+        </>
+      )}
+    </span>
   );
 }
 
@@ -171,11 +193,15 @@ export function ScorecardCard({
           fontVariantNumeric: 'tabular-nums',
         }}
       >
-        {formatHeadline(record)}
+        {record.ranked ? formatHeadline(record) : <RecordInk record={record} />}
       </p>
       <p style={{ ...meta, fontSize: 40, marginTop: 16 }}>
         {record.ranked
-          ? `${formatRecord(record)} on ${record.scored} settled calls`
+          ? (
+            <>
+              <RecordInk record={record} /> on {record.scored} settled calls
+            </>
+          )
           : record.scored === 0
             ? 'Nothing settled yet'
             : `${record.scored} settled call${record.scored === 1 ? '' : 's'}. A rate needs ${MIN_SCORED_TO_RANK}.`}
@@ -285,16 +311,21 @@ const quote: React.CSSProperties = {
   overflow: 'hidden',
 };
 
+/**
+ * Outlined and slanted, like the detail screen's stamp: the owner asked for
+ * the tilt back after the restyle flattened it into a filled chip.
+ */
 const stamp: React.CSSProperties = {
   display: 'inline-block',
-  padding: '18px 40px 16px',
+  padding: '14px 40px',
+  border: '6px solid',
   borderRadius: 10,
   fontFamily: DISPLAY,
   fontSize: 58,
   fontWeight: 600,
   letterSpacing: '0.1em',
   textTransform: 'uppercase',
-  color: '#141320',
+  transform: 'rotate(-5deg)',
 };
 
 const citation: React.CSSProperties = {

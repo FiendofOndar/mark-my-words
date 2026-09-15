@@ -1,6 +1,9 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import type { FeedItem } from '../queries';
-import { awaitsUser } from '../queries';
+import { awaitsUser, useDeletePrediction, useTogglePin } from '../queries';
+import { useLongPress } from '../useLongPress';
+import { ActionSheet, ConfirmDialog } from './Modal';
 import { Stamp, LateBadge, Pill } from './Stamp';
 import { TrendMark } from './TrendMark';
 import { formatCountdown, formatLateBadge } from '../../domain/format';
@@ -10,10 +13,9 @@ import type { Prediction } from '../../domain/types';
 /**
  * How loudly a row should speak.
  *
- * Every row used to look the same, so a prediction that expired yesterday sat
- * quietly among ones due next year. The state a row is in is the most useful
- * thing about it, so it gets carried by the edge marker, the countdown's colour
- * and the weight of the quote rather than by one small chip.
+ * Carried by the countdown's colour and the weight of the quote. A coloured
+ * left edge used to carry it too, and with the countdown already red the
+ * second signal was noise: the owner asked for it gone.
  */
 type Urgency = 'overdue' | 'soon' | 'waiting' | 'settled' | 'draft' | 'calm';
 
@@ -27,15 +29,6 @@ function urgencyOf(p: Prediction, needsYou: boolean, queued: boolean): Urgency {
   if (days !== null && days <= 7) return 'soon';
   return 'calm';
 }
-
-const EDGE: Record<Urgency, string> = {
-  overdue: 'border-l-miss',
-  soon: 'border-l-attention',
-  waiting: 'border-l-attention',
-  draft: 'border-l-draft',
-  settled: 'border-l-transparent',
-  calm: 'border-l-transparent',
-};
 
 const COUNTDOWN: Record<Urgency, string> = {
   overdue: 'text-miss font-medium',
@@ -53,7 +46,21 @@ export function PredictionRow({ item }: { item: FeedItem }) {
   const urgency = urgencyOf(p, needsYou, Boolean(item.hasQueuedVerdict));
   const settled = urgency === 'settled';
 
+  const navigate = useNavigate();
+  const remove = useDeletePrediction();
+  const togglePin = useTogglePin();
+  const pinned = p.pinnedAt !== null;
+  const [menu, setMenu] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const hold = useLongPress(() => setMenu(true));
+  const href = p.status === 'draft' ? `/draft/${p.id}` : `/p/${p.id}`;
+
   const marks = [
+    pinned && (
+      <Pill key="pinned" tone="muted" title="Held at the top of the feed">
+        Pinned
+      </Pill>
+    ),
     item.hasQueuedVerdict && (
       <Pill key="queued" tone="warn">
         Verdict ready
@@ -74,11 +81,15 @@ export function PredictionRow({ item }: { item: FeedItem }) {
   ].filter(Boolean);
 
   return (
+    <>
     <Link
       // A draft has nothing to show on a detail screen yet; send it to the
       // review card so the next tap finishes the job.
-      to={p.status === 'draft' ? `/draft/${p.id}` : `/p/${p.id}`}
-      className={`block border-b border-l-2 border-b-rule py-4 pr-4 pl-3.5 transition-colors active:bg-surface-raised ${EDGE[urgency]}`}
+      to={href}
+      {...hold}
+      // Press and hold opens the menu; the browser's own long-press menu and
+      // text selection would fight it.
+      className="block border-b border-b-rule px-4 py-4 transition-colors select-none active:bg-surface-raised [-webkit-touch-callout:none]"
     >
       <div className="flex items-baseline justify-between gap-3">
         <span
@@ -91,7 +102,7 @@ export function PredictionRow({ item }: { item: FeedItem }) {
         </span>
 
         {settled ? (
-          <Stamp status={p.status} size="sm" />
+          <Stamp status={p.status} size="sm" tilt={false} />
         ) : (
           <span
             className={`flex shrink-0 items-center gap-1.5 text-[12.5px] ${COUNTDOWN[urgency]}`}
@@ -122,5 +133,35 @@ export function PredictionRow({ item }: { item: FeedItem }) {
         <div className="mt-2.5 flex flex-wrap items-center gap-1.5">{marks}</div>
       )}
     </Link>
+
+    <ActionSheet
+      open={menu}
+      onClose={() => setMenu(false)}
+      title={p.rawStatement}
+      actions={[
+        { label: p.status === 'draft' ? 'Finish it' : 'Open', onSelect: () => navigate(href) },
+        {
+          label: pinned ? 'Unpin' : 'Pin to top',
+          onSelect: () => togglePin.mutate({ id: p.id, pinned: !pinned }),
+        },
+        ...(p.status === 'draft'
+          ? []
+          : [{ label: 'Amend the claim', onSelect: () => navigate(`${href}?amend=1`) }]),
+        { label: 'Delete', tone: 'danger' as const, onSelect: () => setConfirming(true) },
+      ]}
+    />
+    <ConfirmDialog
+      open={confirming}
+      title="Delete this prediction?"
+      body="It comes off the record, along with its checks and its place in the standings."
+      confirmLabel="Delete"
+      danger
+      onCancel={() => setConfirming(false)}
+      onConfirm={() => {
+        setConfirming(false);
+        remove.mutate(p.id);
+      }}
+    />
+    </>
   );
 }

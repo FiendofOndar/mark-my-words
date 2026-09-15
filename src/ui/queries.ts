@@ -1,9 +1,9 @@
-import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Db } from '../data/db';
 import { useDb } from './DbProvider';
 import type { Author, Category, Prediction, PredictionStatus } from '../domain/types';
 import { sortByHeat, type HeatInput } from '../domain/heat';
+import { sortFeed, type FeedSort } from '../domain/feedSort';
 import { checkedButUnsettled, isPastDeadline, criteriaMarksFor } from '../domain/prediction';
 import type { PredictionPatch } from '../domain/prediction';
 import type { NewPrediction } from '../data/repositories/predictionRepo';
@@ -11,21 +11,11 @@ import { compareStandings, tallyRecord, type AuthorRecord } from '../domain/scor
 import { confirmDraft, markLateHit, resolve } from '../domain/prediction';
 import { snoozePrompt } from '../domain/notifications';
 import { createVerifier } from '../verification/registry';
-import type { StructureInput, StructureResult } from '../verification/types';
-import type { Check, Evidence } from '../domain/types';
-import {
-  clearCooldown,
-  describePull,
-  readCooldown,
-  runPull,
-  type PullSummary,
-} from '../verification/runPull';
-import { describeCooldown } from '../verification/cooldown';
-import { BrowserPageFetcher, type PageFetcher } from '../verification/validateSources';
-import { CapacitorPageFetcher } from '../platform/CapacitorPageFetcher';
-import { isNative } from '../platform';
 import { loadVerifierConfig } from '../lib/keyStore';
-import { DEFAULT_PULL_BUDGET } from '../domain/cadence';
+import type { ExtractInput, ExtractResult, StructureInput, StructureResult } from '../verification/types';
+import type { Check, Evidence } from '../domain/types';
+import { clearCooldown, describePull, readCooldown } from '../verification/runPull';
+import { describeCooldown } from '../verification/cooldown';
 import { archiveSource } from '../capture/archive';
 import { archiveHttp } from '../capture/http';
 
@@ -36,7 +26,6 @@ export type FeedFilter =
   | { kind: 'resolved' }
   | { kind: 'late' }
   | { kind: 'void' }
-  | { kind: 'category'; category: Category }
   | { kind: 'author'; authorId: string };
 
 export interface FeedItem extends HeatInput {
@@ -77,14 +66,17 @@ function matches(
       return p.lateHitAt !== null;
     case 'void':
       return p.status === 'void';
-    case 'category':
-      return p.category === filter.category;
     case 'author':
       return p.authorId === filter.authorId;
   }
 }
 
-function buildFeed(db: Db, filter: FeedFilter): FeedItem[] {
+/**
+ * What a prediction is about is a second axis, not another status. The two
+ * used to share one exclusive chip strip, so picking Politics silently
+ * dropped Open; now a topic narrows whatever status filter is in force.
+ */
+function buildFeed(db: Db, filter: FeedFilter, sort: FeedSort, topic: Category | null): FeedItem[] {
   const now = new Date();
   const authors = new Map(db.authors.list().map((a) => [a.id, a]));
   const amendmentCounts = db.predictions.amendmentCounts();
@@ -93,6 +85,7 @@ function buildFeed(db: Db, filter: FeedFilter): FeedItem[] {
   const items = db.predictions
     .list()
     .filter((p) => matches(p, filter, now, queued))
+    .filter((p) => topic === null || p.category === topic)
     .flatMap<FeedItem>((prediction) => {
       const author = authors.get(prediction.authorId);
       if (!author) return [];
@@ -107,11 +100,12 @@ function buildFeed(db: Db, filter: FeedFilter): FeedItem[] {
       ];
     });
 
-  return sortByHeat(items, now) as FeedItem[];
+  return sortFeed(items, sort, now);
 }
 
 export const keys = {
-  feed: (filter: FeedFilter) => ['feed', filter] as const,
+  feed: (filter: FeedFilter, sort: FeedSort, topic: Category | null) =>
+    ['feed', filter, sort, topic] as const,
   prediction: (id: string) => ['prediction', id] as const,
   authors: () => ['authors'] as const,
   standings: () => ['standings'] as const,
@@ -120,12 +114,22 @@ export const keys = {
   quota: () => ['quota'] as const,
 };
 
-export function useFeed(filter: FeedFilter) {
+export function useFeed(filter: FeedFilter, sort: FeedSort = 'heat', topic: Category | null = null) {
   const db = useDb();
   return useQuery({
-    queryKey: keys.feed(filter),
-    queryFn: () => buildFeed(db, filter),
+    queryKey: keys.feed(filter, sort, topic),
+    queryFn: () => buildFeed(db, filter, sort, topic),
   });
+}
+
+/** Lift a row above the feed's order, or drop it back in. */
+export function useTogglePin() {
+  return useDbMutation((db, args: { id: string; pinned: boolean }) =>
+    db.predictions.update(args.id, {
+      pinnedAt: args.pinned ? new Date().toISOString() : null,
+      updatedAt: new Date().toISOString(),
+    }),
+  );
 }
 
 export function usePrediction(id: string | undefined) {
@@ -364,47 +368,14 @@ export function useStructureStatement() {
   });
 }
 
-function pageFetcher(): PageFetcher {
-  // The browser fetcher cannot tell a dead URL from a cross-origin refusal, so
-  // nothing auto-resolves on the web build. The native one goes through native
-  // code, sees real status codes, and the gates start biting.
-  return isNative() ? new CapacitorPageFetcher() : new BrowserPageFetcher();
-}
-
-/** Run a pull. The only thing in the app that spends quota. */
-export function usePull() {
-  const db = useDb();
-  const client = useQueryClient();
-
-  // Checks are spaced to stay under a per-minute cap, so a full pull runs for
-  // most of a minute. This is what turns that into "3 of 6" instead of a word
-  // that could equally mean the thing has hung.
-  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
-
-  const mutation = useMutation<PullSummary, Error, { onlyPredictionId?: string } | void>({
-    mutationFn: async (args) => {
-      const config = loadVerifierConfig();
-      return runPull(
-        db,
-        { verifier: createVerifier(config), fetcher: pageFetcher() },
-        {
-          budget: DEFAULT_PULL_BUDGET,
-          dailyQuota: config.dailyQuota,
-          onProgress: setProgress,
-          ...(args?.onlyPredictionId
-            ? { onlyPredictionId: args.onlyPredictionId, trigger: 'force' as const }
-            : {}),
-        },
-      );
-    },
-    onSettled: () => {
-      setProgress(null);
-      void client.invalidateQueries();
-    },
+/** Read a shared screenshot for the post in it. One image call, no search. */
+export function useExtractPost() {
+  return useMutation<ExtractResult, Error, ExtractInput>({
+    mutationFn: (input) => createVerifier().extract(input),
   });
-
-  return { ...mutation, progress };
 }
+
+export { usePull } from './PullProvider';
 
 export { describePull };
 

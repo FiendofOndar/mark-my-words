@@ -109,11 +109,60 @@ had never run.*
 what survives is the task, not the rules. If you are picking up from a
 summarized context, read this before acting.
 
+### How changes ship here
+
+The owner works from a phone, tests on a real device, and merges their own pull
+requests after CI is green. These rules decide what a green build is allowed to
+carry. They came out of a review of the first long session (2026-09-13), in
+which twenty-three pull requests merged with no second reader and two shipped
+bugs a reader would likely have caught.
+
+**Sort every change by risk before it merges.** Risky: anything under
+`android/`, `src/data/` (migrations, repositories, rows), `src/platform/`,
+`src/verification/` (prompts and providers), the CI workflow, and anything that
+spends a check. Safe: `src/ui/` styling and copy, docs, seeds that add no
+facts. A risky change merges only after the pull request body answers "what
+could go wrong, and how would we know"; a safe change merges on green. A risky
+change never shares a build with a cosmetic one, so a bad install can be blamed
+on one thing.
+
+**Batch the cosmetic work.** Visual nits (icon position, stamp weight, spacing,
+copy) are shown as a browser render first, chosen, then shipped together in one
+build. A 0.5dp icon nudge once went through a full CI build and a phone install
+on its own.
+
+**Keep a known-good build to fall back to.** The rolling `latest` release is
+replaced by every merge; a regression takes the last good APK with it. Tag a
+commit the owner has exercised on the device as `v0.x` and have CI publish
+tagged releases alongside `latest`, so a bad build can be walked back by
+reinstalling the tag. (Not yet built; it is on the list. Until it is, note the
+last good hash in HANDOFF.md.)
+
+**Export before a schema change.** The phone holds the only copy of the ledger.
+Any build that adds a migration is preceded by a Settings export, and the pull
+request says so.
+
+**Prompts are tested by the eval loop, not by the phone.** A change to a prompt
+in `src/verification/prompts/` ships with an eval run in CI showing what it
+fixed and what it did not break. The phone is for confirming the app, not the
+model. (The loop is being built; until it runs, a prompt change lists in
+HANDOFF.md what the next device run should show.)
+
+**One job per session, from a ranked list.** A session opens on HANDOFF.md,
+names its one job, and stops at green with the tree clean and HANDOFF.md
+current. New requests that arrive mid-session go to `BACKLOG.md`, ranked, not
+into the session. The feed's filter strip was designed twice in one day because
+it was driven by the last screenshot rather than by a plan.
+
+**Nothing may depend on the owner running a command.** They work from a phone.
+A step that needs a desktop (a local script, a file edit by hand) is a step the
+session does itself, in CI, or says it cannot do.
+
 ## Commands
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 334 tests, all of them fast
+npm test           # 359 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -208,6 +257,8 @@ is for.
   further out scores identically, so `sortByHeat` must keep breaking the tie
   itself: deadline first, then `updatedAt`, then the id. Without the last two
   the same eight predictions came back in a different order on every load.
+  `sortFeed` wraps it: pinned rows first, then the per-device order from the
+  funnel sheet, heat by default. No drag-to-reorder; see SPEC 9.1 for why.
 - **A late hit never changes the verdict.** The timeframe was part of the claim,
   so a miss stays a miss and earns a badge instead.
 - **Tier and independence come from the domain, never from the model.** Both
@@ -377,11 +428,12 @@ is for.
 - **The API key never touches the database**, because Settings exports the whole
   database file.
 
-## The six live test fixtures
+## The live test fixtures
 
-The seed carries six predictions that exist to be checked against a real key,
-each testing a different shape of check. One pull covers all six, which is why
-the per-pull budget is six and why there are not more.
+The seed carries twelve predictions that exist to be checked against a real
+key, each testing a different shape of check. The per-pull budget is six, so a
+full run is two pulls. The first six are the basic shapes; the second six,
+added 2026-09-13, each aim at a rule that has already been wrong once.
 
 | fixture | expected | what it tests |
 |---|---|---|
@@ -391,6 +443,12 @@ the per-pull budget is six and why there are not more.
 | Oppenheimer Oscars | partial, queued | one criterion holds and one fails; the mixed ticks and the approval card |
 | Moon landing (negative) | hit, queued | an absence: the model finds nothing, the app queues the hit past the deadline |
 | GTA VI | no_change, open | an unresolved claim: trend, countdown, and `canHappenLate` |
+| Eagles this season | no_change, open | period start: recorded today, and they won a Super Bowl nineteen months earlier; a hit counted an event from before the claim |
+| Bitcoin finishes 2024 above $100k | miss, settled | the qualifier: closed the year at $93,429; the sibling "passes $100k" is a hit, and both hit means "finishes" was dropped |
+| 60 home runs (negative) | miss, settled | a negative claim that was disconfirmed (Raleigh, September 24, 2025); the model must return miss with sources, never hit |
+| Eagles, Hurts, by 20 | partial, queued | three criteria, two true (40-22 is 18); the criterion index with a longer list |
+| Artemis II by end of 2025 | miss, then late hit | launched April 1, 2026; a first check returning hit counted an event after the deadline |
+| Starship before New Glenn | miss, settled | the race deadline type: New Glenn orbited January 16, 2025, every Starship flight before that was suborbital |
 
 Every fact in them was verified against live sources before seeding, and the
 commit that added each says so. A fabricated demo verdict about a real team has
@@ -451,6 +509,31 @@ world.
   a decision. What is still unverified is the search-count instrumentation,
   which came back empty; the next build prints the raw grounding metadata on
   the check log when that happens (see HANDOFF.md, bug 4).
+- **The share target works on a device, as of build ddde03d (2026-09-13).**
+  Five screenshots shared from the gallery each opened the capture screen with
+  the statement read off the image and the picture kept as the source. Before
+  that, a share opened the app on the feed: the `send-intent` package read
+  `getIntent()`, which Capacitor never updates on `onNewIntent`, so a share
+  into a running app read the stale launch intent; nothing fired its window
+  event on Android; and its `finish()` would have closed `MainActivity`, the
+  whole app, on a cold share. The app's own `ShareIntentPlugin` replaced it.
+  What the five shares showed about the extraction prompt: every date came
+  back empty and the form silently filled in today, including two visible
+  datelines and a "2y"; a forum member name and a reported prediction's
+  subject were both dropped as author. The prompt now carries rules for each
+  and the capture screen says when the date defaulted. A second run of seven
+  showed the hint and the note working where the model returned them, and
+  turned up a form that kept the previous share's author when a share landed
+  on an open capture screen (now reset per share) and a statement with stray
+  characters on its last word (the parser cleans; Settings keeps the raw
+  response). Settings prints what the last share carried and what the model
+  said about the last screenshot; both are where to look first.
+- **The X embed and Reddit `.json` shapes are from memory.** The build
+  container cannot reach either host, so `postText.ts` pins the parsers with
+  fixtures written from memory, not from a captured response. A real
+  response that differs makes the link path fall through to "screenshot it
+  instead", which is the safe failure; capture the response and replace the
+  fixture rather than guessing again.
 - **The Android build runs on a real device.** Debug APKs from CI have been
   installed and exercised on the owner's phone: notifications, the check
   pipeline, Capacitor HTTP fetching of cited pages. The build container still

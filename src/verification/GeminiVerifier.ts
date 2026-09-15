@@ -4,9 +4,10 @@ import {
   type CheckResult,
   type StructureInput,
   type StructureResult,
-  type Verifier,
-} from './types';
+  type Verifier, type ExtractInput, type ExtractResult } from './types';
 import { extractJson, parseStructuredPrediction } from './structureSchema';
+import { parseExtractedPost } from './extractSchema';
+import { EXTRACT_RESPONSE_SCHEMA, EXTRACT_SYSTEM_PROMPT, buildExtractPrompt } from './prompts/extract';
 import { parseCheckResponse } from './checkSchema';
 import { describeQuotaFailure, parseQuotaFailure } from './quotaError';
 import {
@@ -117,6 +118,48 @@ export class GeminiVerifier implements Verifier {
     return {
       value: parsed.value,
       warnings: parsed.warnings,
+      provider: this.providerId,
+      model: this.modelId,
+      tokensUsed: response.usageMetadata?.totalTokenCount ?? null,
+    };
+  }
+
+  async extract(input: ExtractInput): Promise<ExtractResult> {
+    const body = {
+      systemInstruction: { parts: [{ text: EXTRACT_SYSTEM_PROMPT }] },
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            { inlineData: { mimeType: input.mimeType, data: input.imageBase64 } },
+            { text: buildExtractPrompt(input) },
+          ],
+        },
+      ],
+      generationConfig: {
+        temperature: 0.1,
+        responseMimeType: 'application/json',
+        responseSchema: EXTRACT_RESPONSE_SCHEMA,
+      },
+    };
+
+    const response = await this.post(`${this.modelId}:generateContent`, body);
+    const text = this.firstText(response);
+
+    let raw: unknown;
+    try {
+      raw = extractJson(text);
+    } catch (err) {
+      throw new VerifierError(
+        'The model did not return usable JSON.',
+        'bad_response',
+        (err as Error).message,
+      );
+    }
+
+    return {
+      value: parseExtractedPost(raw),
+      rawText: text,
       provider: this.providerId,
       model: this.modelId,
       tokensUsed: response.usageMetadata?.totalTokenCount ?? null,

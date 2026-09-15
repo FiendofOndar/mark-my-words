@@ -14,13 +14,27 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
+    <!--
+      Dial dead centre, at full size. The tail at the lower left made the
+      bounding box wider than the bubble, so centring the box pushed the
+      bubble up and to the right and it read as shoved over. A first fix
+      centred the dial and scaled the mark to 0.94 to keep the tail in the
+      safe zone; the owner found it read small. So the mark stays full size
+      and the tail's tip is pulled in about 2dp instead (the L point of the
+      dial path), which lands it inside the 66dp safe circle every mask keeps.
+      Then lifted 1.2dp on the owner's eye: dead centre sat a hair low.
+    -->
+    <group
+        android:translateX="-3.72"
+        android:translateY="-0.1">
+
     <path
         android:fillColor="#00000000"
         android:strokeColor="#FFFFFF"
         android:strokeWidth="3.44"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M39.54,61.08 C35.62,52.08 38.92,41.57 47.27,36.43 C55.63,31.29 66.5,33.09 72.76,40.64 C79.02,48.2 78.76,59.21 72.15,66.47 C65.55,73.72 54.61,75.01 46.5,69.48 L32.53,76.67 Z">
+        android:pathData="M39.54,61.08 C35.62,52.08 38.92,41.57 47.27,36.43 C55.63,31.29 66.5,33.09 72.76,40.64 C79.02,48.2 78.76,59.21 72.15,66.47 C65.55,73.72 54.61,75.01 46.5,69.48 L34.32,74.95 Z">
     </path>
 
     <path
@@ -40,4 +54,5 @@
     <path
         android:fillColor="#FFFFFF"
         android:pathData="M57.72,50.57 C58.73,50.57 59.55,51.39 59.55,52.4 C59.55,53.41 58.73,54.23 57.72,54.23 C56.71,54.23 55.89,53.41 55.89,52.4 C55.89,51.39 56.71,50.57 57.72,50.57 Z" />
+    </group>
 </vector>

@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { openDatabase, type Db } from '../data/db';
 import { MemoryPersistence } from '../data/driver';
-import { clearCooldown, describePull, readCooldown, runPull } from './runPull';
+import { clearCooldown, describePull, readCooldown, runPull, describeProgress } from './runPull';
 import type { PageFetchOutcome, PageFetcher } from './validateSources';
 import { VerifierError, type CheckInput, type CheckResult, type StructureInput, type StructureResult, type Verifier } from './types';
 
@@ -18,6 +18,9 @@ class ScriptedVerifier implements Verifier {
   readonly dailyQuota = null;
   calls = 0;
   constructor(private next: (input: CheckInput, call: number) => CheckResult | Error) {}
+  async extract(): Promise<never> {
+    throw new Error('not used');
+  }
   async structure(_i: StructureInput): Promise<StructureResult> {
     throw new Error('not used');
   }
@@ -193,6 +196,15 @@ describe('a pull', () => {
       { done: 2, total: 3 },
       { done: 3, total: 3 },
     ]);
+  });
+
+  it('labels the check in flight, never "0 of N"', () => {
+    expect(describeProgress(null)).toBe('Checking...');
+    expect(describeProgress({ done: 0, total: 1 })).toBe('Checking...');
+    expect(describeProgress({ done: 0, total: 6 })).toBe('Checking 1 of 6...');
+    expect(describeProgress({ done: 2, total: 6 })).toBe('Checking 3 of 6...');
+    // The final report, after the last check, must not read "7 of 6".
+    expect(describeProgress({ done: 6, total: 6 })).toBe('Checking 6 of 6...');
   });
 
   it('stops at the daily quota instead of failing partway', async () => {

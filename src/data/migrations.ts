@@ -366,6 +366,13 @@ UPDATE predictions SET criteria_frozen_at = updated_at
  WHERE criteria_frozen_at IS NULL AND status <> 'draft';
 `,
   },
+  {
+    version: 12,
+    name: 'pinned rows',
+    sql: `
+ALTER TABLE predictions ADD COLUMN pinned_at TEXT;
+`,
+  },
 ];
 
 export function currentVersion(driver: SqlDriver): number {

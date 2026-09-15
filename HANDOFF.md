@@ -58,6 +58,12 @@ Stated preferences, honored throughout this session:
 - **Prose over bullets.** Short paragraphs. Structure only when items are truly
   discrete. Match length to the task: brief for execution, detailed for
   decisions.
+- **Warn before a usage spike.** Before running anything that fans out into
+  many agents or long autonomous passes (`/code-review max`, workflows,
+  `ultra` anything), say what it will cost in rough terms and let the owner
+  decide. A `/code-review max` on 2026-09-13 spawned ten agents and hit the
+  session cap inside a minute; nine of them died before reporting. Light
+  review by hand is the default; the heavy version needs a yes.
 - **No em dashes.** American English, US dollars, imperial units.
 - Banned words: actually, certainly, absolutely, of course, it's worth noting,
   that being said, needless to say, to be clear, at the end of the day, dive
@@ -150,17 +156,37 @@ are unenforceable by prompt alone, which is why recording the real count matters
 
 ## 4. Where we actually are
 
-Seventeen pull requests landed on 2026-09-13, all on `main`, all built and
-most verified on the owner's phone. The pipeline is correct on every seeded
-fixture and on the first hand-typed claims. What follows is the state, not the
-history; the history is in `git log`, one explanation per commit.
+Thirty-nine pull requests have landed on `main` since 2026-09-12, all built
+and most verified on the owner's phone; the last twenty-two (PRs #18 to #39,
+2026-09-13 and the small hours of the 14th) came from one long session that
+compacted more than once. The pipeline is correct on every seeded fixture,
+including six adversarial ones added on the 13th, and on the first hand-typed
+and shared claims. What follows is the state, not the history; the history is
+in `git log`, one explanation per commit.
+
+**What the long session added, in the order it mattered.** The share sheet
+works (the app's own `ShareIntentPlugin`; twelve screenshots reached the
+capture screen) and the model reads a screenshot for the words, the handle
+and the date, with the picture kept as the source; the capture screen says
+when no date was read and the review card redrafts from a changed date and
+will not confirm until it has. Builds install over each other (checked-in
+debug keystore). Checks keep running across screens (`PullProvider`). The
+feed has a press-and-hold menu (open, pin, amend, delete with confirmation),
+an order sheet, and a status strip with the topic on its own pinned chip that
+combines with the status. Records are colour-coded, the check log collapses
+old entries, everything that generates shows motion, the stamps are slanted
+and heavier, the ground is darker, and the icon is centred on its dial.
+Intake gained three rules from ten typed statements and the extractor gained
+six from twelve shares; all of those are prompt-level and only the phone can
+test them.
 
 **The pipeline, as it runs today.** Intake asks the model for criteria that
 carry every narrowing word, a deadline shape, a disconfirming trigger for
 negative claims, `can_happen_late`, and questions for the person where it
 could not decide. The review card shows the questions as a list and redrafts
-everything below the statement when the wording is changed and the box is
-left. A check asks the model for a verdict against the frozen criteria, with
+everything below the statement when the wording or the date is changed and
+the field is left; the date is what the model reads the claim as of, and a
+changed date blocks confirming until the redraft has run. A check asks the model for a verdict against the frozen criteria, with
 the period stated explicitly from the recorded date to the deadline. The app
 opens every cited link (`ok`, `blocked`, `missing`, `unreachable`), judges
 tier and independence from the domain, and applies the verdict unless a gate
@@ -180,7 +206,12 @@ real hit; the tokens line and no sample spend in Settings; "It happened
 anyway" gone from dated claims; the build label in Settings matching the
 release title; the corrected drone seed reading no_change; a hand-typed
 intake keeping "release" as a question; Settle it on a you-decide bet with
-the mark following the verdict; the redraft affordance.
+the mark following the verdict; the redraft affordance; the six adversarial
+fixtures (Eagles no_change, Bitcoin miss, 60 home runs miss with Raleigh,
+Hurts split with two ticks, Artemis miss then late watch, Starship miss);
+the hold menu opening on release; pin to top; the screenshot share path on
+twelve posts; the "2y" hint and the no-date note; the review card refusing a
+2025 deadline on a claim dated today.
 
 **The one wrong verdict, and what it taught.** The rogue-drone seed settled as
 a hit on a July strike reported in August, on criteria that had softened
@@ -190,14 +221,19 @@ and qualifiers must survive into the criteria. The owner caught both from the
 screenshots. Nothing in the pipeline can check when an event happened; the
 review card is the only place a person can catch a dropped word.
 
-**Not yet verified on device:** the auto-redraft on leaving the statement
-(PR #17, built after the last screenshots); the criterion mark being
-read-only on a you-decide bet (PR #14, owner confirmed the Settle flow but
-not the tap); the Standings screen and the receipt share, which nobody has
-looked at this session.
+**Not yet verified on device:** the review card redrafting from a changed
+date and blocking confirm until it has (PR #37); the per-share form reset,
+the text cleaning and the raw-response line in Settings (PR #38); the topic
+chip (PR #39, checked in a browser at phone width only); the second-run
+extraction rules (Reddit cues, "...more", reported predictions); the X and
+Reddit link path, which the container cannot reach at all; the criterion
+mark being read-only on a you-decide bet (PR #14, owner confirmed the Settle
+flow but not the tap); the Standings screen and the receipt share on a
+device (the receipt's fonts were fixed from a browser render, PR #21).
 
-**Install drill.** Uninstall the previous APK first (each is signed with a
-throwaway key), install, wipe data in Settings so the seed rewrites, one pull.
+**Install drill.** Install over the previous APK (every build from f255f7f on
+is signed with the checked-in debug key, so data and the API key survive), wipe
+data in Settings if the seed changed, one pull.
 Settings ends with an "Installed build:" line; the release page title carries
 the same words and time. If they match, the phone is on the latest build.
 
@@ -223,6 +259,28 @@ The build container cannot reach Google.
 
 Still open, smaller:
 
+- **The screenshot extractor drops dates.** The share sheet itself works
+  (rebuilt 2026-09-14 with the app's own `ShareIntentPlugin`; five device
+  shares reached the capture screen the same evening). What those five
+  showed: the date came back empty every time, twice with a dateline on
+  screen, and the form filled in today without saying so. The statement date
+  sets the period start, so a two-year-old Reddit post recorded as said
+  today is a different claim. Prompt rules added for datelines, partial
+  dates and relative ages, a `posted_hint` field carries what was shown, and
+  the capture screen now says when the date defaulted. Also added: reported
+  predictions belong to the person credited (a Yahoo piece on Kyle Brandt's
+  pick came back with no author), and a forum member name counts as the
+  author. The second device run (seven Reddit shares, same evening) showed
+  the "2y" hint and the no-date note both working, the review card refusing
+  a 2025 deadline on a claim dated today, and three new faults: a share
+  landing on an already-open capture screen kept the previous post's author
+  (fixed: the form resets per share), a statement came back with "002" and
+  a foreign glyph stuck to its last word (the parser now strips controls and
+  decodes stray escapes, and Settings keeps the model's raw response for the
+  next one), and "...more" was copied as if it were the post's words (prompt
+  rule). The model still misses the u/name and the age on some Reddit posts;
+  the prompt names both cues now. The Settings "Last share received" line
+  and the raw response under it are the diagnostics.
 - **Pricing unit is unverified.** From secondary pages (the official docs are
   blocked from the build container): the 2.5 family bills grounding per prompt,
   the 3.x family per search query, with a free allowance on both that this
@@ -299,8 +357,14 @@ Errors made across sessions, recorded so they are not repeated:
   the container; use `curl` against the API with `$GH_TOKEN`, or the GitHub
   MCP tools where the session has them. Poll with an until-loop in a
   background Bash call rather than chained sleeps.
-- **Each APK is signed with a throwaway key**, so Android refuses to install over
-  the previous build. The owner has to uninstall first. Say so every time.
+- **Every APK is signed with `android/debug.keystore`**, checked in, so a new
+  build installs over the old one and keeps the database and the saved key.
+  Before f255f7f (2026-09-13 12:52 UTC) each build had a throwaway key and
+  every install was an uninstall first, which is why the key had to be pasted every time. The
+  owner asked for a "use test key" checkbox with the key hardcoded instead;
+  the repo is public, so that was declined and this is the fix. The one
+  remaining uninstall is the move from the last throwaway build to the first
+  stable one.
 - **The seed only writes to an empty database.** New fixtures require wiping data
   in Settings. Say this every time too.
 - **Screen sweep:** `CHROMIUM=/opt/pw-browsers/chromium-1194/chrome-linux/chrome

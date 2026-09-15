@@ -5,7 +5,17 @@
  * baseline the device's font happens to use and never matched each other.
  * Stroked paths at one width, inheriting colour, so they behave like type.
  */
-export type IconName = 'refresh' | 'standings' | 'settings' | 'back' | 'chevron' | 'plus' | 'share' | 'edit';
+export type IconName =
+  | 'refresh'
+  | 'standings'
+  | 'settings'
+  | 'back'
+  | 'chevron'
+  | 'plus'
+  | 'share'
+  | 'edit'
+  | 'filter'
+  | 'order';
 
 const PATHS: Record<IconName, React.ReactNode> = {
   // A circular arrow, open at the top right where the head sits.
@@ -15,12 +25,15 @@ const PATHS: Record<IconName, React.ReactNode> = {
       <path d="M19 4v4h-4" />
     </>
   ),
-  // Ranked bars, shortest last, so it reads as a table rather than a menu.
+  // A podium: first place in the middle and tallest. The three ranked bars
+  // this replaces read as a hamburger menu, which is the one thing a
+  // standings button must not look like.
   standings: (
     <>
-      <path d="M4 6h16" />
-      <path d="M4 12h11" />
-      <path d="M4 18h7" />
+      <path d="M9 20V5h6v15" />
+      <path d="M3 20v-9h6" />
+      <path d="M15 13h6v7" />
+      <path d="M2 20h20" />
     </>
   ),
   // Sliders rather than a gear: far clearer at 20px.
@@ -38,6 +51,17 @@ const PATHS: Record<IconName, React.ReactNode> = {
     <>
       <path d="M4 20h4l10-10-4-4L4 16v4z" />
       <path d="M14 6l4 4" />
+    </>
+  ),
+  // A funnel: a filter lives behind it.
+  filter: <path d="M4 5h16l-6 8v5l-4 2v-7L4 5z" />,
+  // Two arrows, up and down: the feed's order lives behind it.
+  order: (
+    <>
+      <path d="M8 4v16" />
+      <path d="M4 8l4-4 4 4" />
+      <path d="M16 20V4" />
+      <path d="M12 16l4 4 4-4" />
     </>
   ),
   plus: (
