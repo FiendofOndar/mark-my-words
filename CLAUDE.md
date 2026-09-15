@@ -162,11 +162,19 @@ session does itself, in CI, or says it cannot do.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 359 tests, all of them fast
+npm test           # 364 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
-GEMINI_API_KEY=... node scripts/validate-gemini.mjs   # the only live model call
+GEMINI_API_KEY=... node scripts/validate-gemini.mjs   # one live grounded call
+
+# Prompt evals. The real thing runs in GitHub Actions ("Prompt eval", manual
+# trigger, key from the GEMINI_API_KEY repository secret) and writes its table
+# to the job summary. Fixtures and expected values live in evals/; see
+# evals/README.md for the file shape. Never write an expected value the owner
+# has not confirmed in chat.
+GEMINI_API_KEY=... npm run eval:extract   # every screenshot in evals/screenshots, one image call each
+EVAL_PROVIDER=mock npm run eval:extract   # plumbing only, spends nothing
 
 # Screen sweep: console errors, overflow, tap targets, a screenshot per screen.
 npm run dev &
@@ -427,6 +435,13 @@ is for.
   that, and every check costs the user money now.
 - **The API key never touches the database**, because Settings exports the whole
   database file.
+- **The repository is public and carries the key as an Actions secret.** That
+  is safe on two documented rules: secrets are not passed to a workflow run
+  from a fork, and only someone with write access can press Run workflow.
+  What would break it is a workflow that runs untrusted input with the
+  secret in reach: a `pull_request_target` trigger, or an `issue_comment`
+  trigger on a job that reads the secret. Never add either. The eval job is
+  `workflow_dispatch` only for this reason as well as for cost.
 
 ## The live test fixtures
 

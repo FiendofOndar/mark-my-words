@@ -238,6 +238,11 @@ mark being read-only on a you-decide bet (PR #14, owner confirmed the Settle
 flow but not the tap); the Standings screen and the receipt share on a
 device (the receipt's fonts were fixed from a browser render, PR #21).
 
+**Last good build: `6a7c77d`** (`mark-my-words-6a7c77d.apk`, the release the
+owner had installed on 2026-09-14). Until CI publishes tagged releases (see
+BACKLOG.md), this line is the fallback: a bad `latest` is walked back by
+reinstalling this one from the Actions artifacts for that commit.
+
 **Install drill.** Install over the previous APK (every build from f255f7f on
 is signed with the checked-in debug key, so data and the API key survive), wipe
 data in Settings if the seed changed, one pull.
@@ -262,7 +267,10 @@ mean these checks are not billed for search at all; that is a hypothesis from
 a secondary page, not a verified fact. Fastest way to settle it:
 `GEMINI_API_KEY=... node scripts/validate-gemini.mjs` on the owner's desktop
 prints the model version and shape and saves the raw response beside itself.
-The build container cannot reach Google.
+Whether the build container can reach Google varies by session: on 2026-09-14
+`generativelanguage.googleapis.com` answered with its own 403 for a missing
+key while reddit.com and x.com were refused by the proxy. The Actions runner
+always can, which is what the prompt eval loop (section 8) is for.
 
 Still open, smaller:
 
@@ -383,6 +391,34 @@ Errors made across sessions, recorded so they are not repeated:
   egress policy, and so is `ai.google.dev`. `WebSearch` works; `WebFetch` works
   on some hosts. Real page behavior can only be observed through the owner's
   phone.
+- **The prompt eval loop (added 2026-09-14).** Prompt changes used to need a
+  phone round trip per screenshot. Now `evals/screenshots/` holds the phone
+  screenshots, `evals/extract.json` holds what the model must read off each
+  one, and `scripts/eval-extract.ts` runs the app's real extract path
+  (`GeminiVerifier.extract`, same prompt, same schema, same parser) over all
+  of them. The workflow `Prompt eval` (`.github/workflows/eval.yml`) is
+  manual only, takes the key from the `GEMINI_API_KEY` repository secret, and
+  writes a pass/fail table to the job summary with the model's raw JSON under
+  every row that did not pass. Read it on the phone from the Actions tab, or
+  from a session with the GitHub tools (`actions_get`, `get_job_logs`), and
+  trigger it from either place. A screenshot with no entry in `extract.json`
+  runs anyway and is reported as unconfirmed; that is how expected values get
+  written: run, read, the owner confirms or corrects in chat, then the JSON
+  is written. Never write an expected value the owner has not confirmed. Each
+  run costs one image call per screenshot on the app's model, no search, so
+  a few thousand tokens. Locally, `EVAL_PROVIDER=mock npm run eval:extract`
+  proves the plumbing without spending anything. `evals/README.md` has the
+  file shape. Getting a screenshot off the phone: paste it into the chat.
+  An image pasted into a Claude Code session lands on the container's disk
+  as the original file (the phone's JPEG, EXIF intact; the path is given
+  with the message), so a session copies it into `evals/screenshots/` and
+  commits it. That is how the first six arrived on 2026-09-15. The
+  fallback is the issue drop box (#41) plus the `Import eval screenshots`
+  workflow, which downloads every image on an issue into the folder from
+  the Actions runner; a session cannot do that download itself, since its
+  GitHub token is scoped to repository API paths. The intake (structuring
+  prompt) eval is the next piece, same shape, not yet built; it is item 1
+  in BACKLOG.md.
 - **`npm ci` first.** The container starts without `node_modules`, and vitest
   fails with a config error that looks like a Tailwind problem until it is
   installed.
