@@ -52,7 +52,7 @@ describe('comparing a case to what the model read', () => {
 });
 
 describe('the job summary', () => {
-  it('lists every row and shows the raw response only where it is needed', () => {
+  it('lists every row and collapses the raw response under each', () => {
     const rows: ExtractRow[] = [
       { file: 'a.png', status: 'pass', diffs: [], rawText: '{"a":1}', tokens: 900, error: null },
       {
@@ -71,7 +71,7 @@ describe('the job summary', () => {
     expect(md).toContain('author: expected "u/x", got null');
     expect(md).toContain('<summary>b.png: what the model said</summary>');
     expect(md).toContain('"author": null');
-    expect(md).not.toContain('<summary>a.png');
+    expect(md).toContain('<summary>a.png: what the model said</summary>');
     expect(md).toContain('| c.png | error | The request timed out. |');
   });
 });

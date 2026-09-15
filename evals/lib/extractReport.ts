@@ -131,7 +131,7 @@ function describe(row: ExtractRow): string {
   return row.diffs.map((d) => `${d.field}: expected ${show(d.expected)}, got ${show(d.actual)}`).join('; ');
 }
 
-/** The job summary: a table the owner can read on a phone, raw JSON under each row that needs it. */
+/** The job summary: a table the owner can read on a phone, raw JSON collapsed under every row. */
 export function renderMarkdown(rows: ExtractRow[], heading: string): string {
   const counts = summarize(rows);
   const lines: string[] = [
@@ -146,7 +146,9 @@ export function renderMarkdown(rows: ExtractRow[], heading: string): string {
   for (const row of rows) {
     lines.push(`| ${cell(row.file)} | ${row.status} | ${cell(describe(row))} | ${row.tokens ?? ''} |`);
   }
-  for (const row of rows.filter((r) => r.status !== 'pass')) {
+  // Every row, a pass included: a pass on the checked fields says nothing
+  // about the note, and the owner reads these to confirm the next values.
+  for (const row of rows) {
     lines.push('', '<details>', `<summary>${row.file}: what the model said</summary>`, '', '```json', prettyRaw(row.rawText), '```', '</details>');
   }
   return `${lines.join('\n')}\n`;
