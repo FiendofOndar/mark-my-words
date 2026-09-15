@@ -408,15 +408,17 @@ Errors made across sessions, recorded so they are not repeated:
   run costs one image call per screenshot on the app's model, no search, so
   a few thousand tokens. Locally, `EVAL_PROVIDER=mock npm run eval:extract`
   proves the plumbing without spending anything. `evals/README.md` has the
-  file shape. Getting a screenshot off the phone: attach it to an issue
-  comment from the GitHub app (issue #41 is the drop box), then run the
-  `Import eval screenshots` workflow with the issue number; it downloads
-  every image the issue carries into `evals/screenshots/` and pushes a
-  branch. A session cannot do that download itself: its GitHub token is
-  scoped to repository API paths, and `github.com/user-attachments` is
-  refused with a message saying so (observed 2026-09-15). The intake
-  (structuring prompt) eval is the next piece, same shape, not yet built;
-  it is item 1 in BACKLOG.md.
+  file shape. Getting a screenshot off the phone: paste it into the chat.
+  An image pasted into a Claude Code session lands on the container's disk
+  as the original file (the phone's JPEG, EXIF intact; the path is given
+  with the message), so a session copies it into `evals/screenshots/` and
+  commits it. That is how the first six arrived on 2026-09-15. The
+  fallback is the issue drop box (#41) plus the `Import eval screenshots`
+  workflow, which downloads every image on an issue into the folder from
+  the Actions runner; a session cannot do that download itself, since its
+  GitHub token is scoped to repository API paths. The intake (structuring
+  prompt) eval is the next piece, same shape, not yet built; it is item 1
+  in BACKLOG.md.
 - **`npm ci` first.** The container starts without `node_modules`, and vitest
   fails with a config error that looks like a Tailwind problem until it is
   installed.
