@@ -15,21 +15,25 @@ Rules:
 
 1. A PREDICTION IS FORWARD-LOOKING AND CHECKABLE. "The Mariners win it all this year" is one. "The Mariners are fun to watch" is not. A question, a joke, a wish or a report of something that already happened is not.
 
-2. THE STATEMENT IS VERBATIM. Copy the post's own words exactly, including typos, and nothing else: no likes, reply counts, timestamps, usernames or interface text. Keep the whole sentence or sentences that carry the prediction; leave out sentences that do not.
+2. THE STATEMENT IS THE POST'S OWN WORDS, AND ONLY THEM. Copy the sentence or sentences that carry the prediction exactly as written, typos included, and leave out sentences that do not. Leave out everything that is not part of the sentence: likes, reply counts, timestamps, usernames, interface text, flair, and any tag, acronym or symbol at the edge of the statement that cannot be read as part of it ("MMW:", "MMW,", "Mark my words:", "Prediction:", a leading emoji). Acronyms inside the sentence stay ("the GOP", "the CEO"). Never add a word the screen does not show, never label the text, and never put a remark of your own in statement: remarks go in note, and nowhere else.
 
-3. THE AUTHOR IS WHO POSTED THE WORDS. Prefer the @handle where one is shown; otherwise the display name, including a forum's member name shown beside the post. On Reddit the u/name beside the post is the author, even when it reads u/[deleted]. The person who shared, quoted or screenshotted the post is not the author. In a thread, the author is whoever wrote the post that carries the prediction, even when it is a reply.
+3. A TITLE AND A BODY. When a post shows a title and a body that both carry the prediction, the statement is the title, without its tag. The body is context; if it adds a condition worth knowing, say so in the note.
 
-4. A REPORTED PREDICTION BELONGS TO THE PERSON WHO MADE IT. An article or post may report someone else's prediction: "Kyle Brandt predicted that the Seahawks will win it all". Then the author is the person credited with the prediction, not the writer, and the statement is what they are reported to have said, in the words on the screen. Say in the note that it is reported rather than quoted, and by whom.
+4. THE AUTHOR IS WHO POSTED THE WORDS. Prefer the @handle where one is shown; otherwise the display name, including a forum's member name shown beside the post. On Reddit the u/name beside the post is the author, even when it reads u/[deleted]. The person who shared, quoted or screenshotted the post is not the author. In a thread, the author is whoever wrote the post that carries the prediction, even when it is a reply.
 
-5. PLATFORM comes from the interface: X, Instagram, Threads, Reddit, Facebook, TikTok, YouTube, Bluesky, iMessage, WhatsApp, or the name of a news site or forum. "r/" and "u/" prefixes mean Reddit; a masthead names the site. Null if you cannot tell.
+5. A REPORTED PREDICTION BELONGS TO THE PERSON WHO MADE IT. An article or post may report someone else's prediction: "Kyle Brandt predicted that the Seahawks will win it all". Then the author is the person credited with the prediction, not the writer, and the statement is what they are reported to have said, in the words on the screen. Say in the note that it is reported rather than quoted, and by whom.
 
-6. POSTED_ON only when the date is on the screen, as YYYY-MM-DD: an article's dateline, a post's date, a comment's own timestamp. A date shown without a year, such as "Sep 9", is the most recent such date on or before today. A relative age in hours or days ("3h", "2d") resolves against today's date, given below. An age in weeks, months or years ("3w", "2y") cannot give a day: leave posted_on null and put the text exactly as shown in posted_hint. On Reddit the age sits beside the username ("u/name 2y"); that is the posted_hint. Never guess a date; a missing date is reported as missing, never as today.
+6. PLATFORM comes from the interface: X, Instagram, Threads, Reddit, Facebook, TikTok, YouTube, Bluesky, iMessage, WhatsApp, or the name of a news site or forum. "r/" and "u/" prefixes mean Reddit; a masthead names the site. Null if you cannot tell.
 
-7. SEVERAL CANDIDATES: choose the most specific prediction and mention the others in the note.
+7. POSTED_ON only when the date is on the screen, as YYYY-MM-DD: an article's dateline, a post's date, a comment's own timestamp. A date shown without a year, such as "Sep 9", is the most recent such date on or before today. A relative age in hours or days ("3h", "2d") resolves against today's date, given below. An age in weeks, months or years ("3w", "2y") cannot give a day: leave posted_on null and put the text exactly as shown in posted_hint. On Reddit the age sits beside the username ("u/name 2y"); that is the posted_hint. Never guess a date; a missing date is reported as missing, never as today.
 
-8. A POST CUT OFF with "...more" or "Show more" is not all there. Copy the words that are visible, leave the marker out, and say in the note that the post was cut off, so the person can expand it and share the picture again.
+8. SEVERAL CANDIDATES: choose the most specific prediction and mention the others in the note.
 
-9. NOTHING PREDICTIVE: set is_prediction to false, leave statement null, and say in the note what the image shows. This is a normal answer. Never invent words that are not in the image.`;
+9. A POST CUT OFF with "...more", "Show more" or "See more" is not all there. Copy only the words that are visible, stop exactly where the screen stops, leave the marker out, and never continue the text yourself. Say in the note that the post was cut off, so the person can expand it and share the picture again.
+
+10. NOTHING PREDICTIVE: set is_prediction to false, leave statement null, and say in the note what the image shows. This is a normal answer. Never invent words that are not in the image.
+
+11. EVERY FIELD, EVERY TIME. Return all seven fields. A field with nothing to report is null, never left out, and never a placeholder.`;
 
 export function buildExtractPrompt(input: ExtractInput): string {
   return `Today is ${input.today}. Read the attached screenshot and return the JSON.`;
@@ -46,5 +50,8 @@ export const EXTRACT_RESPONSE_SCHEMA = {
     posted_hint: { type: 'STRING', nullable: true },
     note: { type: 'STRING', nullable: true },
   },
-  required: ['is_prediction'],
+  // Every field, every time. With only is_prediction required, the model
+  // left out platform, posted_hint and note on half the eval screenshots
+  // and, on the same answers, wrote its remarks into statement instead.
+  required: ['is_prediction', 'statement', 'author', 'platform', 'posted_on', 'posted_hint', 'note'],
 } as const;

@@ -39,3 +39,32 @@ describe('the screenshot prompt, second device run', () => {
     expect(EXTRACT_SYSTEM_PROMPT).toMatch(/A POST CUT OFF with "\.\.\.more"/);
   });
 });
+
+describe('the screenshot prompt, first eval runs (2026-09-15)', () => {
+  // Six Reddit screenshots in evals/screenshots, run through the real path
+  // in Actions. Each rule below names a fail row from runs 1 and 2.
+  it('drops framing that is not part of the sentence', () => {
+    // Every statement came back with the sub's "MMW:" tag on the front.
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/any tag, acronym or symbol at the edge of the statement/);
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/Acronyms inside the sentence stay/);
+  });
+
+  it('takes the title when a title and a body both carry the bet', () => {
+    // The Melania post came back as title plus body, joined once by
+    // "body also states:" and once by "candidate_body".
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/the statement is the title, without its tag/);
+  });
+
+  it('never continues a cut-off post or writes remarks into the statement', () => {
+    // Five hundred invented words after "...more" on run 1; on run 2 the
+    // note was written into the statement field instead of note.
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/never continue the text yourself/);
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/never put a remark of your own in statement/);
+  });
+
+  it('requires every field so none is silently left out', () => {
+    // platform, posted_hint and note were absent from half the answers.
+    expect([...EXTRACT_RESPONSE_SCHEMA.required]).toEqual(Object.keys(EXTRACT_RESPONSE_SCHEMA.properties));
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/EVERY FIELD, EVERY TIME/);
+  });
+});

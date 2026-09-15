@@ -13,6 +13,13 @@ export interface ExpectedExtract {
   platform?: string | null;
   posted_on?: string | null;
   posted_hint?: string | null;
+  /**
+   * For a post the screen cuts off, where the owner has not yet decided
+   * where the statement ends: it must begin with the visible words and be
+   * no longer than what was visible. Invented continuation fails both.
+   */
+  statement_starts_with?: string;
+  statement_max_length?: number;
 }
 
 export interface ExtractCase {
@@ -61,6 +68,8 @@ export function actualField(post: ExtractedPost, field: keyof ExpectedExtract): 
     case 'is_prediction':
       return post.isPrediction;
     case 'statement':
+    case 'statement_starts_with':
+    case 'statement_max_length':
       return post.statement;
     case 'author':
       return post.author;
@@ -78,7 +87,17 @@ export function compareExtract(expected: ExpectedExtract, post: ExtractedPost): 
   for (const field of Object.keys(expected) as (keyof ExpectedExtract)[]) {
     const want = expected[field];
     const got = actualField(post, field);
-    if (fold(field, want) !== fold(field, got)) diffs.push({ field, expected: want, actual: got });
+    if (field === 'statement_starts_with') {
+      const text = norm(got);
+      if (typeof text !== 'string' || !text.startsWith(norm(want) as string)) diffs.push({ field, expected: want, actual: got });
+    } else if (field === 'statement_max_length') {
+      const text = norm(got);
+      if (typeof text !== 'string' || typeof want !== 'number' || text.length > want) {
+        diffs.push({ field, expected: want, actual: typeof text === 'string' ? `${text.length} chars` : got });
+      }
+    } else if (fold(field, want) !== fold(field, got)) {
+      diffs.push({ field, expected: want, actual: got });
+    }
   }
   return diffs;
 }
