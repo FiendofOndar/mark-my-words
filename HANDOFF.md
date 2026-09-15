@@ -416,7 +416,24 @@ Errors made across sessions, recorded so they are not repeated:
   fallback is the issue drop box (#41) plus the `Import eval screenshots`
   workflow, which downloads every image on an issue into the folder from
   the Actions runner; a session cannot do that download itself, since its
-  GitHub token is scoped to repository API paths. The intake (structuring
+  GitHub token is scoped to repository API paths. Every run also posts its
+  table as a comment on issue #47, because the GitHub app shows step logs
+  and issue comments but not job summaries.
+  **The first real run (2026-09-15, run #1 on e48b82a, 13,603 tokens for
+  five answers) was worse than the phone had suggested.** One answer of
+  five was clean (Carter flags: verbatim, author, platform). Four carried
+  words that are not on the screen: "marathoners or wealthy individuals"
+  appended to the tax-cuts claim; "body also states:" spliced into the
+  Melania post; the defections title stitched to a body sentence with
+  invented joining words; and about five hundred words of continuation
+  invented after a post that ends in "...more", with no note that it was
+  cut off, which is what rule 8 of the prompt exists to forbid. Author was
+  missing on two, platform on four, the visible "2y" age on both that
+  showed one. The sixth call timed out at ninety seconds (now retried
+  once). None of the expected values are written yet; the owner confirms
+  each from these results, then the prompt gets worked on against the
+  fails. A second unchanged run first, to see whether the invented words
+  are stable, is proposed and not yet approved. The intake (structuring
   prompt) eval is the next piece, same shape, not yet built; it is item 1
   in BACKLOG.md.
 - **`npm ci` first.** The container starts without `node_modules`, and vitest

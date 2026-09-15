@@ -10,9 +10,14 @@ on:
         description: 'Gemini model id (blank uses the app default, gemini-flash-latest)'
         required: false
         default: ''
+      results_issue:
+        description: 'Issue that gets the table as a comment (the GitHub app shows no job summaries)'
+        required: false
+        default: '47'
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   extract:
@@ -38,3 +43,21 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ inputs.model }}
+          EVAL_REPORT_FILE: ${{ runner.temp }}/eval-report.md
+
+      # The owner reads results in the GitHub app, which shows step logs and
+      # issue comments but not job summaries. So the same table goes onto a
+      # results issue, one comment per run, whatever the outcome.
+      - name: Post the table on the results issue
+        if: always() && inputs.results_issue != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ inputs.results_issue }}
+          REPORT: ${{ runner.temp }}/eval-report.md
+        run: |
+          {
+            echo "Run [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) on \`${GITHUB_SHA::7}\`, job ${{ job.status }}."
+            echo
+            if [ -s "$REPORT" ]; then cat "$REPORT"; else echo "The eval produced no table; see the run's log."; fi
+          } > comment.md
+          gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body-file comment.md
