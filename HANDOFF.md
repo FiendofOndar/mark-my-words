@@ -430,12 +430,25 @@ Errors made across sessions, recorded so they are not repeated:
   cut off, which is what rule 8 of the prompt exists to forbid. Author was
   missing on two, platform on four, the visible "2y" age on both that
   showed one. The sixth call timed out at ninety seconds (now retried
-  once). None of the expected values are written yet; the owner confirms
-  each from these results, then the prompt gets worked on against the
-  fails. A second unchanged run first, to see whether the invented words
-  are stable, is proposed and not yet approved. The intake (structuring
-  prompt) eval is the next piece, same shape, not yet built; it is item 1
-  in BACKLOG.md.
+  once).
+  **The loop then closed the same day.** The owner confirmed values for
+  five cases and set three conventions (framing that is not part of the
+  sentence is dropped, the title is the bet when a body repeats it, nothing
+  that is not on the screen); run 2 on those values failed all six rows,
+  mostly on the "MMW:" tag, and showed the model writing scratch text
+  ("candidate_body", its own cut-off note) into the statement on the same
+  answers where it had left fields out. One prompt iteration (rules 2, 3,
+  9 and 11 of the extract prompt, plus every field required in the
+  response schema) took runs 3 and 4 to six of six, every field present,
+  the cut-off post stopping exactly at the visible "ruine" with the note
+  saying it was cut off. Runs 1 and 2 had disagreed with each other on
+  three answers, so two clean runs in a row is the bar, not one. Total
+  spend for the four runs: under 60,000 tokens. Still open for the owner:
+  whether the cut-off statement should end at the visible fragment (what
+  the model now does) or be trimmed to the last complete sentence; until
+  then that case is bounded by prefix and length rather than pinned. The
+  intake (structuring prompt) eval is the next piece, same shape, not yet
+  built; it is item 1 in BACKLOG.md.
 - **`npm ci` first.** The container starts without `node_modules`, and vitest
   fails with a config error that looks like a Tailwind problem until it is
   installed.

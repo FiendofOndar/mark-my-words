@@ -48,8 +48,11 @@ them; a prompt change that makes the model follow them is in scope.
 - **The title is the bet.** When a post has a title and a body that both
   carry the prediction, the most prominent one (the title) is the statement.
 - **Nothing that is not on the screen.** A statement with invented words is
-  wrong however plausible. For a post cut off with "...more", the rule on
-  where the statement ends is still to be decided; until then that case
-  checks every field except the statement.
+  wrong however plausible. For a post cut off with "...more", the model now
+  stops exactly at the visible cut (mid-word if that is where the screen
+  stops) and says so in the note. Whether the expected statement should be
+  that fragment or be trimmed to the last complete sentence is still the
+  owner's to decide; until then the case is bounded with
+  `statement_starts_with` and `statement_max_length` rather than pinned.
 - **The author is the u/name beside the post**, including `u/[deleted]`.
 
