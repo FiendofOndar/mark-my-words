@@ -65,16 +65,23 @@ to a third-party model, crash reporting so the first thousand users are not
 invisible, versioning, and the hosted receipt link that turns a shared image
 into an acquisition channel.
 
-**On money.** The working plan is a free download with everything a person
-needs to record, settle and share a bet free forever, bring-your-own-key
-free forever, a community pool of hosted checks capped at the free
-allowance, and one purchase: a one-time supporter unlock (around $4.99) for
-things that are nice but not core. No subscription, no ads, no paid
-download; section 4.2 has the arithmetic against each. The fixed cost of
-the whole operation is about $200 a year before Apple and about $300 with,
-which is 50 to 70 unlocks a year. This is a free tool with a tip jar shaped
-like a feature, and it is meant to be. Section 4.4 shows what a hosted paid
-tier would have looked like and why it was declined.
+**On money.** Revised 2026-09-15 (section 10). The app is a paid download
+at $2.99 on Google Play. Buying it includes a starter pool of hosted checks,
+twelve at launch, spent against the owner's own paid Gemini key, so the app
+works the moment it is installed. When the starter pool is spent the app
+hands off to a guided flow for the user's own free Google key, which is
+free to them and free to the owner and covers a regular user many times
+over. A tip jar sits alongside for people who want to give more. The
+listing says plainly that the app includes a set number of AI checks and
+then continues with a free key the user creates.
+
+The arithmetic that sizes the pool is in 4.4 and it is the part to keep
+honest: $2.99 nets $2.54, and a grounded check past Google's free monthly
+allowance costs about $0.063 at four searches. Twelve checks is about
+thirty percent of the revenue from the sale. Fifty checks, the number first
+proposed, would have cost more than the sale earned once the free allowance
+ran out, which made a good sales month a losing one. The pre-check in 3.5
+is what buys the room to raise the number later.
 
 **On being right without the owner watching.** Every wrong verdict so far
 was caught by the owner reading screenshots. A thousand users are not going
@@ -210,45 +217,49 @@ whether Google's API terms permit a third-party app to run on a user's key.
    forbids "calls to action for purchase outside of the app"); and no
    feature the developer sells is ever conditioned on a key.
 
-3. **A community pool.** A small HTTPS service holding one key and exposing
-   the two `Verifier` routes, `structure` and `check`. The device sends what
-   it sends Gemini today minus the key; the service adds it, forwards, and
-   returns the response unchanged. On the client it is a second `Verifier`
-   (`PoolVerifier`) chosen by `registry.ts` when no key is set. The spec
-   called this a transport swap and it still is. The server is small and
-   every line of it is about money:
+3. **A starter pool, funded by the sale.** A small HTTPS service holding
+   one key and exposing the two `Verifier` routes, `structure` and `check`.
+   The device sends what it sends Gemini today minus the key; the service
+   adds it, forwards, and returns the response unchanged. On the client it
+   is a second `Verifier` (`PoolVerifier`) chosen by `registry.ts` when no
+   user key is set. The spec called this a transport swap and it still is.
+   Every control on the server is about money:
 
-   - **One monthly counter, capped at the free allowance.** 5,000 grounding
-     queries a month on the 3.x family (3.1, fetched). The pool stops when
-     the counter reaches the cap; the app says the month's pool is spent and
-     points at the key flow. Cost past the cap is therefore zero unless the
-     owner raises it, and raising it has a known price of $14 per 1,000
-     queries.
-   - **A per-device daily cap** so one install cannot drain the month for
-     everyone, and a small lifetime cap per device so the pool is a taste,
-     not a substitute for a key. Device id is an opaque value minted at
-     first launch; no accounts.
-   - **A kill switch** the owner can flip without a release.
+   - **A per-device lifetime allowance, twelve at launch.** This is the
+     primary control and it is per buyer, not per month, because every
+     install is a paid install. Twelve checks is about thirty percent of
+     what the sale nets (4.4). The band the arithmetic supports is ten to
+     fifteen; the number moves only on measured data, and only upward.
+   - **A monthly account ceiling as a backstop**, set below Google's free
+     5,000 grounding queries where possible, so a bug in the per-device
+     counter cannot drain the account. At twelve checks and four searches
+     each, the free allowance covers about eighty buyers a month before
+     grounding is billed at all.
+   - **A real spend cap at Google**, not a budget alert. Budget alerts
+     notify with a delay while the meter keeps running; a hard stop needs
+     the native spend cap or a function that disables billing (searched
+     2026-09-15, snippets). This is the protection that does not depend on
+     any code the owner wrote.
+   - **A kill switch** the owner can flip without shipping a release.
    - **A line per call.** Device id, timestamp, route, model version, tokens
-     in and out, grounding metadata as served, latency, outcome. This is
-     the instrument the cost model runs on, and it answers the two open
-     questions in `HANDOFF.md` section 5 (what `gemini-flash-latest`
-     resolves to, and whether grounding metadata ever arrives) on the first
+     in and out, grounding metadata as served, latency, outcome, never the
+     statement text. This is the instrument the cost model runs on, and it
+     answers the two open questions in `HANDOFF.md` section 5 on the first
      real request.
    - **A reviewer allowance**, so store review does not need a live key in
      the notes.
-     The pool being on by default, with no key, is also what lets a
-     reviewer exercise the check path in the first ten minutes (guideline
-     2.1(a), fetched: a reviewer who cannot test a feature rejects), and
-     what separates this design from the 3.1.1 rejection above.
    - **Long requests.** A grounded check has run past 45 seconds on the live
      fixtures (`GeminiVerifier` comment). The host has to hold a request
      open for 90 seconds; 3.4 has what each one allows.
-   - **Not needed under this plan:** attestation, entitlements, receipt
-     verification, per-user metering beyond the counters above. The pool is
-     shared and capped, so abuse costs the pool a month, not the owner's
-     card. If abuse becomes a pattern, Play Integrity is free and can be
-     added then (3.4).
+   - **Not needed under this plan:** attestation, subscription entitlements,
+     per-month metering. Every pool user paid for the app, which removes
+     most of the abuse surface. The residual exposure is a buyer who spends
+     the allowance and then refunds, costing about seventy cents; the
+     per-device cap bounds it and it is not worth farming.
+
+   **On screen:** a countdown of checks remaining from the first check, not
+   only when it runs low, and a handoff to the key flow when it reaches
+   zero rather than a wall.
 
 **What it costs to run.** The pool's tokens at full use, about $9 a month
 (1,250 checks at $0.007), plus hosting at about $5 (3.4). Flat, by design.
@@ -369,10 +380,21 @@ where text goes and asks before the first model call is a submission
 requirement, not a courtesy, and it has to come before the intake call, not
 before the first check.
 
-The policy is short because the truth is short: nothing is collected by the
-developer today; with the proxy (2.1) the developer sees the statements in
-transit and keeps a per-call log without the statement text. Write it that
-way and keep it that way.
+The policy has two paths to describe, because the app has two (decided
+2026-09-15, section 10), and they carry different upstream terms:
+
+- **The starter pool.** The statement and criteria go through the owner's
+  server to Google on the owner's paid key. Google's paid terms reportedly
+  do not use prompts to improve its products. The server keeps a per-call
+  log with no statement text in it.
+- **The user's own key.** The app calls Google directly and the owner's
+  server is not involved at all. On a free key Google's terms reportedly
+  use content to improve its products, with human review.
+
+Say which is which plainly, and say that the pool is the stronger of the
+two rather than burying it, because that is a real reason the purchase is
+worth something. Both sentences depend on Google's terms, which are still
+unverified from a primary source (8.0g); read them before the policy ships.
 
 There is also a product question the review card already half-answers: a
 user recording a claim by a named private person ("my neighbor said") is
@@ -961,7 +983,7 @@ and must be read on `support.google.com` before it decides anything.
 |---|---|---|
 | Developer program | $99 per membership year | fetched |
 | Build machine | Capacitor 8 needs Xcode 26 or later, which needs macOS Tahoe; a Mac, owned or rented, is required. Codemagic gives personal accounts 500 free minutes a month on M2 machines, then about $0.10 a minute. GitHub Actions macOS runners consume free minutes at ten times the rate (about 200 free macOS minutes a month) | fetched (Capacitor, Xcode, Codemagic); GitHub multiplier snippet |
-| 3.1.1 In-app purchase | "If you want to unlock features or functionality within your app (by way of example: subscriptions...) you must use in-app purchase." The supporter unlock is a non-consumable IAP for exactly this reason | fetched |
+| 3.1.1 In-app purchase | "If you want to unlock features or functionality within your app (by way of example: subscriptions...) you must use in-app purchase." The tip jar amounts are consumable IAPs for exactly this reason; the paid download itself is a store price, not an IAP | fetched |
 | 3.1.1(a) and 3.1.3, US storefront | Buttons and links to external purchase are allowed on the US storefront without an entitlement; Apple currently collects nothing on them, has proposed a fee, and litigation continues. A Stripe link-out is possible today for US users, with a fee of undetermined size probable | fetched (guidelines, Apple news); litigation snippets |
 | BYOK | No guideline addresses it. The nearest text, 3.1.3(f), allows free companions to paid web tools "provided there is no purchasing inside the app, or calls to action for purchase outside of the app". A reviewer could read "paste your key to enable checks" as a license-key unlock; no report of that happening was found. Also: apps using a third-party service must be "specifically permitted to do so under the service's terms of use"; the Gemini API terms for third-party apps on a user's key were not checked | fetched (guidelines); terms unchecked |
 | 2.1, 2.3.1 Review access | Submissions must be "fully functional" with demo credentials and specific notes. Expect to hand Apple a working key | fetched |
@@ -1061,48 +1083,75 @@ any third-party login is offered, an equivalent private option must be too
 
 ### 4.2 Models considered, and the one chosen
 
-**Chosen (section 10): free download, one-time supporter unlock.** The app
-is free. The keyless layer, bring-your-own-key, and the community pool are
-free. There is one purchase, a non-consumable in-app purchase around $4.99
-(judgment call, section 9), that unlocks things that are nice and not core:
-receipt themes, the hosted receipt page with a custom handle (2.7), sync
-when it exists (2.2), and a supporter mark on the ledger. Nothing a person
-needs to record, check and settle a bet sits behind it. It goes through
-in-app purchase (Apple 3.1.1, fetched) at the 15 percent small-developer
-rate on both stores, and it is the shape the benchmarks in 4.3 treat most
-kindly: a paywall met after install converts at about 10.7 percent by day
-35 against 2.1 percent for a free tier with a subscription above it.
+**Chosen, revised 2026-09-15 (section 10): a $2.99 paid download, with a
+starter pool of hosted checks included, and a tip jar alongside.** Buying
+the app includes twelve hosted checks on the owner's key, so it works on
+first launch. After that the guided flow hands the user to their own free
+Google key, which costs neither side anything. A tip jar of two or three
+amounts sits in Settings for people who want to give more. Making the app
+paid costs zero engineering, since it is a store setting; the tip jar is
+the only purchase code to write, and it can follow later.
+
+**What changed from the earlier decision**, which was a free download with
+a one-time supporter purchase. Three things:
+
+1. **Google Play's pricing door only swings one way** (searched
+   2026-09-15): a paid app can be made free, but a free app cannot be made
+   paid without republishing under a new package name and losing its
+   reviews and installs. Launching paid preserves both options; launching
+   free closes one permanently.
+2. **Bring-your-own-key removed the per-user cost**, so revenue no longer
+   has to cover an ongoing bill. It has to cover a fixed starter pool and
+   the store fees, which a paid download does directly and predictably
+   rather than through a one-in-ten conversion.
+3. **Revenue per install rises by a factor of forty to eighty.** A free app
+   with a purchase collects from roughly a tenth of installs; a paid app
+   collects from all of them. Paid at $2.99 needs only about a tenth of
+   would-be free installers to still buy in order to match, against about
+   thirty percent at $0.99. The cliff is at zero, not at a dollar, which is
+   why the price is $2.99 and not $0.99: the same install penalty for three
+   times the revenue.
+
+**What paid costs, and it is not nothing.** Store discovery for a paid app
+is far worse. The hosted receipt page (2.7) stops working as an acquisition
+channel, because a stranger who opens a shared receipt meets a price rather
+than an install button. And a buyer surprised by the key requirement writes
+a refund request and a one-star review in a way a free user never does,
+which is why the listing warning in 2.6 is load-bearing rather than
+optional. Going free later remains available if those bite.
 
 **Declined, with the reason on record.**
 
-- *Subscription for hosted checks.* Costed in 3.3, 3.6 and 4.4: about $1.28
-  a month of checks against about $1.77 net from the productivity median
-  annual price, break-even at best with the pre-check, and the owner's
-  judgment that people will not pay several dollars a month to track bets.
-  The benchmarks agree: median subscription app revenue is $492 a month and
-  four in five never reach $1,000.
-- *Monthly free tier of hosted checks.* At 2.1 percent conversion every
-  payer brings about fifty free users; five hosted checks a month each is
-  about $16 against $1.77. Loses money at every scale.
-- *Paid download.* Discovery collapses (a paid listing gets a small
-  fraction of a free one's installs, and the receipt page cannot bring
-  anyone in if they must pay to open it), the first review is "I paid and it
-  asked me for a Google API key", and paid apps carry refund and support
-  expectations. No sourced figure for indie paid-app sales; the expectation
-  from memory is tens to low hundreds a year.
+- *Subscription for hosted checks.* Costed in 3.3 and 4.4: break-even at
+  best, and the owner's judgment that people will not pay several dollars a
+  month to track bets. The benchmarks agree: median subscription app
+  revenue is $492 a month and four in five never reach $1,000.
+- *Free download with a one-time purchase.* The plan of record until
+  2026-09-15, superseded for the three reasons above. It stays the fallback
+  if paid sells nothing, and the Play door makes that switch available.
+- *A $0.99 price.* The same install penalty as $2.99 for a third of the
+  revenue. Tips do not price-shop either, so a low price does not buy
+  conversion.
+- *A pure tip jar on a free app.* General in-app purchase conversion runs
+  two to three percent across all apps and an ungated tip converts below
+  that; no tip-specific figure could be sourced. At one percent and $2 a
+  tip, covering the Apple year alone would need several thousand installs.
+  Kept as a companion to the sale, not as the model.
+- *Monthly free tier of hosted checks.* At benchmark conversion every payer
+  brings about fifty free users; five hosted checks a month each is about
+  $16 against a couple of dollars. Loses money at every scale.
 - *Ads.* Costed from 2026 eCPM benchmark posts (snippets, gaming apps): US
   rewarded video $14 to $22 per thousand views, interstitial $9 to $14,
-  banner $0.30 to $0.80. A grounded check past the pool costs about $0.063,
-  so a banner needs 80 to 200 impressions per check and an interstitial
-  five to seven. Only a rewarded video tied to spending a pool check comes
-  close (one view covers two or three checks inside the free pool), and it
-  brings an advertising identifier onto the data-safety form, an ATT prompt
-  on iOS, a consent flow in the EU, a payout floor, and a video ad inside a
-  product whose pitch is a receipt you can trust. Declined.
+  banner $0.30 to $0.80. A grounded check past the free allowance costs
+  about $0.063, so a banner needs 80 to 200 impressions per check and an
+  interstitial five to seven. Only a rewarded video tied to spending a pool
+  check comes close, and it brings an advertising identifier onto the
+  data-safety form, a tracking prompt on iOS, a consent flow in the EU, a
+  payout floor, and a video ad inside a product whose pitch is a receipt you
+  can trust. Declined.
 - *Bundled key.* Extracted from the APK within days.
-- *Check packs.* Not needed when the user's own key is free and the pool is
-  a taste. Kept as the answer if the pool ever needs to be sold rather than
-  given.
+- *Check packs.* Kept as the answer if buyers exhaust the starter pool and
+  ask for more before they will fetch a key.
 
 **Later, if the network forms.** Public author pages (the pundit
 accountability ledger the spec deferred) are a different product with a
@@ -1135,73 +1184,69 @@ One snippet quoted a different cohort figure ("median $8,300 a month after
 18 months") from an earlier report that conflicts with the $492 median; it
 could not be reconciled without the PDF and is not used.
 
-**What this means for the price.** The unlock is a one-time non-consumable,
-so the annual and monthly figures above do not apply to it directly. What
-does: the hard-paywall conversion figure (a purchase offered after install,
-10.7 percent by day 35) is the closer analogue to an unlock met inside a
-free app, and the productivity median annual price ($24.95) says what
-people in this category pay in a year, which bounds a one-time price from
-above. $4.99 sits under that with room; $2.99 is the floor below which the
-store fee and the friction of buying make the purchase not worth offering.
-Both are guesses to be replaced by two months of data (section 7).
+**What this means for the price.** The benchmarks above describe purchases
+made inside a free app, so they bound the tip jar rather than the download.
+What they say about the download is indirect but useful: the productivity
+median annual price of $24.95 is what people in this category will pay in a
+year, which puts a one-time $2.99 comfortably inside what the category
+bears. The install penalty for being paid at all is the real cost, and it
+does not shrink at $0.99, so $2.99 is the price (4.2).
 
-**What this means for the pool.** Nothing the user pays changes what the
-pool costs, so the pool is sized to the free allowance and not to revenue.
+**What this means for the tip jar.** Offer two or three amounts rather than
+one, something like $1.99, $4.99 and $9.99. People who tip are supporting,
+not comparing, and some deliberately choose the larger amount, so the
+average rises at no cost. Expect it to earn a fraction of what the download
+does.
 
 **The honest read of the benchmarks.** Four apps in five never reach $1,000
-a month, and this one is not built to. It is built to cost about $30 a
-month at most, to be paid for by a few dozen unlocks a year, and to grow
-through receipts rather than spend. Without the hosted receipt page (2.7)
-the benchmarks above describe an app that a few hundred people like, which
-under this plan is an acceptable outcome rather than a failed one.
+a month, and this one is not built to. It is built to cost about $12 a year
+to run on Android, to be paid for by the downloads themselves, and to grow
+by word of mouth. The paid price buys predictability rather than scale: you
+collect from everyone who installs instead of one in ten, and you know your
+margin per sale before it happens.
 
 ### 4.4 Break-even
 
-Arithmetic this session from 3.4, 3.6 and 4.2.
+Arithmetic 2026-09-15 from 3.1 and 3.4. Every input is labelled where it
+first appears; the four-searches-per-check figure is still an estimate and
+is the number this section is most sensitive to.
 
-**Under the working plan.**
+**What one sale earns and spends.** $2.99 nets $2.54 after the 15 percent
+small-developer rate. Twelve hosted checks cost:
 
-| Item | A year |
-|---|---|
-| Pool tokens at full use, $9 a month | $108 |
-| Hosting, $5 a month | $60 |
-| Domain | about $12 |
-| Google Play account, once | $25 |
-| Total before Apple | about $205 in year one, about $180 after |
-| Apple developer program, when iOS ships | $99 |
-| Total with Apple | about $300 in year one, about $280 after |
+| Situation | Cost of the starter pool | Margin per sale |
+|---|---|---|
+| Inside Google's free 5,000 grounding queries a month (about the first 80 buyers each month) | about $0.08, tokens only | $2.46 |
+| Past the free allowance, four searches per check | about $0.76 | $1.78 |
+| Past the free allowance, twelve searches per check (the prompt's own ceiling) | about $2.10 | $0.44 |
 
-An unlock at $4.99 nets about $4.24 after the 15 percent fee. Break-even is
-about 50 unlocks a year before Apple and about 70 with. At the 10.7 percent
-hard-paywall benchmark that is roughly 470 to 660 installs a year who reach
-the unlock offer; at a more cautious 5 percent, about a thousand to
-fourteen hundred. Neither number is a business. Both are reachable for a
-niche tool with a shareable receipt, and missing them costs about $25 a
-month, which is the owner's stated comfort.
+Every row is positive, which is the property the fifty-check version did
+not have. At fifty checks past the allowance the pool costs about $3.15
+against $2.54 earned, so each sale lost about sixty cents and a good sales
+month was a losing month.
 
-**What the declined hosted tier would have looked like**, kept so the
-decision can be re-examined with new numbers rather than re-argued.
+**Fixed costs.** Google Play is $25 once, a domain about $12 a year, static
+hosting for the receipt pages can be free. Apple adds $99 a year when iOS
+ships. So roughly $37 the first year on Android alone and $12 a year after,
+or $136 and $111 with Apple.
 
-| Situation | Net price a month | Model cost, regular profile | Margin |
-|---|---|---|---|
-| Annual plan at the $24.95 anchor, current family past the pool, no pre-check | $1.77 | $1.28 | $0.49 |
-| Annual plan, with the pre-check | $1.77 | $0.43 | $1.34 |
-| Monthly plan at $3.49, no pre-check | $2.97 | $1.28 | $1.69 |
-| Monthly plan at $3.49, with the pre-check | $2.97 | $0.43 | $2.54 |
-| Any plan, heavy profile, no pre-check | $1.77 to $2.97 | $3.82 | negative |
-| Any plan, twelve queries a check, no pre-check | $1.77 to $2.97 | $3.52 | negative |
+**Break-even in sales.** At the middle row's $1.78 margin: about 21 sales
+in the first year on Android, 7 a year after that, or about 77 and 63 with
+Apple. At the pessimistic row's $0.44: about 84 sales on Android and 310
+with Apple. Even the pessimistic Android number is reachable.
 
-At 2.1 percent conversion each payer arrives with about forty-seven free
-users; a fifteen-check trial each is about $45 of grounded checks per payer
-without the pre-check and about $14 with it, against a payer worth on the
-order of $10 to $15 of margin over their life. Roughly break-even with the
-pre-check, a loss without. That is why it was declined and what would have
-to be true to revisit it: a conversion rate among active users well above
-the download benchmark, or a per-query price cut from Google.
+**A busy month, which is the case that matters.** Five hundred sales in one
+month at twelve checks each: $1,270 collected, 6,000 checks, 24,000
+grounding queries of which 19,000 are billable at $266, plus $42 of tokens.
+About $308 spent against $1,270 earned. The same month at fifty checks each
+would have cost about $1,505 against the same $1,270. That reversal is the
+whole reason the number is twelve.
 
-**What would change the working plan.** The two verification items in 2.1
-(free-tier grounding, Google's terms on user keys). If either fails, the
-table above is the fallback and its arithmetic applies.
+**When the number goes up.** Only on measured data, and only upward, since
+lowering an advertised allowance is a betrayal. Two things would justify
+it: an observed searches-per-check figure well under four, or the pre-check
+in 3.5, which removes roughly four grounded calls in five and would bring
+fifty checks down to about the cost of twelve today.
 
 ---
 
@@ -1266,9 +1311,13 @@ Infrastructure:
 - [ ] Decide where the pool lives: repository, host, deploy, monitoring,
       and what happens when it is down (2.13). *1, and it gates the next
       item.*
-- [ ] The community pool: one monthly counter capped at the free
-      allowance, per-device daily and lifetime caps, kill switch, a line
-      per call, reviewer allowance, BYOK bypass (2.1 part 3). *6 to 10.*
+- [ ] The starter pool: a per-device lifetime allowance of twelve, a
+      monthly account ceiling as a backstop, kill switch, a line per call,
+      reviewer allowance, BYOK bypass (2.1 part 3). *6 to 10.*
+- [ ] A real spend cap at Google, not a budget alert (2.1). *An hour, and
+      do it before the pool serves anyone.*
+- [ ] The checks-remaining countdown, shown from the first check, and the
+      handoff to the key flow at zero (2.1). *1 to 2.*
 - [ ] Release signing with a stable upload key in CI; `versionCode` from
       CI; `versionName` from `package.json` (2.5). *2.*
 - [ ] Crash reporting, opt-in, no content (2.4). *2.*
@@ -1289,6 +1338,13 @@ Paperwork, none of it optional:
       for 14 continuous days, which is what a personal account created
       after November 2023 needs before it can apply for production (4.1a,
       snippet; read the help page first). *3 to 4, plus the 14 days.*
+- [ ] Set the price to $2.99 and write the listing line that says the app
+      includes twelve AI checks and then continues with a free Google key
+      the user creates (4.2, 2.6). A store setting, no code. *An hour, and
+      the sentence matters more than the setting.*
+- [ ] The Paid Apps Agreement, W-9 and banking, which gate any paid
+      listing (4.1a). *Owner, and it waits on Apple-style paperwork on
+      Play too.*
 - [ ] Fix the stale README (section 8). *1.*
 
 Exit: the closed test has run its period; the pool has logged a month of
@@ -1302,7 +1358,7 @@ queries per check is a number rather than a guess, and more than half of
 the testers who start the key flow finish it. If the last one fails, the
 key flow is the next piece of work, not anything in Stage 2.
 
-### Stage 2: the purchase and the link (first hundred users)
+### Stage 2: the tip jar and the link (first hundred buyers)
 
 Entry: Stage 1 exit. *Roughly 17 to 26 evenings.*
 
@@ -1311,9 +1367,9 @@ Entry: Stage 1 exit. *Roughly 17 to 26 evenings.*
 - [ ] The hosted receipt page (2.7): static, public, generated on share,
       with the store link under it and a takedown contact on it. The
       supporter purchase's custom handle rides on it. *5 to 8.*
-- [ ] The supporter purchase: one non-consumable in-app purchase through
-      RevenueCat's Capacitor SDK or the store directly (4.1a), gating only
-      what 4.2 lists, with a working Restore Purchases button. *4 to 6.*
+- [ ] The tip jar: two or three consumable in-app purchase amounts through
+      RevenueCat's Capacitor SDK or the store directly (4.1a), gating
+      nothing. *3 to 5.*
 - [ ] Check the EU right of withdrawal on a digital purchase before it
       ships (8.0h). *An hour.*
 - [ ] The pre-check (3.5), sized from the observed `no_change` share, to
@@ -1365,7 +1421,9 @@ way `CLAUDE.md` asks for partial work to be reported.
   host appears in `src/` (grep for `https://`), the policy changed.
 - The data safety form still matches the policy.
 - The kill switch works (trip it in staging, confirm the client's message).
-- The pool caps in the proxy match what the listing and the key flow say.
+- The per-device allowance in the pool matches the number in the listing,
+  the countdown and the key flow. All four say the same thing.
+- The Google spend cap is still a real cap and still set.
 - No key, token or credential in the built APK (grep the bundle).
 - Store copy, screenshots and keywords carry no gambling vocabulary (2.10);
   the age rating still answers Contests, not Simulated Gambling.
@@ -1441,7 +1499,12 @@ permission to guess. Each cell says when and how it was measured.
 | Predictions at which Auto Backup stops | about 250 | 25 MB cap (search result) over 94 KiB, 1.33x for base64 | at 100, ship JSON backup (2.2) |
 | Median ledger size, real users | | client counter, after Stage 1 | 5 MB: schedule 2.3 |
 | Free-tier grounded requests a day | about 20 | observed 429 body (CLAUDE.md) | Stage 0 re-verifies; any change reshapes 2.1 |
-| Pool cap | 5,000 queries a month | Vertex pricing page, fetched 2026-09-13 | raise only by decision, at $14 per 1,000 |
+| Starter pool per buyer | 12 checks | decided 2026-09-15 (section 10) | raise only on measured data, never lower |
+| Free grounding allowance | 5,000 queries a month | Vertex pricing page, fetched 2026-09-13 | covers about 80 buyers a month at 12 checks |
+| Checks actually spent per buyer, of 12 | | pool log | well under 12 means the allowance can rise |
+| Buyers who go on to add their own key | | client counter | the handoff working, or not |
+| Margin per sale, observed | | provider bill over sales | against the $1.78 middle row in 4.4 |
+| Refund rate | | store console | above a few percent: read the reviews, the listing is not warning enough |
 | Day of month the pool ran out | | pool log, monthly | earlier three months running: act (section 6) |
 | Devices served by the pool a month | | pool log | |
 | Key-flow completion rate | | client counter | under 50 percent: fix the flow before anything else |
@@ -1503,6 +1566,13 @@ Ordered by how much of the plan rests on them.
    decides the wording of the consent screen and whether the Play form says
    "shared". Read the page.
 
+0h1. **Google Play's refund window, and what it exposes.** A buyer can
+   spend the starter pool and then refund, costing about seventy cents.
+   The per-device cap bounds it and the amount does not reward farming, but
+   the current window length was not verified.
+0h2. **Whether Apple allows moving a paid app to free and back.** Play's
+   door is one-way (searched 2026-09-15); Apple's was not checked. It
+   decides how reversible the price is on that store.
 0h. **The EU right of withdrawal on a digital purchase.** Releasing to the
    EU with a paid item means EU consumer law applies to it. Not
    researched. One hour before the purchase ships (Stage 2).
@@ -1518,10 +1588,12 @@ Ordered by how much of the plan rests on them.
    many searches the model ran. `HANDOFF.md` bug 4 is the same question
    from the other side. The proxy's first real call answers it; until
    then, `modelVersion` on the check log does.
-2. **Searches per check.** The largest term in the cost of a check on the
-   current family, never observed (grounding metadata has not arrived on a
-   real check). Four is this document's guess. The 5,000-query monthly pool
-   and every figure in 3.3, 3.6 and 4.4 move with it.
+2. **Searches per check.** The largest term in the cost of a check, never
+   observed (grounding metadata has not arrived on a real check). Four is
+   this document's guess, and it now sizes the starter pool directly: at
+   four searches the pool costs about thirty percent of what a sale nets,
+   at twelve it costs about eighty percent (4.4). Every figure in 3.3, 3.6
+   and 4.4 moves with it.
 3. **The Gemini Developer API pricing page.** Blocked from this container;
    3.1 is from the Vertex AI page, which has historically matched. Read the
    Developer API page before any price appears in a listing.
@@ -1597,10 +1669,13 @@ Things picked without being specified, listed so they can be argued with.
 - Accounts deferred to Stage 2, with a device id doing identity work in
   Stages 0 and 1. This is the cheapest version that shows whether the proxy
   economics work, per `CLAUDE.md`'s "cheapest version first".
-- $4.99 for the supporter unlock, and the list of what it gates (4.2).
-  Under the productivity median annual price, above the floor where the
-  store fee and purchase friction make it pointless; two months of data
-  replace it.
+- $2.99 as the download price and twelve as the starter-pool size (4.2,
+  4.4). The price sits inside what the category bears and above the floor
+  where a lower number would cost the same installs for less revenue; the
+  pool size is thirty percent of net revenue at the unmeasured
+  four-searches-per-check estimate. Both are replaced by the first two
+  months of real data.
+- Two or three tip-jar amounts rather than one, and the specific values.
 - The pool cap equal to Google's free allowance (5,000 queries a month).
 - "More than half finish the key flow" as the Stage 1 bar.
 - Manual-first as the shape of the keyless layer, rather than improving the
@@ -1610,20 +1685,33 @@ Things picked without being specified, listed so they can be argued with.
 
 ## 10. Decisions on record
 
-Made by the owner on 2026-09-13 in the planning session that produced this
-document. Recorded so the next session does not re-litigate them without
-new evidence; section 8 items 0 and 0a are the evidence that would.
+Made by the owner in the planning sessions that produced this document.
+Recorded so the next session does not re-litigate them without new
+evidence. Where a decision was later reversed, both are shown, because the
+reasoning that changed is the useful part.
+
+**Revised 2026-09-15.** The monetization decisions taken on 2026-09-13
+(free download, one-time supporter purchase around $4.99, no paid download)
+are superseded. What changed: Google Play's pricing door proved to be
+one-way, so launching paid keeps both options and launching free closes
+one; bring-your-own-key removed the ongoing per-user cost, leaving only a
+fixed starter pool for revenue to cover; and a paid download collects from
+every install rather than one in ten. The earlier reasoning and the
+declined alternatives are kept in 4.2.
 
 | Question | Decision | Reason |
 |---|---|---|
-| Primary model path | Bring-your-own-key | A free Gemini key covers a regular user many times over at no cost to anyone; the friction is a design problem, not an economics problem |
-| Free layer | Everything that does not call a model is free forever, and made good rather than apologized for | Store minimum-functionality rules, and the product should be honest without a key |
-| Hosted checks | A community pool capped at Google's free allowance, with per-device caps and a kill switch | A taste before fetching a key; cost is one dial with a known price |
-| Recurring charge | None | The owner does not believe people will pay several dollars a month to track bets; the arithmetic in 4.4 agrees it would at best break even |
-| Ads | No | Only a rewarded video tied to a pool check comes close to covering one, and the SDK's privacy, consent and tonal costs are not worth it (4.2) |
-| Paid download | No | Kills discovery and the receipt loop; invites the "paid and it wants a Google key" review |
-| The one purchase | A one-time supporter unlock around $4.99 for non-core features | One-time, keeps the app free to try, converts better than a subscription paywall by benchmark, covers fixed costs at a few dozen a year |
-| Comfort with cost | Watch the pool monthly; act deliberately when it runs out early | Section 6, monthly |
-| Apple enrollment timing | Start now, before the iOS build exists | 2026 forum reports of individual enrollments stuck for weeks to months; the account, the agreements and the trader details are on the critical path and none of them need the app |
-| EU storefronts | Declare trader status and release to the EU from the start | Owner's call on 2026-09-13; the cost is a published P.O. box, phone and email |
-| The stakes field | Keep, as free text; relabel to "Riding on it" on the form and the receipt; sentence placeholder; never model money | The only on-screen element a reviewer could read as a wager (2.10); the label change is three lines and the feature stays |
+| Distribution | A paid download at $2.99 on Google Play | Collects from every install rather than one in ten; the install penalty is at zero, not at a dollar, so $2.99 costs the same as $0.99 and earns three times as much; Play allows paid to free later but never free to paid |
+| What the purchase includes | A starter pool of 12 hosted checks on the owner's paid key, so the app works on first launch | Twelve is about thirty percent of what a sale nets; fifty, first proposed, cost more than the sale earned once the free grounding allowance ran out (4.4) |
+| After the starter pool | Bring-your-own-key, through a guided flow | A free Gemini key covers a regular user many times over at no cost to either side |
+| Free layer | Everything that does not call a model works with no key and no pool | Store minimum-functionality rules, and the product should be honest without a key |
+| Tip jar | Yes, two or three amounts, gating nothing | Costs no product compromise; catches people who want to give more than the download |
+| Recurring charge | None | The owner does not believe people will pay several dollars a month to track bets; 4.4 agrees it would at best break even |
+| Ads | No | Only a rewarded video tied to a pool check comes close to covering one, and the privacy, consent and tonal costs are not worth it (4.2) |
+| Spend protection | A real spend cap at Google, a per-device lifetime allowance on the server, and a kill switch | Budget alerts notify with a delay while the meter runs; the provider-side cap is the only protection that does not depend on the owner's own code |
+| Listing honesty | The listing says the app includes twelve AI checks and then continues with a free Google key the user creates | A paid app that surprises someone with a setup step earns refunds and one-star reviews; a free one does not |
+| Privacy | Two paths, both disclosed: the pool on the owner's paid key, and the user's own key on their own terms. Say which is stronger | The pool reportedly carries Google's no-training paid terms, which is a real reason the purchase is worth something (2.6) |
+| Apple enrollment timing | Start now, before the iOS build exists | 2026 forum reports of individual enrollments stuck for weeks to months; none of the paperwork needs the app |
+| EU storefronts | Declare trader status and release to the EU from the start | Owner's call on 2026-09-13; a paid app makes trader status certain rather than arguable, and the cost is a published P.O. box, phone and email |
+| The stakes field | Keep, as free text; relabel to "Riding on it" on the form and the receipt; sentence placeholder; never model money | The only on-screen element a reviewer could read as a wager (2.10) |
+| Superseded 2026-09-15 | Free download with a one-time supporter purchase around $4.99 | Kept as the fallback if paid sells nothing; Play's one-way door makes that switch available and the reverse impossible |

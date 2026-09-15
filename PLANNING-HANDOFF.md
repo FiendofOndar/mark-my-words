@@ -32,9 +32,13 @@ merging your own PRs is for the main line of work, not this branch.
 
 ## Decisions already made by the owner (do not re-open without evidence)
 
-`VIABILITY.md` section 10: bring-your-own-key is primary; a keyless free
-layer; a community pool capped at Google's free allowance; no subscription,
-no ads, no paid download; one one-time supporter unlock around $4.99.
+`VIABILITY.md` section 10, revised 2026-09-15: a $2.99 paid download on
+Google Play; a starter pool of twelve hosted checks included in the
+purchase, on the owner's paid key; bring-your-own-key after that; a
+keyless free layer; a tip jar that gates nothing; no subscription and no
+ads; a real spend cap at Google plus a per-device lifetime allowance and a
+kill switch; two disclosed data paths. The earlier free-download plan is
+superseded and kept in 4.2 as the fallback.
 
 ## State at the switch
 
