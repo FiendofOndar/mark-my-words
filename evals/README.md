@@ -6,9 +6,10 @@ the table are in `lib/`, tested by the suite.
 
 `screenshots/` holds phone screenshots of posts, one prediction each, as
 shared into the app. Twenty-one of them as of 2026-09-16, all Reddit; the
-shapes with no coverage yet are X, Instagram, Threads and iMessage, an
-article dateline crediting someone else's prediction, and a screenshot with
-no prediction in it at all. `extract.json` holds what the model must read off each
+shapes with no coverage yet are Instagram, Threads, iMessage and a news
+article with a dateline, plus a screenshot with no prediction in it at all.
+Thirty-four as of 2026-09-16: twenty-one Reddit, twelve X, and one Reddit
+post whose content is a screenshot of a tweet. `extract.json` holds what the model must read off each
 one, keyed by file name:
 
 ```json
@@ -26,6 +27,12 @@ one, keyed by file name:
   }
 }
 ```
+
+Two optional keys go beyond a plain field match. `statement_starts_with`
+and `statement_max_length` bound a statement without pinning it exactly.
+`note_contains` requires one word inside the free-text note, for the cases
+where the statement alone does not say what was claimed: a quote tweet
+whose subject is only "He" needs the note to name him.
 
 `today` is the day the screenshot was taken, so a relative age on the post
 resolves the same way on every run; without it the runner uses the current
@@ -64,5 +71,13 @@ them; a prompt change that makes the model follow them is in scope.
   first half, so it cannot drift with the model.
 - **The note is a remark to the person who shared the picture**, never about
   the prompt's own rules.
+- **The date follows the author.** When a post reports or quotes somebody
+  else's prediction, `posted_on` is when that person said it, not when the
+  account reposted them. If the screen does not show the original's date,
+  `posted_on` is null and the note says whose date is visible. The date is
+  where the app starts counting, so a borrowed one makes an old claim look
+  new.
+- **Platform is where the prediction was made.** A tweet screenshotted into
+  a subreddit is still X, and the note says where it was shared.
 - **The author is the u/name beside the post**, including `u/[deleted]`.
 

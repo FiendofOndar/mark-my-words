@@ -96,3 +96,13 @@ describe('the screenshot prompt, second eval batch (2026-09-16)', () => {
     expect(EXTRACT_SYSTEM_PROMPT).toMatch(/never name a rule or a field/);
   });
 });
+
+describe('the screenshot prompt, X batch (2026-09-16)', () => {
+  it('takes the date from the person who made the prediction, not the reposter', () => {
+    // @TeslaZenX quoted Musk and the date came back as the repost's. The
+    // date is where the app starts counting, so a reposted claim would
+    // look new. The owner's call: the original's date, or none.
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/THE DATE FOLLOWS THE AUTHOR TOO/);
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/A repost carries its own timestamp and that is not the prediction's date/);
+  });
+});

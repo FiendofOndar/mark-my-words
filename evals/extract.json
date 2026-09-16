@@ -231,42 +231,146 @@
     }
   },
   "x-musk-moraes-prison.jpg": {
-    "today": "2026-09-15"
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "One day, @Alexandre, this picture of you in prison will be real.",
+      "author": "@elonmusk",
+      "platform": "X",
+      "posted_on": "2024-08-28",
+      "posted_hint": null
+    }
   },
   "x-mcconnell-shows-up.jpg": {
-    "today": "2026-09-15"
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Mitch McConnell will show up today.",
+      "author": "@BodhiAnneCole",
+      "platform": "X",
+      "posted_on": "2026-09-14",
+      "posted_hint": null
+    }
   },
   "x-red-states-never-blue.jpg": {
-    "today": "2026-09-15"
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Republicans are not losing TX , AL and IA red states period lmao they will NEVER be Blue mark my words.",
+      "author": "@Grassroots20244",
+      "platform": "X",
+      "posted_on": "2026-09-15",
+      "posted_hint": null
+    }
   },
   "x-bills-win-it-all.jpg": {
-    "today": "2026-09-15"
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "The Bills are winning it all this year",
+      "author": "@MatthewAAW",
+      "platform": "X",
+      "posted_on": "2026-09-13",
+      "posted_hint": null
+    }
   },
   "x-jimbo-quote-tweet.jpg": {
-    "today": "2026-09-15"
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "He is coming back to win it all once again and this time, silence all the doubters.",
+      "author": "@amandaafootball",
+      "platform": "X",
+      "posted_on": "2026-09-10",
+      "posted_hint": null,
+      "note_contains": "Jimbo"
+    }
   },
   "x-ashneer-politics.jpg": {
-    "today": "2026-09-15"
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Ashneer is very soon going to enter politics.",
+      "author": "@akshaymarch7",
+      "platform": "X",
+      "posted_on": "2026-09-15",
+      "posted_hint": null
+    }
   },
   "x-aoc-nominee-2028.jpg": {
-    "today": "2026-09-15"
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "AOC will be the nominee in 2028.",
+      "author": "@fdr_dem",
+      "platform": "X",
+      "posted_on": "2026-09-15",
+      "posted_hint": null
+    }
   },
   "x-bookmark-this-tweet.jpg": {
-    "today": "2026-09-15"
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Something very bad is about to happen and, it will be carried out by AI.",
+      "author": "@JohnLewisEU",
+      "platform": "X",
+      "posted_on": "2026-09-12",
+      "posted_hint": null
+    }
   },
   "x-mario-march-10.jpg": {
-    "today": "2026-09-15"
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "March 10, New 3D Mario Game",
+      "author": "@Master0fHyrule",
+      "platform": "X",
+      "posted_on": "2026-09-10",
+      "posted_hint": null
+    }
   },
   "x-starship-moon-reported.jpg": {
-    "today": "2026-09-15"
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Starship will end up doing the whole Moon mission.",
+      "author": "Elon Musk",
+      "platform": "X",
+      "posted_on": null,
+      "posted_hint": null
+    }
   },
   "reddit-nested-gas-prices.jpg": {
-    "today": "2026-09-15"
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Gas prices will be down below $2.50 a gallon before the midterms excluding blue states with their high gasoline taxes.",
+      "author": "@mitchellvii",
+      "platform": "X",
+      "posted_hint": null
+    }
   },
   "x-catturd-oil-prices.jpg": {
-    "today": "2026-09-15"
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Six months from now, it’ll be lower than ever.",
+      "author": "@catturd2",
+      "platform": "X",
+      "posted_on": "2026-03-09",
+      "posted_hint": null
+    }
   },
   "x-obama-cyber-narrative.jpg": {
-    "today": "2026-09-15"
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Obama is setting up the narrative for how dangerous AI and the data centers are in preparation for a cyber attack",
+      "author": "@Amy31129057",
+      "platform": "X",
+      "posted_on": "2026-09-15",
+      "posted_hint": null
+    }
   }
 }
