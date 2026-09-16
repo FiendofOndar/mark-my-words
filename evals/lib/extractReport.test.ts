@@ -30,6 +30,21 @@ describe('comparing a case to what the model read', () => {
     expect(diffs).toEqual([{ field: 'posted_hint', expected: null, actual: '2y' }]);
   });
 
+  it('bounds a cut-off post by its visible words without fixing where it ends', () => {
+    // The screen showed two lines and "...more"; the model wrote five
+    // hundred more. Either ending the owner might pick starts the same way
+    // and is shorter than the visible text.
+    const cut = { ...post, statement: 'There will be a silent march in New York. Not for him, but for all the lives lost and ruine' };
+    const invented = { ...post, statement: `${cut.statement}d by his company. It will happen very soon and bring crowds.` };
+    const rule = { statement_starts_with: 'There will be a silent march in New York.', statement_max_length: 95 };
+    expect(compareExtract(rule, cut)).toEqual([]);
+    expect(compareExtract(rule, { ...post, statement: 'There will be a silent march in New York.' })).toEqual([]);
+    expect(compareExtract(rule, invented).map((d) => d.field)).toEqual(['statement_max_length']);
+    expect(compareExtract(rule, { ...post, statement: 'MMW: There will be a silent march' }).map((d) => d.field)).toEqual([
+      'statement_starts_with',
+    ]);
+  });
+
   it('calls a case with no expected values unconfirmed rather than passed', () => {
     expect(statusOf(undefined, [])).toBe('unconfirmed');
     expect(statusOf({}, [])).toBe('unconfirmed');
@@ -37,7 +52,7 @@ describe('comparing a case to what the model read', () => {
 });
 
 describe('the job summary', () => {
-  it('lists every row and shows the raw response only where it is needed', () => {
+  it('lists every row and collapses the raw response under each', () => {
     const rows: ExtractRow[] = [
       { file: 'a.png', status: 'pass', diffs: [], rawText: '{"a":1}', tokens: 900, error: null },
       {
@@ -56,7 +71,7 @@ describe('the job summary', () => {
     expect(md).toContain('author: expected "u/x", got null');
     expect(md).toContain('<summary>b.png: what the model said</summary>');
     expect(md).toContain('"author": null');
-    expect(md).not.toContain('<summary>a.png');
+    expect(md).toContain('<summary>a.png: what the model said</summary>');
     expect(md).toContain('| c.png | error | The request timed out. |');
   });
 });

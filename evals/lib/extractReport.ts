@@ -13,6 +13,13 @@ export interface ExpectedExtract {
   platform?: string | null;
   posted_on?: string | null;
   posted_hint?: string | null;
+  /**
+   * For a post the screen cuts off, where the owner has not yet decided
+   * where the statement ends: it must begin with the visible words and be
+   * no longer than what was visible. Invented continuation fails both.
+   */
+  statement_starts_with?: string;
+  statement_max_length?: number;
 }
 
 export interface ExtractCase {
@@ -61,6 +68,8 @@ export function actualField(post: ExtractedPost, field: keyof ExpectedExtract): 
     case 'is_prediction':
       return post.isPrediction;
     case 'statement':
+    case 'statement_starts_with':
+    case 'statement_max_length':
       return post.statement;
     case 'author':
       return post.author;
@@ -78,7 +87,17 @@ export function compareExtract(expected: ExpectedExtract, post: ExtractedPost): 
   for (const field of Object.keys(expected) as (keyof ExpectedExtract)[]) {
     const want = expected[field];
     const got = actualField(post, field);
-    if (fold(field, want) !== fold(field, got)) diffs.push({ field, expected: want, actual: got });
+    if (field === 'statement_starts_with') {
+      const text = norm(got);
+      if (typeof text !== 'string' || !text.startsWith(norm(want) as string)) diffs.push({ field, expected: want, actual: got });
+    } else if (field === 'statement_max_length') {
+      const text = norm(got);
+      if (typeof text !== 'string' || typeof want !== 'number' || text.length > want) {
+        diffs.push({ field, expected: want, actual: typeof text === 'string' ? `${text.length} chars` : got });
+      }
+    } else if (fold(field, want) !== fold(field, got)) {
+      diffs.push({ field, expected: want, actual: got });
+    }
   }
   return diffs;
 }
@@ -112,7 +131,7 @@ function describe(row: ExtractRow): string {
   return row.diffs.map((d) => `${d.field}: expected ${show(d.expected)}, got ${show(d.actual)}`).join('; ');
 }
 
-/** The job summary: a table the owner can read on a phone, raw JSON under each row that needs it. */
+/** The job summary: a table the owner can read on a phone, raw JSON collapsed under every row. */
 export function renderMarkdown(rows: ExtractRow[], heading: string): string {
   const counts = summarize(rows);
   const lines: string[] = [
@@ -127,7 +146,9 @@ export function renderMarkdown(rows: ExtractRow[], heading: string): string {
   for (const row of rows) {
     lines.push(`| ${cell(row.file)} | ${row.status} | ${cell(describe(row))} | ${row.tokens ?? ''} |`);
   }
-  for (const row of rows.filter((r) => r.status !== 'pass')) {
+  // Every row, a pass included: a pass on the checked fields says nothing
+  // about the note, and the owner reads these to confirm the next values.
+  for (const row of rows) {
     lines.push('', '<details>', `<summary>${row.file}: what the model said</summary>`, '', '```json', prettyRaw(row.rawText), '```', '</details>');
   }
   return `${lines.join('\n')}\n`;

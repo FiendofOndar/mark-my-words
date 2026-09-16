@@ -33,3 +33,26 @@ model's raw JSON, so the expected values can be written from a real result.
 
 Expected values are confirmed by the owner in chat before they are written
 here. No value in this file is a guess.
+
+## Conventions the owner has set
+
+Decided from real results, in chat, on 2026-09-15. New expected values follow
+them; a prompt change that makes the model follow them is in scope.
+
+- **Framing that is not part of the sentence is dropped.** Not only "MMW:"
+  and "Mark my words": any tag, unrecognisable acronym or stray symbol that
+  cannot be read as part of a coherent statement goes ("MMW:", a flair
+  label, a leading emoji, a glyph stuck to a word). Acronyms that are part
+  of the sentence stay ("the GOP", "the CEO"). The statement is the bet
+  itself, as a sentence a person would say.
+- **The title is the bet.** When a post has a title and a body that both
+  carry the prediction, the most prominent one (the title) is the statement.
+- **Nothing that is not on the screen.** A statement with invented words is
+  wrong however plausible. For a post cut off with "...more", the model now
+  stops exactly at the visible cut (mid-word if that is where the screen
+  stops) and says so in the note. Whether the expected statement should be
+  that fragment or be trimmed to the last complete sentence is still the
+  owner's to decide; until then the case is bounded with
+  `statement_starts_with` and `statement_max_length` rather than pinned.
+- **The author is the u/name beside the post**, including `u/[deleted]`.
+
