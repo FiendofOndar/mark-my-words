@@ -470,29 +470,50 @@ Errors made across sessions, recorded so they are not repeated:
   it. Borrowing the reposter's date makes an old claim look new, which is
   the same mechanism as the drone-seed verdict. Run 9 then passed
   thirty-four of thirty-four, and **run 10, on the identical commit, failed
-  one row**: the model kept "mark my words" inside the red-states statement
-  on run 9 and stripped it on run 10. Same pixels, same prompt, two
-  answers. That is the first instability the loop has caught in ten runs,
-  and it vindicates the two-consecutive-clean-runs bar as something other
-  than ceremony. It is also a case where the owner's own rule is genuinely
-  ambiguous: the phrase sits mid-post, with more text after it, but at the
-  trailing edge of the sentence that carries the bet, so "framing at the
-  edge is dropped" can be read either way. The expected value currently
-  keeps the phrase, which was this session's reading and not something the
-  owner ruled on directly. It is theirs to settle.
+  one row**, which started the most instructive sequence of the session.
+
+  **The framing rule took three versions to get right, and the lesson is
+  the shape of the rule, not the wording.** The symptom throughout: where
+  does "mark my words" belong. Version one said framing "at the edge of the
+  statement" is dropped; runs 9 and 10 disagreed on identical input, the
+  first instability in ten runs, which is what the two-consecutive-clean-
+  runs bar exists to catch. Version two made it a punctuation test, since
+  in "they will NEVER be Blue mark my words." nothing separates "Blue" from
+  "mark"; run 11 scored 30 of 34, breaking three cases that had been right
+  for four runs, because "The Bills are winning it all this year mark my
+  words" has no punctuation either. Both versions asked the model for a
+  judgment, and the judgment has no answer: those two posts are the same
+  construction, an emphatic tacked onto a clause with its punctuation
+  missing. Version three stops parsing and names the phrases. "mark my
+  words", "MMW", "calling it now", "bookmark this tweet" and "screenshot
+  this" are never part of a claim and always come out, front, end or middle,
+  punctuated or not. "Does this text contain the phrase" has one answer
+  every time. Run 12 then cost the Starship claim its own full stop, because
+  the tidy-up clause beside the list was too broad; narrowed to take only
+  punctuation attached to the phrase, run 13 landed on 33 of 34, exactly as
+  predicted before it ran.
+
+  **Reach for a named list before a smarter rule.** Two rounds were spent
+  refining a judgment that could not be made. The phrases carried no
+  information about the bet, so removing the judgment was always available
+  and always cheaper than sharpening it. The owner's earlier ruling (a
+  phrase inside the same sentence stays) was overridden with their
+  agreement; `x-red-states-never-blue` is pinned to end at "they will NEVER
+  be Blue", which is what run 10 returned and what this session argued
+  against at the time, on a punctuation argument the Bills case disproves.
   **One real failure is open, and it is the most valuable thing the loop
   has found.** On the nested repost the tweet's timestamp reads "11:49 AM ·
-  May 2, 2026" (verified from a 4x crop of the owner's original, saved this
-  session) and the model returned 2022-05-02 on two consecutive runs. It is
-  not a flicker: the model appears to override the pixels with what it
-  believes about that account, the midterms and November 3rd. A date wrong
-  by four years is exactly what sets the period start. That field is
-  deliberately left out of the answer key until the owner confirms the
-  year, so the suite is green partly because a known-bad field is not
-  checked; pinning it will turn that row red until the prompt is changed to
-  trust the screen over its own knowledge. That prompt fix is the next
-  piece of work on the extraction side.
-  Spend across the three batches: seven runs, roughly 430,000 tokens. What
+  May 2, 2026" (verified from a 4x crop, and confirmed by the owner) and
+  the model has returned 2022-05-02 on every run that has read it: four in
+  a row. It is not a flicker. The model appears to override the pixels with
+  what it believes about that account, the midterms and November 3rd. A
+  date wrong by four years is exactly what sets the period start, which is
+  the mechanism behind this project's one wrong verdict. The date is now
+  pinned, so that row is deliberately red and is the failing test to fix
+  against. It is item 1 in BACKLOG.md and the next piece of extraction work.
+  Do not make the suite green by unpinning it.
+  Spend across the three batches: thirteen runs, roughly 800,000 tokens,
+  which is a few cents and the cheapest feedback loop this project has. What
   is still uncovered: Instagram, Threads, iMessage, a news article with a
   dateline, and a screenshot with no prediction in it. The intake
   (structuring prompt) eval is the next piece, same shape, not yet built;
