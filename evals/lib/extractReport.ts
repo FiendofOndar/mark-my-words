@@ -48,10 +48,19 @@ export interface ExtractRow {
   error: string | null;
 }
 
-/** Whitespace and Unicode form are not what an eval is testing. */
+/**
+ * Whitespace, Unicode form and quote style are not what an eval is testing.
+ * Reddit renders a typographic apostrophe where the poster typed a straight
+ * one, so "it's" and "it’s" are the same word read off the same screen.
+ */
 function norm(value: unknown): unknown {
   if (typeof value !== 'string') return value;
-  return value.normalize('NFC').replace(/\s+/g, ' ').trim();
+  return value
+    .normalize('NFC')
+    .replace(/[\u2018\u2019\u201B]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /**

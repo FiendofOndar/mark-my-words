@@ -38,9 +38,14 @@ export function parseExtractedPost(raw: unknown): ExtractedPost {
     author: text(r.author),
     platform: text(r.platform),
     postedOn: dated ? postedOn : null,
+    // The hint exists to say why the date is missing, so once there is a
+    // date it is noise: an age like "2d" that resolved has done its job and
+    // showing "2d" beside a filled-in date only invites a second reading of
+    // the same fact. Decided here rather than in the prompt, because a rule
+    // this mechanical should not depend on the model remembering it.
     // A posted_on that is not a full date ("Sep 9", "2y") is still worth
     // showing as the reason the date was not filled in.
-    postedHint: text(r.posted_hint) ?? (postedOn && !dated ? postedOn : null),
+    postedHint: dated ? null : text(r.posted_hint) ?? (postedOn ? postedOn : null),
     note: text(r.note),
   };
 }

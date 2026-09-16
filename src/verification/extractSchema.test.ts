@@ -12,6 +12,14 @@ describe('reading the model\'s view of a screenshot', () => {
     });
   });
 
+  it('clears the hint once the age has resolved to a date', () => {
+    // "2d" beside a filled-in date is the same fact twice; the owner asked
+    // for the date alone. Enforced here so it cannot depend on the model.
+    expect(
+      parseExtractedPost({ is_prediction: true, statement: 'x', posted_on: '2026-09-13', posted_hint: '2d' }),
+    ).toMatchObject({ postedOn: '2026-09-13', postedHint: null });
+  });
+
   it('turns a posted_on that is not a full date into the hint', () => {
     // Five device shares on 2026-09-13 all came back with the date field
     // silently defaulting to today; a partial date is the reason, shown.

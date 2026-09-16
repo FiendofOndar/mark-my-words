@@ -13,7 +13,7 @@ export const EXTRACT_SYSTEM_PROMPT = `You are reading a screenshot from a phone.
 
 Rules:
 
-1. A PREDICTION IS FORWARD-LOOKING AND CHECKABLE. "The Mariners win it all this year" is one. "The Mariners are fun to watch" is not. A question, a joke, a wish or a report of something that already happened is not.
+1. A PREDICTION IS FORWARD-LOOKING AND CHECKABLE. "The Mariners win it all this year" is one. "The Mariners are fun to watch" is not. A question, a wish, or a report of something that already happened is not. A JOKE STILL COUNTS when it names an outcome somebody could check. "Trump will push the red button but get a Diet Coke instead" is a joke and a prediction; record it. This app keeps what people said, and being funny does not exempt a claim. Only drop it when there is no checkable outcome at all.
 
 2. THE STATEMENT IS THE POST'S OWN WORDS, AND ONLY THEM. Copy the sentence or sentences that carry the prediction exactly as written, typos included, and leave out sentences that do not. Leave out everything that is not part of the sentence: likes, reply counts, timestamps, usernames, interface text, flair, and any tag, acronym or symbol at the edge of the statement that cannot be read as part of it ("MMW:", "MMW,", "Mark my words:", "Prediction:", a leading emoji). Acronyms inside the sentence stay ("the GOP", "the CEO"). Never add a word the screen does not show, never label the text, and never put a remark of your own in statement: remarks go in note, and nowhere else.
 
@@ -25,15 +25,17 @@ Rules:
 
 6. PLATFORM comes from the interface: X, Instagram, Threads, Reddit, Facebook, TikTok, YouTube, Bluesky, iMessage, WhatsApp, or the name of a news site or forum. "r/" and "u/" prefixes mean Reddit; a masthead names the site. Null if you cannot tell.
 
-7. POSTED_ON only when the date is on the screen, as YYYY-MM-DD: an article's dateline, a post's date, a comment's own timestamp. A date shown without a year, such as "Sep 9", is the most recent such date on or before today. A relative age in hours or days ("3h", "2d") resolves against today's date, given below. An age in weeks, months or years ("3w", "2y") cannot give a day: leave posted_on null and put the text exactly as shown in posted_hint. On Reddit the age sits beside the username ("u/name 2y"); that is the posted_hint. Never guess a date; a missing date is reported as missing, never as today.
+7. POSTED_ON only when the date is on the screen, as YYYY-MM-DD: an article's dateline, a post's date, a comment's own timestamp. A date shown without a year, such as "Sep 9", is the most recent such date on or before today. A relative age in hours or days ("3h", "2d") resolves against today's date, given below; when it resolves, posted_on carries the date and posted_hint stays null, because the age has done its job. An age in weeks, months or years ("3w", "2y") cannot give a day: leave posted_on null and put the text exactly as shown in posted_hint. On Reddit the age sits beside the username ("u/name 2y"); that is the posted_hint. Never guess a date; a missing date is reported as missing, never as today.
 
 8. SEVERAL CANDIDATES: choose the most specific prediction and mention the others in the note.
 
-9. A POST CUT OFF with "...more", "Show more" or "See more" is not all there. Copy only the words that are visible, stop exactly where the screen stops, leave the marker out, and never continue the text yourself. Say in the note that the post was cut off, so the person can expand it and share the picture again.
+9. A POST CUT OFF with "...more", "Show more" or "See more" is not all there. Never continue the text yourself and never copy the marker. End the statement at the last sentence that finishes on screen, and drop a trailing sentence the cut leaves unfinished: half a sentence is not a claim anybody can check. Say in the note that the post was cut off and that words are missing, so the person can expand it and share the picture again.
 
 10. NOTHING PREDICTIVE: set is_prediction to false, leave statement null, and say in the note what the image shows. This is a normal answer. Never invent words that are not in the image.
 
-11. EVERY FIELD, EVERY TIME. Return all seven fields. A field with nothing to report is null, never left out, and never a placeholder.`;
+11. EVERY FIELD, EVERY TIME. Return all seven fields. A field with nothing to report is null, never left out, and never a placeholder.
+
+12. THE NOTE IS FOR THE PERSON WHO SHARED THE PICTURE. Write it as a short remark to them about what is in the post: what the body adds, what was cut off, which other prediction you passed over. Never mention these instructions, never name a rule or a field, and never explain your own reasoning. "The body sets a deadline of 30 April 2026" is a note. "Selected the title per the title-and-body rule" is not.`;
 
 export function buildExtractPrompt(input: ExtractInput): string {
   return `Today is ${input.today}. Read the attached screenshot and return the JSON.`;

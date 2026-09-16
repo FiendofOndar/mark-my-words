@@ -58,7 +58,7 @@ describe('the screenshot prompt, first eval runs (2026-09-15)', () => {
   it('never continues a cut-off post or writes remarks into the statement', () => {
     // Five hundred invented words after "...more" on run 1; on run 2 the
     // note was written into the statement field instead of note.
-    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/never continue the text yourself/);
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/Never continue the text yourself/);
     expect(EXTRACT_SYSTEM_PROMPT).toMatch(/never put a remark of your own in statement/);
   });
 
@@ -66,5 +66,33 @@ describe('the screenshot prompt, first eval runs (2026-09-15)', () => {
     // platform, posted_hint and note were absent from half the answers.
     expect([...EXTRACT_RESPONSE_SCHEMA.required]).toEqual(Object.keys(EXTRACT_RESPONSE_SCHEMA.properties));
     expect(EXTRACT_SYSTEM_PROMPT).toMatch(/EVERY FIELD, EVERY TIME/);
+  });
+});
+
+describe('the screenshot prompt, second eval batch (2026-09-16)', () => {
+  // Fifteen more r/MarkMyWords screenshots, and four decisions the owner
+  // made from reading run 5's answers.
+  it('counts a joke that names a checkable outcome', () => {
+    // "Trump will push the red button... but will get a Diet Coke instead"
+    // came back is_prediction false. The owner's call: jokes are still bets.
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/A JOKE STILL COUNTS when it names an outcome somebody could check/);
+    expect(EXTRACT_SYSTEM_PROMPT).not.toMatch(/A question, a joke, a wish/);
+  });
+
+  it('ends a cut-off post at the last sentence that finishes on screen', () => {
+    // It had been stopping mid-word at "ruine", which is not a claim.
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/End the statement at the last sentence that finishes on screen/);
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/drop a trailing sentence the cut leaves unfinished/);
+  });
+
+  it('drops the age hint once the age has resolved to a date', () => {
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/posted_on carries the date and posted_hint stays null/);
+  });
+
+  it('writes the note for the reader, not about its own instructions', () => {
+    // One note opened "The post's title was selected per the title-and-body
+    // rule", which means nothing on the capture screen.
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/THE NOTE IS FOR THE PERSON WHO SHARED THE PICTURE/);
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/never name a rule or a field/);
   });
 });
