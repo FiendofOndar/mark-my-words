@@ -125,10 +125,14 @@ describe('snoozing', () => {
       fc.property(predictions(1).filter((ps) => ps.length === 1), instant, ([p], now) => {
         const patch = snoozePrompt(p!, now);
         expect(patch.promptSnoozes).toBe(p!.promptSnoozes + 1);
+        // Seven calendar days on the local clock, not seven times 24 hours:
+        // across a DST change those differ by an hour, and near midnight
+        // by a day.
+        const expected = new Date(now);
+        expected.setDate(expected.getDate() + 7);
         const next = new Date(patch.promptNextAt);
         expect(next.getTime()).toBeGreaterThan(now.getTime());
-        expect(next.getHours()).toBe(now.getHours());
-        expect(next.getDate()).toBe(new Date(now.getTime() + 7 * 86_400_000).getDate());
+        expect(next.toISOString()).toBe(expected.toISOString());
       }),
     );
   });

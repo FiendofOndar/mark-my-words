@@ -61,8 +61,8 @@ describe('tally', () => {
 });
 
 describe('standings order', () => {
-  const entry = predictions(12).map((ps, i) => ({ name: `n${i}`, record: tallyRecord(ps) }));
-  const named = fc.tuple(entry, fc.constantFrom('Ada', 'Bo', 'Cy')).map(([e, name]) => ({ ...e, name }));
+  const record = predictions(12).map((ps) => tallyRecord(ps));
+  const named = fc.tuple(record, fc.constantFrom('Ada', 'Bo', 'Cy')).map(([r, name]) => ({ name, record: r }));
 
   it('is a consistent total order', () => {
     fc.assert(
