@@ -126,7 +126,11 @@ describe('the screenshot prompt, framing by named list (2026-09-16)', () => {
     expect(EXTRACT_SYSTEM_PROMPT).not.toMatch(/at the edge of the statement/);
   });
 
-  it('cleans up the punctuation the cut orphans', () => {
-    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/neither begins nor ends with a stray comma, colon, dash or full stop/);
+  it('takes the punctuation attached to the phrase and no more', () => {
+    // Run 12: the first pass at this clause cost the Starship claim its own
+    // full stop, because "Mark my words." followed a complete sentence and
+    // the model tidied both. The claim's punctuation is not the phrase's.
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/NEVER TAKE PUNCTUATION THAT BELONGS TO THE CLAIM/);
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/the first full stop ends the claim and stays/);
   });
 });
