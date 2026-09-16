@@ -512,8 +512,11 @@ Errors made across sessions, recorded so they are not repeated:
   pinned, so that row is deliberately red and is the failing test to fix
   against. It is item 1 in BACKLOG.md and the next piece of extraction work.
   Do not make the suite green by unpinning it.
-  Spend across the three batches: thirteen runs, roughly 800,000 tokens,
-  which is a few cents and the cheapest feedback loop this project has. What
+  Spend across the three batches: fourteen runs, 972,850 tokens, totalled
+  from the per-row token counts on issue #47 rather than estimated. The
+  dollar figure is on the Gemini spend page; this file does not guess at
+  one. Runs 13 and 14 both scored 33 of 34 with the same single red row,
+  so the prompt is stable, not lucky. What
   is still uncovered: Instagram, Threads, iMessage, a news article with a
   dateline, and a screenshot with no prediction in it. The intake
   (structuring prompt) eval is the next piece, same shape, not yet built;
