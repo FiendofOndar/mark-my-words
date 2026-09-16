@@ -131,8 +131,12 @@ function collectGates(input: AssessmentInput): string[] {
   // model that found real pages is not inventing citations; it got one deep
   // link wrong, which the log shows. The gate is for a check where no cited
   // page could be opened at all: every host missing, or every page gone.
-  const opened = input.sources.some((s) => s.fetchStatus === 'ok' || s.fetchStatus === 'blocked');
-  if (input.sources.length > 0 && !opened) {
+  //
+  // `not_checked` is nobody tried: a seeded sample, an imported record. It
+  // is not evidence either way, so it neither opens nor fails.
+  const tried = input.sources.filter((s) => s.fetchStatus !== 'not_checked');
+  const opened = tried.some((s) => s.fetchStatus === 'ok' || s.fetchStatus === 'blocked');
+  if (tried.length > 0 && !opened) {
     gates.push('No cited page could be opened, which is how invented citations look.');
   }
 
@@ -168,9 +172,14 @@ function collectGates(input: AssessmentInput): string[] {
   // correct verdict on the first real run after the score was removed. A
   // source dated the same day as the claim is not evidence of anything
   // either way, so it does not count as predating.
+  //
+  // Judged over the citations whose host exists, the same set corroboration
+  // counts. An undated citation counts as "unknown age, not old", and on a
+  // host that does not exist that let one invented URL clear this gate for
+  // a set of real sources that all predated the claim.
   const statementDay = toLocalDateInput(input.statementDate);
-  if (!input.isRetroactive && input.sources.length > 0) {
-    const anyAfter = input.sources.some((s) => {
+  if (!input.isRetroactive && resolved.length > 0) {
+    const anyAfter = resolved.some((s) => {
       const day = publishedDay(s.publishedAt);
       return day === null || day >= statementDay;
     });

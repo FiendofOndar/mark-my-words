@@ -207,6 +207,11 @@ export function resolve(
     resolvedAt: iso,
     resolvedBy: by,
     trend: null,
+    // A late hit is a fact about a miss: the thing happened after the
+    // deadline the claim named. A miss corrected to any other verdict was
+    // keeping the stamp, and with it the badge, fifteen points of heat and
+    // a late hit in the standings, on a record that no longer says miss.
+    lateHitAt: null,
     updatedAt: iso,
   };
 
@@ -254,6 +259,7 @@ export function reopen(p: Prediction, now: Date = new Date()): PredictionPatch {
     resolvedAt: null,
     resolvedBy: 'user_override',
     lateWatchUntil: null,
+    lateHitAt: null,
     trend: 'unknown',
     updatedAt: iso,
   };

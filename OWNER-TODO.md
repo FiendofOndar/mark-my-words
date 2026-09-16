@@ -31,7 +31,7 @@ Last reviewed: 2026-09-15.
 
 ## Before the starter pool serves anyone but you
 
-- [ ] **Verify the Google spend cap is a real cap.** Budget alerts notify
+- [x] **Verify the Google spend cap is a real cap.** Confirmed by the owner 2026-09-16: it is a hard cap. Budget alerts notify
       with a delay while the meter keeps running; a hard stop needs the
       native spend cap or a function that disables billing. The project
       notes describe a hard $25 monthly cap, and if that is a budget alert
