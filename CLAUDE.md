@@ -163,7 +163,7 @@ session does itself, in CI, or says it cannot do.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 374 tests, all of them fast
+npm test           # 446 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -199,7 +199,13 @@ src/ui/            screens and components
 `src/domain/` is plain functions over plain objects. The state machine, the
 cadence gate, the confidence rubric, the hit-rate math and the notification
 planner all live there and are tested without a database or a network. That is
-where the bugs live, so that is where the tests are.
+where the bugs live, so that is where the tests are. Two kinds: the
+`*.test.ts` files pin examples, and the `*.property.test.ts` files state
+what must hold for every input fast-check can generate (`arbitraries.ts`
+builds the inputs). A property failure prints a shrunk counterexample and a
+seed; pin the counterexample as an example test before fixing, and if the
+failure only appears on some runs it is a real finding or a DST assumption
+in the test, never something to retry past.
 
 Everything the web cannot do properly sits behind a port: `Persistence`,
 `PageFetcher`, `Notifier`, `ImageSharer`, `SecureStore`, `Verifier`.

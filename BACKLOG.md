@@ -9,9 +9,9 @@ Requests that arrive mid-session are added here rather than into the session
    apparently because the account and the subject read as an earlier era.
    The date sets the period start, so this is a wrong-verdict bug waiting
    to happen. The fixture is committed (`reddit-nested-gas-prices.jpg`)
-   with every field pinned but the date; pin the date and the eval turns
-   red on it, which is the failing test to fix against. Needs the owner to
-   confirm the year first.
+   with every field pinned, the date included: the owner confirmed the
+   year on 2026-09-16, so that row is deliberately red and is the failing
+   test to fix against. Do not unpin it to make the suite green.
 2. **Intake eval, same shape as the extraction eval.** Raw statements with the
    fields a review card must get right: deadline type, the qualifiers that
    must survive into the criteria, the questions it should ask. Second half
@@ -28,3 +28,10 @@ Requests that arrive mid-session are added here rather than into the session
    rules, the X and Reddit link path, the read-only criterion mark on a
    you-decide bet, Standings and the receipt share. Needs the owner's phone;
    batch them into one install. Deferred with item 2.
+5. **A replay-fixture layer for the parsers.** The eval gets real Gemini
+   responses in Actions and keeps the raw JSON only for failed rows. A
+   record mode that saves every raw response under `evals/responses/`,
+   plus parser tests that replay them, would test a parser change against
+   real model output for free. Proposed 2026-09-16 alongside the property
+   sweep, which stops at the domain layer because everything past it needs
+   model output.

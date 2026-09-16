@@ -13,9 +13,9 @@ Its section 10 records the owner's decisions on distribution, pricing and
 data, so do not re-litigate those without new evidence. `OWNER-TODO.md` is
 the owner's own list, printed into every session by a hook.
 
-State at the time of writing: `main` at PR #17, 332 tests, schema v10. Every
-change this session is merged and built; section 4 says what has been seen
-on a phone and what has not.
+State at the time of writing (2026-09-16): `main` at PR #50 plus the
+property-sweep pull request, 446 tests, schema v10. Section 4 says what has
+been seen on a phone and what has not.
 
 ---
 
@@ -228,7 +228,10 @@ and qualifiers must survive into the criteria. The owner caught both from the
 screenshots. Nothing in the pipeline can check when an event happened; the
 review card is the only place a person can catch a dropped word.
 
-**Not yet verified on device:** the review card redrafting from a changed
+**Not yet verified on device:** the domain fixes from the property sweep
+of 2026-09-16 (section 5), of which only one is visible: a miss that had
+earned the late badge and is then reopened or corrected loses the badge,
+the "late hits" filter count and the heat; the review card redrafting from a changed
 date and blocking confirm until it has (PR #37); the per-share form reset,
 the text cleaning and the raw-response line in Settings (PR #38); the topic
 chip (PR #39, checked in a browser at phone width only); the second-run
@@ -295,6 +298,25 @@ Whether the build container can reach Google varies by session: on 2026-09-14
 `generativelanguage.googleapis.com` answered with its own 403 for a missing
 key while reddit.com and x.com were refused by the proxy. The Actions runner
 always can, which is what the prompt eval loop (section 8) is for.
+
+**The property sweep (2026-09-16).** fast-check now generates predictions,
+citation sets and ledgers and the `*.property.test.ts` files in
+`src/domain/` state what must hold for all of them. The first run found
+five defects, none of which the phone had shown, each fixed in its own
+commit against a pinned counterexample: a miss with a late-hit badge kept
+the stamp when reopened or corrected (heat, badge and standings all
+followed it); an undated citation on a host that does not exist cleared
+the predates gate for a set of real sources that all predated the claim;
+the fabrication gate fired on `not_checked` citations nobody had tried;
+`publisherMismatch` accepted any name containing a domain's first label,
+which for x.com is the letter x; and `planPull` broke a full tie by
+arrival order, so two never-checked claims with one deadline could swap
+who got the budget between loads. Everything else the suite states about
+the layer already held, including the day math across DST, every feed
+sort's independence from arrival order, and the rule that no percentage
+is printed for an unranked author. What the sweep cannot reach: the
+prompts, the parser and the fetch, which take real model output. That is
+the case for the replay-fixture layer in BACKLOG.md.
 
 Still open, smaller:
 
