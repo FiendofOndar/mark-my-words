@@ -455,10 +455,36 @@ Errors made across sessions, recorded so they are not repeated:
   hint clears once the age resolves to a date (enforced in
   `parseExtractedPost`, not left to the model); and the note is written for
   the person who shared the picture, never about the prompt's own rules.
-  Runs 6 and 7 then passed twenty-one of twenty-one. Spend for the batch:
-  three runs, roughly 170,000 tokens. What is still uncovered: every
-  platform except Reddit, an article dateline crediting someone else's
-  prediction, and a screenshot with no prediction in it. The intake
+  Runs 6 and 7 then passed twenty-one of twenty-one.
+  **A third batch on 2026-09-16 broke the Reddit monoculture and took it to
+  thirty-four.** Twelve X posts and one Reddit post whose content is a
+  screenshot of a tweet. Run 8 handled the new chrome without a single
+  error and got the hard shapes right unprompted: the right post out of a
+  thread showing three, the quoter rather than the quoted, Musk rather than
+  the account quoting him, framing stripped from both ends of one post
+  ("Bookmark this tweet." / "Mark. My. Fucking. Words."), "mark my words"
+  kept when it sits mid-sentence, absolute timestamps parsed, and a bare
+  "Mar 9" resolved to the most recent one before the screenshot date. One
+  rule came out of it, in rule 5 now: **a reported prediction's date is the
+  original's, not the repost's**, and null when the screen does not show
+  it. Borrowing the reposter's date makes an old claim look new, which is
+  the same mechanism as the drone-seed verdict. Run 9 then passed
+  thirty-four of thirty-four.
+  **One real failure is open, and it is the most valuable thing the loop
+  has found.** On the nested repost the tweet's timestamp reads "11:49 AM ·
+  May 2, 2026" (verified from a 4x crop of the owner's original, saved this
+  session) and the model returned 2022-05-02 on two consecutive runs. It is
+  not a flicker: the model appears to override the pixels with what it
+  believes about that account, the midterms and November 3rd. A date wrong
+  by four years is exactly what sets the period start. That field is
+  deliberately left out of the answer key until the owner confirms the
+  year, so the suite is green partly because a known-bad field is not
+  checked; pinning it will turn that row red until the prompt is changed to
+  trust the screen over its own knowledge. That prompt fix is the next
+  piece of work on the extraction side.
+  Spend across the three batches: seven runs, roughly 430,000 tokens. What
+  is still uncovered: Instagram, Threads, iMessage, a news article with a
+  dateline, and a screenshot with no prediction in it. The intake
   (structuring prompt) eval is the next piece, same shape, not yet built;
   it is item 1 in BACKLOG.md.
 - **`npm ci` first.** The container starts without `node_modules`, and vitest
