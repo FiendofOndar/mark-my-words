@@ -8,7 +8,7 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { CONFIDENT_AT, assessCheck, countIndependentSources, type AssessmentInput, type SourceAssessment } from './gates';
 import { publisherMismatch, registrableDomain, tierForUrl } from './sources';
-import { STATUSES, instant, isoInstant, shuffled, source, sources, url } from './arbitraries';
+import { STATUSES, isoInstant, shuffled, source, sources, url } from './arbitraries';
 
 const verdict = fc.constantFrom(...STATUSES.filter((s) => s !== 'draft' && s !== 'open'), 'no_change' as const);
 
@@ -38,15 +38,20 @@ describe('decision', () => {
       fc.property(input, (i) => {
         const { decision } = assessCheck(i);
         if (decision !== 'auto_resolve') return true;
-        const opened = i.sources.filter((s) => s.fetchStatus === 'ok' || s.fetchStatus === 'blocked');
+        // "Real" is a page that answered. A set nobody tried to open
+        // (every citation not_checked) says nothing either way, and the
+        // check path never produces one; the gate is not asked to guess.
+        const tried = i.sources.filter((s) => s.fetchStatus !== 'not_checked');
+        const opened = tried.filter((s) => s.fetchStatus === 'ok' || s.fetchStatus === 'blocked');
         return (
           !i.forceManual &&
           i.proposedVerdict !== 'partial' &&
           i.proposedVerdict !== 'ambiguous' &&
           countIndependentSources(i.sources) >= 1 &&
-          opened.length >= 1
+          (tried.length === 0 || opened.length >= 1)
         );
       }),
+      { numRuns: 2000 },
     );
   });
 
