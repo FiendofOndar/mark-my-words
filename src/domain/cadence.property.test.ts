@@ -6,7 +6,7 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { MIN_GAP_MS, checkIntervalDays, checkPriority, isDueForCheck, planPull } from './cadence';
 import { isUnderLateWatch } from './prediction';
-import { instant, isoInstant, prediction, predictions, shuffled } from './arbitraries';
+import { instant, prediction, predictions, shuffled } from './arbitraries';
 import { makePrediction } from './fixtures';
 
 describe('due for check', () => {
@@ -127,7 +127,7 @@ describe('planning a pull', () => {
 
   it('an overdue open claim is checked before any never-checked one due later', () => {
     fc.assert(
-      fc.property(isoInstant(), instant, (deadline, now) => {
+      fc.property(instant, (now) => {
         const overdue = makePrediction({
           resolutionDate: new Date(now.getTime() - 3 * 86_400_000).toISOString(),
           lastCheckedAt: new Date(now.getTime() - 2 * 86_400_000).toISOString(),

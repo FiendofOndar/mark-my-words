@@ -118,7 +118,14 @@ export function planPull(
 
     const da = effectiveDeadline(a);
     const db = effectiveDeadline(b);
-    return (da ? new Date(da).getTime() : Infinity) - (db ? new Date(db).getTime() : Infinity);
+    const byDeadline = (da ? new Date(da).getTime() : Infinity) - (db ? new Date(db).getTime() : Infinity);
+    if (byDeadline !== 0 && !Number.isNaN(byDeadline)) return byDeadline;
+
+    // Two claims "by the end of the year" share a deadline to the
+    // millisecond, and if neither has been checked the whole comparison
+    // ties. Without a last word, which one got the budget was whichever
+    // row the database returned first. Same fix as the feed's.
+    return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
   });
 
   return {
