@@ -12,12 +12,13 @@ Requests that arrive mid-session are added here rather than into the session
    with every field pinned, the date included: the owner confirmed the
    year on 2026-09-16, so that row is deliberately red and is the failing
    test to fix against. Do not unpin it to make the suite green.
-2. **Intake eval, same shape as the extraction eval.** Raw statements with the
-   fields a review card must get right: deadline type, the qualifiers that
-   must survive into the criteria, the questions it should ask. Second half
-   of the prompt eval job; starts once the extraction eval has run green in
-   Actions on three confirmed screenshots. Expected values come from the
-   owner in chat, never guessed.
+2. **Intake eval: confirm the first eighteen cases.** The harness and the
+   Intake job were built on 2026-09-16 (`evals/intake.json`, eighteen
+   statements, every value under `proposed` with its reasoning). What is
+   left is the loop: a real run, the owner reading each reading against the
+   proposal in chat, confirmed values moving to `expect`, and two clean
+   runs in a row on the confirmed set. Prompt changes the run argues for
+   are listed here, not made in the same session.
 3. **A tagged known-good release in CI alongside the rolling `latest`.** The
    rule is in CLAUDE.md ("Keep a known-good build to fall back to"); the
    workflow does not do it yet. Until then HANDOFF.md section 4 names the
