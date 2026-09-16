@@ -49,12 +49,16 @@ here. No value in this file is a guess.
 Decided from real results, in chat, on 2026-09-15. New expected values follow
 them; a prompt change that makes the model follow them is in scope.
 
-- **Framing that is not part of the sentence is dropped.** Not only "MMW:"
-  and "Mark my words": any tag, unrecognisable acronym or stray symbol that
-  cannot be read as part of a coherent statement goes ("MMW:", a flair
-  label, a leading emoji, a glyph stuck to a word). Acronyms that are part
-  of the sentence stay ("the GOP", "the CEO"). The statement is the bet
-  itself, as a sentence a person would say.
+- **Framing that is not part of the sentence is dropped, and the test is the
+  sentence, not the position.** Any tag, unrecognisable acronym or stray
+  symbol standing as its own sentence or fragment goes, wherever it sits:
+  "MMW:", a flair label, a leading emoji, "Bookmark this tweet." before the
+  claim, "Mark. My. Words." after it. Framing that runs on inside the
+  sentence stays, because cutting it would edit the sentence: "they will
+  NEVER be Blue mark my words." keeps every word, since no punctuation
+  separates "Blue" from "mark". The model was a coin flip on that case
+  across runs 9 and 10 until the rule said to look at the punctuation.
+  Acronyms that are part of the sentence stay ("the GOP", "the CEO").
 - **The title is the bet.** When a post has a title and a body that both
   carry the prediction, the most prominent one (the title) is the statement.
 - **Nothing that is not on the screen.** A statement with invented words is
