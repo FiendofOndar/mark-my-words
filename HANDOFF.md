@@ -243,6 +243,30 @@ owner had installed on 2026-09-14). Until CI publishes tagged releases (see
 BACKLOG.md), this line is the fallback: a bad `latest` is walked back by
 reinstalling this one from the Actions artifacts for that commit.
 
+**What the next install should show, and what to watch.** Seven commits
+have changed the extraction prompt or its parser since `6a7c77d`, the build
+the owner is running, and none of it has been seen on a device. The eval
+says the model behaves; the phone is what says the app does. On the next
+APK, share a few posts and check:
+
+- No statement carries "MMW", "MMW:" or "mark my words" anywhere in it,
+  front, end or middle. That was three attempts to get right and the third
+  is a named phrase list, so a phrase the list misses is the likely failure.
+- A post with a title and a body that both carry the bet fills in the title.
+- A post cut off with "...more" stops at the last sentence that finishes on
+  screen, and the note says words are missing.
+- An age in days ("2d", "19d") fills in a real date with no "2d" left
+  showing beside it; an age in months or years leaves the date empty and
+  shows the age as the hint.
+- A quoted or reported prediction credits the person quoted, not the account
+  quoting them, and leaves the date empty rather than borrowing the
+  reposter's.
+- **The open bug: a date printed on screen can still come back wrong by
+  years.** A tweet dated May 2, 2026 reads as 2022 on every eval run. If a
+  share carries a visible absolute date, check the date the form filled in
+  against the screenshot before confirming. This is BACKLOG item 1 and the
+  failing test is committed.
+
 **Install drill.** Install over the previous APK (every build from f255f7f on
 is signed with the checked-in debug key, so data and the API key survive), wipe
 data in Settings if the seed changed, one pull.
@@ -443,12 +467,84 @@ Errors made across sessions, recorded so they are not repeated:
   the cut-off post stopping exactly at the visible "ruine" with the note
   saying it was cut off. Runs 1 and 2 had disagreed with each other on
   three answers, so two clean runs in a row is the bar, not one. Total
-  spend for the four runs: under 60,000 tokens. Still open for the owner:
-  whether the cut-off statement should end at the visible fragment (what
-  the model now does) or be trimmed to the last complete sentence; until
-  then that case is bounded by prefix and length rather than pinned. The
-  intake (structuring prompt) eval is the next piece, same shape, not yet
-  built; it is item 1 in BACKLOG.md.
+  spend for the four runs: under 60,000 tokens. **A second batch on 2026-09-16 took it to twenty-one.** Fifteen more
+  r/MarkMyWords screenshots, covering flair labels, day-scale ages that must
+  resolve to a date, month-scale ages that must not, and bodies that restate
+  the title. Run 5 read fourteen of fifteen the way the owner would, on a
+  prompt that had never seen any of them, which is the first evidence the
+  loop generalises rather than fitting six cases. The owner read every
+  answer and settled four questions, now in the prompt and the parser: a
+  joke still counts as a prediction (the Diet Coke post had been refused);
+  a cut-off post ends at the last sentence that finishes on screen; the age
+  hint clears once the age resolves to a date (enforced in
+  `parseExtractedPost`, not left to the model); and the note is written for
+  the person who shared the picture, never about the prompt's own rules.
+  Runs 6 and 7 then passed twenty-one of twenty-one.
+  **A third batch on 2026-09-16 broke the Reddit monoculture and took it to
+  thirty-four.** Twelve X posts and one Reddit post whose content is a
+  screenshot of a tweet. Run 8 handled the new chrome without a single
+  error and got the hard shapes right unprompted: the right post out of a
+  thread showing three, the quoter rather than the quoted, Musk rather than
+  the account quoting him, framing stripped from both ends of one post
+  ("Bookmark this tweet." / "Mark. My. Fucking. Words."), "mark my words"
+  kept when it sits mid-sentence, absolute timestamps parsed, and a bare
+  "Mar 9" resolved to the most recent one before the screenshot date. One
+  rule came out of it, in rule 5 now: **a reported prediction's date is the
+  original's, not the repost's**, and null when the screen does not show
+  it. Borrowing the reposter's date makes an old claim look new, which is
+  the same mechanism as the drone-seed verdict. Run 9 then passed
+  thirty-four of thirty-four, and **run 10, on the identical commit, failed
+  one row**, which started the most instructive sequence of the session.
+
+  **The framing rule took three versions to get right, and the lesson is
+  the shape of the rule, not the wording.** The symptom throughout: where
+  does "mark my words" belong. Version one said framing "at the edge of the
+  statement" is dropped; runs 9 and 10 disagreed on identical input, the
+  first instability in ten runs, which is what the two-consecutive-clean-
+  runs bar exists to catch. Version two made it a punctuation test, since
+  in "they will NEVER be Blue mark my words." nothing separates "Blue" from
+  "mark"; run 11 scored 30 of 34, breaking three cases that had been right
+  for four runs, because "The Bills are winning it all this year mark my
+  words" has no punctuation either. Both versions asked the model for a
+  judgment, and the judgment has no answer: those two posts are the same
+  construction, an emphatic tacked onto a clause with its punctuation
+  missing. Version three stops parsing and names the phrases. "mark my
+  words", "MMW", "calling it now", "bookmark this tweet" and "screenshot
+  this" are never part of a claim and always come out, front, end or middle,
+  punctuated or not. "Does this text contain the phrase" has one answer
+  every time. Run 12 then cost the Starship claim its own full stop, because
+  the tidy-up clause beside the list was too broad; narrowed to take only
+  punctuation attached to the phrase, run 13 landed on 33 of 34, exactly as
+  predicted before it ran.
+
+  **Reach for a named list before a smarter rule.** Two rounds were spent
+  refining a judgment that could not be made. The phrases carried no
+  information about the bet, so removing the judgment was always available
+  and always cheaper than sharpening it. The owner's earlier ruling (a
+  phrase inside the same sentence stays) was overridden with their
+  agreement; `x-red-states-never-blue` is pinned to end at "they will NEVER
+  be Blue", which is what run 10 returned and what this session argued
+  against at the time, on a punctuation argument the Bills case disproves.
+  **One real failure is open, and it is the most valuable thing the loop
+  has found.** On the nested repost the tweet's timestamp reads "11:49 AM ·
+  May 2, 2026" (verified from a 4x crop, and confirmed by the owner) and
+  the model has returned 2022-05-02 on every run that has read it: four in
+  a row. It is not a flicker. The model appears to override the pixels with
+  what it believes about that account, the midterms and November 3rd. A
+  date wrong by four years is exactly what sets the period start, which is
+  the mechanism behind this project's one wrong verdict. The date is now
+  pinned, so that row is deliberately red and is the failing test to fix
+  against. It is item 1 in BACKLOG.md and the next piece of extraction work.
+  Do not make the suite green by unpinning it.
+  Spend across the three batches: fourteen runs, 972,850 tokens, totalled
+  from the per-row token counts on issue #47 rather than estimated. The
+  dollar figure is on the Gemini spend page; this file does not guess at
+  one. Runs 13 and 14 both scored 33 of 34 with the same single red row,
+  so the prompt is stable, not lucky. What
+  is still uncovered: Instagram, Threads, iMessage, a news article with a
+  dateline, and a screenshot with no prediction in it. The intake
+  (structuring prompt) eval is the next piece, same shape, not yet built;
+  it is item 1 in BACKLOG.md.
 - **`npm ci` first.** The container starts without `node_modules`, and vitest
   fails with a config error that looks like a Tailwind problem until it is
   installed.

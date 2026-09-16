@@ -45,7 +45,7 @@ describe('the screenshot prompt, first eval runs (2026-09-15)', () => {
   // in Actions. Each rule below names a fail row from runs 1 and 2.
   it('drops framing that is not part of the sentence', () => {
     // Every statement came back with the sub's "MMW:" tag on the front.
-    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/any tag, acronym or symbol at the edge of the statement/);
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/THESE PHRASES ARE NEVER PART OF A CLAIM/);
     expect(EXTRACT_SYSTEM_PROMPT).toMatch(/Acronyms inside the sentence stay/);
   });
 
@@ -58,7 +58,7 @@ describe('the screenshot prompt, first eval runs (2026-09-15)', () => {
   it('never continues a cut-off post or writes remarks into the statement', () => {
     // Five hundred invented words after "...more" on run 1; on run 2 the
     // note was written into the statement field instead of note.
-    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/never continue the text yourself/);
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/Never continue the text yourself/);
     expect(EXTRACT_SYSTEM_PROMPT).toMatch(/never put a remark of your own in statement/);
   });
 
@@ -66,5 +66,71 @@ describe('the screenshot prompt, first eval runs (2026-09-15)', () => {
     // platform, posted_hint and note were absent from half the answers.
     expect([...EXTRACT_RESPONSE_SCHEMA.required]).toEqual(Object.keys(EXTRACT_RESPONSE_SCHEMA.properties));
     expect(EXTRACT_SYSTEM_PROMPT).toMatch(/EVERY FIELD, EVERY TIME/);
+  });
+});
+
+describe('the screenshot prompt, second eval batch (2026-09-16)', () => {
+  // Fifteen more r/MarkMyWords screenshots, and four decisions the owner
+  // made from reading run 5's answers.
+  it('counts a joke that names a checkable outcome', () => {
+    // "Trump will push the red button... but will get a Diet Coke instead"
+    // came back is_prediction false. The owner's call: jokes are still bets.
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/A JOKE STILL COUNTS when it names an outcome somebody could check/);
+    expect(EXTRACT_SYSTEM_PROMPT).not.toMatch(/A question, a joke, a wish/);
+  });
+
+  it('ends a cut-off post at the last sentence that finishes on screen', () => {
+    // It had been stopping mid-word at "ruine", which is not a claim.
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/End the statement at the last sentence that finishes on screen/);
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/drop a trailing sentence the cut leaves unfinished/);
+  });
+
+  it('drops the age hint once the age has resolved to a date', () => {
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/posted_on carries the date and posted_hint stays null/);
+  });
+
+  it('writes the note for the reader, not about its own instructions', () => {
+    // One note opened "The post's title was selected per the title-and-body
+    // rule", which means nothing on the capture screen.
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/THE NOTE IS FOR THE PERSON WHO SHARED THE PICTURE/);
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/never name a rule or a field/);
+  });
+});
+
+describe('the screenshot prompt, X batch (2026-09-16)', () => {
+  it('takes the date from the person who made the prediction, not the reposter', () => {
+    // @TeslaZenX quoted Musk and the date came back as the repost's. The
+    // date is where the app starts counting, so a reposted claim would
+    // look new. The owner's call: the original's date, or none.
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/THE DATE FOLLOWS THE AUTHOR TOO/);
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/A repost carries its own timestamp and that is not the prediction's date/);
+  });
+});
+
+describe('the screenshot prompt, framing by named list (2026-09-16)', () => {
+  // Two judgment-based versions of this rule were unstable. Runs 9 and 10
+  // disagreed on identical input; the punctuation test that followed broke
+  // three cases that had been right for four runs, because "this year mark
+  // my words" and "Blue mark my words." are the same construction. The
+  // phrases carry no information about the bet, so naming them removes the
+  // judgment instead of refining it.
+  it('names the phrases instead of asking the model to place them', () => {
+    for (const phrase of ['mark my words', 'MMW', 'calling it now', 'bookmark this tweet', 'screenshot this']) {
+      expect(EXTRACT_SYSTEM_PROMPT).toContain(`"${phrase}"`);
+    }
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/wherever they sit, at the front, the end or the middle, punctuated or not/);
+  });
+
+  it('forbids weighing whether the phrase is inside the sentence', () => {
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/Never weigh whether one is grammatically inside the sentence/);
+    expect(EXTRACT_SYSTEM_PROMPT).not.toMatch(/at the edge of the statement/);
+  });
+
+  it('takes the punctuation attached to the phrase and no more', () => {
+    // Run 12: the first pass at this clause cost the Starship claim its own
+    // full stop, because "Mark my words." followed a complete sentence and
+    // the model tidied both. The claim's punctuation is not the phrase's.
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/NEVER TAKE PUNCTUATION THAT BELONGS TO THE CLAIM/);
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/the first full stop ends the claim and stays/);
   });
 });

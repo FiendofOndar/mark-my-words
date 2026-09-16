@@ -51,8 +51,7 @@
       "platform": "Reddit",
       "posted_on": null,
       "posted_hint": null,
-      "statement_starts_with": "There will be a silent march in New York following the shooting of UnitedHealthcare's CEO.",
-      "statement_max_length": 140
+      "statement": "There will be a silent march in New York following the shooting of UnitedHealthcare's CEO."
     }
   },
   "reddit-gop-defections.jpg": {
@@ -64,6 +63,315 @@
       "platform": "Reddit",
       "posted_on": null,
       "posted_hint": "2y"
+    }
+  },
+  "reddit-ai-internet-blackout.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "AI will attack & knock out the internet by 2028",
+      "author": "u/Select_Bread_5808",
+      "platform": "Reddit",
+      "posted_on": "2026-09-13",
+      "posted_hint": null
+    }
+  },
+  "reddit-bodycam-youtube-ban.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "police bodycam footage is going to be banned on YouTube within the next 5 years",
+      "author": "u/ElGranHongo",
+      "platform": "Reddit",
+      "posted_on": "2026-08-27",
+      "posted_hint": null
+    }
+  },
+  "reddit-trump-mourned.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "When he dies, Trump will barely be mourned.",
+      "author": "u/ElSlabraton",
+      "platform": "Reddit",
+      "posted_on": null,
+      "posted_hint": "1mo"
+    }
+  },
+  "reddit-custody-death.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Cole Tomas Allen will die in custody within 5 days",
+      "author": "u/CincinnatusInACUs",
+      "platform": "Reddit",
+      "posted_on": null,
+      "posted_hint": "4mo"
+    }
+  },
+  "reddit-diet-coke-nuke.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Trump will push the red button to try to nuke Iran, but will get a Diet Coke delivered into the Oval Office instead.",
+      "author": "u/__Elwood_Blues__",
+      "platform": "Reddit",
+      "posted_on": null,
+      "posted_hint": "5mo"
+    }
+  },
+  "reddit-california-false-flag.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Trump will launch a false flag operation in California and his complicity will be almost immediately discovered",
+      "author": "u/ElSlabraton",
+      "platform": "Reddit",
+      "posted_on": null,
+      "posted_hint": "6mo"
+    }
+  },
+  "reddit-kidnapping-wave.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Kidnapping will be the next U.S. crime wave",
+      "author": "u/Long-Jackfruit427",
+      "platform": "Reddit",
+      "posted_on": null,
+      "posted_hint": "6mo"
+    }
+  },
+  "reddit-clintons-testify.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Bill and Hillary Clinton will take their revenge when they testify.",
+      "author": "u/Upset-Produce-3948",
+      "platform": "Reddit",
+      "posted_on": null,
+      "posted_hint": "7mo"
+    }
+  },
+  "reddit-bondi-fifth.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "The United States Attorney General Pam Bondi Will Plead The Fifth Amendment multiple times",
+      "author": "u/ElSlabraton",
+      "platform": "Reddit",
+      "posted_on": null,
+      "posted_hint": "6mo"
+    }
+  },
+  "reddit-lebron-cleveland.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "LeBron James will end his career in Cleveland",
+      "author": "u/1bensopinion",
+      "platform": "Reddit",
+      "posted_on": null,
+      "posted_hint": "2mo"
+    }
+  },
+  "reddit-trump-ufc-asleep.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Trump will absolutely fall asleep at the UFC if it’s not canceled",
+      "author": "u/Palidor",
+      "platform": "Reddit",
+      "posted_on": null,
+      "posted_hint": "3mo"
+    }
+  },
+  "reddit-usa-world-cup.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "USA will win the world cup championship",
+      "author": "u/ApeApplePine",
+      "platform": "Reddit",
+      "posted_on": null,
+      "posted_hint": "3mo"
+    }
+  },
+  "reddit-trump-ufc-fight.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Trump Will Fight At The Upcoming UFC Event At The White House",
+      "author": "u/RangerLover92",
+      "platform": "Reddit",
+      "posted_on": null,
+      "posted_hint": "4mo"
+    }
+  },
+  "reddit-meta-lawsuit.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Meta will face a second lawsuit from US states similar to the one they just settled by 2030",
+      "author": "u/Dry_Midnight_5361",
+      "platform": "Reddit",
+      "posted_on": "2026-08-26",
+      "posted_hint": null
+    }
+  },
+  "reddit-suboxone-shortage.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "There will be a nation wide (US) increase in rehab intakes and a shortage of the pharmaceutical drug Suboxone within the next several months",
+      "author": "u/Ashtray_Floors",
+      "platform": "Reddit",
+      "posted_on": null,
+      "posted_hint": "1mo"
+    }
+  },
+  "x-musk-moraes-prison.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "One day, @Alexandre, this picture of you in prison will be real.",
+      "author": "@elonmusk",
+      "platform": "X",
+      "posted_on": "2024-08-28",
+      "posted_hint": null
+    }
+  },
+  "x-mcconnell-shows-up.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Mitch McConnell will show up today.",
+      "author": "@BodhiAnneCole",
+      "platform": "X",
+      "posted_on": "2026-09-14",
+      "posted_hint": null
+    }
+  },
+  "x-red-states-never-blue.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Republicans are not losing TX , AL and IA red states period lmao they will NEVER be Blue",
+      "author": "@Grassroots20244",
+      "platform": "X",
+      "posted_on": "2026-09-15",
+      "posted_hint": null
+    }
+  },
+  "x-bills-win-it-all.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "The Bills are winning it all this year",
+      "author": "@MatthewAAW",
+      "platform": "X",
+      "posted_on": "2026-09-13",
+      "posted_hint": null
+    }
+  },
+  "x-jimbo-quote-tweet.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "He is coming back to win it all once again and this time, silence all the doubters.",
+      "author": "@amandaafootball",
+      "platform": "X",
+      "posted_on": "2026-09-10",
+      "posted_hint": null,
+      "note_contains": "Jimbo"
+    }
+  },
+  "x-ashneer-politics.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Ashneer is very soon going to enter politics.",
+      "author": "@akshaymarch7",
+      "platform": "X",
+      "posted_on": "2026-09-15",
+      "posted_hint": null
+    }
+  },
+  "x-aoc-nominee-2028.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "AOC will be the nominee in 2028.",
+      "author": "@fdr_dem",
+      "platform": "X",
+      "posted_on": "2026-09-15",
+      "posted_hint": null
+    }
+  },
+  "x-bookmark-this-tweet.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Something very bad is about to happen and, it will be carried out by AI.",
+      "author": "@JohnLewisEU",
+      "platform": "X",
+      "posted_on": "2026-09-12",
+      "posted_hint": null
+    }
+  },
+  "x-mario-march-10.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "March 10, New 3D Mario Game",
+      "author": "@Master0fHyrule",
+      "platform": "X",
+      "posted_on": "2026-09-10",
+      "posted_hint": null
+    }
+  },
+  "x-starship-moon-reported.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Starship will end up doing the whole Moon mission.",
+      "author": "Elon Musk",
+      "platform": "X",
+      "posted_on": null,
+      "posted_hint": null
+    }
+  },
+  "reddit-nested-gas-prices.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Gas prices will be down below $2.50 a gallon before the midterms excluding blue states with their high gasoline taxes.",
+      "author": "@mitchellvii",
+      "platform": "X",
+      "posted_hint": null,
+      "posted_on": "2026-05-02"
+    }
+  },
+  "x-catturd-oil-prices.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Six months from now, it’ll be lower than ever.",
+      "author": "@catturd2",
+      "platform": "X",
+      "posted_on": "2026-03-09",
+      "posted_hint": null
+    }
+  },
+  "x-obama-cyber-narrative.jpg": {
+    "today": "2026-09-15",
+    "expect": {
+      "is_prediction": true,
+      "statement": "Obama is setting up the narrative for how dangerous AI and the data centers are in preparation for a cyber attack",
+      "author": "@Amy31129057",
+      "platform": "X",
+      "posted_on": "2026-09-15",
+      "posted_hint": null
     }
   }
 }

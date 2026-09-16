@@ -75,3 +75,15 @@ describe('the job summary', () => {
     expect(md).toContain('| c.png | error | The request timed out. |');
   });
 });
+
+describe('pinning one fact inside a free-text note', () => {
+  it('matches a substring, case-insensitively, and fails when the fact is missing', () => {
+    // A quote tweet whose subject is only "He": the statement is verbatim,
+    // so the note is the only place the person's name can appear.
+    const named = { ...post, note: 'Posted in response to a comment about whether Jimbo Fisher will win another title.' };
+    expect(compareExtract({ note_contains: 'Jimbo' }, named)).toEqual([]);
+    expect(compareExtract({ note_contains: 'jimbo' }, named)).toEqual([]);
+    expect(compareExtract({ note_contains: 'Jimbo' }, { ...post, note: 'A football post.' })).toHaveLength(1);
+    expect(compareExtract({ note_contains: 'Jimbo' }, { ...post, note: null })).toHaveLength(1);
+  });
+});

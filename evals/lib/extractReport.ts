@@ -20,6 +20,13 @@ export interface ExpectedExtract {
    */
   statement_starts_with?: string;
   statement_max_length?: number;
+  /**
+   * A word the note has to carry. The note is free text, so it is never
+   * matched exactly; this pins the one fact the note exists to deliver.
+   * Used where the statement alone is not enough to know what was claimed,
+   * such as a quote tweet whose subject is only a pronoun.
+   */
+  note_contains?: string;
 }
 
 export interface ExtractCase {
@@ -48,10 +55,19 @@ export interface ExtractRow {
   error: string | null;
 }
 
-/** Whitespace and Unicode form are not what an eval is testing. */
+/**
+ * Whitespace, Unicode form and quote style are not what an eval is testing.
+ * Reddit renders a typographic apostrophe where the poster typed a straight
+ * one, so "it's" and "it’s" are the same word read off the same screen.
+ */
 function norm(value: unknown): unknown {
   if (typeof value !== 'string') return value;
-  return value.normalize('NFC').replace(/\s+/g, ' ').trim();
+  return value
+    .normalize('NFC')
+    .replace(/[\u2018\u2019\u201B]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /**
@@ -79,6 +95,8 @@ export function actualField(post: ExtractedPost, field: keyof ExpectedExtract): 
       return post.postedOn;
     case 'posted_hint':
       return post.postedHint;
+    case 'note_contains':
+      return post.note;
   }
 }
 
@@ -90,6 +108,12 @@ export function compareExtract(expected: ExpectedExtract, post: ExtractedPost): 
     if (field === 'statement_starts_with') {
       const text = norm(got);
       if (typeof text !== 'string' || !text.startsWith(norm(want) as string)) diffs.push({ field, expected: want, actual: got });
+    } else if (field === 'note_contains') {
+      const text = norm(got);
+      const want_l = String(norm(want)).toLowerCase();
+      if (typeof text !== 'string' || !text.toLowerCase().includes(want_l)) {
+        diffs.push({ field, expected: want, actual: got });
+      }
     } else if (field === 'statement_max_length') {
       const text = norm(got);
       if (typeof text !== 'string' || typeof want !== 'number' || text.length > want) {
