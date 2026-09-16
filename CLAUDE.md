@@ -145,9 +145,11 @@ request says so.
 **Prompts are tested by the eval loop, not by the phone.** A change to a prompt
 in `src/verification/prompts/` ships with an eval run in CI showing what it
 fixed and what it did not break. The phone is for confirming the app, not the
-model. The extraction half runs (`Prompt eval` in Actions, results on issue
-#47); the intake half is not built yet, so an intake prompt change still
-lists in HANDOFF.md what the next device run should show.
+model. Both halves run from `Prompt eval` in Actions (a `suite` input picks
+one or both; results on issue #47). The extraction half has 34 confirmed
+screenshots; the intake half has 18 statements whose values are proposed
+and not yet confirmed, so until the owner confirms them an intake prompt
+change still lists in HANDOFF.md what the next device run should show.
 
 **One job per session, from a ranked list.** A session opens on HANDOFF.md,
 names its one job, and stops at green with the tree clean and HANDOFF.md
@@ -163,7 +165,7 @@ session does itself, in CI, or says it cannot do.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 446 tests, all of them fast
+npm test           # 454 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
@@ -176,6 +178,8 @@ GEMINI_API_KEY=... node scripts/validate-gemini.mjs   # one live grounded call
 # has not confirmed in chat.
 GEMINI_API_KEY=... npm run eval:extract   # every screenshot in evals/screenshots, one image call each
 EVAL_PROVIDER=mock npm run eval:extract   # plumbing only, spends nothing
+GEMINI_API_KEY=... npm run eval:intake    # every statement in evals/intake.json, one text call each
+EVAL_PROVIDER=mock npm run eval:intake    # plumbing only; CI runs this on every pull request
 
 # Screen sweep: console errors, overflow, tap targets, a screenshot per screen.
 npm run dev &

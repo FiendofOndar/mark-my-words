@@ -14,7 +14,7 @@ data, so do not re-litigate those without new evidence. `OWNER-TODO.md` is
 the owner's own list, printed into every session by a hook.
 
 State at the time of writing (2026-09-16): `main` at PR #50 plus the
-property-sweep pull request, 446 tests, schema v10. Section 4 says what has
+property-sweep and intake-eval pull requests, 454 tests, schema v10. Section 4 says what has
 been seen on a phone and what has not.
 
 ---
@@ -564,9 +564,21 @@ Errors made across sessions, recorded so they are not repeated:
   one. Runs 13 and 14 both scored 33 of 34 with the same single red row,
   so the prompt is stable, not lucky. What
   is still uncovered: Instagram, Threads, iMessage, a news article with a
-  dateline, and a screenshot with no prediction in it. The intake
-  (structuring prompt) eval is the next piece, same shape, not yet built;
-  it is item 1 in BACKLOG.md.
+  dateline, and a screenshot with no prediction in it.
+  **The intake half was built on 2026-09-16** (`scripts/eval-intake.ts`,
+  `evals/intake.json`, the Intake job in the same workflow, a `suite`
+  input to run one half). Eighteen statements, drawn from the seed's
+  fixtures and the prompt's own examples, each with the values the review
+  card must get right and the reasoning beside them. Every value is under
+  `proposed`, none under `expect`: the owner has not confirmed any yet.
+  The first real run is what produces the readings to confirm against;
+  the table says per case how many proposed values the model agreed with.
+  Expected: the run costs one text call per statement on the app's model,
+  no search, so on the order of a thousand tokens each. Once the owner has
+  confirmed values in chat, they move to `expect` and the case grades.
+  The comparison keys (`_contains`, `_absent`, `_min` and so on) are in
+  `evals/lib/intakeReport.ts`; CI runs the runner on the mock provider so
+  a broken case file fails a pull request rather than a paid run.
 - **`npm ci` first.** The container starts without `node_modules`, and vitest
   fails with a config error that looks like a Tailwind problem until it is
   installed.

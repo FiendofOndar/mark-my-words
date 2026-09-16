@@ -14,6 +14,15 @@ on:
         description: 'Issue that gets the table as a comment (the GitHub app shows no job summaries)'
         required: false
         default: '47'
+      suite:
+        description: 'Which eval to run'
+        required: false
+        default: 'both'
+        type: choice
+        options:
+          - both
+          - extract
+          - intake
 
 permissions:
   contents: read
@@ -22,6 +31,7 @@ permissions:
 jobs:
   extract:
     name: Extraction
+    if: inputs.suite == 'both' || inputs.suite == 'extract'
     runs-on: ubuntu-latest
     env:
       # The phone is on Pacific time and so is the test suite; "today" in the
@@ -57,6 +67,49 @@ jobs:
         run: |
           {
             echo "Run [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) on \`${GITHUB_SHA::7}\`, job ${{ job.status }}."
+            echo
+            if [ -s "$REPORT" ]; then cat "$REPORT"; else echo "The eval produced no table; see the run's log."; fi
+          } > comment.md
+          gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body-file comment.md
+
+  intake:
+    name: Intake
+    if: inputs.suite == 'both' || inputs.suite == 'intake'
+    runs-on: ubuntu-latest
+    env:
+      # The phone is on Pacific time and so is the test suite; "today" in the
+      # prompt should be the same day the owner would see.
+      TZ: America/Los_Angeles
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # The table lands in the job summary, which is readable on a phone from
+      # the Actions tab. The script writes it there itself.
+      - run: npm run eval:intake
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ inputs.model }}
+          EVAL_REPORT_FILE: ${{ runner.temp }}/intake-report.md
+
+      # The owner reads results in the GitHub app, which shows step logs and
+      # issue comments but not job summaries. So the same table goes onto a
+      # results issue, one comment per run, whatever the outcome.
+      - name: Post the table on the results issue
+        if: always() && inputs.results_issue != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ inputs.results_issue }}
+          REPORT: ${{ runner.temp }}/intake-report.md
+        run: |
+          {
+            echo "Intake run [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) on \`${GITHUB_SHA::7}\`, job ${{ job.status }}."
             echo
             if [ -s "$REPORT" ]; then cat "$REPORT"; else echo "The eval produced no table; see the run's log."; fi
           } > comment.md

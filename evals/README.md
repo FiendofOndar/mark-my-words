@@ -1,8 +1,52 @@
 # Prompt evals
 
 Fixtures for the prompt eval loop that runs in GitHub Actions (`Prompt eval`,
-manual trigger). The runner is `scripts/eval-extract.ts`; the comparison and
-the table are in `lib/`, tested by the suite.
+manual trigger, with a `suite` input to run one half or both). Two halves:
+the extraction eval reads screenshots (`scripts/eval-extract.ts`,
+`extract.json`, `screenshots/`), and the intake eval structures raw
+statements (`scripts/eval-intake.ts`, `intake.json`). The comparison and
+the table for each are in `lib/`, tested by the suite.
+
+## Intake
+
+`intake.json` holds raw statements, one per case, with the day each was
+said and what the review card must get right about it. Each statement goes
+through the app's real structuring path (same prompt, same schema, same
+parser), so the table shows the reading the app would store. One text call
+per statement, no image, no search: a few thousand tokens each.
+
+```json
+{
+  "rogue-drone": {
+    "statement": "Mark my words, we will see the first rogue AI drone strikes in the next 6 months.",
+    "today": "2026-09-16",
+    "tests": "why this statement is in the set",
+    "expect": {
+      "deadline_type": "fixed_date",
+      "resolution_date": "2027-03-16",
+      "criteria_elements_contains": ["rogue"],
+      "can_happen_late": true
+    }
+  }
+}
+```
+
+Keys under `expect` are the model's own JSON field names, plain for an
+exact match, or with a suffix: `_contains` (every word appears in the
+field, case-insensitive; a list field is searched as a whole),
+`_contains_any`, `_absent`, `_matches` (a regular expression), `_min` and
+`_max` (a date bound, or a count for a list). `lib/intakeReport.ts` has the
+full list.
+
+A case may carry `proposed` instead of `expect`: values a session drafted,
+with a `why`, that the owner has not yet confirmed. They are never graded.
+The run reports the case as unconfirmed and says how many of the proposed
+values the model agreed with, so the owner can confirm or correct each in
+chat; only then does a value move to `expect`. No value under `expect` is
+a guess, and a proposal that the model happens to match is still a
+proposal until the owner says otherwise.
+
+## Extraction
 
 `screenshots/` holds phone screenshots of posts, one prediction each, as
 shared into the app. Twenty-one of them as of 2026-09-16, all Reddit; the
