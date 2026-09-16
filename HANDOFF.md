@@ -469,7 +469,17 @@ Errors made across sessions, recorded so they are not repeated:
   original's, not the repost's**, and null when the screen does not show
   it. Borrowing the reposter's date makes an old claim look new, which is
   the same mechanism as the drone-seed verdict. Run 9 then passed
-  thirty-four of thirty-four.
+  thirty-four of thirty-four, and **run 10, on the identical commit, failed
+  one row**: the model kept "mark my words" inside the red-states statement
+  on run 9 and stripped it on run 10. Same pixels, same prompt, two
+  answers. That is the first instability the loop has caught in ten runs,
+  and it vindicates the two-consecutive-clean-runs bar as something other
+  than ceremony. It is also a case where the owner's own rule is genuinely
+  ambiguous: the phrase sits mid-post, with more text after it, but at the
+  trailing edge of the sentence that carries the bet, so "framing at the
+  edge is dropped" can be read either way. The expected value currently
+  keeps the phrase, which was this session's reading and not something the
+  owner ruled on directly. It is theirs to settle.
   **One real failure is open, and it is the most valuable thing the loop
   has found.** On the nested repost the tweet's timestamp reads "11:49 AM ·
   May 2, 2026" (verified from a 4x crop of the owner's original, saved this
