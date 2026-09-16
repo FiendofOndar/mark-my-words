@@ -45,7 +45,7 @@ describe('the screenshot prompt, first eval runs (2026-09-15)', () => {
   // in Actions. Each rule below names a fail row from runs 1 and 2.
   it('drops framing that is not part of the sentence', () => {
     // Every statement came back with the sub's "MMW:" tag on the front.
-    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/any tag, acronym or symbol at the edge of the statement/);
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/THESE PHRASES ARE NEVER PART OF A CLAIM/);
     expect(EXTRACT_SYSTEM_PROMPT).toMatch(/Acronyms inside the sentence stay/);
   });
 
@@ -104,5 +104,29 @@ describe('the screenshot prompt, X batch (2026-09-16)', () => {
     // look new. The owner's call: the original's date, or none.
     expect(EXTRACT_SYSTEM_PROMPT).toMatch(/THE DATE FOLLOWS THE AUTHOR TOO/);
     expect(EXTRACT_SYSTEM_PROMPT).toMatch(/A repost carries its own timestamp and that is not the prediction's date/);
+  });
+});
+
+describe('the screenshot prompt, framing by named list (2026-09-16)', () => {
+  // Two judgment-based versions of this rule were unstable. Runs 9 and 10
+  // disagreed on identical input; the punctuation test that followed broke
+  // three cases that had been right for four runs, because "this year mark
+  // my words" and "Blue mark my words." are the same construction. The
+  // phrases carry no information about the bet, so naming them removes the
+  // judgment instead of refining it.
+  it('names the phrases instead of asking the model to place them', () => {
+    for (const phrase of ['mark my words', 'MMW', 'calling it now', 'bookmark this tweet', 'screenshot this']) {
+      expect(EXTRACT_SYSTEM_PROMPT).toContain(`"${phrase}"`);
+    }
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/wherever they sit, at the front, the end or the middle, punctuated or not/);
+  });
+
+  it('forbids weighing whether the phrase is inside the sentence', () => {
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/Never weigh whether one is grammatically inside the sentence/);
+    expect(EXTRACT_SYSTEM_PROMPT).not.toMatch(/at the edge of the statement/);
+  });
+
+  it('cleans up the punctuation the cut orphans', () => {
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/neither begins nor ends with a stray comma, colon, dash or full stop/);
   });
 });

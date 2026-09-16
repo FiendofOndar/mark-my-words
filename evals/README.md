@@ -49,15 +49,20 @@ here. No value in this file is a guess.
 Decided from real results, in chat, on 2026-09-15. New expected values follow
 them; a prompt change that makes the model follow them is in scope.
 
-- **Framing that is not part of the sentence is dropped, and the test is the
-  sentence, not the position.** Any tag, unrecognisable acronym or stray
-  symbol standing as its own sentence or fragment goes, wherever it sits:
-  "MMW:", a flair label, a leading emoji, "Bookmark this tweet." before the
-  claim, "Mark. My. Words." after it. Framing that runs on inside the
-  sentence stays, because cutting it would edit the sentence: "they will
-  NEVER be Blue mark my words." keeps every word, since no punctuation
-  separates "Blue" from "mark". The model was a coin flip on that case
-  across runs 9 and 10 until the rule said to look at the punctuation.
+- **A named list of framing phrases, always cut.** "mark my words", "MMW",
+  "calling it now", "bookmark this tweet", "screenshot this" are never part
+  of a claim and come out wherever they appear, punctuated or not, along
+  with any punctuation the cut orphans. Interface furniture goes too: flair,
+  a leading emoji, a label like "Prediction:".
+
+  This rule was a judgment twice and unstable both times. "Framing at the
+  edge of the statement" had runs 9 and 10 disagreeing on identical input.
+  A punctuation test replaced it and scored 30 of 34, breaking three cases
+  that had been right for four runs, because "this year mark my words" and
+  "Blue mark my words." are the same construction and no grammatical rule
+  separates them. The phrases carry no information about the bet, so naming
+  them removes the judgment rather than refining it. Extend the list when a
+  real screenshot shows a phrase it misses; never from imagination.
   Acronyms that are part of the sentence stay ("the GOP", "the CEO").
 - **The title is the bet.** When a post has a title and a body that both
   carry the prediction, the most prominent one (the title) is the statement.
