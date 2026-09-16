@@ -243,6 +243,30 @@ owner had installed on 2026-09-14). Until CI publishes tagged releases (see
 BACKLOG.md), this line is the fallback: a bad `latest` is walked back by
 reinstalling this one from the Actions artifacts for that commit.
 
+**What the next install should show, and what to watch.** Seven commits
+have changed the extraction prompt or its parser since `6a7c77d`, the build
+the owner is running, and none of it has been seen on a device. The eval
+says the model behaves; the phone is what says the app does. On the next
+APK, share a few posts and check:
+
+- No statement carries "MMW", "MMW:" or "mark my words" anywhere in it,
+  front, end or middle. That was three attempts to get right and the third
+  is a named phrase list, so a phrase the list misses is the likely failure.
+- A post with a title and a body that both carry the bet fills in the title.
+- A post cut off with "...more" stops at the last sentence that finishes on
+  screen, and the note says words are missing.
+- An age in days ("2d", "19d") fills in a real date with no "2d" left
+  showing beside it; an age in months or years leaves the date empty and
+  shows the age as the hint.
+- A quoted or reported prediction credits the person quoted, not the account
+  quoting them, and leaves the date empty rather than borrowing the
+  reposter's.
+- **The open bug: a date printed on screen can still come back wrong by
+  years.** A tweet dated May 2, 2026 reads as 2022 on every eval run. If a
+  share carries a visible absolute date, check the date the form filled in
+  against the screenshot before confirming. This is BACKLOG item 1 and the
+  failing test is committed.
+
 **Install drill.** Install over the previous APK (every build from f255f7f on
 is signed with the checked-in debug key, so data and the API key survive), wipe
 data in Settings if the seed changed, one pull.
