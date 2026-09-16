@@ -25,6 +25,9 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
+      # The eval runners' plumbing, on the offline provider. Spends nothing;
+      # a broken case file or script is caught here rather than on a paid run.
+      - run: EVAL_PROVIDER=mock npm run eval:intake
 
   apk:
     name: Debug APK
