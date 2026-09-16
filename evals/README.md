@@ -5,7 +5,10 @@ manual trigger). The runner is `scripts/eval-extract.ts`; the comparison and
 the table are in `lib/`, tested by the suite.
 
 `screenshots/` holds phone screenshots of posts, one prediction each, as
-shared into the app. `extract.json` holds what the model must read off each
+shared into the app. Twenty-one of them as of 2026-09-16, all Reddit; the
+shapes with no coverage yet are X, Instagram, Threads and iMessage, an
+article dateline crediting someone else's prediction, and a screenshot with
+no prediction in it at all. `extract.json` holds what the model must read off each
 one, keyed by file name:
 
 ```json
@@ -48,11 +51,18 @@ them; a prompt change that makes the model follow them is in scope.
 - **The title is the bet.** When a post has a title and a body that both
   carry the prediction, the most prominent one (the title) is the statement.
 - **Nothing that is not on the screen.** A statement with invented words is
-  wrong however plausible. For a post cut off with "...more", the model now
-  stops exactly at the visible cut (mid-word if that is where the screen
-  stops) and says so in the note. Whether the expected statement should be
-  that fragment or be trimmed to the last complete sentence is still the
-  owner's to decide; until then the case is bounded with
-  `statement_starts_with` and `statement_max_length` rather than pinned.
+  wrong however plausible. A post cut off with "...more" ends at the last
+  sentence that finishes on screen; a sentence the cut leaves unfinished is
+  dropped, because half a sentence is not a claim anybody can check, and the
+  note says words are missing.
+- **A joke is still a bet.** r/MarkMyWords is full of them. If it names an
+  outcome somebody could check, it is a prediction; only a post with no
+  checkable outcome at all is refused.
+- **An age that resolved leaves no hint.** "2d" becomes a date and
+  `posted_hint` goes null. Ages in weeks, months or years cannot give a day,
+  so those keep the hint and leave the date null. The parser enforces the
+  first half, so it cannot drift with the model.
+- **The note is a remark to the person who shared the picture**, never about
+  the prompt's own rules.
 - **The author is the u/name beside the post**, including `u/[deleted]`.
 

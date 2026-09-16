@@ -443,12 +443,24 @@ Errors made across sessions, recorded so they are not repeated:
   the cut-off post stopping exactly at the visible "ruine" with the note
   saying it was cut off. Runs 1 and 2 had disagreed with each other on
   three answers, so two clean runs in a row is the bar, not one. Total
-  spend for the four runs: under 60,000 tokens. Still open for the owner:
-  whether the cut-off statement should end at the visible fragment (what
-  the model now does) or be trimmed to the last complete sentence; until
-  then that case is bounded by prefix and length rather than pinned. The
-  intake (structuring prompt) eval is the next piece, same shape, not yet
-  built; it is item 1 in BACKLOG.md.
+  spend for the four runs: under 60,000 tokens. **A second batch on 2026-09-16 took it to twenty-one.** Fifteen more
+  r/MarkMyWords screenshots, covering flair labels, day-scale ages that must
+  resolve to a date, month-scale ages that must not, and bodies that restate
+  the title. Run 5 read fourteen of fifteen the way the owner would, on a
+  prompt that had never seen any of them, which is the first evidence the
+  loop generalises rather than fitting six cases. The owner read every
+  answer and settled four questions, now in the prompt and the parser: a
+  joke still counts as a prediction (the Diet Coke post had been refused);
+  a cut-off post ends at the last sentence that finishes on screen; the age
+  hint clears once the age resolves to a date (enforced in
+  `parseExtractedPost`, not left to the model); and the note is written for
+  the person who shared the picture, never about the prompt's own rules.
+  Runs 6 and 7 then passed twenty-one of twenty-one. Spend for the batch:
+  three runs, roughly 170,000 tokens. What is still uncovered: every
+  platform except Reddit, an article dateline crediting someone else's
+  prediction, and a screenshot with no prediction in it. The intake
+  (structuring prompt) eval is the next piece, same shape, not yet built;
+  it is item 1 in BACKLOG.md.
 - **`npm ci` first.** The container starts without `node_modules`, and vitest
   fails with a config error that looks like a Tailwind problem until it is
   installed.
