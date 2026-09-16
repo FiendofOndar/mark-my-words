@@ -133,8 +133,17 @@ export function publisherMismatch(url: string, claimed: string | null): boolean 
   const want = normalize(known.publisher);
   const got = normalize(claimed);
   if (!got || !want) return false;
-  if (got === want || want.includes(got) || got.includes(want)) return false;
+  if (got === want || contains(want, got) || contains(got, want)) return false;
 
   const aliases = [...(known.aliases ?? []), domain.split('.')[0] ?? ''].map(normalize);
-  return !aliases.some((alias) => alias && (alias === got || got.includes(alias)));
+  return !aliases.some((alias) => alias && (alias === got || contains(got, alias)));
+}
+
+/**
+ * One name inside another, for names long enough to mean something. A
+ * one- or two-letter name matches by equality only: "x" is inside "Axios",
+ * and with plain includes() Axios passed on x.com and X passed on axios.com.
+ */
+function contains(haystack: string, needle: string): boolean {
+  return needle.length >= 3 && haystack.includes(needle);
 }
