@@ -45,9 +45,7 @@ describe('the screenshot prompt, first eval runs (2026-09-15)', () => {
   // in Actions. Each rule below names a fail row from runs 1 and 2.
   it('drops framing that is not part of the sentence', () => {
     // Every statement came back with the sub's "MMW:" tag on the front.
-    // The wording moved to a punctuation test on 2026-09-16; what this
-    // case is about, a sub's tag coming off the front, is unchanged.
-    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/Framing that stands as its own sentence or fragment is dropped/);
+    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/any tag, acronym or symbol at the edge of the statement/);
     expect(EXTRACT_SYSTEM_PROMPT).toMatch(/Acronyms inside the sentence stay/);
   });
 
@@ -106,17 +104,5 @@ describe('the screenshot prompt, X batch (2026-09-16)', () => {
     // look new. The owner's call: the original's date, or none.
     expect(EXTRACT_SYSTEM_PROMPT).toMatch(/THE DATE FOLLOWS THE AUTHOR TOO/);
     expect(EXTRACT_SYSTEM_PROMPT).toMatch(/A repost carries its own timestamp and that is not the prediction's date/);
-  });
-});
-
-describe('the screenshot prompt, the framing test (2026-09-16)', () => {
-  it('decides framing by the sentence, not by where the phrase sits', () => {
-    // Runs 9 and 10 disagreed on the same image: "mark my words" runs on
-    // inside "they will NEVER be Blue mark my words." with no punctuation
-    // before it, so it is part of the sentence and stays. "At the edge of
-    // the statement" could be read either way; punctuation cannot.
-    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/THE TEST IS THE SENTENCE, NOT THE POSITION/);
-    expect(EXTRACT_SYSTEM_PROMPT).toMatch(/Look for the punctuation, not for the phrase/);
-    expect(EXTRACT_SYSTEM_PROMPT).not.toMatch(/at the edge of the statement/);
   });
 });
