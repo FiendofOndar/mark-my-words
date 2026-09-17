@@ -147,9 +147,11 @@ in `src/verification/prompts/` ships with an eval run in CI showing what it
 fixed and what it did not break. The phone is for confirming the app, not the
 model. Both halves run from `Prompt eval` in Actions (a `suite` input picks
 one or both; results on issue #47). The extraction half has 34 confirmed
-screenshots; the intake half has 18 statements whose values are proposed
-and not yet confirmed, so until the owner confirms them an intake prompt
-change still lists in HANDOFF.md what the next device run should show.
+screenshots; the intake half has 18 statements, run once for real on
+2026-09-17, whose values are still proposed rather than confirmed because
+two rulings are open (HANDOFF section 8), so until those are settled an
+intake prompt change still lists in HANDOFF.md what the next device run
+should show.
 
 **One job per session, from a ranked list.** A session opens on HANDOFF.md,
 names its one job, and stops at green with the tree clean and HANDOFF.md
@@ -165,7 +167,7 @@ session does itself, in CI, or says it cannot do.
 
 ```bash
 npm run dev        # http://localhost:5173
-npm test           # 454 tests, all of them fast
+npm test           # 456 tests, all of them fast
 npm run typecheck
 npm run build
 npm run android:apk   # needs the Android SDK, which the build container lacks
