@@ -27,6 +27,21 @@ const prefs: fc.Arbitrary<NotificationPrefs> = fc.record({
 
 const authors = new Map<string, Author>();
 
+/**
+ * The chosen hour as the local clock actually resolves it on that date.
+ *
+ * On the spring-forward Sunday the clocks jump from 1:59 straight to 3:00,
+ * so a notification set for 2am has no 2am to fire at that one week and
+ * lands at 3:00, the first instant at or after the hour asked for. That is
+ * the right answer, since 1am would be before the time that was chosen. So
+ * the invariant both properties below state is "the hour the platform gives
+ * for that wall clock on that day", not "the number in the preferences".
+ * Both `atHour` and `nextDigestAt` build their instant the same way, which
+ * is why one helper covers both.
+ */
+const resolvedHour = (at: Date, hour: number): number =>
+  new Date(at.getFullYear(), at.getMonth(), at.getDate(), hour, 0, 0, 0).getHours();
+
 describe('the plan', () => {
   it('has unique ids, fires only in the future, and is sorted by time', () => {
     fc.assert(
@@ -81,7 +96,7 @@ describe('the plan', () => {
         for (const n of plan) {
           if (n.kind !== 'deadline') continue;
           const at = new Date(n.at);
-          expect(at.getHours()).toBe(pr.deadlineHour);
+          expect(at.getHours()).toBe(resolvedHour(at, pr.deadlineHour));
           expect(at.getMinutes()).toBe(0);
         }
       }),
@@ -90,6 +105,16 @@ describe('the plan', () => {
 });
 
 describe('digest slot', () => {
+  it('lands on the chosen hour even when that hour does not exist', () => {
+    // The counterexample CI drew on seed 1874015083, which several local
+    // runs had missed. 2am on 2023-03-12 is not a time in Pacific.
+    const pr = { ...DEFAULT_PREFS, digestDay: 0, digestHour: 2 };
+    const at = new Date(nextDigestAt(pr, new Date('2023-03-05T10:00:00.000Z')));
+    expect(at.getDay()).toBe(0);
+    expect(at.getHours()).toBe(3);
+    expect(at.getMinutes()).toBe(0);
+  });
+
   it('is the next occurrence of the chosen day and hour, strictly after now and within a week', () => {
     fc.assert(
       fc.property(prefs, instant, (pr, now) => {
@@ -97,9 +122,10 @@ describe('digest slot', () => {
         expect(at.getTime()).toBeGreaterThan(now.getTime());
         expect(at.getTime() - now.getTime()).toBeLessThanOrEqual(7 * 86_400_000 + 3_600_000);
         expect(at.getDay()).toBe(pr.digestDay);
-        expect(at.getHours()).toBe(pr.digestHour);
+        expect(at.getHours()).toBe(resolvedHour(at, pr.digestHour));
         expect(at.getMinutes()).toBe(0);
       }),
+      { numRuns: 1000 },
     );
   });
 });

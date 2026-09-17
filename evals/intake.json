@@ -7,7 +7,9 @@
       "polarity": "positive",
       "deadline_type": "fixed_date",
       "resolution_date": "2027-03-16",
-      "criteria_elements_contains": ["rogue"],
+      "criteria_elements_contains": [
+        "rogue"
+      ],
       "can_happen_late": true,
       "category": "Tech/AI"
     },
@@ -20,8 +22,16 @@
     "proposed": {
       "deadline_type": "fixed_date",
       "resolution_date": "2024-12-31",
-      "criteria_elements_contains_any": ["December 31", "2024-12-31", "year-end", "end of 2024", "close"],
-      "criteria_elements_contains": ["100,000"],
+      "criteria_elements_contains_any": [
+        "December 31",
+        "2024-12-31",
+        "year-end",
+        "end of 2024",
+        "close"
+      ],
+      "criteria_elements_contains": [
+        "100,000"
+      ],
       "can_happen_late": false,
       "category": "Economics"
     },
@@ -47,7 +57,11 @@
       "deadline_type": "fixed_date",
       "resolution_date_min": "2027-02-01",
       "resolution_date_max": "2027-02-28",
-      "criteria_elements_absent": ["LIX", "2025 season", "2024 season"],
+      "criteria_elements_absent": [
+        "LIX",
+        "2025 season",
+        "2024 season"
+      ],
       "can_happen_late": false,
       "category": "Sports"
     },
@@ -59,7 +73,9 @@
     "tests": "a negative claim needs a disconfirming trigger naming the event that kills it",
     "proposed": {
       "polarity": "negative",
-      "disconfirming_trigger_contains": ["60"],
+      "disconfirming_trigger_contains": [
+        "60"
+      ],
       "deadline_type": "fixed_date",
       "resolution_date_min": "2025-09-28",
       "resolution_date_max": "2025-11-05",
@@ -74,8 +90,12 @@
     "tests": "the race shape: an event deadline with the competing event in race_event_b, and no late watch because a lost race stays lost",
     "proposed": {
       "deadline_type": "event",
-      "trigger_event_contains": ["Starship"],
-      "race_event_b_contains": ["New Glenn"],
+      "trigger_event_contains": [
+        "Starship"
+      ],
+      "race_event_b_contains": [
+        "New Glenn"
+      ],
       "can_happen_late": false,
       "category": "Tech/AI"
     },
@@ -87,7 +107,10 @@
     "tests": "a negative claim with a fixed date: trigger present, and the claim cannot come true late",
     "proposed": {
       "polarity": "negative",
-      "disconfirming_trigger_contains_any": ["Moon", "lunar"],
+      "disconfirming_trigger_contains_any": [
+        "Moon",
+        "lunar"
+      ],
       "deadline_type": "fixed_date",
       "resolution_date": "2025-12-31",
       "can_happen_late": false
@@ -101,8 +124,15 @@
     "proposed": {
       "deadline_type": "fixed_date",
       "resolution_date": "2026-09-20",
-      "criteria_elements_contains": ["85", "Anacortes"],
-      "criteria_elements_contains_any": ["miles", "station", "within"],
+      "criteria_elements_contains": [
+        "85",
+        "Anacortes"
+      ],
+      "criteria_elements_contains_any": [
+        "miles",
+        "station",
+        "within"
+      ],
       "can_happen_late": false,
       "verifiability": "searchable",
       "category": "Weather/Climate"
@@ -115,8 +145,14 @@
     "tests": "an ambiguous entity is asked about, not guessed: two teams, and 'all the way' needs a title named",
     "proposed": {
       "ambiguities_min": 1,
-      "ambiguities_contains_any": ["Arizona", "St. Louis", "which"],
-      "criteria_elements_absent": [" or "],
+      "ambiguities_contains_any": [
+        "Arizona",
+        "St. Louis",
+        "which"
+      ],
+      "criteria_elements_absent": [
+        " or "
+      ],
       "category": "Sports"
     },
     "why": "SPEC 10.2's own example. In September both seasons are live, so the question is real. A criterion must not carry 'Arizona or St. Louis'; the question box is where the alternative goes (rule 6)."
@@ -131,11 +167,13 @@
       "window_start_max": "2026-12-21",
       "window_end_min": "2027-02-28",
       "window_end_max": "2027-04-30",
-      "criteria_elements_contains": ["Seattle"],
-      "criteria_elements_contains_any": ["12 inches", "foot", "12\""],
-      "category": "Weather/Climate"
+      "criteria_elements_contains": [
+        "Seattle"
+      ],
+      "category": "Weather/Climate",
+      "criteria_elements_matches": "\\b12(\\.0)?\\s*(inches|in\\b|\")|a foot|one foot"
     },
-    "why": "Rule 4 names seasonal claims as windows. Where winter starts and ends is the model's call within reason (meteorological December 1 to February 28, astronomical December 21 to March 20); the bounds allow either. Whether 'a foot' is a single storm or a season total is a fair ambiguity and is deliberately not pinned."
+    "why": "Rule 4 names seasonal claims as windows. Where winter starts and ends is the model's call within reason (meteorological December 1 to February 28, astronomical December 21 to March 20); the bounds allow either. Whether 'a foot' is a single storm or a season total is a fair ambiguity and is deliberately not pinned. Run 15 note: my own key was too narrow. The model wrote \"12.0 inches\", which the substring list did not allow; a pattern is the right shape for a number that may carry a decimal."
   },
   "the-election": {
     "statement": "Mark my words, turnout breaks the record in the election.",
@@ -143,8 +181,13 @@
     "tests": "'the election' needs a year and a race, so it is asked",
     "proposed": {
       "ambiguities_min": 1,
-      "ambiguities_contains_any": ["election"],
-      "criteria_elements_contains_any": ["record", "highest"],
+      "ambiguities_contains_any": [
+        "election"
+      ],
+      "criteria_elements_contains_any": [
+        "record",
+        "highest"
+      ],
       "category": "Politics"
     },
     "why": "SPEC 10.2 again. In September 2026 the plain reading is the November 2026 midterms, and a model may reasonably pick that reading and still ask; the proposal only requires the question to be asked and the record qualifier to survive."
@@ -166,8 +209,13 @@
     "today": "2026-09-16",
     "tests": "'A or B' where A implies B: the criteria keep the weaker reading and the ambiguity says so",
     "proposed": {
-      "criteria_elements_absent": [" or "],
-      "criteria_elements_contains_any": ["pennant", "American League"],
+      "criteria_elements_absent": [
+        " or "
+      ],
+      "criteria_elements_contains_any": [
+        "pennant",
+        "American League"
+      ],
       "ambiguities_min": 1,
       "category": "Sports"
     },
@@ -192,7 +240,9 @@
     "proposed": {
       "deadline_type": "fixed_date",
       "resolution_date": "2027-03-12",
-      "criteria_elements_contains": ["customer"],
+      "criteria_elements_contains": [
+        "customer"
+      ],
       "can_happen_late": true
     },
     "why": "Rule 8 gives this exact arithmetic as its example. A delivery can happen late. 'first' is hard to test as a word because the criterion may say 'the first delivery' or 'a delivery to a customer occurs'; 'customer' is the qualifier that changes the claim (a delivery to an employee is not one)."
@@ -205,7 +255,13 @@
       "deadline_type": "fixed_date",
       "resolution_date": "2026-12-31",
       "can_happen_late": true,
-      "criteria_elements_contains_any": ["release", "available", "on sale", "ships", "launch"],
+      "criteria_elements_contains_any": [
+        "release",
+        "available",
+        "on sale",
+        "ships",
+        "launch"
+      ],
       "category": "Entertainment"
     },
     "why": "The seed's open fixture. no_check_before is deliberately unpinned: the model may set a plausible earliest date or null, and either is defensible."
@@ -229,8 +285,12 @@
       "deadline_type": "fixed_date",
       "resolution_date_min": "2025-10-20",
       "resolution_date_max": "2025-11-15",
-      "criteria_elements_contains": ["2025"],
-      "criteria_elements_absent": ["2024 World Series"],
+      "criteria_elements_contains": [
+        "2025"
+      ],
+      "criteria_elements_absent": [
+        "2024 World Series"
+      ],
       "can_happen_late": false,
       "category": "Sports"
     },

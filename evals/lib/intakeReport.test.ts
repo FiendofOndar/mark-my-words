@@ -56,6 +56,17 @@ describe('comparing a case to the reading', () => {
     expect(compareIntake({ ambiguities_contains_any: ['which'] }, reading)).toEqual([]);
   });
 
+  it('keeps a needle\'s leading and trailing spaces', () => {
+    // Run 15 failed a correct criterion on " or " because the needle was
+    // trimmed to "or", which sits inside "for". The spaces are the rule.
+    const forWord = { ...reading, criteriaElements: ['MLB names the Mariners champions for the 2026 season'] };
+    expect(compareIntake({ criteria_elements_absent: [' or '] }, forWord)).toEqual([]);
+    const realOr = { ...reading, criteriaElements: ['The Cardinals of Arizona or St. Louis win it'] };
+    expect(compareIntake({ criteria_elements_absent: [' or '] }, realOr)).toHaveLength(1);
+    expect(compareIntake({ criteria_elements_contains: [' or '] }, realOr)).toEqual([]);
+    expect(compareIntake({ criteria_elements_contains: [' or '] }, forWord)).toHaveLength(1);
+  });
+
   it('refuses words that must not appear, and matches a pattern', () => {
     expect(compareIntake({ criteria_elements_absent: [' or ', 'depending'] }, reading)).toHaveLength(1);
     expect(compareIntake({ criteria_elements_absent: ['depending'] }, reading)).toEqual([]);

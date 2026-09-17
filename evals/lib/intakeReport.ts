@@ -111,6 +111,23 @@ function textOf(value: unknown): string {
   return String(norm(value));
 }
 
+/**
+ * A needle keeps its edges. `norm` trims, and a needle whose whole point is
+ * its surrounding spaces (" or ") silently became "or", which is inside
+ * "for", "more" and "world". On run 15 that failed a correct Mariners
+ * criterion on `criteria_elements_absent: [" or "]` because the criterion
+ * said "champions for the 2026 season", and the Cardinals case passed the
+ * same check only because its wording happened to carry no "or" at all.
+ */
+function normNeedle(value: unknown): string {
+  return String(value)
+    .normalize('NFC')
+    .replace(/[\u2018\u2019\u201B]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/\s+/g, ' ')
+    .toLowerCase();
+}
+
 const list = (want: unknown): string[] => (Array.isArray(want) ? want.map(String) : [String(want)]);
 
 export interface IntakeDiff {
@@ -135,13 +152,13 @@ export function compareIntake(expected: ExpectedIntake, value: StructuredPredict
         ok = typeof want === 'string' && typeof got === 'string' ? norm(want) === norm(got) : want === got;
         break;
       case '_contains':
-        ok = list(want).every((w) => text.includes(String(norm(w)).toLowerCase()));
+        ok = list(want).every((w) => text.includes(normNeedle(w)));
         break;
       case '_contains_any':
-        ok = list(want).some((w) => text.includes(String(norm(w)).toLowerCase()));
+        ok = list(want).some((w) => text.includes(normNeedle(w)));
         break;
       case '_absent':
-        ok = list(want).every((w) => !text.includes(String(norm(w)).toLowerCase()));
+        ok = list(want).every((w) => !text.includes(normNeedle(w)));
         break;
       case '_matches':
         ok = new RegExp(String(want), 'i').test(textOf(got));
