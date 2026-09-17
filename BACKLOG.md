@@ -12,13 +12,16 @@ Requests that arrive mid-session are added here rather than into the session
    with every field pinned, the date included: the owner confirmed the
    year on 2026-09-16, so that row is deliberately red and is the failing
    test to fix against. Do not unpin it to make the suite green.
-2. **Intake eval: confirm the first eighteen cases.** The harness and the
-   Intake job were built on 2026-09-16 (`evals/intake.json`, eighteen
-   statements, every value under `proposed` with its reasoning). What is
-   left is the loop: a real run, the owner reading each reading against the
-   proposal in chat, confirmed values moving to `expect`, and two clean
-   runs in a row on the confirmed set. Prompt changes the run argues for
-   are listed here, not made in the same session.
+2. **Intake eval: two rulings, then confirm the eighteen cases.** The
+   harness, the Intake job and the eighteen statements are built and run 15
+   (2026-09-17) put every one through the real model. Fourteen agree with
+   their proposal on every key. Blocked on the owner ruling two questions,
+   both stated with the argument either way in HANDOFF section 8: the
+   deadline shape for a scheduled game (`event` or `fixed_date`), and
+   `can_happen_late` on a race and on a negative claim. After the rulings:
+   confirmed values move to `expect`, the prompt change for ruling 2 goes
+   in with its own re-run, and the bar is two clean runs in a row. About
+   50,000 tokens a run.
 3. **A tagged known-good release in CI alongside the rolling `latest`.** The
    rule is in CLAUDE.md ("Keep a known-good build to fall back to"); the
    workflow does not do it yet. Until then HANDOFF.md section 4 names the

@@ -14,7 +14,7 @@ data, so do not re-litigate those without new evidence. `OWNER-TODO.md` is
 the owner's own list, printed into every session by a hook.
 
 State at the time of writing (2026-09-16): `main` at PR #50 plus the
-property-sweep and intake-eval pull requests, 454 tests, schema v10. Section 4 says what has
+property-sweep, intake-eval and test-fix pull requests (#51 to #53), 456 tests, schema v10. Section 4 says what has
 been seen on a phone and what has not.
 
 ---
@@ -571,11 +571,48 @@ Errors made across sessions, recorded so they are not repeated:
   fixtures and the prompt's own examples, each with the values the review
   card must get right and the reasoning beside them. Every value is under
   `proposed`, none under `expect`: the owner has not confirmed any yet.
-  The first real run is what produces the readings to confirm against;
-  the table says per case how many proposed values the model agreed with.
-  Expected: the run costs one text call per statement on the app's model,
-  no search, so on the order of a thousand tokens each. Once the owner has
-  confirmed values in chat, they move to `expect` and the case grades.
+  Once the owner has confirmed values in chat, they move to `expect` and
+  the case grades.
+  **Run 15 (2026-09-17, on `08dadb8`) is the first real intake run.**
+  Eighteen answers, no errors, 50,467 tokens, which is above the 30,000 to
+  40,000 predicted beforehand: budget about 50k a run, roughly 2,800 a
+  statement. The rules the prompt exists to enforce held on statements it
+  had never seen: "rogue" survived into the drone criteria as acting
+  against its orders, "finishes 2024" came back as the year-end close and
+  not the sibling "passes" reading, Anacortes was pinned to a named
+  station with a distance, "terrible" got an invented threshold with the
+  number shown in the question, a claim recorded in 2026 with a 2024
+  deadline kept 2024, and both the Cardinals and the unnamed election were
+  asked about rather than guessed.
+  After the two test fixes below, 14 of the 18 agree with their proposal
+  on every key. **Two disagreements are real and both need the owner's
+  ruling before anything moves to `expect`:**
+  1. *The deadline shape for a scheduled game* (Eagles, Dodgers). The
+     model chose `event` with a trigger and an expected date; the proposal
+     and the seed both say `fixed_date`. This is not taste: `shouldStaleOut`
+     fires only on `event`, and the model gave the Eagles claim a stale-out
+     of 2027-03-01, so a Super Bowl claim the checks failed to settle would
+     file itself `void` two weeks later instead of sitting overdue where
+     `checkedButUnsettled` would ask. A game with a scheduled date and a
+     definite winner should never go moot. Against it: the model's shape
+     describes the real mechanism, and a postponed game breaks a fixed date.
+  2. *`can_happen_late` on races and negative claims* (Starship, Moon). The
+     model said true for both; the proposal and the seed say false. Once
+     New Glenn flies the race is lost permanently, and a negative claim is
+     about an absence during a period, so once the period closes it is
+     settled. This one costs money directly: true means three years of
+     monthly paid checks on a question that already has its answer. The
+     likely cause is rule 10 of the structuring prompt, which says
+     event-shaped claims are almost always true, and a race is
+     event-shaped. The fix is two carve-outs in that rule, and per the
+     shipping rules it ships with a re-run showing what it fixed.
+  Two defects in the test layer came out of the same run and are merged
+  (PR #53): the eval trimmed its substring needles, so `" or "` became
+  `"or"` and failed a correct Mariners criterion on the word "for", and a
+  notification-hour property was overstated across the spring-forward gap,
+  where a 2am slot correctly lands at 3am because 2am does not exist. The
+  second was drawn by a CI seed local runs had missed, which is the case
+  the note in CLAUDE.md about property failures describes.
   The comparison keys (`_contains`, `_absent`, `_min` and so on) are in
   `evals/lib/intakeReport.ts`; CI runs the runner on the mock provider so
   a broken case file fails a pull request rather than a paid run.
