@@ -38,6 +38,12 @@ export interface IntakeCase {
   tests?: string;
   expect?: ExpectedIntake;
   proposed?: ExpectedIntake;
+  /**
+   * The proposals a reasonable person could answer differently, written as
+   * questions for the owner. The review sheet puts these at the top so the
+   * other values can be approved in a sentence rather than read one by one.
+   */
+  ask?: { about?: string; question: string }[];
   /** The reasoning behind the proposal, for the owner to weigh. */
   why?: string;
 }

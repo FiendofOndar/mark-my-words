@@ -15,7 +15,8 @@
     "android:apk": "npm run build && npx cap sync android && cd android && ./gradlew assembleDebug",
     "postinstall": "patch-package",
     "eval:extract": "tsx scripts/eval-extract.ts",
-    "eval:intake": "tsx scripts/eval-intake.ts"
+    "eval:intake": "tsx scripts/eval-intake.ts",
+    "review:intake": "tsx scripts/review-intake.ts"
   },
   "dependencies": {
     "@capacitor-community/sqlite": "^8.1.1",

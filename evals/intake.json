@@ -13,6 +13,12 @@
       "can_happen_late": true,
       "category": "Tech/AI"
     },
+    "ask": [
+      {
+        "about": "deadline_type",
+        "question": "A fixed date of 2027-03-16, or a window from the day it was said to that date? Run 16 drew the window. Both compute the same deadline, but the window also records that the period starts on 2026-09-16, which is the thing whose absence caused the drone verdict to count a July event against an August claim."
+      }
+    ],
     "why": "The seed's first version dropped 'rogue' for 'autonomous' and settled a hit on the easier claim. Six months from 2026-09-16 is 2027-03-16 by the prompt's own rule 8. A strike can still happen after the deadline, so late watch applies."
   },
   "bitcoin-finishes": {
@@ -29,12 +35,16 @@
         "end of 2024",
         "close"
       ],
-      "criteria_elements_contains": [
-        "100,000"
-      ],
       "can_happen_late": false,
-      "category": "Economics"
+      "category": "Economics",
+      "criteria_elements_matches": "100[,.]?000|100\\s*k"
     },
+    "ask": [
+      {
+        "about": "criteria_elements_matches",
+        "question": "I require the threshold to appear in the criteria as a written number. The model has written \"100,000\" on all three runs, but \"$100k\" would also be a correct criterion, so the key now accepts either. Say if you want the stricter form."
+      }
+    ],
     "why": "The sibling 'passes $100k' is a hit and this one is a miss ($93,429 at year end); both hit means 'finishes' was dropped. can_happen_late is false because the price on the last day of 2024 is fixed forever. The $100k figure should appear as a number in the criteria."
   },
   "bitcoin-passes": {
@@ -67,6 +77,12 @@
       "can_happen_late": false,
       "category": "Sports"
     },
+    "ask": [
+      {
+        "about": "resolution_date_min",
+        "question": "I bound the deadline to February 2027 rather than naming a day, because Super Bowl LXI's date was never verified against a source here. Keep the month bound, or do you know the date?"
+      }
+    ],
     "why": "The Eagles fixture in the seed exists because a check once counted the February 2025 win toward a claim recorded in September 2026. Super Bowl LXI is in February 2027; I have not verified the exact date from a live source, so the proposal bounds the month rather than pinning the day. A Super Bowl is one game on one day, so it cannot happen late. Owner ruled 2026-09-18: fixed_date. Postponements are too rare in scheduled sporting events to design around. The date bounds stay proposed because Super Bowl LXI's day was never verified against a source here."
   },
   "sixty-home-runs": {
@@ -84,6 +100,12 @@
       "can_happen_late": false,
       "category": "Sports"
     },
+    "ask": [
+      {
+        "about": "resolution_date_max",
+        "question": "Does \"this season\" end with the regular season or include the postseason? That is the difference between a deadline of 2025-09-28 and one in early November. I currently allow either."
+      }
+    ],
     "why": "The 2025 regular season ended September 28, 2025 (Raleigh reached 60 on September 24, which is why this is a miss fixture in the seed). Whether 'this season' includes the postseason is a fair ambiguity, so the proposal allows either end date. A season's home-run totals cannot change later."
   },
   "starship-race": {
@@ -103,6 +125,12 @@
       ],
       "category": "Tech/AI"
     },
+    "ask": [
+      {
+        "about": "category",
+        "question": "Filed under Tech/AI. The seed's own choice, but Other is arguable for a launch race. Worth pinning at all?"
+      }
+    ],
     "why": "This is the seed's race fixture (New Glenn orbited January 16, 2025; every Starship flight before that was suborbital). The seed stores canHappenLate false: once the other event happens, the race cannot be won late. Category could be argued as Other; the seed's own choice is what the owner should confirm. Owner ruled 2026-09-18: can_happen_late false. A race is lost for good once the other side goes."
   },
   "moon-negative": {
@@ -179,6 +207,16 @@
       "category": "Weather/Climate",
       "criteria_elements_matches": "\\b12(\\.0)?\\s*(inches|in\\b|\")|a foot|one foot"
     },
+    "ask": [
+      {
+        "about": "criteria_elements_matches",
+        "question": "Is \"over a foot of snow\" a season total or a single storm? The model reads it as a season total and raises the other as a question. Should the case require the season-total reading, require the question to be asked, or stay silent?"
+      },
+      {
+        "about": "window_start_min",
+        "question": "How wide is \"winter\"? I accept a start anywhere from November 1 to December 21 and an end from February 28 to April 30, so both the meteorological and the astronomical reading pass. Too loose?"
+      }
+    ],
     "why": "Rule 4 names seasonal claims as windows. Where winter starts and ends is the model's call within reason (meteorological December 1 to February 28, astronomical December 21 to March 20); the bounds allow either. Whether 'a foot' is a single storm or a season total is a fair ambiguity and is deliberately not pinned. Run 15 note: my own key was too narrow. The model wrote \"12.0 inches\", which the substring list did not allow; a pattern is the right shape for a number that may carry a decimal."
   },
   "the-election": {
@@ -208,6 +246,12 @@
       "resolution_date": "2026-10-31",
       "category": "Personal"
     },
+    "ask": [
+      {
+        "about": "polarity",
+        "question": "Is \"leave me alone about the gutters\" a negative claim, needing a disconfirming trigger, or a positive one about them stopping? I left it unpinned because both readings are defensible."
+      }
+    ],
     "why": "The seed's gutters claim. No public source reports on the neighbors, so rule 7 says manual. Polarity is arguable ('they stop' is an absence) and is not pinned; the owner may want to."
   },
   "mariners-or-pennant": {
@@ -301,6 +345,12 @@
       "can_happen_late": false,
       "category": "Sports"
     },
+    "ask": [
+      {
+        "about": "criteria_elements_absent",
+        "question": "May a criterion mention the 2024 title, or must it test 2025 alone? \"Back-to-back\" only means something against the 2024 win, but re-testing 2024 would make a settled fact into a live criterion. I currently forbid the phrase \"2024 World Series\"."
+      }
+    ],
     "why": "Recorded in September 2025, the claim is the 2025 World Series. The Dodgers did win the 2024 title, which is what makes 'back-to-back' meaningful; the criteria should test 2025 and not re-test 2024. The date range covers when a World Series ends. Owner ruled 2026-09-18: fixed_date, same reasoning as the Eagles case. The date bounds stay proposed; they are this session's reading of when a World Series ends, not a checked fact."
   }
 }

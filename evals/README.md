@@ -38,6 +38,11 @@ field, case-insensitive; a list field is searched as a whole),
 `_max` (a date bound, or a count for a list). `lib/intakeReport.ts` has the
 full list.
 
+A case may also carry `ask`: the proposals a reasonable person could answer
+differently, each written as a question for the owner, with `about` naming
+the key it concerns. The review sheet puts these at the top so the rest can
+be approved in one sentence instead of read one by one.
+
 A case may carry `proposed` instead of `expect`: values a session drafted,
 with a `why`, that the owner has not yet confirmed. They are never graded.
 The run reports the case as unconfirmed and says how many of the proposed
@@ -45,6 +50,24 @@ values the model agreed with, so the owner can confirm or correct each in
 chat; only then does a value move to `expect`. No value under `expect` is
 a guess, and a proposal that the model happens to match is still a
 proposal until the owner says otherwise.
+
+## Reviewing the proposals
+
+Raw readings are the wrong surface for deciding whether a proposal is right:
+eighteen JSON objects of twenty-odd fields, in a comment near a thousand
+lines long, with the case file open in another tab to compare against. The
+review sheet is the surface instead.
+
+```bash
+npm run review:intake -- evals/readings/intake-17.json > sheet.md
+```
+
+It renders every proposed value as a sentence, beside the model's own words
+for that field, and leads with the `ask` questions. It calls nothing and
+spends nothing: the readings come from a file an eval run already wrote.
+Every intake run saves one as a workflow artifact (`intake-readings-<run>`),
+so the sheet can be rebuilt after editing the case file without paying for
+another run. The sheet goes to the owner as a comment on issue #47.
 
 ## Extraction
 

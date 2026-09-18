@@ -11,6 +11,7 @@
  *   GEMINI_API_KEY=... npm run eval:intake
  *   EVAL_PROVIDER=mock npm run eval:intake        # plumbing only, no spend
  *   EVAL_REPORT_FILE=out.md ...                   # also write the markdown table here
+ *   EVAL_READINGS_FILE=readings.json ...          # also save what the model read, per case
  *
  * A case with `proposed` values and no `expect` runs and is reported as
  * unconfirmed, with the proposal graded beside the model's reading so the
@@ -32,6 +33,7 @@ import {
   type IntakeCases,
   type IntakeRow,
 } from '../evals/lib/intakeReport';
+import type { StructuredPrediction } from '../src/verification/types';
 
 const root = resolve(new URL('..', import.meta.url).pathname);
 const casesPath = process.argv[2] ?? join(root, 'evals', 'intake.json');
@@ -123,6 +125,15 @@ if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMM
 if (process.env.EVAL_REPORT_FILE) {
   mkdirSync(dirname(process.env.EVAL_REPORT_FILE), { recursive: true });
   writeFileSync(process.env.EVAL_REPORT_FILE, markdown);
+}
+
+// The readings, keyed by case, so the review sheet can be regenerated
+// without paying for another run. scripts/review-intake.ts reads this.
+if (process.env.EVAL_READINGS_FILE) {
+  const readings: Record<string, StructuredPrediction> = {};
+  for (const row of rows) if (row.value) readings[row.id] = row.value;
+  mkdirSync(dirname(process.env.EVAL_READINGS_FILE), { recursive: true });
+  writeFileSync(process.env.EVAL_READINGS_FILE, `${JSON.stringify(readings, null, 2)}\n`);
 }
 
 const counts = summarize(rows);

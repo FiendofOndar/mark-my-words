@@ -97,6 +97,18 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ inputs.model }}
           EVAL_REPORT_FILE: ${{ runner.temp }}/intake-report.md
+          EVAL_READINGS_FILE: ${{ runner.temp }}/intake-readings.json
+
+      # What the model read, per case. A later session downloads this and
+      # runs `npm run review:intake` against it to rebuild the review sheet
+      # after editing the case file, instead of paying for another run.
+      - name: Save the readings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: intake-readings-${{ github.run_number }}
+          path: ${{ runner.temp }}/intake-readings.json
+          if-no-files-found: warn
 
       # The owner reads results in the GitHub app, which shows step logs and
       # issue comments but not job summaries. So the same table goes onto a

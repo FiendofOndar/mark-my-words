@@ -1,0 +1,698 @@
+{
+  "rogue-drone": {
+    "normalizedClaim": "The first rogue AI drone strike occurs on or before March 16, 2027.",
+    "polarity": "positive",
+    "disconfirmingTrigger": null,
+    "criteriaElements": [
+      "At least one unmanned aerial vehicle (drone) executes a kinetic weapons strike or targeted lethal/damaging attack.",
+      "The attack is confirmed by official military, government, or credible investigative reporting to have been initiated autonomously by an onboard or networked AI system acting contrary to human programming, explicit operator commands, or safety abort controls (qualifier: 'rogue', not merely an authorized autonomous strike).",
+      "The incident takes place between September 16, 2026, and March 16, 2027."
+    ],
+    "deadlineType": "fixed_date",
+    "resolutionDate": "2027-03-16",
+    "windowStart": null,
+    "windowEnd": null,
+    "triggerEvent": null,
+    "triggerExpectedDate": null,
+    "raceEventB": null,
+    "staleOutDate": null,
+    "deadlineReasoning": "The statement sets a 6-month window from the statement date of 2026-09-16, resolving on 2027-03-16.",
+    "verifiability": "searchable",
+    "verifiabilityReasoning": "A rogue AI drone strike would represent an unprecedented historical event and generate extensive coverage across international news and defense reporting.",
+    "searchQueries": [
+      "rogue AI drone strike",
+      "autonomous drone attack unauthorized AI",
+      "military drone AI turned rogue strike"
+    ],
+    "noCheckBefore": null,
+    "canHappenLate": true,
+    "category": "Tech/AI",
+    "tags": [
+      "AI",
+      "military",
+      "drones",
+      "autonomous weapons"
+    ],
+    "authorGuess": null,
+    "statementDateGuess": "2026-09-16",
+    "ambiguities": [
+      "How is 'rogue' strictly defined? I have defined it as an AI acting contrary to its programming, operator orders, or abort commands. Would a software bug/targeting error in an authorized autonomous drone count, or must it be an uncommanded deviation?",
+      "Does an attack carried out autonomously by a terrorist or non-state actor's pre-programmed AI drone count, or does 'rogue' specifically imply defying the user's/owner's intent?"
+    ]
+  },
+  "bitcoin-finishes": {
+    "normalizedClaim": "Bitcoin (BTC/USD) closes the year 2024 at a price strictly above $100,000 USD.",
+    "polarity": "positive",
+    "disconfirmingTrigger": null,
+    "criteriaElements": [
+      "The spot price of Bitcoin (BTC/USD) is greater than $100,000.00 at 23:59:59 UTC on December 31, 2024, as recorded by major crypto market reference indices (such as CoinMarketCap or CoinGecko)."
+    ],
+    "deadlineType": "fixed_date",
+    "resolutionDate": "2024-12-31",
+    "windowStart": null,
+    "windowEnd": null,
+    "triggerEvent": null,
+    "triggerExpectedDate": null,
+    "raceEventB": null,
+    "staleOutDate": null,
+    "deadlineReasoning": "The statement specifies how Bitcoin 'finishes 2024', which refers to the close of the calendar year on December 31, 2024.",
+    "verifiability": "searchable",
+    "verifiabilityReasoning": "Bitcoin price records across major spot exchanges and aggregators are public, real-time, and permanently archived.",
+    "searchQueries": [
+      "Bitcoin price close December 31 2024",
+      "BTC USD price end of year 2024 CoinMarketCap",
+      "Bitcoin year end close 2024 100k"
+    ],
+    "noCheckBefore": "2024-12-31",
+    "canHappenLate": false,
+    "category": "Economics",
+    "tags": [
+      "bitcoin",
+      "crypto",
+      "cryptocurrency",
+      "price-target",
+      "markets"
+    ],
+    "authorGuess": null,
+    "statementDateGuess": null,
+    "ambiguities": [
+      "Because cryptocurrency trades 24/7 without a traditional market close, I set the year-end mark at 23:59:59 UTC on December 31, 2024; did you mean a different close time or timezone?",
+      "I interpreted 'finishes 2024 above $100k' to mean its price at the final close of the year, not merely touching $100,000 at any point during 2024; did you mean reaching $100k at any point?"
+    ]
+  },
+  "bitcoin-passes": {
+    "normalizedClaim": "The price of Bitcoin (BTC/USD) reaches or exceeds $100,000 before the end of 2024.",
+    "polarity": "positive",
+    "disconfirmingTrigger": null,
+    "criteriaElements": [
+      "The spot price of Bitcoin (BTC) reaches or exceeds $100,000.00 USD on a major exchange (e.g., Coinbase, Binance, Kraken, Bitstamp) or composite index (e.g., CoinDesk Bitcoin Price Index, CME CF Bitcoin Reference Rate) at any time before 2025-01-01 00:00:00 UTC."
+    ],
+    "deadlineType": "fixed_date",
+    "resolutionDate": "2024-12-31",
+    "windowStart": null,
+    "windowEnd": null,
+    "triggerEvent": null,
+    "triggerExpectedDate": null,
+    "raceEventB": null,
+    "staleOutDate": null,
+    "deadlineReasoning": "The statement sets 'before the end of 2024' as the boundary, pointing to 2024-12-31 at 23:59:59 UTC.",
+    "verifiability": "searchable",
+    "verifiabilityReasoning": "Bitcoin price records and historical exchange data are widely published, publicly accessible, and verifiable across financial news and crypto aggregators.",
+    "searchQueries": [
+      "Bitcoin hits 100k 2024",
+      "BTC USD 100000 all time high 2024",
+      "Bitcoin reaches 100000 December 2024"
+    ],
+    "noCheckBefore": null,
+    "canHappenLate": true,
+    "category": "Economics",
+    "tags": [
+      "bitcoin",
+      "crypto",
+      "finance",
+      "markets"
+    ],
+    "authorGuess": null,
+    "statementDateGuess": null,
+    "ambiguities": [
+      "Which pricing benchmark or exchange should settle the claim if prices vary slightly between venues?",
+      "Should 'the end of 2024' be evaluated at midnight UTC or midnight in your local timezone (America/Los_Angeles)?"
+    ]
+  },
+  "eagles-this-season": {
+    "normalizedClaim": "The Philadelphia Eagles win Super Bowl LXI for the 2026 NFL season.",
+    "polarity": "positive",
+    "disconfirmingTrigger": null,
+    "criteriaElements": [
+      "The Philadelphia Eagles win Super Bowl LXI, scheduled for February 2027 concluding the 2026 NFL season."
+    ],
+    "deadlineType": "fixed_date",
+    "resolutionDate": "2027-02-14",
+    "windowStart": null,
+    "windowEnd": null,
+    "triggerEvent": null,
+    "triggerExpectedDate": null,
+    "raceEventB": null,
+    "staleOutDate": null,
+    "deadlineReasoning": "A championship game is a scheduled event treated as a fixed date. Super Bowl LXI, concluding the 2026 NFL season underway as of September 2026, is scheduled for February 14, 2027.",
+    "verifiability": "searchable",
+    "verifiabilityReasoning": "The outcome of the Super Bowl is widely reported across global sports and news media.",
+    "searchQueries": [
+      "Super Bowl LXI winner",
+      "Philadelphia Eagles Super Bowl LXI champion 2027"
+    ],
+    "noCheckBefore": "2026-12-01",
+    "canHappenLate": false,
+    "category": "Sports",
+    "tags": [
+      "NFL",
+      "football",
+      "Philadelphia Eagles",
+      "Super Bowl"
+    ],
+    "authorGuess": null,
+    "statementDateGuess": null,
+    "ambiguities": [
+      "I read 'the Eagles' as the NFL's Philadelphia Eagles and 'this season' as the 2026 NFL regular season culminating in Super Bowl LXI in February 2027; confirm if another team or year was intended."
+    ]
+  },
+  "sixty-home-runs": {
+    "normalizedClaim": "No Major League Baseball player will hit 60 or more home runs during the 2025 regular season.",
+    "polarity": "negative",
+    "disconfirmingTrigger": "Any MLB player hits their 60th home run of the 2025 MLB regular season.",
+    "criteriaElements": [
+      "Official Major League Baseball (MLB) statistics credit no individual player with 60 or more home runs during the 2025 regular season."
+    ],
+    "deadlineType": "fixed_date",
+    "resolutionDate": "2025-09-29",
+    "windowStart": null,
+    "windowEnd": null,
+    "triggerEvent": null,
+    "triggerExpectedDate": null,
+    "raceEventB": null,
+    "staleOutDate": null,
+    "deadlineReasoning": "The 2025 MLB regular season is scheduled to conclude on Sunday, September 28, 2025. Resolution date is set to the following day to allow all official statistics to be finalized.",
+    "verifiability": "searchable",
+    "verifiabilityReasoning": "Official MLB statistics and box scores are publicly recorded and tracked across sports databases.",
+    "searchQueries": [
+      "MLB home run leaders 2025 regular season",
+      "Aaron Judge home runs 2025",
+      "Shohei Ohtani home runs 2025",
+      "60 home runs MLB 2025 season"
+    ],
+    "noCheckBefore": null,
+    "canHappenLate": false,
+    "category": "Sports",
+    "tags": [
+      "MLB",
+      "baseball",
+      "home runs",
+      "2025 season"
+    ],
+    "authorGuess": null,
+    "statementDateGuess": null,
+    "ambiguities": [
+      "I read this as referring strictly to the 2025 Major League Baseball (MLB) regular season; did you mean to include postseason play or another professional baseball league (e.g., Nippon Professional Baseball)?"
+    ]
+  },
+  "starship-race": {
+    "normalizedClaim": "SpaceX's Starship achieves orbit before Blue Origin's New Glenn completes its inaugural flight.",
+    "polarity": "positive",
+    "disconfirmingTrigger": "Blue Origin launches New Glenn on its maiden flight before Starship completes an orbital insertion.",
+    "criteriaElements": [
+      "A SpaceX Starship vehicle achieves closed Earth orbit (confirmed by satellite cataloging by the 18th Space Defense Squadron / US Space Command or official telemetry establishing a stable orbit)",
+      "The orbital insertion occurs prior to the liftoff of Blue Origin New Glenn's maiden launch attempt"
+    ],
+    "deadlineType": "event",
+    "resolutionDate": null,
+    "windowStart": null,
+    "windowEnd": null,
+    "triggerEvent": "SpaceX Starship successfully achieves orbit",
+    "triggerExpectedDate": null,
+    "raceEventB": "Blue Origin New Glenn conducts its first flight liftoff",
+    "staleOutDate": "2029-09-16",
+    "deadlineReasoning": "This is a direct race between two unscheduled milestones ('X before Y'). Following the event shape guidelines, it settles when either event occurs or stales out five years from the statement date.",
+    "verifiability": "searchable",
+    "verifiabilityReasoning": "Both SpaceX and Blue Origin launches are high-profile aerospace events tracked publicly by the FAA, US Space Force, and major news outlets.",
+    "searchQueries": [
+      "Starship orbital insertion official confirmation SpaceX",
+      "New Glenn maiden launch date Blue Origin"
+    ],
+    "noCheckBefore": null,
+    "canHappenLate": false,
+    "category": "Tech/AI",
+    "tags": [
+      "SpaceX",
+      "Starship",
+      "Blue Origin",
+      "New Glenn",
+      "Aerospace"
+    ],
+    "authorGuess": null,
+    "statementDateGuess": "2024-09-16",
+    "ambiguities": [
+      "SpaceX has flown Starship on suborbital or near-orbital trajectories (orbital velocity with a negative perigee to guarantee passive reentry). Does a near-orbital test flight qualify as 'gets to orbit', or must it achieve a closed orbit with a positive perigee?",
+      "Does any powered liftoff of New Glenn qualify as 'ever flies', even if the mission fails seconds after clearing the pad?"
+    ]
+  },
+  "moon-negative": {
+    "normalizedClaim": "No human lands on the Moon before the end of 2025",
+    "polarity": "negative",
+    "disconfirmingTrigger": "Any crewed spacecraft successfully lands at least one human on the lunar surface on or before December 31, 2025.",
+    "criteriaElements": [
+      "No crewed mission operated by any national space agency or private company lands a human on the Moon between September 16, 2025, and 23:59:59 UTC on December 31, 2025"
+    ],
+    "deadlineType": "fixed_date",
+    "resolutionDate": "2025-12-31",
+    "windowStart": null,
+    "windowEnd": null,
+    "triggerEvent": null,
+    "triggerExpectedDate": null,
+    "raceEventB": null,
+    "staleOutDate": null,
+    "deadlineReasoning": "The statement sets 'before the end of 2025' as the explicit cutoff date, making December 31, 2025 the fixed resolution date.",
+    "verifiability": "searchable",
+    "verifiabilityReasoning": "Any crewed lunar landing would be an international historic event heavily documented across global news and official space agency announcements.",
+    "searchQueries": [
+      "crewed moon landing 2025",
+      "human lunar landing 2025",
+      "Artemis III launch landing date 2025"
+    ],
+    "noCheckBefore": null,
+    "canHappenLate": false,
+    "category": "Tech/AI",
+    "tags": [
+      "space",
+      "moon",
+      "lunar landing",
+      "NASA",
+      "Artemis"
+    ],
+    "authorGuess": null,
+    "statementDateGuess": null,
+    "ambiguities": [
+      "I read 'nobody' literally as humans/crewed missions; did you mean to include robotic or uncrewed landers as well?"
+    ]
+  },
+  "anacortes-85": {
+    "normalizedClaim": "The maximum temperature in Anacortes, WA will reach at least 85\u00b0F on September 20, 2026.",
+    "polarity": "positive",
+    "disconfirmingTrigger": null,
+    "criteriaElements": [
+      "An official weather station located within 10 miles of Anacortes, WA (such as the Anacortes Airport AWOS station 74S or an official NOAA/NWS reporting station) records a maximum daily temperature of 85.0\u00b0F or higher on September 20, 2026."
+    ],
+    "deadlineType": "fixed_date",
+    "resolutionDate": "2026-09-20",
+    "windowStart": null,
+    "windowEnd": null,
+    "triggerEvent": null,
+    "triggerExpectedDate": null,
+    "raceEventB": null,
+    "staleOutDate": null,
+    "deadlineReasoning": "The statement specifies a single calendar day ('September 20'), which evaluates to 2026-09-20 relative to today's date of 2026-09-10.",
+    "verifiability": "searchable",
+    "verifiabilityReasoning": "Daily high temperatures recorded by NOAA, NWS, and local airport automated weather stations (AWOS) are publicly archived and easily queryable.",
+    "searchQueries": [
+      "\"Anacortes\" WA weather September 20 2026 daily high temperature",
+      "74S AWOS Anacortes September 20 2026 maximum temperature",
+      "NWS Seattle daily climate summary September 20 2026 Anacortes"
+    ],
+    "noCheckBefore": "2026-09-20",
+    "canHappenLate": false,
+    "category": "Weather/Climate",
+    "tags": [
+      "weather",
+      "temperature",
+      "Anacortes",
+      "Washington"
+    ],
+    "authorGuess": null,
+    "statementDateGuess": "2026-09-10",
+    "ambiguities": [
+      "Which specific weather station should be the authority? (e.g., Anacortes Airport AWOS 74S, or any certified NOAA/CWOP/MesoWest station within city limits?)"
+    ]
+  },
+  "cardinals-ambiguous": {
+    "normalizedClaim": "The Arizona Cardinals win Super Bowl LXI.",
+    "polarity": "positive",
+    "disconfirmingTrigger": null,
+    "criteriaElements": [
+      "The Arizona Cardinals win Super Bowl LXI."
+    ],
+    "deadlineType": "fixed_date",
+    "resolutionDate": "2027-02-15",
+    "windowStart": null,
+    "windowEnd": null,
+    "triggerEvent": null,
+    "triggerExpectedDate": null,
+    "raceEventB": null,
+    "staleOutDate": null,
+    "deadlineReasoning": "A scheduled championship game is treated as a fixed_date deadline under Rule 4. Super Bowl LXI, concluding the 2026 NFL regular season, is scheduled for February 14, 2027; the resolution date is set to February 15, 2027.",
+    "verifiability": "searchable",
+    "verifiabilityReasoning": "The outcome of the Super Bowl is universally reported by major sports media and official NFL records.",
+    "searchQueries": [
+      "Super Bowl LXI winner",
+      "Arizona Cardinals Super Bowl LXI champion"
+    ],
+    "noCheckBefore": "2026-12-01",
+    "canHappenLate": false,
+    "category": "Sports",
+    "tags": [
+      "NFL",
+      "Arizona Cardinals",
+      "Super Bowl",
+      "football"
+    ],
+    "authorGuess": null,
+    "statementDateGuess": null,
+    "ambiguities": [
+      "Which Cardinals team did you mean: the NFL's Arizona Cardinals, MLB's St. Louis Cardinals, or a college team such as the Louisville Cardinals?",
+      "I interpreted 'going all the way this year' as winning Super Bowl LXI at the end of the 2026 NFL season; did you mean winning a conference title, or did you mean the St. Louis Cardinals winning the 2026 World Series?"
+    ]
+  },
+  "next-winter": {
+    "normalizedClaim": "Seattle-Tacoma International Airport records over 12.0 inches of cumulative snowfall during the 2026-2027 winter season.",
+    "polarity": "positive",
+    "disconfirmingTrigger": null,
+    "criteriaElements": [
+      "Total cumulative snowfall recorded by the National Weather Service at Seattle-Tacoma International Airport (KSEA) between December 1, 2026 and March 31, 2027 strictly exceeds 12.0 inches."
+    ],
+    "deadlineType": "window",
+    "resolutionDate": null,
+    "windowStart": "2026-12-01",
+    "windowEnd": "2027-03-31",
+    "triggerEvent": null,
+    "triggerExpectedDate": null,
+    "raceEventB": null,
+    "staleOutDate": null,
+    "deadlineReasoning": "Since the statement was made in September 2026, 'next winter' refers to the upcoming 2026-2027 winter period. Snowfall claims over a season operate as a window, evaluated from the start of meteorological winter (December 1, 2026) through the end of the primary snow window (March 31, 2027).",
+    "verifiability": "searchable",
+    "verifiabilityReasoning": "Daily and seasonal snowfall observations for Seattle are published publicly in official National Weather Service / NOAA climate reports.",
+    "searchQueries": [
+      "KSEA winter 2026 2027 snowfall total National Weather Service",
+      "Seattle seasonal snowfall total 2026 2027 NOAA KSEA",
+      "Seattle snow total inches December 2026 March 2027"
+    ],
+    "noCheckBefore": "2026-12-01",
+    "canHappenLate": false,
+    "category": "Weather/Climate",
+    "tags": [
+      "Seattle",
+      "snow",
+      "weather",
+      "winter 2026-2027"
+    ],
+    "authorGuess": null,
+    "statementDateGuess": null,
+    "ambiguities": [
+      "Did you mean cumulative snowfall across the entire 2026\u20132027 winter season, or a single storm that drops 12+ inches?",
+      "Official Seattle climate records are taken at Seattle-Tacoma International Airport (KSEA), about 12 miles south of downtown. Should a different station (such as Seattle Portage Bay) be used?",
+      "I defined 'winter' as December 1, 2026 through March 31, 2027; should this strictly follow meteorological winter (ending February 28, 2027) or include any late spring snowfall?"
+    ]
+  },
+  "the-election": {
+    "normalizedClaim": "Voter turnout in the November 2026 US midterm general election sets an all-time record for a US midterm election.",
+    "polarity": "positive",
+    "disconfirmingTrigger": null,
+    "criteriaElements": [
+      "The election referenced is the United States general election held on 2026-11-03.",
+      "Official turnout among the voting-eligible population (VEP), as tracked by the University of Florida Election Lab (formerly US Elections Project) or official government election authorities, exceeds 53.4% (the modern record set in 2018)."
+    ],
+    "deadlineType": "fixed_date",
+    "resolutionDate": "2026-11-03",
+    "windowStart": null,
+    "windowEnd": null,
+    "triggerEvent": null,
+    "triggerExpectedDate": null,
+    "raceEventB": null,
+    "staleOutDate": null,
+    "deadlineReasoning": "The next major general election following 2026-09-16 in the United States is Election Day on 2026-11-03. Official certification and final turnout tallies conclude within weeks of that date.",
+    "verifiability": "searchable",
+    "verifiabilityReasoning": "Voter turnout statistics and certifications for US federal elections are extensively reported by official state election boards and nonpartisan research institutions.",
+    "searchQueries": [
+      "2026 midterm election voter turnout percentage UF Election Lab",
+      "2026 US general election turnout record broke"
+    ],
+    "noCheckBefore": "2026-11-03",
+    "canHappenLate": false,
+    "category": "Politics",
+    "tags": [
+      "elections",
+      "turnout",
+      "voting",
+      "US politics",
+      "2026 midterms"
+    ],
+    "authorGuess": null,
+    "statementDateGuess": "2026-09-16",
+    "ambiguities": [
+      "Which specific election did you mean? I assumed the US nationwide midterm election on November 3, 2026; if you meant a local, state, or foreign election, please clarify.",
+      "I read 'breaks the record' as exceeding the record midterm voting-eligible population (VEP) rate of 53.4% (set in 2018); change it if you meant total absolute ballots cast or an all-time record including presidential elections."
+    ]
+  },
+  "neighbors-gutters": {
+    "normalizedClaim": "The neighbors across the street will stop contacting or complaining to the speaker about the gutters by October 31, 2026.",
+    "polarity": "negative",
+    "disconfirmingTrigger": "A neighbor from across the street communicates a complaint, comment, or demand regarding the gutters to the speaker on or after October 31, 2026.",
+    "criteriaElements": [
+      "The speaker receives no verbal, written, or electronic complaints or communications concerning their gutters from any neighbor living across the street starting on or before October 31, 2026."
+    ],
+    "deadlineType": "fixed_date",
+    "resolutionDate": "2026-10-31",
+    "windowStart": null,
+    "windowEnd": null,
+    "triggerEvent": null,
+    "triggerExpectedDate": null,
+    "raceEventB": null,
+    "staleOutDate": null,
+    "deadlineReasoning": "Halloween is an established calendar event occurring on October 31, 2026.",
+    "verifiability": "manual",
+    "verifiabilityReasoning": "Interactions and communications between residential neighbors are strictly private and will not appear in public search engines or records.",
+    "searchQueries": [],
+    "noCheckBefore": "2026-10-31",
+    "canHappenLate": false,
+    "category": "Personal",
+    "tags": [
+      "personal",
+      "neighbors",
+      "home"
+    ],
+    "authorGuess": null,
+    "statementDateGuess": "2026-09-16",
+    "ambiguities": [
+      "How long must the silence last past October 31, 2026 to count as them having left you alone (e.g., through the end of 2026, or permanently)?",
+      "Did you mean that they will stop bringing it up immediately, or are communications prior to October 31, 2026 allowed as long as they cease by that date?"
+    ]
+  },
+  "mariners-or-pennant": {
+    "normalizedClaim": "The Seattle Mariners win the 2026 American League pennant.",
+    "polarity": "positive",
+    "disconfirmingTrigger": null,
+    "criteriaElements": [
+      "The Seattle Mariners win the 2026 American League Championship Series (ALCS) to represent the American League in the 2026 World Series."
+    ],
+    "deadlineType": "fixed_date",
+    "resolutionDate": "2026-11-05",
+    "windowStart": null,
+    "windowEnd": null,
+    "triggerEvent": null,
+    "triggerExpectedDate": null,
+    "raceEventB": null,
+    "staleOutDate": null,
+    "deadlineReasoning": "The 2026 Major League Baseball postseason concludes with the World Series in late October or early November 2026; November 5, 2026 is chosen as a safe fixed deadline covering all possible championship games.",
+    "verifiability": "searchable",
+    "verifiabilityReasoning": "Major League Baseball postseason results and pennant winners are widely covered across major sports news outlets and official MLB records.",
+    "searchQueries": [
+      "Seattle Mariners 2026 ALCS winner",
+      "2026 American League pennant winner",
+      "2026 World Series participants"
+    ],
+    "noCheckBefore": "2026-10-10",
+    "canHappenLate": false,
+    "category": "Sports",
+    "tags": [
+      "MLB",
+      "baseball",
+      "Seattle Mariners",
+      "ALCS",
+      "World Series"
+    ],
+    "authorGuess": null,
+    "statementDateGuess": null,
+    "ambiguities": [
+      "Winning the World Series entails winning the American League pennant, so the criterion was set to the weaker condition (winning the pennant). Did you want to require an outright World Series championship instead?"
+    ]
+  },
+  "seahawks-terrible": {
+    "normalizedClaim": "The Seattle Seahawks will finish the 2026 NFL regular season with 5 or fewer wins.",
+    "polarity": "positive",
+    "disconfirmingTrigger": null,
+    "criteriaElements": [
+      "The Seattle Seahawks finish the 2026 NFL regular season with 5 or fewer total wins across the 17-game schedule."
+    ],
+    "deadlineType": "fixed_date",
+    "resolutionDate": "2027-01-11",
+    "windowStart": null,
+    "windowEnd": null,
+    "triggerEvent": null,
+    "triggerExpectedDate": null,
+    "raceEventB": null,
+    "staleOutDate": null,
+    "deadlineReasoning": "The 2026 NFL regular season concludes with Week 18 on the weekend of January 9\u201310, 2027. January 11, 2027 is the day regular season records are finalized.",
+    "verifiability": "searchable",
+    "verifiabilityReasoning": "Official NFL regular season standings and records are publicly tracked and officially published by the NFL and sports media.",
+    "searchQueries": [
+      "NFL standings 2026 regular season Seattle Seahawks record",
+      "Seattle Seahawks 2026 win loss record final"
+    ],
+    "noCheckBefore": "2026-11-15",
+    "canHappenLate": false,
+    "category": "Sports",
+    "tags": [
+      "NFL",
+      "football",
+      "Seattle Seahawks",
+      "2026 season"
+    ],
+    "authorGuess": null,
+    "statementDateGuess": "2026-09-16",
+    "ambiguities": [
+      "I read 'terrible' as winning 5 or fewer games in the 17-game 2026 regular season; change it if you meant a different threshold, such as finishing last in the NFC West, missing the playoffs, or finishing bottom five in the league.",
+      "Does 'this year' refer exclusively to the 2026 regular season record, or were you factoring in postseason performance or calendar year 2026 specifically?"
+    ]
+  },
+  "six-months-relative": {
+    "normalizedClaim": "Tesla will deliver at least one second-generation Roadster to a customer by March 12, 2027.",
+    "polarity": "positive",
+    "disconfirmingTrigger": null,
+    "criteriaElements": [
+      "Tesla, Inc. completes the delivery of at least one production second-generation Roadster to an external retail customer or reservation holder.",
+      "The delivery occurs on or before 2027-03-12."
+    ],
+    "deadlineType": "fixed_date",
+    "resolutionDate": "2027-03-12",
+    "windowStart": null,
+    "windowEnd": null,
+    "triggerEvent": null,
+    "triggerExpectedDate": null,
+    "raceEventB": null,
+    "staleOutDate": null,
+    "deadlineReasoning": "Exactly 6 months from the statement date of 2026-09-12 is 2027-03-12.",
+    "verifiability": "searchable",
+    "verifiabilityReasoning": "The commencement of customer deliveries for the long-delayed Tesla Roadster will be widely covered in financial, automotive, and general news media, as well as announced in Tesla corporate filings or official communications.",
+    "searchQueries": [
+      "Tesla delivers first Roadster customer",
+      "Tesla Roadster customer deliveries begin",
+      "first Tesla Roadster delivered"
+    ],
+    "noCheckBefore": null,
+    "canHappenLate": true,
+    "category": "Tech/AI",
+    "tags": [
+      "Tesla",
+      "Roadster",
+      "automotive",
+      "EV"
+    ],
+    "authorGuess": null,
+    "statementDateGuess": null,
+    "ambiguities": [
+      "Does delivery to an executive, board member, or employee count as a 'customer' delivery, or must the recipient be an unrelated retail reservation holder?",
+      "I read 'Roadster' as the upcoming second-generation Tesla Roadster; confirm if you intended any other variant or program."
+    ]
+  },
+  "gta-six": {
+    "normalizedClaim": "Grand Theft Auto VI is commercially released to the public on or before December 31, 2026.",
+    "polarity": "positive",
+    "disconfirmingTrigger": null,
+    "criteriaElements": [
+      "Rockstar Games or parent company Take-Two Interactive officially releases Grand Theft Auto VI for public purchase and play on at least one major gaming platform (e.g., PlayStation 5, Xbox Series X/S, or PC).",
+      "The release occurs on or before December 31, 2026."
+    ],
+    "deadlineType": "fixed_date",
+    "resolutionDate": "2026-12-31",
+    "windowStart": null,
+    "windowEnd": null,
+    "triggerEvent": null,
+    "triggerExpectedDate": null,
+    "raceEventB": null,
+    "staleOutDate": null,
+    "deadlineReasoning": "The statement sets a firm deadline of 'before the end of 2026', which corresponds to December 31, 2026.",
+    "verifiability": "searchable",
+    "verifiabilityReasoning": "A major AAA video game release from Rockstar Games is widely documented across mainstream news outlets, gaming media, and digital storefronts.",
+    "searchQueries": [
+      "Grand Theft Auto VI release date Rockstar Games",
+      "GTA 6 released December 2026",
+      "GTA VI launch date announcement"
+    ],
+    "noCheckBefore": null,
+    "canHappenLate": true,
+    "category": "Entertainment",
+    "tags": [
+      "Gaming",
+      "GTA 6",
+      "Rockstar Games",
+      "Grand Theft Auto",
+      "Take-Two Interactive"
+    ],
+    "authorGuess": null,
+    "statementDateGuess": "2026-09-16",
+    "ambiguities": [
+      "Does an early access, closed beta, or delayed regional release count, or does this require the full worldwide commercial launch? (Criterion assumes full public commercial release on at least one major platform)."
+    ]
+  },
+  "past-deadline-at-intake": {
+    "normalizedClaim": "Bitcoin (BTC/USD) trades at or above $100,000 before the end of 2024.",
+    "polarity": "positive",
+    "disconfirmingTrigger": null,
+    "criteriaElements": [
+      "Bitcoin spot price reaches or exceeds $100,000.00 USD on at least one major reputable cryptocurrency exchange (e.g., Coinbase, Binance, Kraken) or aggregated benchmark index (e.g., CoinMarketCap, CoinGecko, Bloomberg Galaxy Crypto Index) on or before 2024-12-31 23:59:59 UTC."
+    ],
+    "deadlineType": "fixed_date",
+    "resolutionDate": "2024-12-31",
+    "windowStart": null,
+    "windowEnd": null,
+    "triggerEvent": null,
+    "triggerExpectedDate": null,
+    "raceEventB": null,
+    "staleOutDate": null,
+    "deadlineReasoning": "The statement sets a calendar deadline of 'before the end of 2024', which corresponds to 2024-12-31.",
+    "verifiability": "searchable",
+    "verifiabilityReasoning": "Bitcoin price history across major global exchanges and aggregators is widely recorded in public financial and crypto databases.",
+    "searchQueries": [
+      "bitcoin all-time high price 2024",
+      "bitcoin reach 100000 2024",
+      "BTC USD price December 2024"
+    ],
+    "noCheckBefore": null,
+    "canHappenLate": true,
+    "category": "Economics",
+    "tags": [
+      "crypto",
+      "bitcoin",
+      "finance",
+      "markets"
+    ],
+    "authorGuess": null,
+    "statementDateGuess": null,
+    "ambiguities": []
+  },
+  "dodgers-back-to-back": {
+    "normalizedClaim": "The Los Angeles Dodgers win the 2025 World Series to achieve back-to-back MLB championships.",
+    "polarity": "positive",
+    "disconfirmingTrigger": null,
+    "criteriaElements": [
+      "The Los Angeles Dodgers are officially crowned champions of Major League Baseball's 2025 World Series."
+    ],
+    "deadlineType": "fixed_date",
+    "resolutionDate": "2025-11-05",
+    "windowStart": null,
+    "windowEnd": null,
+    "triggerEvent": null,
+    "triggerExpectedDate": null,
+    "raceEventB": null,
+    "staleOutDate": null,
+    "deadlineReasoning": "The 2025 MLB World Series is scheduled to conclude no later than early November 2025 (typically around November 1-5). Under Rule 4, scheduled sporting championships use fixed_date with the best estimated completion date.",
+    "verifiability": "searchable",
+    "verifiabilityReasoning": "Major League Baseball World Series results are heavily covered and recorded across public sports media and official MLB records.",
+    "searchQueries": [
+      "2025 World Series champion MLB",
+      "Los Angeles Dodgers 2025 World Series winner"
+    ],
+    "noCheckBefore": "2025-10-20",
+    "canHappenLate": false,
+    "category": "Sports",
+    "tags": [
+      "MLB",
+      "Baseball",
+      "Los Angeles Dodgers",
+      "World Series",
+      "2025"
+    ],
+    "authorGuess": null,
+    "statementDateGuess": null,
+    "ambiguities": [
+      "I read 'back-to-back' as winning the 2025 World Series immediately following their 2024 title; did you mean winning consecutive National League pennants instead of the World Series title?"
+    ]
+  }
+}
