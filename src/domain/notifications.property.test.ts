@@ -105,6 +105,18 @@ describe('the plan', () => {
 });
 
 describe('digest slot', () => {
+  it('does not carry a DST-shifted hour onto an ordinary day', () => {
+    // The second counterexample, drawn locally: asked on the 2026
+    // spring-forward Sunday for a 2am Sunday digest. 2am does not exist
+    // that day, so the hour resolved to 3am, and the old code then added
+    // seven days to it and scheduled 3am on March 15, which has a 2am.
+    const pr = { ...DEFAULT_PREFS, digestDay: 0, digestHour: 2 };
+    const at = new Date(nextDigestAt(pr, new Date('2026-03-08T10:00:00.000Z')));
+    expect(at.getDay()).toBe(0);
+    expect(at.getDate()).toBe(15);
+    expect(at.getHours()).toBe(2);
+  });
+
   it('lands on the chosen hour even when that hour does not exist', () => {
     // The counterexample CI drew on seed 1874015083, which several local
     // runs had missed. 2am on 2023-03-12 is not a time in Pacific.

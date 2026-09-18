@@ -129,14 +129,26 @@ function manualPromptAt(p: Prediction, prefs: NotificationPrefs): string | null 
   return deadline ? atHour(deadline, prefs.deadlineHour) : null;
 }
 
-/** The next digest slot strictly after now. */
+/**
+ * The next digest slot strictly after now.
+ *
+ * The hour is set on the target day, never on today and then carried across
+ * the day arithmetic. On the spring-forward Sunday a digest set for 2am has
+ * no 2am, so setHours lands on 3am; adding seven days to that then put the
+ * slot at 3am on an ordinary Sunday that has a perfectly good 2am. Set the
+ * wall clock last and each day resolves the hour for itself.
+ */
 export function nextDigestAt(prefs: NotificationPrefs, now: Date = new Date()): string {
-  const candidate = new Date(now);
-  candidate.setHours(prefs.digestHour, 0, 0, 0);
-  const dayGap = (prefs.digestDay - candidate.getDay() + 7) % 7;
-  candidate.setDate(candidate.getDate() + dayGap);
-  if (candidate.getTime() <= now.getTime()) candidate.setDate(candidate.getDate() + 7);
-  return candidate.toISOString();
+  const slotIn = (days: number): Date => {
+    const d = new Date(now);
+    d.setDate(d.getDate() + days);
+    d.setHours(prefs.digestHour, 0, 0, 0);
+    return d;
+  };
+
+  const dayGap = (prefs.digestDay - slotIn(0).getDay() + 7) % 7;
+  const candidate = slotIn(dayGap);
+  return (candidate.getTime() <= now.getTime() ? slotIn(dayGap + 7) : candidate).toISOString();
 }
 
 export interface DigestContent {
