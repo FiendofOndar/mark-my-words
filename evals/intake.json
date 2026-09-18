@@ -53,8 +53,10 @@
     "statement": "Mark my words, the Eagles win the Super Bowl this season.",
     "today": "2026-09-16",
     "tests": "the period starts on the recorded date: 'this season' from September 2026 is Super Bowl LXI in February 2027, not the one they won nineteen months earlier",
+    "expect": {
+      "deadline_type": "fixed_date"
+    },
     "proposed": {
-      "deadline_type": "fixed_date",
       "resolution_date_min": "2027-02-01",
       "resolution_date_max": "2027-02-28",
       "criteria_elements_absent": [
@@ -65,7 +67,7 @@
       "can_happen_late": false,
       "category": "Sports"
     },
-    "why": "The Eagles fixture in the seed exists because a check once counted the February 2025 win toward a claim recorded in September 2026. Super Bowl LXI is in February 2027; I have not verified the exact date from a live source, so the proposal bounds the month rather than pinning the day. A Super Bowl is one game on one day, so it cannot happen late."
+    "why": "The Eagles fixture in the seed exists because a check once counted the February 2025 win toward a claim recorded in September 2026. Super Bowl LXI is in February 2027; I have not verified the exact date from a live source, so the proposal bounds the month rather than pinning the day. A Super Bowl is one game on one day, so it cannot happen late. Owner ruled 2026-09-18: fixed_date. Postponements are too rare in scheduled sporting events to design around. The date bounds stay proposed because Super Bowl LXI's day was never verified against a source here."
   },
   "sixty-home-runs": {
     "statement": "Nobody hits 60 home runs this season. Mark my words.",
@@ -88,6 +90,9 @@
     "statement": "Starship gets to orbit before New Glenn ever flies. Mark my words.",
     "today": "2024-09-16",
     "tests": "the race shape: an event deadline with the competing event in race_event_b, and no late watch because a lost race stays lost",
+    "expect": {
+      "can_happen_late": false
+    },
     "proposed": {
       "deadline_type": "event",
       "trigger_event_contains": [
@@ -96,15 +101,17 @@
       "race_event_b_contains": [
         "New Glenn"
       ],
-      "can_happen_late": false,
       "category": "Tech/AI"
     },
-    "why": "This is the seed's race fixture (New Glenn orbited January 16, 2025; every Starship flight before that was suborbital). The seed stores canHappenLate false: once the other event happens, the race cannot be won late. Category could be argued as Other; the seed's own choice is what the owner should confirm."
+    "why": "This is the seed's race fixture (New Glenn orbited January 16, 2025; every Starship flight before that was suborbital). The seed stores canHappenLate false: once the other event happens, the race cannot be won late. Category could be argued as Other; the seed's own choice is what the owner should confirm. Owner ruled 2026-09-18: can_happen_late false. A race is lost for good once the other side goes."
   },
   "moon-negative": {
     "statement": "Nobody is landing on the Moon again before the end of 2025. Mark my words.",
     "today": "2025-09-16",
     "tests": "a negative claim with a fixed date: trigger present, and the claim cannot come true late",
+    "expect": {
+      "can_happen_late": false
+    },
     "proposed": {
       "polarity": "negative",
       "disconfirming_trigger_contains_any": [
@@ -112,10 +119,9 @@
         "lunar"
       ],
       "deadline_type": "fixed_date",
-      "resolution_date": "2025-12-31",
-      "can_happen_late": false
+      "resolution_date": "2025-12-31"
     },
-    "why": "A negative claim is 'nothing happens before the date'; after the date the claim is settled either way, so nothing can happen late."
+    "why": "A negative claim is 'nothing happens before the date'; after the date the claim is settled either way, so nothing can happen late. Owner ruled 2026-09-18: can_happen_late false. A negative claim is settled when its period closes."
   },
   "anacortes-85": {
     "statement": "Anacortes WA temps will hit 85 F on September 20.",
@@ -272,17 +278,18 @@
     "tests": "a claim whose deadline is already past when recorded keeps its own deadline rather than sliding to the current year",
     "proposed": {
       "deadline_type": "fixed_date",
-      "resolution_date": "2024-12-31",
-      "ambiguities_min": 1
+      "resolution_date": "2024-12-31"
     },
-    "why": "SPEC 10.2 says a past deadline at intake is a warning, and rule 8 says the statement date is a fact. The wrong reading is 2026-12-31. Whether the model should raise it as an ambiguity or leave that to the review card is the owner's call; the proposal asks for the question."
+    "why": "The wrong reading is 2026-12-31; the deadline must stay 2024-12-31, and it did on runs 15, 16 and 17. My original proposal also asked the model to raise the past deadline as a question, and runs 15 and 16 did while run 17 did not. Dropped rather than pinned: PredictionForm already sets isRetroactive itself whenever the deadline is behind the statement date, and a retroactive entry never counts toward a hit rate, so asking the model to duplicate a structural guarantee lengthens the prompt without adding anything. The remaining keys agreed on all three runs."
   },
   "dodgers-back-to-back": {
     "statement": "The Dodgers are going back-to-back. Mark my words.",
     "today": "2025-09-16",
     "tests": "'back-to-back' is 'again': the criteria name the 2025 World Series, and the previous title is context, not a criterion",
+    "expect": {
+      "deadline_type": "fixed_date"
+    },
     "proposed": {
-      "deadline_type": "fixed_date",
       "resolution_date_min": "2025-10-20",
       "resolution_date_max": "2025-11-15",
       "criteria_elements_contains": [
@@ -294,6 +301,6 @@
       "can_happen_late": false,
       "category": "Sports"
     },
-    "why": "Recorded in September 2025, the claim is the 2025 World Series. The Dodgers did win the 2024 title, which is what makes 'back-to-back' meaningful; the criteria should test 2025 and not re-test 2024. The date range covers when a World Series ends."
+    "why": "Recorded in September 2025, the claim is the 2025 World Series. The Dodgers did win the 2024 title, which is what makes 'back-to-back' meaningful; the criteria should test 2025 and not re-test 2024. The date range covers when a World Series ends. Owner ruled 2026-09-18: fixed_date, same reasoning as the Eagles case. The date bounds stay proposed; they are this session's reading of when a World Series ends, not a checked fact."
   }
 }

@@ -12,16 +12,15 @@ Requests that arrive mid-session are added here rather than into the session
    with every field pinned, the date included: the owner confirmed the
    year on 2026-09-16, so that row is deliberately red and is the failing
    test to fix against. Do not unpin it to make the suite green.
-2. **Intake eval: two rulings, then confirm the eighteen cases.** The
-   harness, the Intake job and the eighteen statements are built and run 15
-   (2026-09-17) put every one through the real model. Fourteen agree with
-   their proposal on every key. Blocked on the owner ruling two questions,
-   both stated with the argument either way in HANDOFF section 8: the
-   deadline shape for a scheduled game (`event` or `fixed_date`), and
-   `can_happen_late` on a race and on a negative claim. After the rulings:
-   confirmed values move to `expect`, the prompt change for ruling 2 goes
-   in with its own re-run, and the bar is two clean runs in a row. About
-   50,000 tokens a run.
+2. **Intake eval: confirm the remaining fourteen cases.** The two rulings
+   were made on 2026-09-18, the prompt carries them, and runs 16 and 17
+   both came back 4 pass, 0 fail, 0 error, which meets the two-clean-runs
+   bar for the four keys that grade. The fourteen other cases still hold
+   only proposals: a session drafted them and the model agrees, which is
+   not confirmation. One pass by the owner over the readings on issue #47
+   moves them to `expect` and makes the suite worth failing on. Two of them
+   have a known wobble described in HANDOFF section 8 and are the ones to
+   read first. About 50 to 55k tokens a run.
 3. **A tagged known-good release in CI alongside the rolling `latest`.** The
    rule is in CLAUDE.md ("Keep a known-good build to fall back to"); the
    workflow does not do it yet. Until then HANDOFF.md section 4 names the

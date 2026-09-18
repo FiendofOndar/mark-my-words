@@ -606,6 +606,37 @@ Errors made across sessions, recorded so they are not repeated:
      event-shaped claims are almost always true, and a race is
      event-shaped. The fix is two carve-outs in that rule, and per the
      shipping rules it ships with a re-run showing what it fixed.
+  **Runs 16 and 17 (2026-09-18, both on `cb02c87`) close the loop on the
+  two rulings.** The owner ruled both the way the proposals read: a
+  scheduled occasion is `fixed_date` (postponements are too rare in
+  scheduled sporting events to design around), and a race and a negative
+  claim can never happen late. Rule 4 of the structuring prompt gained the
+  scheduled-occasion paragraph, rule 10 lost "Event-shaped claims are
+  almost always true" and names the two kinds instead, and the four ruled
+  values moved to `expect`. Both runs: 4 pass, 0 fail, 0 error. That is
+  the two-clean-runs bar met, for the four graded keys only.
+  55,122 and 52,511 tokens, so a run is about 50 to 55k.
+  What the change did not break: thirteen or fourteen of the fourteen
+  ungraded cases matched their proposal on every key each run. Two moved,
+  and neither is the prompt change:
+  - `rogue-drone` came back as a window on run 16 and `fixed_date` again on
+    run 17, so that is run-to-run variance, not the edit. Worth noting for
+    when the owner confirms it: the window the model drew ran from the
+    statement date to the same deadline, which encodes the period start
+    explicitly and computes the identical deadline, so it may be the better
+    reading of the two.
+  - `past-deadline-at-intake` raised a question about the stale deadline on
+    runs 15 and 16 and not on 17. The proposal dropped that key rather than
+    pinning it: `PredictionForm` sets `isRetroactive` itself whenever the
+    deadline sits behind the statement date, and a retroactive entry never
+    counts toward a hit rate, so asking the model to duplicate a structural
+    guarantee only lengthens the prompt. Its deadline keys held all three
+    runs.
+  **What is still open: the other fourteen cases have never been confirmed
+  by the owner**, only observed to agree with a session's proposal, which
+  the rule in `evals/README.md` says is not the same thing. Four keys grade
+  today. One yes from the owner on the fourteen turns this from a smoke
+  test into a real suite.
   Two defects in the test layer came out of the same run and are merged
   (PR #53): the eval trimmed its substring needles, so `" or "` became
   `"or"` and failed a correct Mariners criterion on the word "for", and a
