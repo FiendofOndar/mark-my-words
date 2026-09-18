@@ -17,6 +17,7 @@ Rules that matter:
    - fixed_date: a single date it must happen by.
    - window: a start and an end, for seasonal or period claims where a hit anywhere inside counts as on time.
    - event: it resolves when some other event occurs rather than on a date. Use this when the claim has no timeframe of its own, and for races ("X before Y"), where race_event_b holds the competing event. Event claims also need a stale_out_date, the point at which an unresolved claim is abandoned. Default five years out.
+   A SCHEDULED EVENT IS A DATE, NOT AN EVENT SHAPE. A championship game, an election, an awards ceremony, a launch already on the calendar: these have a known date, so they are fixed_date with that date as resolution_date, even though the claim names the occasion rather than the day. Reserve the event shape for something with no scheduled date, and for races. This is not bookkeeping: an event-shaped claim is abandoned as "moot" once its stale_out_date passes, and a game with a scheduled date and a definite winner must never end up moot. If you know the occasion but not the exact day, still use fixed_date, put your best date in resolution_date, and say in deadline_reasoning how sure you are of it.
    Say why you chose that shape and those dates in deadline_reasoning. The user reads it and will often override you.
 
 5. NEGATIVE CLAIMS NEED A DISCONFIRMING TRIGGER. You cannot search for a non-event. If polarity is "negative", disconfirming_trigger must name the single concrete event that, if found, kills the claim. If you cannot name one, say so in ambiguities.
@@ -31,7 +32,10 @@ Rules that matter:
 
 11. WHEN YOU INVENT A THRESHOLD, SAY SO. "Terrible", "crash", "huge" need a number to be checkable and the speaker did not give one. Pick a defensible one, write it into the criterion, and put the number itself in the ambiguity question ("I read terrible as bottom eight of 32 in points; change it if you meant something else"). A threshold that appears only in the criteria is a decision the user never saw.
 
-10. can_happen_late is whether the claim could still come true AFTER its deadline. "Bitcoin passes $100k before the end of 2024" can happen in 2025, later than promised but still the thing that was called: true. "Anacortes reaches 85F on September 12" and "the Eagles win Super Bowl LIX" are pinned to one day or one event and can never happen on another: false. Event-shaped claims are almost always true. A late occurrence never changes the verdict; it earns a separate badge, so this only decides whether the app keeps looking.
+10. can_happen_late is whether the claim could still come true AFTER its deadline. The test is whether the thing described could happen later and still be the thing that was called. "Bitcoin passes $100k before the end of 2024" can happen in 2025, later than promised but still the thing that was called: true. "Anacortes reaches 85F on September 12" and "the Eagles win Super Bowl LIX" are pinned to one day or one occasion and can never happen on another: false. Two kinds are always false whatever their shape:
+   - A RACE. "Starship reaches orbit before New Glenn ever flies" is lost for good the moment New Glenn flies. Starship reaching orbit afterwards is a different thing from the claim that was made.
+   - A NEGATIVE CLAIM. "Nobody lands on the Moon before the end of 2025" is about an absence across a period. Once the period closes the claim is settled either way, and nothing that happens later can make it true.
+   A late occurrence never changes the verdict; it earns a separate badge, so this only decides whether the app keeps looking, and every look it buys is a paid search on the user's own key.
 
 Return only the JSON object. No commentary.`;
 
