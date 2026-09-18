@@ -278,10 +278,9 @@
     "tests": "a claim whose deadline is already past when recorded keeps its own deadline rather than sliding to the current year",
     "proposed": {
       "deadline_type": "fixed_date",
-      "resolution_date": "2024-12-31",
-      "ambiguities_min": 1
+      "resolution_date": "2024-12-31"
     },
-    "why": "SPEC 10.2 says a past deadline at intake is a warning, and rule 8 says the statement date is a fact. The wrong reading is 2026-12-31. Whether the model should raise it as an ambiguity or leave that to the review card is the owner's call; the proposal asks for the question."
+    "why": "The wrong reading is 2026-12-31; the deadline must stay 2024-12-31, and it did on runs 15, 16 and 17. My original proposal also asked the model to raise the past deadline as a question, and runs 15 and 16 did while run 17 did not. Dropped rather than pinned: PredictionForm already sets isRetroactive itself whenever the deadline is behind the statement date, and a retroactive entry never counts toward a hit rate, so asking the model to duplicate a structural guarantee lengthens the prompt without adding anything. The remaining keys agreed on all three runs."
   },
   "dodgers-back-to-back": {
     "statement": "The Dodgers are going back-to-back. Mark my words.",
